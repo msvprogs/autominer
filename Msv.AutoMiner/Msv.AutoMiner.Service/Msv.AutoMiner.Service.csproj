@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D16D20C0-9F76-4A9A-8DBF-D9534FD5C5C6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Msv.AutoMiner.Service</RootNamespace>
+    <AssemblyName>Msv.AutoMiner.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.4.9.5, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.4.9.5\lib\Net45\HtmlAgilityPack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.4.9\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\BlockInfo.cs" />
+    <Compile Include="Data\BlockStats.cs" />
+    <Compile Include="Data\CoinBaseInfo.cs" />
+    <Compile Include="Data\CoinMarketInfo.cs" />
+    <Compile Include="Data\CoinNetworkStatistics.cs" />
+    <Compile Include="Data\ExchangeAccountBalanceData.cs" />
+    <Compile Include="Data\ExchangeAccountOperationData.cs" />
+    <Compile Include="Data\Extensions.cs" />
+    <Compile Include="Data\PoolAccountInfo.cs" />
+    <Compile Include="Data\PoolInfo.cs" />
+    <Compile Include="Data\PoolPaymentData.cs" />
+    <Compile Include="Data\PoolState.cs" />
+    <Compile Include="Data\ProfitabilityTableBuilderParams.cs" />
+    <Compile Include="Data\VideoAdapterInfo.cs" />
+    <Compile Include="External\CoinMarketInfoProviderFactory.cs" />
+    <Compile Include="External\ComboMultiCoinInfoProvider.cs" />
+    <Compile Include="External\Contracts\IBitCoinMarketPriceProvider.cs" />
+    <Compile Include="External\Contracts\ICoinMarketInfoProvider.cs" />
+    <Compile Include="External\Contracts\ICoinMarketInfoProviderFactory.cs" />
+    <Compile Include="External\Contracts\IDDoSTriggerPreventingDownloader.cs" />
+    <Compile Include="External\Contracts\IExchangeTrader.cs" />
+    <Compile Include="External\Contracts\IExchangeTraderFactory.cs" />
+    <Compile Include="External\Contracts\IMultiCoinNetworkInfoProvider.cs" />
+    <Compile Include="External\Contracts\IPoolInfoProvider.cs" />
+    <Compile Include="External\Contracts\IPoolInfoProviderFactory.cs" />
+    <Compile Include="External\Contracts\IRpcClient.cs" />
+    <Compile Include="External\DDoSTriggerPreventingDownloader.cs" />
+    <Compile Include="External\Exchanges\BittrexExchangeTrader.cs" />
+    <Compile Include="External\Exchanges\BittrexMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\BitzureMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\CoinExchangeMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\CoinsMarketsExchangeTrader.cs" />
+    <Compile Include="External\Exchanges\CoinsMarketsMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\CryptopiaExchangeTrader.cs" />
+    <Compile Include="External\Exchanges\CryptopiaMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\ExchangeTraderBase.cs" />
+    <Compile Include="External\Exchanges\NovaExchangeExchangeTrader.cs" />
+    <Compile Include="External\Exchanges\NovaexchangeMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\PoloniexExchangeTrader.cs" />
+    <Compile Include="External\Exchanges\PoloniexMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\TradeSatoshiExchangeTrader.cs" />
+    <Compile Include="External\Exchanges\TradeSatoshiMarketInfoProvider.cs" />
+    <Compile Include="External\Exchanges\YoBitExchangeTrader.cs" />
+    <Compile Include="External\Exchanges\YoBitMarketInfoProvider.cs" />
+    <Compile Include="External\ExchangeTraderFactory.cs" />
+    <Compile Include="External\Network\Coimatic2InfoProvider.cs" />
+    <Compile Include="External\Network\Common\SwaggerInfoProvider.cs" />
+    <Compile Include="External\Network\Common\TheCryptoChatInfoProvider.cs" />
+    <Compile Include="External\Network\Common\BchainInfoInfoProvider.cs" />
+    <Compile Include="External\Network\BitCoinInfoProvider.cs" />
+    <Compile Include="External\Network\ByteCoinInfoProvider.cs" />
+    <Compile Include="External\Network\Common\ChainRadarInfoProvider.cs" />
+    <Compile Include="External\Network\Common\ChainzCryptoidInfoProvider.cs" />
+    <Compile Include="External\Network\Common\InsightInfoProvider.cs" />
+    <Compile Include="External\Network\Common\IquidusInfoProvider.cs" />
+    <Compile Include="External\Network\Common\IquidusWithNonNumericDifficultyInfoProvider.cs" />
+    <Compile Include="External\Network\Common\ProHashingInfoProvider.cs" />
+    <Compile Include="External\Network\Common\YiimpMultiInfoProvider.cs" />
+    <Compile Include="External\Network\CryptoniteInfoProvider.cs" />
+    <Compile Include="External\Network\DaxxCoinInfoProvider.cs" />
+    <Compile Include="External\Network\DecredInfoProvider.cs" />
+    <Compile Include="External\Network\DigiByteInfoProvider.cs" />
+    <Compile Include="External\Network\EthereumClassicInfoProvider.cs" />
+    <Compile Include="External\Network\EthereumInfoProvider.cs" />
+    <Compile Include="External\Network\FeatherCoinInfoProvider.cs" />
+    <Compile Include="External\Network\JsonRpcLocalNetworkInfoProvider.cs" />
+    <Compile Include="External\Network\KarbowanecInfoProvider.cs" />
+    <Compile Include="External\Network\KomodoInfoProvider.cs" />
+    <Compile Include="External\Network\LbryInfoProvider.cs" />
+    <Compile Include="External\Network\Common\MinerGateInfoProvider.cs" />
+    <Compile Include="External\Network\MonaCoinInfoProvider.cs" />
+    <Compile Include="External\Network\MoneroInfoProvider.cs" />
+    <Compile Include="External\Network\Common\NetworkInfoProviderBase.cs" />
+    <Compile Include="External\Network\Common\OpenEthereumPoolInfoProvider.cs" />
+    <Compile Include="External\Network\PascalCoinInfoProvider.cs" />
+    <Compile Include="External\Network\PascalLiteInfoProvider.cs" />
+    <Compile Include="External\Network\PhoenixCoinInfoProvider.cs" />
+    <Compile Include="External\Network\PrimeCoinInfoProvider.cs" />
+    <Compile Include="External\Network\SibCoinInfoProvider.cs" />
+    <Compile Include="External\Network\Common\TheBlockFactoryInfoProvider.cs" />
+    <Compile Include="External\Network\SiaCoinInfoProvider.cs" />
+    <Compile Include="External\Network\VCashInfoProvider.cs" />
+    <Compile Include="External\Network\ZcashInfoProvider.cs" />
+    <Compile Include="External\CoinNetworkInfoProviderFactory.cs" />
+    <Compile Include="External\Contracts\ICoinNetworkInfoProvider.cs" />
+    <Compile Include="External\Contracts\ICoinNetworkInfoProviderFactory.cs" />
+    <Compile Include="Data\CoinProfitabilityInfo.cs" />
+    <Compile Include="External\Network\ZCoinInfoProvider.cs" />
+    <Compile Include="External\PoolInfoProviderFactory.cs" />
+    <Compile Include="External\Pools\BitflyPoolInfoProvider.cs" />
+    <Compile Include="External\Pools\JsonRpcWalletInfoProvider.cs" />
+    <Compile Include="External\Pools\NodeOpenMiningPortalPoolInfoProvider.cs" />
+    <Compile Include="External\Pools\OpenEthereumPoolInfoProvider.cs" />
+    <Compile Include="External\Pools\QwakPoolInfoProvider.cs" />
+    <Compile Include="External\Pools\TbfPoolInfoProvider.cs" />
+    <Compile Include="External\Pools\XpmForAllPoolInfoProvider.cs" />
+    <Compile Include="External\Pools\YiimpInfoProvider.cs" />
+    <Compile Include="External\Rpc\JsonRpcClient.cs" />
+    <Compile Include="External\WebDownloaderBase.cs" />
+    <Compile Include="Infrastructure\CoinMarketInfoAggregator.cs" />
+    <Compile Include="Infrastructure\ConsolidationRouteBuilder.cs" />
+    <Compile Include="Infrastructure\Contracts\IAutomaticMinerChanger.cs" />
+    <Compile Include="Infrastructure\Contracts\IConsolidationRouteBuilder.cs" />
+    <Compile Include="Infrastructure\Contracts\IMarketValuesProvider.cs" />
+    <Compile Include="Infrastructure\Contracts\IMinerOutputProcessor.cs" />
+    <Compile Include="Infrastructure\Contracts\IPoolStatusProvider.cs" />
+    <Compile Include="Infrastructure\Contracts\IProfitabilityCalculator.cs" />
+    <Compile Include="Infrastructure\Contracts\IProfitabilityTableBuilder.cs" />
+    <Compile Include="Infrastructure\ConversionHelper.cs" />
+    <Compile Include="External\ParsingHelper.cs" />
+    <Compile Include="Infrastructure\AutomaticMinerChanger.cs" />
+    <Compile Include="Infrastructure\CoinNetworkInfoUpdater.cs" />
+    <Compile Include="Infrastructure\Contracts\ICoinNetworkInfoUpdater.cs" />
+    <Compile Include="Infrastructure\Contracts\IMinerProcessController.cs" />
+    <Compile Include="Infrastructure\Contracts\IProcessWrapper.cs" />
+    <Compile Include="Infrastructure\Contracts\IVideoAdapterMonitor.cs" />
+    <Compile Include="Infrastructure\Data\CoinMiningInfo.cs" />
+    <Compile Include="Infrastructure\Data\ConsolidationRoute.cs" />
+    <Compile Include="Infrastructure\Data\MinerChangingOptions.cs" />
+    <Compile Include="Infrastructure\Data\CoinProfitabilityData.cs" />
+    <Compile Include="Infrastructure\Data\MiningMode.cs" />
+    <Compile Include="Infrastructure\Data\SingleCoinProfitability.cs" />
+    <Compile Include="Infrastructure\ExchangeAccountMonitor.cs" />
+    <Compile Include="Infrastructure\HexHelper.cs" />
+    <Compile Include="Infrastructure\MarketValuesProvider.cs" />
+    <Compile Include="Infrastructure\MinerTester.cs" />
+    <Compile Include="Infrastructure\PoolAccountMonitor.cs" />
+    <Compile Include="Infrastructure\MinerOutputProcessor.cs" />
+    <Compile Include="Infrastructure\MinerProcessController.cs" />
+    <Compile Include="Infrastructure\PoolStatusProvider.cs" />
+    <Compile Include="Infrastructure\ProcessWrapper.cs" />
+    <Compile Include="Infrastructure\ProfitabilityCalculator.cs" />
+    <Compile Include="Infrastructure\ProfitabilityTableBuilder.cs" />
+    <Compile Include="Infrastructure\TimestampHelper.cs" />
+    <Compile Include="Infrastructure\VideoAdapterMonitor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\Contracts\IStringEncryptor.cs" />
+    <Compile Include="Security\StringEncryptor.cs" />
+    <Compile Include="Storage\AutomaticMinerChangerStorage.cs" />
+    <Compile Include="Storage\CoinMarketInfoAggregatorStorage.cs" />
+    <Compile Include="Storage\CoinNetworkInfoUpdaterStorage.cs" />
+    <Compile Include="Storage\ConsolidationRouteBuilderStorage.cs" />
+    <Compile Include="Storage\Contracts\IAutomaticMinerChangerStorage.cs" />
+    <Compile Include="Infrastructure\Contracts\ICoinMarketInfoAggregator.cs" />
+    <Compile Include="Storage\Contracts\ICoinMarketInfoAggregatorStorage.cs" />
+    <Compile Include="Storage\Contracts\ICoinNetworkInfoUpdaterStorage.cs" />
+    <Compile Include="Storage\Contracts\IConsolidationRouteBuilderStorage.cs" />
+    <Compile Include="Storage\Contracts\IExchangeAccountMonitorStorage.cs" />
+    <Compile Include="Storage\Contracts\IExchangeKeyStorage.cs" />
+    <Compile Include="Storage\Contracts\IExchangeTraderFactoryStorage.cs" />
+    <Compile Include="Storage\Contracts\IMinerTesterStorage.cs" />
+    <Compile Include="Storage\Contracts\IPoolAccountMonitorStorage.cs" />
+    <Compile Include="Storage\Contracts\IPoolStatusProviderStorage.cs" />
+    <Compile Include="Storage\Contracts\IProfitabilityTableBuilderStorage.cs" />
+    <Compile Include="Storage\ExchangeAccountMonitorStorage.cs" />
+    <Compile Include="Storage\ExchangeKeyStorage.cs" />
+    <Compile Include="Storage\ExchangeTraderFactoryStorage.cs" />
+    <Compile Include="Storage\MinerTesterStorage.cs" />
+    <Compile Include="Storage\PoolAccountMonitorStorage.cs" />
+    <Compile Include="Storage\PoolStatusProviderStorage.cs" />
+    <Compile Include="Storage\ProfitabilityTableBuilderStorage.cs" />
+    <Compile Include="System\ChildProcessTrackerFactory.cs" />
+    <Compile Include="System\Contracts\IChildProcessTracker.cs" />
+    <Compile Include="System\EnvironmentVariableCreatorFactory.cs" />
+    <Compile Include="System\Contracts\IEnvironmentVariableCreator.cs" />
+    <Compile Include="System\Contracts\IProcessStopper.cs" />
+    <Compile Include="System\Contracts\IWatchdog.cs" />
+    <Compile Include="System\ProcessStopperFactory.cs" />
+    <Compile Include="System\Unix\MonoApi.cs" />
+    <Compile Include="System\Unix\PosixApi.cs" />
+    <Compile Include="System\Unix\Signals.cs" />
+    <Compile Include="System\Unix\SoftwareWatchdog.cs" />
+    <Compile Include="System\Unix\UnixEnvironmentVariableCreator.cs" />
+    <Compile Include="System\Unix\UnixProcessStopper.cs" />
+    <Compile Include="System\WatchdogFactory.cs" />
+    <Compile Include="System\Windows\WindowsChildProcessTracker.cs" />
+    <Compile Include="System\Windows\MockWatchdog.cs" />
+    <Compile Include="System\Windows\StandardEnvironmentVariableCreator.cs" />
+    <Compile Include="System\Windows\WinApi\CtrlEvents.cs" />
+    <Compile Include="System\Windows\WinApi\IoCounters.cs" />
+    <Compile Include="System\Windows\WinApi\JobObjectBasicLimitInformation.cs" />
+    <Compile Include="System\Windows\WinApi\JobObjectExtendedLimitInformation.cs" />
+    <Compile Include="System\Windows\WinApi\JobObjectInfoType.cs" />
+    <Compile Include="System\Windows\WinApi\Kernel32Native.cs" />
+    <Compile Include="System\Windows\WinApi\SafeHGlobalHandle.cs" />
+    <Compile Include="System\Windows\WinApi\SafeKernelObjectHandle.cs" />
+    <Compile Include="System\Windows\WindowsProcessStopper.cs" />
+    <Compile Include="Video\IVideoSystemStateProvider.cs" />
+    <Compile Include="Video\NVidia\NVidiaVideoSystemStateProvider.cs" />
+    <Compile Include="Video\NVidia\Nvml\NativeNvml.cs" />
+    <Compile Include="Video\NVidia\Nvml\NvmlClockType.cs" />
+    <Compile Include="Video\NVidia\Nvml\NvmlException.cs" />
+    <Compile Include="Video\NVidia\Nvml\NvmlMemory.cs" />
+    <Compile Include="Video\NVidia\Nvml\NvmlReturnValue.cs" />
+    <Compile Include="Video\NVidia\Nvml\NvmlTemperatureSensors.cs" />
+    <Compile Include="Video\NVidia\Nvml\NvmlUtilization.cs" />
+    <Compile Include="Video\VideoAdapterState.cs" />
+    <Compile Include="Video\VideoSystemState.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Configuration\" />
+    <Folder Include="Service\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Msv.AutoMiner.Commons\Msv.AutoMiner.Commons.csproj">
+      <Project>{54136403-6212-4c19-8552-7354d9fb4534}</Project>
+      <Name>Msv.AutoMiner.Commons</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

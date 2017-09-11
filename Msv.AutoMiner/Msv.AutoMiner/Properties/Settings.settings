@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Msv.AutoMiner.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ProfitabilityQueryDispersion" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">00:02:00</Value>
+    </Setting>
+    <Setting Name="UseWatchdog" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="UnixCudaLibraryPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/usr/local/cuda/lib64</Value>
+    </Setting>
+    <Setting Name="CurrencyChangeThresholdRatio" Type="System.Double" Scope="Application">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="TestModeMiningDuration" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">00:03:00</Value>
+    </Setting>
+    <Setting Name="ProfitabilityQueryInterval" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">00:35:00</Value>
+    </Setting>
+    <Setting Name="ShareTimeout" Type="System.TimeSpan" Scope="Application">
+      <Value Profile="(Default)">00:03:00</Value>
+    </Setting>
+    <Setting Name="ElectricityKwhCostUsd" Type="System.Double" Scope="Application">
+      <Value Profile="(Default)">0.052</Value>
+    </Setting>
+    <Setting Name="SystemPowerUsageWatts" Type="System.Double" Scope="Application">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
