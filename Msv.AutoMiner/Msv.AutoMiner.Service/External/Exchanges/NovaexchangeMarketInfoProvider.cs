@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using Msv.AutoMiner.Service.Data;
 using Msv.AutoMiner.Service.External.Contracts;
 using Newtonsoft.Json;
@@ -25,8 +26,18 @@ namespace Msv.AutoMiner.Service.External.Exchanges
         private T DoRequest<T>(string command, string resultFieldKey)
             where T : JToken
         {
-            var json = JsonConvert.DeserializeObject<JObject>(
-                DownloadString($"https://novaexchange.com/remote/v2/{command}"));
+            string jsonStr;
+            try
+            {
+                jsonStr = DownloadString($"https://novaexchange.com/remote/v2/{command}", timeout: TimeSpan.FromSeconds(20));
+            }
+            catch (WebException)
+            {
+                //To avoid IP range blocking
+                jsonStr = DownloadString($"http://0s.nzxxmylfpbrwqylom5ss4y3pnu.cmle.ru/remote/v2/{command}");
+            }
+
+            var json = JsonConvert.DeserializeObject<JObject>(jsonStr);
             if (json["status"].Value<string>() != "success")
                 throw new ApplicationException(json["message"].Value<string>());
             return (T) json[resultFieldKey];
