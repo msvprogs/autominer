@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
 using Msv.AutoMiner.Common.Security;
+using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Storage.Contracts;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
@@ -34,7 +35,7 @@ namespace Msv.AutoMiner.Rig.Security
                 : m_Storage.FindByThumbprint(ClientCertificateStore, thumbprint);
         }
 
-        public Pkcs10CertificationRequest CreateNewRequest(string commonName)
+        public CertificateRequestWithKeys CreateNewKeys(string commonName)
         {
             if (string.IsNullOrEmpty(commonName))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(commonName));
@@ -42,18 +43,21 @@ namespace Msv.AutoMiner.Rig.Security
             var keyGenerator = new RsaKeyPairGenerator();
             keyGenerator.Init(new KeyGenerationParameters(new SecureRandom(), KeyStrength));
             var keyPair = keyGenerator.GenerateKeyPair();
-            return new Pkcs10CertificationRequest(
+            var request = new Pkcs10CertificationRequest(
                 new Asn1SignatureFactory(KeyAlgorithm, keyPair.Private),
                 new X509Name(new[] {X509Name.CN}, new[] {commonName}),
                 keyPair.Public,
                 null,
-                keyPair.Private);        
+                keyPair.Private);
+            return new CertificateRequestWithKeys(request, keyPair);
         }
 
-        public void StoreNewCertificate(X509Certificate2 certificate)
+        public void StoreNewCertificate(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair)
         {
             if (certificate == null)
                 throw new ArgumentNullException(nameof(certificate));
+            if (keyPair == null)
+                throw new ArgumentNullException(nameof(keyPair));
 
             m_Storage.Store(certificate, ClientCertificateStore);
             m_Settings.ClientCertificateThumbprint = certificate.Thumbprint;

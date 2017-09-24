@@ -44,7 +44,7 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddTransient<IPoolInfoMonitorStorage, PoolInfoMonitorStorage>();
             services.AddTransient<IWalletInfoMonitorStorage, WalletInfoMonitorStorage>();
 
-            services.AddSingleton<ICertificateService>(x => new CertificateService(
+            services.AddTransient<ICertificateService>(x => new CertificateService(
                 new X509Certificate2(
                     File.ReadAllBytes(Configuration["CaCertificate:File"]),
                     Configuration["CaCertificate:Password"]),

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Msv.AutoMiner.Common.External.Contracts;
@@ -53,9 +54,12 @@ namespace Msv.AutoMiner.Common.External
 
         private HttpClient CreateHttpClient()
         {
-            var handler = new HttpClientHandler();
-            if (ClientCertificate != null)
-                handler.ClientCertificates.Add(ClientCertificate);
+            var handler = new HttpClientHandler
+            {
+               // ClientCertificateOptions = ClientCertificateOption.Manual
+            };
+            //if (ClientCertificate != null)
+            //    handler.ClientCertificates.Add(ClientCertificate);
             return new HttpClient(handler)
             {
                 DefaultRequestHeaders =

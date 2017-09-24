@@ -1,12 +1,13 @@
 ﻿using System.Security.Cryptography.X509Certificates;
-using Org.BouncyCastle.Pkcs;
+using Msv.AutoMiner.Rig.Data;
+using Org.BouncyCastle.Crypto;
 
 namespace Msv.AutoMiner.Rig.Security
 {
     public interface IClientCertificateProvider
     {
         X509Certificate2 GetCertificate();
-        Pkcs10CertificationRequest CreateNewRequest(string commonName);
-        void StoreNewCertificate(X509Certificate2 certificate);
+        CertificateRequestWithKeys CreateNewKeys(string commonName);
+        void StoreNewCertificate(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair);
     }
 }

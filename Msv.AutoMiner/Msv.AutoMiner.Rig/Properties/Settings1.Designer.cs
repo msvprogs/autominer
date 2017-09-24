@@ -106,7 +106,7 @@ namespace Msv.AutoMiner.Rig.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:9999")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:6283")]
         public string ControlCenterServiceUrl {
             get {
                 return ((string)(this["ControlCenterServiceUrl"]));

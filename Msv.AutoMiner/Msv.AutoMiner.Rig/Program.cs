@@ -53,7 +53,7 @@ namespace Msv.AutoMiner.Rig
             var testMode = false;
             if (args.Any())
             {
-                if (ProcessArgs(args))
+                if (ProcessArgs(args, controlCenterClient, certificateProvider))
                     return;
                 var currencyArg = Array.IndexOf(args, "--currencies");
                 if (currencyArg >= 0)
@@ -144,11 +144,25 @@ namespace Msv.AutoMiner.Rig
             }
         }
 
-        private static bool ProcessArgs(string[] args)
+        private static bool ProcessArgs(string[] args, ControlCenterServiceClient controlCenterClient, ClientCertificateProvider certificateProvider)
         {
             if (args.Contains("-h"))
             {
                 DisplayHelp();
+                return true;
+            }
+            var regIndex = Array.IndexOf(args, "--register");
+            if (regIndex >= 0 && args.Length >= regIndex + 3)
+            {
+                try
+                {
+                    new ControlCenterRegistrator(certificateProvider, controlCenterClient)
+                        .Register(args[regIndex + 1], args[regIndex + 2]);
+                }
+                catch (Exception ex)
+                {
+                    M_Logger.Error(ex, "Registration error");
+                }
                 return true;
             }
             return false;

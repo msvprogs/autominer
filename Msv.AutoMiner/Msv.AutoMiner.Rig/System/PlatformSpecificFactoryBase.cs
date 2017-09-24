@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Msv.AutoMiner.Rig
+namespace Msv.AutoMiner.Rig.System
 {
     public abstract class PlatformSpecificFactoryBase<T>
     {

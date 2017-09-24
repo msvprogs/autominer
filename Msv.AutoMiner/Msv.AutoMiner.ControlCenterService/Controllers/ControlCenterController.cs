@@ -46,6 +46,11 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 return new RegisterRigResponseModel();
             }
             var rig = await m_Storage.GetRigByName(request.Name);
+            if (rig == null)
+            {
+                M_Logger.Warn($"Rig {request.Name} not found");
+                return new RegisterRigResponseModel();
+            }
             if (rig.RegistrationPassword == null)
             {
                 M_Logger.Warn($"Rig {request.Name} has no registration password");

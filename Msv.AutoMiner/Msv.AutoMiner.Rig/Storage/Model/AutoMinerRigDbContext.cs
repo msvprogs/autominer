@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity;
+using SQLite.CodeFirst;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
@@ -15,6 +16,8 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
             modelBuilder.Entity<MinerAlgorithmSetting>()
                 .HasKey(x => new {x.MinerId, x.AlgorithmId});
+
+            Database.SetInitializer(new SqliteCreateDatabaseIfNotExists<AutoMinerRigDbContext>(modelBuilder));
         }
     }
 }

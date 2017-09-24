@@ -22,10 +22,10 @@ namespace Msv.AutoMiner.CoinInfoService
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkSqlite();
+            services.AddEntityFrameworkMySql();
 
             services.AddDbContext<AutoMinerDbContext>(
-                x => x.UseSqlite(Configuration.GetConnectionString("AutoMinerDb")),
+                x => x.UseMySql(Configuration.GetConnectionString("AutoMinerDb")),
                 ServiceLifetime.Transient);
 
             services.AddMvc();
@@ -39,7 +39,6 @@ namespace Msv.AutoMiner.CoinInfoService
             services.AddTransient<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
