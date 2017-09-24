@@ -13,6 +13,7 @@ namespace Msv.AutoMiner.Data
 
         public DbSet<ApiKey> ApiKeys { get; set; }
         public DbSet<CoinNetworkInfo> CoinNetworkInfos { get; set; }
+        public DbSet<CoinProfitability> CoinProfitabilities { get; set; }
         public DbSet<Exchange> Exchanges { get; set; }
         public DbSet<ExchangeMarketPrice> ExchangeMarketPrices { get; set; }
         public DbSet<ExchangeCoin> ExchangeCoins { get; set; }

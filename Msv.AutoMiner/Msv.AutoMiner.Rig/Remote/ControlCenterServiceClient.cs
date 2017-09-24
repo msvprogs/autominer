@@ -1,7 +1,6 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.AutoMiner.Common.ServiceContracts;
 
 namespace Msv.AutoMiner.Rig.Remote
 {

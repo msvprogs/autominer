@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Security.Cryptography.X509Certificates;
-using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure;
@@ -108,7 +106,7 @@ namespace Msv.AutoMiner.Rig
             using (Observable.Interval(TimeSpan.FromSeconds(10))
                 .Where(x => controller.CurrentState != null)
                 .Subscribe(x => M_Logger.Trace($"Mining {controller.CurrentState.ToString()}; uptime {DateTime.Now - started}")))
-            using (var changer = new AutomaticMinerChanger(
+            using (new AutomaticMinerChanger(
                 controller,
                 new MiningProfitabilityTableBuilder(
                     controlCenterClient,
@@ -125,9 +123,9 @@ namespace Msv.AutoMiner.Rig
                     Dispersion = Settings.Default.ProfitabilityQueryDispersion,
                     ThresholdRatio = Settings.Default.CurrencyChangeThresholdRatio
                 }))
-            using (var monitor = new VideoAdapterMonitor(
-                new NVidiaVideoSystemStateProvider()))
-            using (CreateWatchdogDisposable(monitor))
+            using (var videoAdapterMonitor = new VideoAdapterMonitor(new NVidiaVideoSystemStateProvider()))
+            using (new HeartbeatSender(videoAdapterMonitor, controller, controlCenterClient))
+            using (CreateWatchdogDisposable(videoAdapterMonitor))
             {
                 M_Logger.Info("Automatic miner controller started.");
                 M_Logger.Info("Type 'exit' or press Ctrl+C to exit");

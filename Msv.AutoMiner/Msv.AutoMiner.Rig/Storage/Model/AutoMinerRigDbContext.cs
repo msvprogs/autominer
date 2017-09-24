@@ -1,5 +1,4 @@
 ﻿using System.Data.Entity;
-using SQLite.CodeFirst;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
@@ -10,6 +9,11 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public DbSet<MinerAlgorithmSetting> MinerAlgorithmSettings { get; set; }
         public DbSet<Setting> Settings { get; set; }
 
+        public AutoMinerRigDbContext()
+        {
+            Configuration.LazyLoadingEnabled = false;
+        }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -17,7 +21,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
             modelBuilder.Entity<MinerAlgorithmSetting>()
                 .HasKey(x => new {x.MinerId, x.AlgorithmId});
 
-            Database.SetInitializer(new SqliteCreateDatabaseIfNotExists<AutoMinerRigDbContext>(modelBuilder));
+            Database.SetInitializer(new DbInitializer(modelBuilder));
         }
     }
 }

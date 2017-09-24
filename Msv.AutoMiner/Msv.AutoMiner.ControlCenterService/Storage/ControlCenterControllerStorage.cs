@@ -62,5 +62,14 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
                 .Where(x => coinIds.Contains(x.CoinId) && x.Activity == ActivityState.Active)
                 .ToArrayAsync();
         }
+
+        public async Task SaveProfitabilities(CoinProfitability[] profitabilities)
+        {
+            if (profitabilities == null)
+                throw new ArgumentNullException(nameof(profitabilities));
+
+            await m_Context.CoinProfitabilities.AddRangeAsync(profitabilities);
+            await m_Context.SaveChangesAsync();
+        }
     }
 }

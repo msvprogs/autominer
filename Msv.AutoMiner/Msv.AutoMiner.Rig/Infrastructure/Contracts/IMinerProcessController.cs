@@ -6,6 +6,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure.Contracts
     public interface IMinerProcessController : IDisposable
     {
         MiningState CurrentState { get; }
+        DateTime StateChanged { get; }
 
         event EventHandler ProcessExited;
         void RunNew(CoinMiningData miningData);

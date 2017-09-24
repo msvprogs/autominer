@@ -111,6 +111,7 @@
     <Compile Include="Data\CoinMiningData.cs" />
     <Compile Include="Data\ConsolidationRoute.cs" />
     <Compile Include="Data\MinerChangingOptions.cs" />
+    <Compile Include="Infrastructure\HeartbeatSender.cs" />
     <Compile Include="Infrastructure\MinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\MinerProcessController.cs" />
     <Compile Include="Infrastructure\MinerTester.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Remote\WebRequestRestClient.cs" />
     <Compile Include="Remote\ControlCenterRegistrator.cs" />
     <Compile Include="Remote\IRestClient.cs" />
+    <Compile Include="Storage\Model\DbInitializer.cs" />
     <Compile Include="System\PlatformSpecificFactoryBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

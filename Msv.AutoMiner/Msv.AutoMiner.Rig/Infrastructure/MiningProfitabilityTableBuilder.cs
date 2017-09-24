@@ -4,7 +4,6 @@ using System.Text;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Remote;
@@ -69,9 +68,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                            + string.Join(Environment.NewLine, profitabilityTable.Select(
                                x => new StringBuilder(x.CoinSymbol.PadRight(8))
                                    .Append(x.CoinName.PadRight(20))
-                                   .Append(x.PoolData.Name.PadRight(20))
-                                   .Append(x.ToCoinsPerDayString().PadLeft(20))
-                                   .Append($"{x.PoolData.BtcPerDay,18:N6}")
+                                   .Append(x.PoolData.Name.PadRight(26))
+                                   .Append(x.ToCoinsPerDayString().PadLeft(10))
+                                   .Append($"{x.PoolData.BtcPerDay,12:N6}")
                                    .Append($"{x.PoolData.UsdPerDay,10:N2}")
                                    .Append($"{-x.PoolData.ElectricityCost,13:N2}$")
                                    .Append($"{x.UsdPerDayTotal,10:N2}$"))));

@@ -5,6 +5,7 @@ namespace Msv.AutoMiner.Rig.Data
 {
     public class MiningState
     {
+        public Guid CoinId { get; }
         public string Currency { get; }
         public string Name { get; }
         public string Algorithm { get; }
@@ -16,6 +17,7 @@ namespace Msv.AutoMiner.Rig.Data
             CoinMiningData miningData, long? currentHashRate, long? storedHashRate, int? acceptedShares)
         {
             Currency = miningData?.CoinSymbol ?? throw new ArgumentNullException(nameof(miningData));
+            CoinId = miningData.CoinId;
             Name = miningData.CoinName;
             Algorithm = miningData.MinerSettings.AlgorithmId.ToString();
             CurrentHashRate = currentHashRate.GetValueOrDefault();

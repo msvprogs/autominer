@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
@@ -15,6 +14,8 @@ namespace Msv.AutoMiner.ControlCenterService.Security
 
         private class AuthenticateRigByCertificateFilter : IAsyncActionFilter
         {
+            private const string RigIdRouteKey = "rigId";
+
             private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
             private readonly ICertificateService m_CertificateService;
@@ -24,6 +25,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
+                context.RouteData.Values.Remove(RigIdRouteKey);
                 var ip = context.HttpContext.Connection.RemoteIpAddress;
                 M_Logger.Info($"Starting authentication, remote IP {ip}");
                 var certificate = context.HttpContext.Connection.ClientCertificate;
@@ -42,7 +44,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 var rig = await m_CertificateService.AuthenticateRig(certificate);
                 if (rig == null)
                 {
-                    M_Logger.Warn($"{ip}: Rig with the specified CN and serial not found ({certificate.SubjectName}, serial {certificate.SerialNumber})");
+                    M_Logger.Warn($"{ip}: Rig with the specified CN and serial not found ({certificate.SubjectName.Name}, serial {certificate.SerialNumber})");
                     context.Result = new ForbidResult();
                     return;
                 }
@@ -53,7 +55,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                     return;
                 }
                 M_Logger.Info($"{ip}: Authenticated rig {rig.Id} ({rig.Name})");
-                context.RouteData.Values["rigId"] = rig.Id;
+                context.RouteData.Values[RigIdRouteKey] = rig.Id;
                 await next.Invoke();
             }
         }

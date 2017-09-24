@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Rig.Security;
 using NLog;
 

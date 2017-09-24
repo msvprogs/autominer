@@ -25,6 +25,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     m_AlgorithmDatas.FirstOrDefault(x => x.AlgorithmId == m_CurrentMiningData.MinerSettings.AlgorithmId)?.SpeedInHashes,
                     m_MinerOutputProcessor?.AcceptedShares);
 
+        public DateTime StateChanged { get; private set; }
+
         private const int MaxRestartAttempts = 20;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
@@ -54,6 +56,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             m_ProcessTracker = processTracker ?? throw new ArgumentNullException(nameof(processTracker));
             m_ShareTimeout = shareTimeout;
             m_AlgorithmDatas = algorithmDatas ?? throw new ArgumentNullException(nameof(algorithmDatas));
+            StateChanged = DateTime.UtcNow;
         }
 
         public void RunNew(CoinMiningData miningData)
@@ -149,6 +152,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                             x => m_CurrentProcessDisposable.Disposable = null));
                 var pid = process.Start();
                 M_Logger.Info($"Process \"{file.Name}\" started, PID={pid}");
+                StateChanged = DateTime.UtcNow;
                 m_CurrentMiningData = miningData;
             }
         }

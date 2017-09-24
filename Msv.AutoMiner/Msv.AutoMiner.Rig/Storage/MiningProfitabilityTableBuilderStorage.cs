@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data.Entity;
+using System.Linq;
 using Msv.AutoMiner.Rig.Storage.Contracts;
 using Msv.AutoMiner.Rig.Storage.Model;
 
@@ -15,7 +16,9 @@ namespace Msv.AutoMiner.Rig.Storage
         public MinerAlgorithmSetting[] GetAlgorithmSettings()
         {
             using (var context = new AutoMinerRigDbContext())
-                return context.MinerAlgorithmSettings.ToArray();
+                return context.MinerAlgorithmSettings
+                    .Include(x => x.Miner)
+                    .ToArray();
         }
     }
 }

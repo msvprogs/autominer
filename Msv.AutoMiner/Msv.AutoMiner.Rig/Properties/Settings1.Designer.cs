@@ -25,7 +25,7 @@ namespace Msv.AutoMiner.Rig.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:02:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:00:02")]
         public global::System.TimeSpan ProfitabilityQueryDispersion {
             get {
                 return ((global::System.TimeSpan)(this["ProfitabilityQueryDispersion"]));
@@ -70,7 +70,7 @@ namespace Msv.AutoMiner.Rig.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:35:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:00:30")]
         public global::System.TimeSpan ProfitabilityQueryInterval {
             get {
                 return ((global::System.TimeSpan)(this["ProfitabilityQueryInterval"]));

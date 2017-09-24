@@ -13,14 +13,15 @@ namespace Msv.AutoMiner.Common
 
         private readonly IDisposable m_Disposable;
 
-        protected MonitorBase(TimeSpan period)
+        protected MonitorBase(TimeSpan period, bool skipFirst = false)
         {
             Period = period;
             Log = LogManager.GetLogger(GetType().Name);
 
-            m_Disposable = Observable.Timer(period)
-                .Repeat()
-                .StartWith(TaskPoolScheduler.Default, 0)
+            var sequence = Observable.Timer(period).Repeat();
+            if (!skipFirst)
+                sequence = sequence.StartWith(TaskPoolScheduler.Default, 0);
+            m_Disposable = sequence
                 .Subscribe(x => DoWorkWrapped(), x => Log.Fatal(x, "Something strange happened"));
         }
 

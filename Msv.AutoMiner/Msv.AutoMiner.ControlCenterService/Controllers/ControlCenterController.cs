@@ -115,7 +115,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             var rigId = (int)ControllerContext.RouteData.Values["rigId"];
             M_Logger.Info($"Rig {rigId} requested new mining work");
 
-            var profitabilities = await m_CoinInfoService.GetProfitabilities(
+            var coinStatistics = await m_CoinInfoService.GetProfitabilities(
                 new ProfitabilityRequestModel
                 {
                     AlgorithmDatas = request.AlgorithmDatas,
@@ -123,14 +123,14 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                     ElectricityCostUsd = request.ElectricityCostUsd,
                     PriceAggregationType = ValueAggregationType.Last3Days
                 });
-            var coinIds = profitabilities.Profitabilities
+            var coinIds = coinStatistics.Profitabilities
                 .EmptyIfNull()
                 .Where(x => DateTime.UtcNow - M_MaxInactivityInterval < x.LastUpdatedUtc)
                 .Select(x => x.CoinId)
                 .ToArray();
-            return (await m_Storage.GetActivePools(coinIds))
+            var works = (await m_Storage.GetActivePools(coinIds))
                 .GroupBy(x => x.Coin)
-                .Join(profitabilities.Profitabilities.EmptyIfNull(), x => x.Key.Id, x => x.CoinId,
+                .Join(coinStatistics.Profitabilities.EmptyIfNull(), x => x.Key.Id, x => x.CoinId,
                     (x, y) => (profitability:y, pools:x, miningTarget: x.Key.Wallets.FirstOrDefault(a => a.IsMiningTarget)))
                 .Where(x => x.miningTarget != null)
                 .Select(x => new MiningWorkModel
@@ -142,6 +142,21 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                     Pools = x.pools.Select(y => CreatePoolDataModel(y, x)).ToArray()
                 })
                 .ToArray();
+            var now = DateTime.UtcNow;
+            await m_Storage.SaveProfitabilities(works
+                .SelectMany(x => x.Pools.Select(y => new CoinProfitability
+                {
+                    CoinId = x.CoinId,
+                    PoolId = y.Id,
+                    BtcPerDay = y.BtcPerDay,
+                    CoinsPerDay = y.CoinsPerDay,
+                    ElectricityCost = y.ElectricityCost,
+                    RigId = rigId,
+                    UsdPerDay = y.UsdPerDay,
+                    Requested = now
+                }))
+                .ToArray());
+            return works;
         }
 
         private static PoolDataModel CreatePoolDataModel(

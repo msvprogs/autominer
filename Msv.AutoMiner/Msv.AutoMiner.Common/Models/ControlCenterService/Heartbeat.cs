@@ -14,6 +14,8 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
 
         public CpuState[] CpuStates { get; set; }
 
+        public string VideoDriverVersion { get; set; }
+
         public VideoAdapterState[] VideoAdapterStates { get; set; }
 
         public class ValueWithReference<T>
@@ -60,9 +62,9 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
 
             public string BiosVersion { get; set; }
 
-            public ValueWithReference<int> CoreClockMhz { get; set; }
+            public ValueWithLimits<int> CoreClockMhz { get; set; }
 
-            public ValueWithReference<int> MemoryClockMhz { get; set; }
+            public ValueWithLimits<int> MemoryClockMhz { get; set; }
 
             public ValueWithLimits<double> PowerUsageWatts { get; set; }
 
