@@ -4,5 +4,6 @@
     {
         public bool IsSuccess { get; set; }
         public byte[] X509ClientCertificate { get; set; }
+        public byte[] CaCertificate { get; set; }
     }
 }

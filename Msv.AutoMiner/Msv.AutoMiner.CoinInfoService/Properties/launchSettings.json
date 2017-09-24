@@ -18,7 +18,6 @@
     },
     "Msv.AutoMiner.CoinInfoService": {
       "commandName": "Project",
-      "launchBrowser": true,
       "launchUrl": "api/values",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

@@ -6,6 +6,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security.Contracts
 {
     public interface ICertificateService
     {
+        X509Certificate2 CaCertificate { get; }
         Task<X509Certificate2> CreateCertificate(Rig rig, byte[] certificateRequest);
         Task<Rig> AuthenticateRig(X509Certificate2 clientCertificate);
     }

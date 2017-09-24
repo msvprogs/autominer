@@ -19,12 +19,13 @@ namespace Msv.AutoMiner.ControlCenterService.Security
     {
         private static readonly TimeSpan M_CertificateValidityPeriod = TimeSpan.FromDays(365 * 5);
 
-        private readonly X509Certificate2 m_CaCertificate;
+        public X509Certificate2 CaCertificate { get; }
+
         private readonly ICertificateServiceStorage m_Storage;
 
         public CertificateService(X509Certificate2 caCertificate, ICertificateServiceStorage storage)
         {
-            m_CaCertificate = caCertificate ?? throw new ArgumentNullException(nameof(caCertificate));
+            CaCertificate = caCertificate ?? throw new ArgumentNullException(nameof(caCertificate));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
@@ -46,15 +47,15 @@ namespace Msv.AutoMiner.ControlCenterService.Security
 
             var generator = new X509V3CertificateGenerator();
             generator.SetSerialNumber(new BigInteger(128, new SecureRandom()));
-            generator.SetIssuerDN(new X509Name(m_CaCertificate.SubjectName.Format(false)));
+            generator.SetIssuerDN(new X509Name(CaCertificate.SubjectName.Format(false)));
             generator.SetSubjectDN(requestInfo.Subject);
             generator.SetNotBefore(DateTime.UtcNow);
             generator.SetNotAfter(DateTime.UtcNow + M_CertificateValidityPeriod);
             generator.SetPublicKey(PublicKeyFactory.CreateKey(requestInfo.SubjectPublicKeyInfo));
 
-            var caKeyPair = DotNetUtilities.GetKeyPair(m_CaCertificate.PrivateKey);
+            var caKeyPair = DotNetUtilities.GetKeyPair(CaCertificate.PrivateKey);
             var bouncyCert = generator.Generate(
-                new Asn1SignatureFactory(request.SignatureAlgorithm.ToString(), caKeyPair.Private));
+                new Asn1SignatureFactory(request.SignatureAlgorithm.Algorithm.Id, caKeyPair.Private));
             return Task.FromResult(new X509Certificate2(DotNetUtilities.ToX509Certificate(bouncyCert)));
         }
 
@@ -63,10 +64,10 @@ namespace Msv.AutoMiner.ControlCenterService.Security
             if (clientCertificate == null)
                 throw new ArgumentNullException(nameof(clientCertificate));
 
-            if (clientCertificate.IssuerName != m_CaCertificate.SubjectName)
+            if (clientCertificate.IssuerName.Name != CaCertificate.SubjectName.Name)
                 return null;
 
-            var rig = await m_Storage.GetRigByName(clientCertificate.Subject);
+            var rig = await m_Storage.GetRigByName(clientCertificate.GetNameInfo(X509NameType.SimpleName, false));
             if (rig?.ClientCertificateSerial == null
                 || !rig.ClientCertificateSerial.SequenceEqual(clientCertificate.GetSerialNumber()))
                 return null;

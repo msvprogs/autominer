@@ -7,12 +7,15 @@ namespace Msv.AutoMiner.Common
 {
     public abstract class MonitorBase : IDisposable
     {
+        public TimeSpan Period { get; }
+
         protected ILogger Log { get; }
 
         private readonly IDisposable m_Disposable;
 
         protected MonitorBase(TimeSpan period)
         {
+            Period = period;
             Log = LogManager.GetLogger(GetType().Name);
 
             m_Disposable = Observable.Timer(period)

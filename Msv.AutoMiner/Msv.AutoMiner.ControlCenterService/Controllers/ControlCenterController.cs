@@ -18,7 +18,7 @@ using NLog;
 namespace Msv.AutoMiner.ControlCenterService.Controllers
 {
     [Route("api/[controller]")]
-    public class ControlCenterController : Controller, IControlCenterService
+    public class ControlCenterController : Controller
     {
         private static readonly TimeSpan M_MaxInactivityInterval = TimeSpan.FromHours(2);
 
@@ -75,7 +75,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             return new RegisterRigResponseModel
             {
                 IsSuccess = true,
-                X509ClientCertificate = certificate.RawData
+                X509ClientCertificate = certificate.RawData,
+                CaCertificate = m_CertificateService.CaCertificate.RawData
             };
         }
 

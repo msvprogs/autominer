@@ -8,6 +8,7 @@ namespace Msv.AutoMiner.Rig.Security
     {
         X509Certificate2 GetCertificate();
         CertificateRequestWithKeys CreateNewKeys(string commonName);
-        void StoreNewCertificate(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair);
+        void StoreCaCertificate(X509Certificate2 certificate);
+        void StoreClientCertificate(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair);
     }
 }

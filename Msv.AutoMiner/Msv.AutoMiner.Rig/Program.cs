@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -45,7 +46,7 @@ namespace Msv.AutoMiner.Rig
             }
 
             var controlCenterClient = new ControlCenterServiceClient(
-                new AsyncRestClient(new Uri(Settings.Default.ControlCenterServiceUrl))
+                new WebRequestRestClient(new Uri(Settings.Default.ControlCenterServiceUrl))
                 {
                     ClientCertificate = certificateProvider.GetCertificate()
                 });

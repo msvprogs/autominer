@@ -30,10 +30,10 @@ namespace Msv.AutoMiner.ControlCenterService
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkSqlite();
+            services.AddEntityFrameworkMySql();
 
             services.AddDbContext<AutoMinerDbContext>(
-                x => x.UseSqlite(Configuration.GetConnectionString("AutoMinerDb")),
+                x => x.UseMySql(Configuration.GetConnectionString("AutoMinerDb")),
                 ServiceLifetime.Transient);
 
             services.AddMvc();
@@ -47,7 +47,8 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddTransient<ICertificateService>(x => new CertificateService(
                 new X509Certificate2(
                     File.ReadAllBytes(Configuration["CaCertificate:File"]),
-                    Configuration["CaCertificate:Password"]),
+                    Configuration["CaCertificate:Password"],
+                    X509KeyStorageFlags.Exportable),
                 x.GetRequiredService<ICertificateServiceStorage>()));
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),

@@ -20,7 +20,7 @@ namespace Msv.AutoMiner.Rig.Storage
             {
                 var entry = context.Settings.AsNoTracking().FirstOrDefault(x => x.Key == key);
                 if (entry == null)
-                    return default;
+                    return default(T);
                 return (T)Convert.ChangeType(entry.Value, typeof(T));
             }
         }

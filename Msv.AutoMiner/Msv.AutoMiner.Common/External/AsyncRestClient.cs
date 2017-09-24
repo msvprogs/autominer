@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
@@ -13,12 +11,12 @@ namespace Msv.AutoMiner.Common.External
     {
         private const string JsonMime = "application/json";
 
-        public X509Certificate2 ClientCertificate { get; set; }
-
         private readonly Uri m_BaseUrl;
 
-        public AsyncRestClient(Uri baseUrl) 
-            => m_BaseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl));
+        public AsyncRestClient(Uri baseUrl)
+        {
+            m_BaseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl));
+        }
 
         public async Task<T> GetAsync<T>(string relativeUrl)
         {
@@ -52,20 +50,14 @@ namespace Msv.AutoMiner.Common.External
             }
         }
 
-        private HttpClient CreateHttpClient()
-        {
-            var handler = new HttpClientHandler
-            {
-               // ClientCertificateOptions = ClientCertificateOption.Manual
-            };
-            //if (ClientCertificate != null)
-            //    handler.ClientCertificates.Add(ClientCertificate);
-            return new HttpClient(handler)
+        private static HttpClient CreateHttpClient()
+        { 
+            return new HttpClient
             {
                 DefaultRequestHeaders =
                 {
                     Accept = {new MediaTypeWithQualityHeaderValue(JsonMime, 1.0)}
-                }
+                }      
             };
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
@@ -32,16 +33,16 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                     context.Result = new ForbidResult();
                     return;
                 }
-                if (!certificate.Verify())
-                {
-                    M_Logger.Warn($"{ip}: Client certificate is invalid");
-                    context.Result = new ForbidResult();
-                    return;
-                }
+                //if (!certificate.Verify())
+                //{
+                //    M_Logger.Warn($"{ip}: Client certificate is invalid");
+                //    context.Result = new ForbidResult();
+                //    return;
+                //}
                 var rig = await m_CertificateService.AuthenticateRig(certificate);
                 if (rig == null)
                 {
-                    M_Logger.Warn($"{ip}: Rig with the specified CN and serial not found (CN={certificate.Subject}, serial {certificate.SerialNumber})");
+                    M_Logger.Warn($"{ip}: Rig with the specified CN and serial not found ({certificate.SubjectName}, serial {certificate.SerialNumber})");
                     context.Result = new ForbidResult();
                     return;
                 }

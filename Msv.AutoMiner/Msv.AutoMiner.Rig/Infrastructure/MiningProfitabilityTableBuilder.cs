@@ -7,6 +7,7 @@ using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
+using Msv.AutoMiner.Rig.Remote;
 using Msv.AutoMiner.Rig.Storage.Contracts;
 using NLog;
 
@@ -50,7 +51,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 });
             var minerSettings = m_Storage.GetAlgorithmSettings()
                 .ToDictionary(x => x.AlgorithmId);
-            var profitabilityTable = miningWorksTask.GetAwaiter().GetResult()
+            var profitabilityTable = miningWorksTask
                 .SelectMany(x => x.Pools.Select(y => new CoinMiningData
                 {
                     CoinId = x.CoinId,

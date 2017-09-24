@@ -3,10 +3,12 @@ using System.Security.Cryptography.X509Certificates;
 using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Storage.Contracts;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Operators;
+using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 
@@ -52,13 +54,22 @@ namespace Msv.AutoMiner.Rig.Security
             return new CertificateRequestWithKeys(request, keyPair);
         }
 
-        public void StoreNewCertificate(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair)
+        public void StoreCaCertificate(X509Certificate2 certificate)
+        {
+            if (certificate == null)
+                throw new ArgumentNullException(nameof(certificate));
+
+            m_Storage.Store(certificate, StoreName.Root);
+        }
+
+        public void StoreClientCertificate(X509Certificate2 certificate, AsymmetricCipherKeyPair keyPair)
         {
             if (certificate == null)
                 throw new ArgumentNullException(nameof(certificate));
             if (keyPair == null)
                 throw new ArgumentNullException(nameof(keyPair));
 
+            certificate.PrivateKey = DotNetUtilities.ToRSA((RsaPrivateCrtKeyParameters)keyPair.Private);
             m_Storage.Store(certificate, ClientCertificateStore);
             m_Settings.ClientCertificateThumbprint = certificate.Thumbprint;
         }

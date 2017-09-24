@@ -36,7 +36,7 @@ namespace Msv.AutoMiner.Rig.Remote
                 Name = name,
                 Password = password,
                 X509CertificateRequest = request.CertificationRequest.GetEncoded()
-            }).GetAwaiter().GetResult();
+            });
             if (!result.IsSuccess)
             {
                 M_Logger.Error("Registration failed. Please check service URL, rig name and registration password");
@@ -44,7 +44,8 @@ namespace Msv.AutoMiner.Rig.Remote
             }
             var certificate = new X509Certificate2(result.X509ClientCertificate);
             M_Logger.Info($"Received client certificate (thumbprint {certificate.Thumbprint}), storing it in the local storage...");
-            m_CertificateProvider.StoreNewCertificate(certificate, request.KeyPair);
+            //m_CertificateProvider.StoreCaCertificate(new X509Certificate2(result.CaCertificate));
+            m_CertificateProvider.StoreClientCertificate(certificate, request.KeyPair);
             M_Logger.Info($"Rig {name} was registered successfully");
         }
     }

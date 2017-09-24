@@ -33,6 +33,13 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 .Where(x => x.NetworkInfoApiType == CoinNetworkInfoApiType.Zpool)
                 .ToArray();
 
+            var previousInfos = storage.GetLastNetworkInfos()
+                .ToDictionary(x => x.CoinId);
+            if (previousInfos.Select(x => x.Value.Created)
+                .OrderByDescending(x => x)
+                .FirstOrDefault() > DateTime.UtcNow - Period)
+                return;
+
             var multiProvider = m_ProviderFactory.CreateMulti(multiProviderCoins);
             var multiResults = new Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>>();
             try
@@ -45,8 +52,6 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 Log.Error(ex, "Couldn't get network info from multiproviders");
             }       
 
-            var previousInfos = storage.GetLastNetworkInfos()
-                .ToDictionary(x => x.CoinId);
             var now = DateTime.UtcNow;
             var random = new Random();
             coins.OrderBy(x => random.NextDouble())

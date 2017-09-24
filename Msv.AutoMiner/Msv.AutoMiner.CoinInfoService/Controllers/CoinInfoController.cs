@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Msv.AutoMiner.CoinInfoService.Infrastructure;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Storage;
-using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
 

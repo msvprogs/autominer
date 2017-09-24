@@ -10,6 +10,7 @@ using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
+using Msv.AutoMiner.Rig.Remote;
 using Msv.AutoMiner.Rig.Storage.Contracts;
 using NLog;
 
@@ -44,7 +45,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             M_Logger.Info("Running miner tests (only for active coins with pools)...");
 
             var algorithms = m_ControlCenterService.GetAlgorithms()
-                .GetAwaiter().GetResult()
                 .ToDictionary(x => x.Id);
             M_Logger.Info($"Got {algorithms.Count} algorithms from server");
 
@@ -59,7 +59,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                             AlgorithmId = x.Id
                         })
                         .ToArray()
-                }).GetAwaiter().GetResult()
+                })
                 .Where(x => x.Pools.Any())
                 .Select(x => new
                 {
