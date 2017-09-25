@@ -10,7 +10,6 @@ using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Storage.Model;
 using Msv.AutoMiner.Rig.System.Contracts;
-using Msv.AutoMiner.Service.Infrastructure.Contracts;
 using NLog;
 
 namespace Msv.AutoMiner.Rig.Infrastructure
@@ -23,7 +22,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 : new MiningState(m_CurrentMiningData, 
                     m_MinerOutputProcessor?.CurrentHashRate,
                     m_AlgorithmDatas.FirstOrDefault(x => x.AlgorithmId == m_CurrentMiningData.MinerSettings.AlgorithmId)?.SpeedInHashes,
-                    m_MinerOutputProcessor?.AcceptedShares);
+                    m_MinerOutputProcessor?.AcceptedShares,
+                    m_MinerOutputProcessor?.RejectedShares);
 
         public DateTime StateChanged { get; private set; }
 
@@ -101,8 +101,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     ? miningData.MinerSettings.LogFile
                     : null;
                 m_MinerOutputProcessor = new MinerOutputProcessor(
-                    Path.GetFileNameWithoutExtension(file.Name),
-                    miner.SpeedRegex, miner.ValidShareRegex, miningData.CoinSymbol, null);
+                    Path.GetFileNameWithoutExtension(file.Name), miner, miningData.CoinSymbol, null);
                 if (outputLogFile != null)
                 {
                     var directory = Path.GetDirectoryName(outputLogFile);

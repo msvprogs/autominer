@@ -7,7 +7,6 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Remote;
@@ -53,6 +52,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             var coins = m_ControlCenterService.GetMiningWork(
                 new GetMiningWorkRequestModel
                 {
+                    TestMode = true,
                     AlgorithmDatas = algorithms.Values
                         .Select(x => new AlgorithmPowerData
                         {
@@ -88,7 +88,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             {
                 var algorithm = algorithms[coinGroup.Algorithm];
                 M_Logger.Info(
-                    $"Testing {coinGroup.Coin.CoinId} [{algorithms[coinGroup.Algorithm]}]...");
+                    $"Testing {coinGroup.Coin.CoinName} [{algorithms[coinGroup.Algorithm].Name}]...");
                 var result = new TestResult
                 {
                     Symbol = coinGroup.Coin.CoinSymbol,
@@ -100,6 +100,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     {
                         CoinId = coinGroup.Coin.CoinId,
                         CoinName = coinGroup.Coin.CoinName,
+                        CoinSymbol = coinGroup.Coin.CoinSymbol,
                         MinerSettings = coinGroup.MinerSetting,
                         PoolData = coinGroup.Coin.Pools.First()
                     });
@@ -145,7 +146,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             M_Logger.Info("Test results: "
                           + Environment.NewLine
                           + string.Join(Environment.NewLine,
-                              results.Select(x => $"{x.Symbol} [{x.Algorithm}]: {(x.IsSuccess ? "OK" : "Fail")}, "
+                              results.Select(x => $"{x.Symbol} [{x.Algorithm.Name}]: {(x.IsSuccess ? "OK" : "Fail")}, "
                                                   + $" hashrate {ConversionHelper.ToHashRateWithUnits(x.HashRate, x.Algorithm.KnownValue)},"
                                                   + $" power usage {x.PowerUsage:F2} W")));
         }

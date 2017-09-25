@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Security.Cryptography.X509Certificates;
-using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
@@ -31,8 +31,17 @@ namespace Msv.AutoMiner.Rig
             AppDomain.CurrentDomain.UnhandledException +=
                 (s, e) => M_Logger.Fatal(e.ExceptionObject as Exception, "Unhandled exception");
 
-            var certificateStorage = new X509CertificateStorage(
-                StoreLocation.CurrentUser, new X509Certificate2(File.ReadAllBytes("rootCa.cer")));
+            //TODO: temporary
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
+            if (args.Contains("-h"))
+            {
+                DisplayHelp();
+                return;
+            }
+
+            var certificateStorage = new X509CertificateStorageFactory(
+                StoreLocation.CurrentUser, new X509Certificate2(File.ReadAllBytes("rootCa.cer"))).Create();
             certificateStorage.InstallRootCertificateIfNotExist();
 
             var certificateProvider = new ClientCertificateProvider(certificateStorage, new StoredSettings());
@@ -136,11 +145,6 @@ namespace Msv.AutoMiner.Rig
 
         private static bool ProcessArgs(string[] args, ControlCenterServiceClient controlCenterClient, ClientCertificateProvider certificateProvider)
         {
-            if (args.Contains("-h"))
-            {
-                DisplayHelp();
-                return true;
-            }
             var regIndex = Array.IndexOf(args, "--register");
             if (regIndex >= 0 && args.Length >= regIndex + 3)
             {

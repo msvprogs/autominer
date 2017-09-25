@@ -25,9 +25,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         }
 
         [HttpGet("getAlgorithms")]
-#if !DEBUG
-        [ValidateApiKey(ApiKeyType.CoinInfoService, false)]
-#endif
+        //[ValidateApiKey(ApiKeyType.CoinInfoService, false)]
         public async Task<AlgorithmInfo[]> GetAlgorithms()
         {
             return (await m_Storage.GetAlgorithms())
@@ -41,9 +39,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         }
 
         [HttpPost("getProfitabilities")]
-#if !DEBUG
-        [ValidateApiKey(ApiKeyType.CoinInfoService)]
-#endif
+        //[ValidateApiKey(ApiKeyType.CoinInfoService)]
         public async Task<ProfitabilityResponseModel> GetProfitabilities([FromBody] ProfitabilityRequestModel request)
         {
             var networkInfos = await m_Storage.GetNetworkInfos(request.DifficultyAggregationType);

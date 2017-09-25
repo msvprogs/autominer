@@ -5,7 +5,6 @@ using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Data;
 using Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders;
-using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
 
@@ -14,14 +13,11 @@ namespace Msv.AutoMiner.ControlCenterService.External
     public class WalletInfoProviderFactory : IWalletInfoProviderFactory
     {
         private readonly IWebClient m_WebClient;
-        private readonly IStringEncryptor m_KeyEncryptor;
         private readonly Func<IWalletInfoProviderFactoryStorage> m_StorageGetter;
 
-        public WalletInfoProviderFactory(
-            IWebClient webClient, IStringEncryptor keyEncryptor, Func<IWalletInfoProviderFactoryStorage> storageGetter)
+        public WalletInfoProviderFactory(IWebClient webClient, Func<IWalletInfoProviderFactoryStorage> storageGetter)
         {
             m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
-            m_KeyEncryptor = keyEncryptor ?? throw new ArgumentNullException(nameof(keyEncryptor));
             m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
         }
 
@@ -40,7 +36,7 @@ namespace Msv.AutoMiner.ControlCenterService.External
             var exchange = m_StorageGetter.Invoke().GetExchange(exchangeType);
             if (exchange?.PrivateKey == null || exchange.PublicKey == null)
                 return new DummyWalletInfoProvider();
-            var privateKey = m_KeyEncryptor.Decrypt(exchange.PrivateKey);
+            var privateKey = exchange.PrivateKey;
             switch (exchangeType)
             {
                 case ExchangeType.Bittrex:

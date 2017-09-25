@@ -69,7 +69,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                         if (result.NetHashRate == 0 && result.Difficulty <= 0)
                             return (coin: x, result: null);
                         LogResults(x, result, previousInfos.TryGetValue(x.Id, new CoinNetworkInfo()));
-                        return (coin: x, result);
+                        return (coin: x, result: result);
                     }
                     catch (Exception ex)
                     {

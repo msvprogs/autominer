@@ -11,7 +11,6 @@ using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.Monitors;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
-using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using NLog;
 using ILogger = NLog.ILogger;
@@ -40,7 +39,6 @@ namespace Msv.AutoMiner.ControlCenterService
                 using (new WalletInfoMonitor(
                     new WalletInfoProviderFactory(
                         new LoggedWebClient(),
-                        new StringEncryptor(),
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     () => scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 {

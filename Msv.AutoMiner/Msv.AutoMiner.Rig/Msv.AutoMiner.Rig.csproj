@@ -32,6 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>7.1</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -63,6 +64,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data.SQLite, Version=1.0.105.2, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.105.2\lib\net46\System.Data.SQLite.dll</HintPath>
     </Reference>
@@ -97,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\ProfitabilityTableBuilderParams.cs" />
+    <Compile Include="DllMapConfigurationSection.cs" />
     <Compile Include="Infrastructure\AutomaticMinerChanger.cs" />
     <Compile Include="Infrastructure\ConsolidationRouteBuilder.cs" />
     <Compile Include="Infrastructure\Contracts\IAutomaticMinerChanger.cs" />
@@ -124,6 +127,8 @@
     <Compile Include="Remote\WebRequestRestClient.cs" />
     <Compile Include="Remote\ControlCenterRegistrator.cs" />
     <Compile Include="Remote\IRestClient.cs" />
+    <Compile Include="Security\MonoBuggedX509CertificateStorage.cs" />
+    <Compile Include="Security\X509CertificateStorageFactory.cs" />
     <Compile Include="Storage\Model\DbInitializer.cs" />
     <Compile Include="System\PlatformSpecificFactoryBase.cs" />
     <Compile Include="Program.cs" />
@@ -189,6 +194,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="libSQLite.Interop.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

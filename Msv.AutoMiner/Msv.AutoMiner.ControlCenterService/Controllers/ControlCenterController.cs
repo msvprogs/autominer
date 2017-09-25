@@ -156,6 +156,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                     Pools = x.pools.Select(y => CreatePoolDataModel(y, x)).ToArray()
                 })
                 .ToArray();
+            if (request.TestMode)
+                return works;
             var now = DateTime.UtcNow;
             await m_Storage.SaveProfitabilities(works
                 .SelectMany(x => x.Pools.Select(y => new CoinProfitability

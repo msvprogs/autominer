@@ -12,9 +12,10 @@ namespace Msv.AutoMiner.Rig.Data
         public long CurrentHashRate { get; }
         public long StoredHashRate { get; }
         public int? AcceptedShares { get; }
+        public int? RejectedShares { get; }
 
         public MiningState(
-            CoinMiningData miningData, long? currentHashRate, long? storedHashRate, int? acceptedShares)
+            CoinMiningData miningData, long? currentHashRate, long? storedHashRate, int? acceptedShares, int? rejectedShares)
         {
             Currency = miningData?.CoinSymbol ?? throw new ArgumentNullException(nameof(miningData));
             CoinId = miningData.CoinId;
@@ -23,6 +24,7 @@ namespace Msv.AutoMiner.Rig.Data
             CurrentHashRate = currentHashRate.GetValueOrDefault();
             StoredHashRate = storedHashRate.GetValueOrDefault();
             AcceptedShares = acceptedShares;
+            RejectedShares = rejectedShares;
         }
 
         //TODO: algorithm
@@ -31,6 +33,7 @@ namespace Msv.AutoMiner.Rig.Data
             + $"hash rate {ConversionHelper.ToHashRateWithUnits(CurrentHashRate)} "
             + $"(stored rate {ConversionHelper.ToHashRateWithUnits(StoredHashRate)}, " 
             + $"diff {ConversionHelper.GetDiffRatioString(StoredHashRate, CurrentHashRate)}), "
-            + $"accepted shares: {(AcceptedShares != null ? AcceptedShares.ToString() : "<unknown>")}";
+            + $"accepted shares: {(AcceptedShares != null ? AcceptedShares.ToString() : "<unknown>")}, "
+            + $"rejected shares: {(RejectedShares != null ? RejectedShares.ToString() : "<unknown>")}";
     }
 }

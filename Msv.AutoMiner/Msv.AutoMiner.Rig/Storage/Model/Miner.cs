@@ -46,6 +46,8 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
         public string ValidShareRegex { get; set; }
 
+        public string InvalidShareRegex { get; set; }
+
         public bool OmitUrlSchema { get; set; }
 
         public virtual ICollection<MinerAlgorithmSetting> AlgorithmValues { get; set; }

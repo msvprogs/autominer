@@ -12,6 +12,6 @@ namespace Msv.AutoMiner.Data
 
         public string PublicKey { get; set; }
 
-        public byte[] PrivateKey { get; set; }
+        public string PrivateKey { get; set; }
     }
 }

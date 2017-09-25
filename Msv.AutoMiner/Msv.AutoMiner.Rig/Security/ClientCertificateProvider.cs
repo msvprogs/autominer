@@ -3,7 +3,6 @@ using System.Security.Cryptography.X509Certificates;
 using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Storage.Contracts;
-using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;

@@ -7,5 +7,7 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
         public AlgorithmPowerData[] AlgorithmDatas { get; set; }
 
         public double ElectricityCostUsd { get; set; }
+
+        public bool TestMode { get; set; }
     }
 }

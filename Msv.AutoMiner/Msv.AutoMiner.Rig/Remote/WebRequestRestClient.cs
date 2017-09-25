@@ -13,6 +13,9 @@ namespace Msv.AutoMiner.Rig.Remote
 
         private readonly Uri m_BaseUrl;
 
+        static WebRequestRestClient() 
+            => ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
         public WebRequestRestClient(Uri baseUrl)
         {
             m_BaseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl));

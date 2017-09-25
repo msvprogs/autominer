@@ -49,7 +49,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                     .Join(coins, y => y.CurrencySymbol, y => y.Key, (y, z) => z.Select(a => (value:y, coinId:a.Id)))
                     .SelectMany(y => y)
                     .Join(fiatCurrencies, y => y.value.FiatCurrencySymbol, y => y.Key,
-                        (y, z) => (y.value, y.coinId, fiatId: z.Value.Id))
+                        (y, z) => (value: y.value, coinId: y.coinId, fiatId: z.Value.Id))
                     .Select(y => new CoinFiatValue
                     {
                         CoinId = y.coinId,

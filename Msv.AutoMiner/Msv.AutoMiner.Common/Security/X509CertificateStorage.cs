@@ -27,7 +27,7 @@ namespace Msv.AutoMiner.Common.Security
             }
         }
 
-        public void Store(X509Certificate2 certificate, StoreName storeName)
+        public virtual void Store(X509Certificate2 certificate, StoreName storeName)
         {
             if (certificate == null)
                 throw new ArgumentNullException(nameof(certificate));
@@ -39,7 +39,7 @@ namespace Msv.AutoMiner.Common.Security
             }
         }
 
-        public X509Certificate2 FindByThumbprint(StoreName storeName, string thumbprint)
+        public virtual X509Certificate2 FindByThumbprint(StoreName storeName, string thumbprint)
         {
             if (string.IsNullOrEmpty(thumbprint))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(thumbprint));

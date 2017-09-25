@@ -38,12 +38,12 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     CoinId = currentState.CoinId,
                     Duration = DateTime.UtcNow - m_MinerProcessController.StateChanged,
                     ValidShares = currentState.AcceptedShares.GetValueOrDefault(),
+                    InvalidShares = currentState.RejectedShares.GetValueOrDefault(),
                     HashRate = new Heartbeat.ValueWithReference<long>
                     {
                         Current = currentState.CurrentHashRate,
                         Reference = currentState.StoredHashRate
-                    },
-                    InvalidShares = 0
+                    }
                 }
                 : null;
             var videoState = m_VideoAdapterMonitor.GetCurrentState();
