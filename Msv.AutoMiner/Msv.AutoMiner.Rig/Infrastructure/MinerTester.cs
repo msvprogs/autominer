@@ -124,7 +124,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                         continue;
                     }
                     M_Logger.Info(
-                        $"SUCCESS: Current hashrate of {algorithm} is {ConversionHelper.ToHashRateWithUnits(hashRate, algorithm.KnownValue)}");
+                        $"SUCCESS: Current hashrate of {algorithm.Name} is {ConversionHelper.ToHashRateWithUnits(hashRate, algorithm.KnownValue)}");
                     result.IsSuccess = true;
                     result.HashRate = hashRate;
                     result.PowerUsage = Math.Round((double) powerUsages.DefaultIfEmpty().Average(), 2);
@@ -132,7 +132,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     if (testedAlgorithms.Any(x => x.Id == algorithm.Id))
                         continue;
                     M_Logger.Info("Storing hashrate in DB");
-                    m_Storage.StoreAlgorithmData(algorithm.Id, hashRate, result.PowerUsage);
+                    m_Storage.StoreAlgorithmData(coinGroup.MinerSetting.Miner, algorithm.Id, algorithm.Name, hashRate, result.PowerUsage);
                     testedAlgorithms.Add(algorithm);
                 }
                 catch (Exception ex)

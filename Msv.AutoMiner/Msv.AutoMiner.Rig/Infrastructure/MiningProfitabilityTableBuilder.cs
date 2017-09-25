@@ -60,6 +60,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     PoolData = y,
                     PowerUsage = (algorithmDatas.TryGetValue(x.CoinAlgorithmId)?.Power).GetValueOrDefault()
                 }))
+                .OrderByDescending(x => x.UsdPerDayTotal)
                 .ToArray();
             M_Logger.Debug("Current profitability table:"
                            + Environment.NewLine
@@ -67,9 +68,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                            + Environment.NewLine
                            + string.Join(Environment.NewLine, profitabilityTable.Select(
                                x => new StringBuilder(x.CoinSymbol.PadRight(8))
-                                   .Append(x.CoinName.PadRight(20))
+                                   .Append(x.CoinName.PadRight(22))
                                    .Append(x.PoolData.Name.PadRight(26))
-                                   .Append(x.ToCoinsPerDayString().PadLeft(10))
+                                   .Append(x.ToCoinsPerDayString().PadLeft(6))
                                    .Append($"{x.PoolData.BtcPerDay,12:N6}")
                                    .Append($"{x.PoolData.UsdPerDay,10:N2}")
                                    .Append($"{-x.PoolData.ElectricityCost,13:N2}$")
