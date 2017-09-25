@@ -17,19 +17,15 @@ namespace Msv.AutoMiner.Rig.Storage
                     .ToArray();
         }
 
-        public void StoreAlgorithmData(Miner miner, Guid algorithmId, string algorithmName, long hashRate, double power)
+        public void StoreAlgorithmData(Guid algorithmId, string algorithmName, long hashRate, double power)
         {
-            if (miner == null)
-                throw new ArgumentNullException(nameof(miner));
-
             using (var context = new AutoMinerRigDbContext())
             {
-                var data = context.AlgorithmDatas.FirstOrDefault(x => x.AlgorithmId == algorithmId && x.MinerId == miner.Id)
+                var data = context.AlgorithmDatas.FirstOrDefault(x => x.AlgorithmId == algorithmId)
                            ?? context.AlgorithmDatas.Add(new AlgorithmData
                            {
                                AlgorithmId = algorithmId,
-                               AlgorithmName = algorithmName,
-                               MinerId = miner.Id
+                               AlgorithmName = algorithmName
                            });
                 data.SpeedInHashes = hashRate;
                 data.Power = power;

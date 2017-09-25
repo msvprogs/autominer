@@ -6,6 +6,6 @@ namespace Msv.AutoMiner.Rig.Storage.Contracts
     public interface IMinerTesterStorage
     {
         MinerAlgorithmSetting[] GetMinerAlgorithmSettings();
-        void StoreAlgorithmData(Miner miner, Guid algorithmId, string algorithmName, long hashRate, double power);
+        void StoreAlgorithmData(Guid algorithmId, string algorithmName, long hashRate, double power);
     }
 }

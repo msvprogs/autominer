@@ -14,9 +14,5 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public long SpeedInHashes { get; set; }
 
         public double Power { get; set; }
-
-        public int MinerId { get; set; }
-
-        public virtual Miner Miner { get; set; }
     }
 }
