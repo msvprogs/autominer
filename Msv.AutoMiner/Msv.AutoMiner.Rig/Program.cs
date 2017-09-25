@@ -48,20 +48,11 @@ namespace Msv.AutoMiner.Rig
                 {
                     ClientCertificate = certificateProvider.GetCertificate()
                 });
-            string[] explicitCurrencies = null;
             var testMode = false;
             if (args.Any())
             {
                 if (ProcessArgs(args, controlCenterClient, certificateProvider))
                     return;
-                var currencyArg = Array.IndexOf(args, "--currencies");
-                if (currencyArg >= 0)
-                {
-                    explicitCurrencies = args[currencyArg + 1].Split(',')
-                        .Select(x => x.ToUpperInvariant())
-                        .ToArray();
-                    M_Logger.Info("Mining only " + string.Join(", ", explicitCurrencies));
-                }
                 testMode = args.Contains("--test");
             }
 
@@ -170,8 +161,6 @@ namespace Msv.AutoMiner.Rig
         private static void DisplayHelp()
         {
             Console.WriteLine("Usage:");
-            Console.WriteLine("--currencies <currencies> - use only specified currencies, separated by comma");
-            Console.WriteLine("Example: --currencies LTC,ZEC,ZCL");
             Console.WriteLine("--test - run application in test mode (runs all miners sequentially, detects errors and measures hashrates)");
             Console.WriteLine("--test --benchmark - run application in test mode with testing only one currency per algorithm");
             Console.WriteLine();

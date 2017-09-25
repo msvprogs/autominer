@@ -3,6 +3,7 @@
     public enum RigCommandType
     {
         Reboot,
-        Shutdown
+        Shutdown,
+        RequestMiningWork
     }
 }

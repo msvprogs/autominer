@@ -28,6 +28,7 @@ namespace Msv.AutoMiner.Data
         public DbSet<Rig> Rigs { get; set; }
         public DbSet<RigCommand> RigCommands { get; set; }
         public DbSet<RigHeartbeat> RigHeartbeats { get; set; }
+        public DbSet<RigMiningState> RigMiningStates { get; set; }
         public DbSet<WalletBalance> WalletBalances { get; set; }
         public DbSet<WalletOperation> WalletOperations { get; set; }
 

@@ -97,6 +97,20 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 RigId = rigId,
                 ContentsJson = JsonConvert.SerializeObject(heartbeat)
             });
+            var now = DateTime.UtcNow;
+            await m_Storage.SaveMiningStates(heartbeat.MiningStates
+                .EmptyIfNull()
+                .Where(x => x != null)
+                .Select(x => new RigMiningState
+                {
+                    DateTime = now,
+                    CoinId = x.CoinId,
+                    RigId = rigId,
+                    InvalidShares = x.InvalidShares,
+                    ValidShares = x.ValidShares,
+                    HashRate = x.HashRate.Current
+                })
+                .ToArray());
             var command = await m_Storage.GetNextCommand(rigId);
             if (command == null)
                 return new SendHeartbeatResponseModel();

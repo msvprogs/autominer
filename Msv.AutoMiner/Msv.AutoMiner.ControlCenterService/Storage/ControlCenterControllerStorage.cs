@@ -36,6 +36,15 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             await m_Context.SaveChangesAsync();
         }
 
+        public async Task SaveMiningStates(RigMiningState[] miningStates)
+        {
+            if (miningStates == null)
+                throw new ArgumentNullException(nameof(miningStates));
+
+            await m_Context.RigMiningStates.AddRangeAsync(miningStates);
+            await m_Context.SaveChangesAsync();
+        }
+
         public async Task<RigCommand> GetNextCommand(int rigId)
             => await m_Context.RigCommands
                 .AsNoTracking()

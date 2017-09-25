@@ -9,6 +9,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
         Task<Rig> GetRigByName(string name);
         Task SaveRig(Rig rig);
         Task SaveHeartbeat(RigHeartbeat heartbeat);
+        Task SaveMiningStates(RigMiningState[] miningStates);
         Task<RigCommand> GetNextCommand(int rigId);
         Task MarkCommandAsSent(int commandId);
         Task<Pool[]> GetActivePools(Guid[] coinIds);
