@@ -32,7 +32,7 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddEntityFrameworkMySql();
 
             services.AddDbContext<AutoMinerDbContext>(
-                x => x.UseMySql(Configuration.GetConnectionString("AutoMinerDb")),
+                x => x.UseMySql(Configuration.GetConnectionString("AutoMinerDb"), y => y.CommandTimeout(30)),
                 ServiceLifetime.Transient);
 
             services.AddMvc();
