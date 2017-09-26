@@ -8,6 +8,7 @@ using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Common.ServiceContracts;
+using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
 using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
@@ -26,13 +27,18 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
 
         private readonly ICertificateService m_CertificateService;
         private readonly ICoinInfoService m_CoinInfoService;
+        private readonly IHeartbeatAnalyzer m_HeartbeatAnalyzer;
         private readonly IControlCenterControllerStorage m_Storage;
 
         public ControlCenterController(
-            ICertificateService certificateService, ICoinInfoService coinInfoService, IControlCenterControllerStorage storage)
+            ICertificateService certificateService,
+            ICoinInfoService coinInfoService,
+            IHeartbeatAnalyzer heartbeatAnalyzer,
+            IControlCenterControllerStorage storage)
         {
             m_CertificateService = certificateService;
             m_CoinInfoService = coinInfoService;
+            m_HeartbeatAnalyzer = heartbeatAnalyzer;
             m_Storage = storage;
         }
 
@@ -62,7 +68,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 return new RegisterRigResponseModel();
             }
             M_Logger.Info($"Creating certificate for rig {request.Name}...");
-            var certificate = await m_CertificateService.CreateCertificate(rig, request.X509CertificateRequest);
+            var certificate = await m_CertificateService.CreateCertificate(
+                rig, SiteCertificates.PortCertificates[HttpContext.Connection.LocalPort], request.X509CertificateRequest);
             if (certificate == null)
             {
                 M_Logger.Warn($"Rig {request.Name}: certificate creation failed");
@@ -76,7 +83,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             {
                 IsSuccess = true,
                 X509ClientCertificate = certificate.RawData,
-                CaCertificate = m_CertificateService.CaCertificate.RawData
+                CaCertificate = SiteCertificates.PortCertificates[HttpContext.Connection.LocalPort].RawData
             };
         }
 
@@ -111,6 +118,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                     HashRate = x.HashRate.Current
                 })
                 .ToArray());
+            m_HeartbeatAnalyzer.Analyze(rigId, heartbeat);
             var command = await m_Storage.GetNextCommand(rigId);
             if (command == null)
                 return new SendHeartbeatResponseModel();

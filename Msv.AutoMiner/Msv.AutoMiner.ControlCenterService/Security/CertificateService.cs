@@ -19,20 +19,19 @@ namespace Msv.AutoMiner.ControlCenterService.Security
     {
         private static readonly TimeSpan M_CertificateValidityPeriod = TimeSpan.FromDays(365 * 5);
 
-        public X509Certificate2 CaCertificate { get; }
-
         private readonly ICertificateServiceStorage m_Storage;
 
-        public CertificateService(X509Certificate2 caCertificate, ICertificateServiceStorage storage)
+        public CertificateService(ICertificateServiceStorage storage)
         {
-            CaCertificate = caCertificate ?? throw new ArgumentNullException(nameof(caCertificate));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
-        public Task<X509Certificate2> CreateCertificate(Rig rig, byte[] certificateRequest)
+        public Task<X509Certificate2> CreateCertificate(Rig rig, X509Certificate2 serverCertificate, byte[] certificateRequest)
         {
             if (rig == null)
                 throw new ArgumentNullException(nameof(rig));
+            if (serverCertificate == null)
+                throw new ArgumentNullException(nameof(serverCertificate));
             if (certificateRequest == null)
                 throw new ArgumentNullException(nameof(certificateRequest));
 
@@ -47,24 +46,26 @@ namespace Msv.AutoMiner.ControlCenterService.Security
 
             var generator = new X509V3CertificateGenerator();
             generator.SetSerialNumber(new BigInteger(128, new SecureRandom()));
-            generator.SetIssuerDN(new X509Name(CaCertificate.SubjectName.Format(false)));
+            generator.SetIssuerDN(new X509Name(serverCertificate.SubjectName.Format(false)));
             generator.SetSubjectDN(requestInfo.Subject);
             generator.SetNotBefore(DateTime.UtcNow);
             generator.SetNotAfter(DateTime.UtcNow + M_CertificateValidityPeriod);
             generator.SetPublicKey(PublicKeyFactory.CreateKey(requestInfo.SubjectPublicKeyInfo));
 
-            var caKeyPair = DotNetUtilities.GetKeyPair(CaCertificate.PrivateKey);
+            var caKeyPair = DotNetUtilities.GetKeyPair(serverCertificate.PrivateKey);
             var bouncyCert = generator.Generate(
                 new Asn1SignatureFactory(request.SignatureAlgorithm.Algorithm.Id, caKeyPair.Private));
             return Task.FromResult(new X509Certificate2(DotNetUtilities.ToX509Certificate(bouncyCert)));
         }
 
-        public async Task<Rig> AuthenticateRig(X509Certificate2 clientCertificate)
+        public async Task<Rig> AuthenticateRig(X509Certificate2 serverCertificate, X509Certificate2 clientCertificate)
         {
+            if (serverCertificate == null)
+                throw new ArgumentNullException(nameof(serverCertificate));
             if (clientCertificate == null)
                 throw new ArgumentNullException(nameof(clientCertificate));
 
-            if (clientCertificate.IssuerName.Name != CaCertificate.SubjectName.Name)
+            if (clientCertificate.IssuerName.Name != serverCertificate.SubjectName.Name)
                 return null;
 
             var rig = await m_Storage.GetRigByName(clientCertificate.GetNameInfo(X509NameType.SimpleName, false));

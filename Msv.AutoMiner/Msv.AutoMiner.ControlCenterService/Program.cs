@@ -11,6 +11,7 @@ using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.Monitors;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
+using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using NLog;
 using ILogger = NLog.ILogger;
@@ -49,18 +50,16 @@ namespace Msv.AutoMiner.ControlCenterService
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseKestrel(x =>
-                {
-                    x.Listen(IPAddress.Any, 6283, y =>
+                .UseKestrel(x => SiteCertificates.PortCertificates
+                    .ForEach(z => x.Listen(IPAddress.Any, z.Key, y =>
                     {
                         y.UseHttps(new HttpsConnectionAdapterOptions
                         {
                             ClientCertificateMode = ClientCertificateMode.AllowCertificate,
                             ClientCertificateValidation = delegate { return true; },
-                            ServerCertificate = new X509Certificate2(File.ReadAllBytes("controlService.pfx"), "vl01fgNUNRFWttb37yst")
+                            ServerCertificate = z.Value
                         });
-                    });
-                })
+                    })))
                 .UseStartup<Startup>()
                 .Build();
     }

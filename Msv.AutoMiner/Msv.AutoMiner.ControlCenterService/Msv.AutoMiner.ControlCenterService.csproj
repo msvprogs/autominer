@@ -22,6 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="External\CommandInterfaces\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -31,6 +32,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.3" />
+    <PackageReference Include="Telegram.Bot.Core" Version="13.2.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +51,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="controlCenterEx.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="controlService.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

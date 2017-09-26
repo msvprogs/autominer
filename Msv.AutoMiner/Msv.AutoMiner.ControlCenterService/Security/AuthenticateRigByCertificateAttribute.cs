@@ -28,8 +28,8 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 context.RouteData.Values.Remove(RigIdRouteKey);
                 var ip = context.HttpContext.Connection.RemoteIpAddress;
                 M_Logger.Info($"Starting authentication, remote IP {ip}");
-                var certificate = context.HttpContext.Connection.ClientCertificate;
-                if (certificate == null)
+                var clientCertificate = context.HttpContext.Connection.ClientCertificate;
+                if (clientCertificate == null)
                 {
                     M_Logger.Warn($"{ip}: Client certificate not found");
                     context.Result = new ForbidResult();
@@ -41,10 +41,11 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 //    context.Result = new ForbidResult();
                 //    return;
                 //}
-                var rig = await m_CertificateService.AuthenticateRig(certificate);
+                var rig = await m_CertificateService.AuthenticateRig(
+                    SiteCertificates.PortCertificates[context.HttpContext.Connection.LocalPort], clientCertificate);
                 if (rig == null)
                 {
-                    M_Logger.Warn($"{ip}: Rig with the specified CN and serial not found ({certificate.SubjectName.Name}, serial {certificate.SerialNumber})");
+                    M_Logger.Warn($"{ip}: Rig with the specified CN and serial not found ({clientCertificate.SubjectName.Name}, serial {clientCertificate.SerialNumber})");
                     context.Result = new ForbidResult();
                     return;
                 }
