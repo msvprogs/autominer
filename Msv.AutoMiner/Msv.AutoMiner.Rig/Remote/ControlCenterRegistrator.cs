@@ -43,7 +43,7 @@ namespace Msv.AutoMiner.Rig.Remote
             }
             var certificate = new X509Certificate2(result.X509ClientCertificate);
             M_Logger.Info($"Received client certificate (thumbprint {certificate.Thumbprint}), storing it in the local storage...");
-            //m_CertificateProvider.StoreCaCertificate(new X509Certificate2(result.CaCertificate));
+            m_CertificateProvider.StoreCaCertificate(new X509Certificate2(result.CaCertificate));
             m_CertificateProvider.StoreClientCertificate(certificate, request.KeyPair);
             M_Logger.Info($"Rig {name} was registered successfully");
         }

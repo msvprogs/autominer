@@ -28,7 +28,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 context.RouteData.Values.Remove(RigIdRouteKey);
                 var ip = context.HttpContext.Connection.RemoteIpAddress;
                 M_Logger.Info($"Starting authentication, remote IP {ip}");
-                var clientCertificate = context.HttpContext.Connection.ClientCertificate;
+                var clientCertificate = await context.HttpContext.Connection.GetClientCertificateAsync();
                 if (clientCertificate == null)
                 {
                     M_Logger.Warn($"{ip}: Client certificate not found");

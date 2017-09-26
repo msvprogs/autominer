@@ -1,10 +1,12 @@
 ﻿using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Security;
@@ -24,7 +26,7 @@ namespace Msv.AutoMiner.ControlCenterService
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
-        {
+        { 
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
 
             var certificateStorage = new X509CertificateStorage(
@@ -49,13 +51,40 @@ namespace Msv.AutoMiner.ControlCenterService
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+            new WebHostBuilder()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    var hostingEnvironment = hostingContext.HostingEnvironment;
+                    config.AddJsonFile("appsettings.json", true, true)
+                        .AddJsonFile(string.Format("appsettings.{0}.json", hostingEnvironment.EnvironmentName), true,
+                            true);
+                    if (hostingEnvironment.IsDevelopment())
+                    {
+                        var assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
+                        if (assembly != null)
+                            config.AddUserSecrets(assembly, true);
+                    }
+                    config.AddEnvironmentVariables();
+                    if (args == null)
+                        return;
+                    config.AddCommandLine(args);
+                })
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                    logging.AddDebug();
+                })
+                .UseDefaultServiceProvider((context, options) =>
+                    options.ValidateScopes = context.HostingEnvironment.IsDevelopment())
                 .UseKestrel(x => SiteCertificates.PortCertificates
                     .ForEach(z => x.Listen(IPAddress.Any, z.Key, y =>
                     {
                         y.UseHttps(new HttpsConnectionAdapterOptions
                         {
                             ClientCertificateMode = ClientCertificateMode.AllowCertificate,
+                            CheckCertificateRevocation = false,
                             ClientCertificateValidation = delegate { return true; },
                             ServerCertificate = z.Value
                         });

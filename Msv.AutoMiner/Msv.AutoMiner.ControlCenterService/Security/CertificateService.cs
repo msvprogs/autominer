@@ -12,6 +12,7 @@ using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
+using Org.BouncyCastle.X509.Extension;
 
 namespace Msv.AutoMiner.ControlCenterService.Security
 {
@@ -50,7 +51,12 @@ namespace Msv.AutoMiner.ControlCenterService.Security
             generator.SetSubjectDN(requestInfo.Subject);
             generator.SetNotBefore(DateTime.UtcNow);
             generator.SetNotAfter(DateTime.UtcNow + M_CertificateValidityPeriod);
-            generator.SetPublicKey(PublicKeyFactory.CreateKey(requestInfo.SubjectPublicKeyInfo));
+            var clientPublicKey = PublicKeyFactory.CreateKey(requestInfo.SubjectPublicKeyInfo);
+            generator.SetPublicKey(clientPublicKey);
+            generator.AddExtension(X509Extensions.AuthorityKeyIdentifier, false,
+                new AuthorityKeyIdentifierStructure(DotNetUtilities.FromX509Certificate(serverCertificate)));
+            generator.AddExtension(X509Extensions.SubjectKeyIdentifier, false,
+                new SubjectKeyIdentifierStructure(clientPublicKey));
 
             var caKeyPair = DotNetUtilities.GetKeyPair(serverCertificate.PrivateKey);
             var bouncyCert = generator.Generate(
