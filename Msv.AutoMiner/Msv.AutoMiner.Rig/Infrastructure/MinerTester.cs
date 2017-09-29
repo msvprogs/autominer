@@ -24,19 +24,22 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly IControlCenterService m_ControlCenterService;
         private readonly IMinerTesterStorage m_Storage;
         private readonly TimeSpan m_TestDuration;
+        private readonly string[] m_Algorithms;
 
         public MinerTester(
             IMinerProcessController controller,
             IVideoAdapterMonitor videoAdapterMonitor,
             IControlCenterService controlCenterService,
             IMinerTesterStorage storage,
-            TimeSpan testDuration)
+            TimeSpan testDuration,
+            string[] algorithms)
         {
             m_Controller = controller ?? throw new ArgumentNullException(nameof(controller));
             m_VideoAdapterMonitor = videoAdapterMonitor ?? throw new ArgumentNullException(nameof(videoAdapterMonitor));
             m_ControlCenterService = controlCenterService ?? throw new ArgumentNullException(nameof(controlCenterService));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
             m_TestDuration = testDuration;
+            m_Algorithms = algorithms;
         }
 
         public void Test(bool benchmarkMode)
@@ -44,6 +47,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             M_Logger.Info("Running miner tests (only for active coins with pools)...");
 
             var algorithms = m_ControlCenterService.GetAlgorithms()
+                .Where(x => m_Algorithms == null || m_Algorithms.Contains(x.Name, StringComparer.InvariantCultureIgnoreCase))
                 .ToDictionary(x => x.Id);
             M_Logger.Info($"Got {algorithms.Count} algorithms from server");
 

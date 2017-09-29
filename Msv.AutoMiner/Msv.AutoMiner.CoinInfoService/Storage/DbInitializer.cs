@@ -14,13 +14,13 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
         private static readonly Dictionary<KnownCoinAlgorithm, ProfitabilityFormulaType> M_ProfitabilityFormulaTypes =
             new Dictionary<KnownCoinAlgorithm, ProfitabilityFormulaType>
             {
-                [KnownCoinAlgorithm.Equihash] = ProfitabilityFormulaType.Equihash,
+                [KnownCoinAlgorithm.Equihash] = ProfitabilityFormulaType.Special,
                 [KnownCoinAlgorithm.EtHash] = ProfitabilityFormulaType.EtHash,
-                [KnownCoinAlgorithm.PrimeChain] = ProfitabilityFormulaType.PrimeChain,
-                [KnownCoinAlgorithm.CryptoNight] = ProfitabilityFormulaType.ByHashRate,
-                [KnownCoinAlgorithm.Blake2B] = ProfitabilityFormulaType.ByHashRate,
-                [KnownCoinAlgorithm.Pascal] = ProfitabilityFormulaType.ByHashRate,
-                [KnownCoinAlgorithm.M7] = ProfitabilityFormulaType.ByHashRate
+                [KnownCoinAlgorithm.PrimeChain] = ProfitabilityFormulaType.Special,
+                [KnownCoinAlgorithm.CryptoNight] = ProfitabilityFormulaType.Special,
+                [KnownCoinAlgorithm.Blake2B] = ProfitabilityFormulaType.Special,
+                [KnownCoinAlgorithm.Pascal] = ProfitabilityFormulaType.Special,
+                [KnownCoinAlgorithm.M7] = ProfitabilityFormulaType.Special
             };
 
         public static void InitializeIfNotExist(AutoMinerDbContext context)
@@ -346,14 +346,6 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                 },
                 new Coin
                 {
-                    Id = new Guid("1CA491C9-B23B-4D38-B2E6-FEFF6C0FE6E5"),
-                    Name = "MachineCoin",
-                    Symbol = "MAC",
-                    AlgorithmId = algorithms[KnownCoinAlgorithm.TimeTravel8],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.ChainzCryptoid
-                },
-                new Coin
-                {
                     Id = new Guid("513F5BB6-12F1-4F38-A673-13FF6FD4CBC5"),
                     Name = "Veltor",
                     Symbol = "VLT",
@@ -560,7 +552,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Symbol = "SIGT",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Skunk],
                     NetworkInfoApiType = CoinNetworkInfoApiType.Iquidus,
-                    NetworkInfoApiUrl = "http://explorer.signatum.download"
+                    NetworkInfoApiUrl = "http://explorer.signatum.io/"
                 },
                 new Coin
                 {
@@ -568,7 +560,8 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "Coimatic 2.0",
                     Symbol = "CTIC2",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Nist5],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
+                    NetworkInfoApiType = CoinNetworkInfoApiType.IquidusWithPos,
+                    NetworkInfoApiUrl = "http://193.70.109.114:4002/"
                 },
                 new Coin
                 {
@@ -586,7 +579,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Symbol = "CXT",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Nist5],
                     NetworkInfoApiType = CoinNetworkInfoApiType.IquidusWithPos,
-                    NetworkInfoApiUrl = "http://194.135.95.46:3001/"
+                    NetworkInfoApiUrl = "http://193.70.109.114:3001/"
                 },
                 new Coin
                 {

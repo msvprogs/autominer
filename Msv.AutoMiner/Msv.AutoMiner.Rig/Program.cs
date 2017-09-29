@@ -81,12 +81,16 @@ namespace Msv.AutoMiner.Rig
                 using (var monitor = new VideoAdapterMonitor(
                     new NVidiaVideoSystemStateProvider()))
                 {
+                    var algorithmParamIndex = Array.IndexOf(args, "--algorithms");
                     var tester = new MinerTester(
                         controller,
                         monitor,
-                        controlCenterClient, 
+                        controlCenterClient,
                         new MinerTesterStorage(),
-                        Settings.Default.TestModeMiningDuration);
+                        Settings.Default.TestModeMiningDuration,
+                        algorithmParamIndex >= 0
+                            ? args[algorithmParamIndex + 1].Split(',')
+                            : null);
                     tester.Test(args.Contains("--benchmark"));
                     M_Logger.Info("Miner tests completed");
                     return;
@@ -167,6 +171,7 @@ namespace Msv.AutoMiner.Rig
             Console.WriteLine("Usage:");
             Console.WriteLine("--test - run application in test mode (runs all miners sequentially, detects errors and measures hashrates)");
             Console.WriteLine("--test --benchmark - run application in test mode with testing only one currency per algorithm");
+            Console.WriteLine("--test --benchmark --algorithms x11gost,skunk - limit algorithms to specified");
             Console.WriteLine();
             Console.WriteLine("--register <name> <password> - register this rig at the control center");
             Console.WriteLine("Example: --register Rig1 1234Qwe");

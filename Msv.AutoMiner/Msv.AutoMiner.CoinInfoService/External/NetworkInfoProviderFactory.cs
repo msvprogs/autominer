@@ -113,8 +113,6 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new BitCoinInfoProvider(m_OrdinaryClient);
                 case "KMD":
                     return new KomodoInfoProvider(m_OrdinaryClient);
-                case "CTIC2":
-                    return new Coimatic2InfoProvider(m_OrdinaryClient);
                 case "XPM":
                     return new PrimeCoinInfoProvider(m_OrdinaryClient);
                 case "PASC":
