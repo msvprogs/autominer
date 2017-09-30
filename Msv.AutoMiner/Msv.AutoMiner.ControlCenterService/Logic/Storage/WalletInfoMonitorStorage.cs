@@ -9,25 +9,33 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 {
     public class WalletInfoMonitorStorage : IWalletInfoMonitorStorage
     {
-        private readonly AutoMinerDbContext m_Context;
+        private readonly string m_ConnectionString;
 
-        public WalletInfoMonitorStorage(AutoMinerDbContext context)
-            => m_Context = context;
+        public WalletInfoMonitorStorage(string connectionString)
+        {
+            m_ConnectionString = connectionString;
+        }
 
         public Wallet[] GetActiveWallets()
-            => m_Context.Wallets
-                .Include(x => x.Coin)
-                .AsNoTracking()
-                .Where(x => x.Activity != ActivityState.Deleted)
-                .ToArray();
+        {
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+                return context.Wallets
+                    .Include(x => x.Coin)
+                    .AsNoTracking()
+                    .Where(x => x.Activity != ActivityState.Deleted)
+                    .ToArray();
+        }
 
         public void StoreWalletBalances(WalletBalance[] balances)
         {
             if (balances == null)
                 throw new ArgumentNullException(nameof(balances));
 
-            m_Context.WalletBalances.AddRange(balances);
-            m_Context.SaveChanges();
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                context.WalletBalances.AddRange(balances);
+                context.SaveChanges();
+            }
         }
 
         public WalletOperation[] LoadExistingOperations(string[] externalIds, DateTime startDate)
@@ -35,10 +43,11 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (externalIds == null)
                 throw new ArgumentNullException(nameof(externalIds));
 
-            return m_Context.WalletOperations
-                .AsNoTracking()
-                .Where(x => x.DateTime >= startDate && externalIds.Contains(x.ExternalId))
-                .ToArray();
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+                return context.WalletOperations
+                    .AsNoTracking()
+                    .Where(x => x.DateTime >= startDate && externalIds.Contains(x.ExternalId))
+                    .ToArray();
         }
 
         public void StoreWalletOperations(WalletOperation[] operations)
@@ -46,8 +55,11 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (operations == null)
                 throw new ArgumentNullException(nameof(operations));
 
-            m_Context.WalletOperations.AddRange(operations);
-            m_Context.SaveChanges();
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                context.WalletOperations.AddRange(operations);
+                context.SaveChanges();
+            }
         }
     }
 }

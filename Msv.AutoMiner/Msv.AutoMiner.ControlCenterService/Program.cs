@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
@@ -11,11 +12,14 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.ControlCenterService.External;
+using Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces;
 using Msv.AutoMiner.ControlCenterService.Logic.Monitors;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.ControlCenterService.Security;
+using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using NLog;
+using Telegram.Bot;
 using ILogger = NLog.ILogger;
 // ReSharper disable AccessToDisposedClosure
 
@@ -36,6 +40,8 @@ namespace Msv.AutoMiner.ControlCenterService
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {
+                var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                var connectionString = config.GetConnectionString("AutoMinerDb");
                 using (new PoolInfoMonitor(
                     new PoolInfoProviderFactory(new LoggedWebClient()),
                     () => scope.ServiceProvider.GetRequiredService<IPoolInfoMonitorStorage>()))
@@ -44,6 +50,13 @@ namespace Msv.AutoMiner.ControlCenterService
                         new LoggedWebClient(),
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     () => scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
+                using (new TelegramCommandInterface(
+                    new TelegramBotClient(config.GetValue<string>("Notifications:Telegram:Token")),
+                    new TelegramCommandInterfaceStorage(connectionString),
+                    config.GetSection("Notifications:Telegram:Subscribers")
+                        .GetChildren()
+                        .Select(y => y.Value)
+                        .ToArray()))
                 {
                     host.Run();
                 }

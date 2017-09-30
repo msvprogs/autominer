@@ -9,27 +9,35 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 {
     public class PoolInfoMonitorStorage : IPoolInfoMonitorStorage
     {
-        private readonly AutoMinerDbContext m_Context;
+        private readonly string m_ConnectionString;
 
-        public PoolInfoMonitorStorage(AutoMinerDbContext context)
-            => m_Context = context;
+        public PoolInfoMonitorStorage(string connectionString)
+        {
+            m_ConnectionString = connectionString;
+        }
 
         public Pool[] GetActivePools()
-            => m_Context.Pools
-                .Include(x => x.Coin)
-                .Include(x => x.Coin.Algorithm)
-                .Include(x => x.Coin.Wallets)
-                .AsNoTracking()
-                .Where(x => x.Activity != ActivityState.Deleted)
-                .ToArray();
+        {
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+                return context.Pools
+                    .Include(x => x.Coin)
+                    .Include(x => x.Coin.Algorithm)
+                    .Include(x => x.Coin.Wallets)
+                    .AsNoTracking()
+                    .Where(x => x.Activity != ActivityState.Deleted)
+                    .ToArray();
+        }
 
         public void StorePoolAccountStates(PoolAccountState[] poolAccountStates)
         {
             if (poolAccountStates == null)
                 throw new ArgumentNullException(nameof(poolAccountStates));
 
-            m_Context.PoolAccountStates.AddRange(poolAccountStates);
-            m_Context.SaveChanges();
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                context.PoolAccountStates.AddRange(poolAccountStates);
+                context.SaveChanges();
+            }
         }
 
         public void StorePoolPayments(PoolPayment[] poolPayments)
@@ -37,8 +45,11 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (poolPayments == null)
                 throw new ArgumentNullException(nameof(poolPayments));
 
-            m_Context.PoolPayments.AddRange(poolPayments);
-            m_Context.SaveChanges();
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                context.PoolPayments.AddRange(poolPayments);
+                context.SaveChanges();
+            }
         }
 
         public PoolPayment[] LoadExistingPayments(string[] externalIds, DateTime startDate)
@@ -46,10 +57,13 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (externalIds == null)
                 throw new ArgumentNullException(nameof(externalIds));
 
-            return m_Context.PoolPayments
-                .AsNoTracking()
-                .Where(x => x.DateTime >= startDate && externalIds.Contains(x.ExternalId))
-                .ToArray();
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                return context.PoolPayments
+                    .AsNoTracking()
+                    .Where(x => x.DateTime >= startDate && externalIds.Contains(x.ExternalId))
+                    .ToArray();
+            }
         }
     }
 }

@@ -4,8 +4,12 @@ namespace Msv.AutoMiner.Data
 {
     public class AutoMinerDbContext : DbContext
     {
-        public AutoMinerDbContext()
-        { }
+        private readonly string m_ConnectionString;
+
+        public AutoMinerDbContext(string connectionString)
+        {
+            m_ConnectionString = connectionString;
+        }
 
         public AutoMinerDbContext(DbContextOptions<AutoMinerDbContext> options)
             : base(options)
@@ -29,8 +33,17 @@ namespace Msv.AutoMiner.Data
         public DbSet<RigCommand> RigCommands { get; set; }
         public DbSet<RigHeartbeat> RigHeartbeats { get; set; }
         public DbSet<RigMiningState> RigMiningStates { get; set; }
+        public DbSet<TelegramUser> TelegramUsers { get; set; }
         public DbSet<WalletBalance> WalletBalances { get; set; }
         public DbSet<WalletOperation> WalletOperations { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            if (m_ConnectionString != null)
+                optionsBuilder.UseMySql(m_ConnectionString, y => y.CommandTimeout(30));
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
