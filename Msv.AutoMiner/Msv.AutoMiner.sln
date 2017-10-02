@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.ControlCenter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.Rig", "Msv.AutoMiner.Rig\Msv.AutoMiner.Rig.csproj", "{84DA405E-8947-4DFD-9E92-0CB5E7CFDFA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.FrontEnd", "Msv.AutoMiner.FrontEnd\Msv.AutoMiner.FrontEnd.csproj", "{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,14 @@ Global
 		{84DA405E-8947-4DFD-9E92-0CB5E7CFDFA7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{84DA405E-8947-4DFD-9E92-0CB5E7CFDFA7}.Release|x64.ActiveCfg = Release|Any CPU
 		{84DA405E-8947-4DFD-9E92-0CB5E7CFDFA7}.Release|x64.Build.0 = Release|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Debug|x64.Build.0 = Debug|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Release|x64.ActiveCfg = Release|Any CPU
+		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,93 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Controllers
+@using Msv.AutoMiner.FrontEnd.Models.Coins
+@model CoinDisplayModel[]
+
+    @if (TempData[CoinsController.CoinsMessageKey] != null)
+    {
+        <div class="panel panel-success">
+            <div class="panel-body text-success">
+                @TempData[CoinsController.CoinsMessageKey]
+            </div>
+        </div>
+    }
+
+    <h2 class="text-center">Coins</h2>
+    <div class="pull-right div-table-actions">
+        <a class="btn btn-info" asp-action="Create">
+            <i class="glyphicon glyphicon-plus"></i> Add new coin...
+        </a>
+    </div>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Algorithm</th>
+            <th>Difficulty</th>
+            <th>Net hashrate</th>
+            <th>Block reward</th>
+            <th>Time between blocks, sec</th>
+            <th>Last updated</th>
+            <th style="min-width:85px">Actions</th>
+        </tr>
+        @foreach (var coin in Model.OrderBy(x => x.Symbol))
+        {
+            string rowClass;
+            string title;
+            if (coin.Activity == ActivityState.Inactive)
+            {
+                rowClass = "text-muted";
+                title = "Coin is inactive";
+            }
+            else if (coin.LastUpdated == null || coin.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(30))
+            {
+                rowClass = "warning";
+                title = "Coin network data is unavailable or obsolete";
+            }
+            else
+            {
+                rowClass = null;
+                title = null;
+            }
+
+            <tr class="@rowClass" title="@title">
+                <td>@coin.Symbol</td>
+                <td>@coin.Name</td>
+                <td>@coin.Algorithm.Name</td>
+                <td>@coin.Difficulty.ToString("0.###")</td>
+                <td>@(coin.NetHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(coin.NetHashRate, coin.Algorithm.KnownValue) : "unavailable")</td>
+                <td class="text-right">@coin.BlockReward.ToString("N2")</td>
+                <td>@coin.BlockTimeSecs.ToString("F2")</td>
+                <td msv-absolute-date="@coin.LastUpdated"></td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@coin.Id" title="Edit coin">
+                                <i class="glyphicon glyphicon-edit"></i>
+                            </a>
+                        </li>
+                        <li>
+                            @{
+                                var activationButtonTitle = coin.Activity == ActivityState.Active
+                                    ? "Disable coin"
+                                    : "Enable coin";
+                            }
+                            <form asp-action="ToggleActive" asp-route-id="@coin.Id" method="post" title="@activationButtonTitle">
+                                <button class="btn btn-xs btn-info">
+                                    @if (coin.Activity == ActivityState.Active)
+                                    {
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    }
+                                    else if (coin.Activity == ActivityState.Inactive)
+                                    {
+                                        <i class="glyphicon glyphicon-flash"></i>
+                                    }
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        }
+    </table>

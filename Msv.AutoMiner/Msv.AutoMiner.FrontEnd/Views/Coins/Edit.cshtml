@@ -1,0 +1,90 @@
+﻿@using Msv.AutoMiner.Data
+@model Msv.AutoMiner.FrontEnd.Models.Coins.CoinEditModel
+
+<h2 class="text-center">Edit coin details</h2>
+
+<div class="text-danger" asp-validation-summary="All"></div>
+
+<form asp-action="Save" method="post">
+    <input asp-for="Id" />
+
+    <h3>Basic info</h3>
+    <div class="form-group">
+        <label asp-for="Symbol">Symbol:</label>
+        <input asp-for="Symbol" class="form-control" placeholder="For example, BTC"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name">Name:</label>
+        <input asp-for="Name" class="form-control" placeholder="For example, BitCoin"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="AlgorithmId">Algorithm:</label>
+        <select asp-for="AlgorithmId" class="form-control">
+            <option value="" disabled="disabled" selected="@(Model.AlgorithmId == null ? "selected" : "")">Select...</option>
+            @foreach (var algorithm in Model.AvailableAlgorithms.OrderBy(x => x.Name))
+            {
+                <option value="@algorithm.Id">@algorithm.Name</option>
+            }
+        </select>
+    </div>
+
+    <h3>Additional algorithm parameters</h3>
+    <div class="form-group">
+        <label asp-for="SolsPerDiff">Equihash SolsPerDiff:</label>
+        <input asp-for="SolsPerDiff" class="form-control"/>
+    </div>
+
+    <h3>Local node parameters</h3>
+    <div class="form-group">
+        <label asp-for="NodeUrl">Node URL:</label>
+        <input asp-for="NodeUrl" class="form-control" placeholder="For example, http://localhost:12345"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="NodeLogin">RPC username:</label>
+        <input asp-for="NodeLogin" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="NodePassword">RPC password:</label>
+        <input asp-for="NodePassword" class="form-control"/>
+    </div>
+
+    <h3>Remote network info provider parameters</h3>
+    <div class="form-group">
+        <label asp-for="NetworkInfoApiType">Remote API type:</label>
+        <select asp-for="NetworkInfoApiType" class="form-control">
+            @foreach (CoinNetworkInfoApiType apiType in Enum.GetValues(typeof(CoinNetworkInfoApiType)))
+            {
+                <option value="@apiType">@apiType</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="NetworkApiUrl">API URL:</label>
+        <input asp-for="NetworkApiUrl" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="NetworkApiKey">API key:</label>
+        <input asp-for="NetworkApiKey" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="NetworkApiName">API coin name:</label>
+        <input asp-for="NetworkApiName" class="form-control"/>
+    </div>
+
+    <h3>Additional parameters</h3>
+    <div class="form-group">
+        <label asp-for="CanonicalBlockReward">Fixed block reward:</label>
+        <input asp-for="CanonicalBlockReward" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="CanonicalBlockTimeSeconds">Fixed time between blocks, sec:</label>
+        <input asp-for="CanonicalBlockTimeSeconds" class="form-control"/>
+    </div>
+    
+    <button type="submit" class="btn btn-success">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Save
+    </button>
+    <a class="btn btn-default" asp-action="Index">
+        <i class="glyphicon glyphicon-chevron-left"></i> Return to coins list
+    </a>
+</form>
