@@ -40,7 +40,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Analyzers
             if (miningStates.Any())
             {
                 var maxInvalidShareRate = miningStates
-                    .Where(x => x.ValidShares > 0)
+                    .Where(x => x.ValidShares > 0 || x.InvalidShares > 0)
                     .Select(x => (double) x.InvalidShares / (x.ValidShares + x.InvalidShares) * 100)
                     .DefaultIfEmpty(0)
                     .Max();
