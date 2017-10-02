@@ -8,6 +8,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
     {
         void StoreTelegramUser(TelegramUser user);
         KeyValuePair<string, Heartbeat>[] GetLastHeartbeats(string[] rigNames);
+        Dictionary<int, PoolAccountState> GetLastPoolAccountStates(int[] poolIds);
         Coin[] GetCoins();
     }
 }

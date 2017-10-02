@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
 using NLog;
@@ -104,37 +105,53 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
         {
             M_Logger.Info($"@{user.Username} requested states for rigs: {(rigNames != null ? string.Join(", ", rigNames) : "<all>")}");
             var coins = m_Storage.GetCoins()
+                .Concat(new[] {new Coin {Name = "none", Algorithm = new CoinAlgorithm()}})
                 .ToDictionary(x => x.Id);
             //language=html
-            const string rigInfoFormat = @"<i>{0}</i>:
-Now mining <b>{1}</b>
+            const string rigInfoFormat = @"<i>{0}:</i>
+Now mining <b>{1} ({14})</b>
 Shares: <b>{2}</b> valid, <b>{3}</b> invalid, <b>{4}</b>
 Video card temperatures: <b>{5}</b>
 Video card usages: <b>{6}</b>
 Client version: <b>{7}</b>
-Last updated: <b>{8:r}</b>";
+Last updated: <b>{8:r}</b>
+Pool shares: <b>{9}</b> valid, <b>{10}</b> invalid, <b>{11}</b>
+Pool balance: confirmed <b>{12:N6} {14}</b>, unconfirmed <b>{13:N6} {14}</b>";
 
-            var heartbeatStrings = m_Storage.GetLastHeartbeats(rigNames)
+            var heartbeats = m_Storage.GetLastHeartbeats(rigNames);
+            var poolStates = m_Storage.GetLastPoolAccountStates(
+                heartbeats.Select(x => x.Value)
+                    .Where(x => x.MiningStates != null && x.MiningStates.Any())
+                    .SelectMany(x => x.MiningStates.Select(y => y.PoolId))
+                    .ToArray());
+
+            var heartbeatStrings = heartbeats
                 .Select(x => new
                 {
                     Name = x.Key,
-                    NowMining = x.Value.MiningStates.EmptyIfNull().FirstOrDefault(),
+                    NowMining = x.Value.MiningStates.EmptyIfNull().FirstOrDefault() ?? new Heartbeat.MiningState(),
                     VideoCardStates = x.Value.VideoAdapterStates.EmptyIfNull(),
                     x.Value.ClientVersion,
-                    x.Value.DateTime
+                    x.Value.DateTime,
+                    PoolState = x.Value.MiningStates?.Select(y => poolStates.TryGetValue(y.PoolId))
+                        .FirstOrDefault(y => y != null) ?? new PoolAccountState()
                 })
                 .Select(x => string.Format(rigInfoFormat,
                     x.Name, 
-                    HtmlEntity.Entitize(x.NowMining != null ? coins[x.NowMining.CoinId].Name : "none"),
-                    x.NowMining?.ValidShares,
-                    x.NowMining?.InvalidShares,
-                    x.NowMining != null 
-                        ? HtmlEntity.Entitize(ConversionHelper.ToHashRateWithUnits(x.NowMining.HashRate.Current, coins[x.NowMining.CoinId].Algorithm.KnownValue))
-                        : "",
+                    HtmlEntity.Entitize(coins[x.NowMining.CoinId].Name),
+                    x.NowMining.ValidShares,
+                    x.NowMining.InvalidShares,
+                    HtmlEntity.Entitize(ConversionHelper.ToHashRateWithUnits(x.NowMining.HashRate.Current, coins[x.NowMining.CoinId].Algorithm.KnownValue)),
                     string.Join(", ", x.VideoCardStates.Select(y => y.Temperature.Current + "°C")),
                     string.Join(", ", x.VideoCardStates.Select(y => y.Utilization + "%")),
                     HtmlEntity.Entitize(x.ClientVersion),
-                    x.DateTime))
+                    x.DateTime,
+                    x.PoolState.ValidShares,
+                    x.PoolState.InvalidShares,
+                    HtmlEntity.Entitize(ConversionHelper.ToHashRateWithUnits(x.PoolState.HashRate, coins[x.NowMining.CoinId].Algorithm.KnownValue)),
+                    x.PoolState.ConfirmedBalance,
+                    x.PoolState.UnconfirmedBalance,
+                    HtmlEntity.Entitize(coins[x.NowMining.CoinId].Symbol)))
                 .ToArray();
             if (heartbeatStrings.Any())
                 await m_Client.SendTextMessageAsync(user.Id, string.Join("\n\n", heartbeatStrings), ParseMode.Html);

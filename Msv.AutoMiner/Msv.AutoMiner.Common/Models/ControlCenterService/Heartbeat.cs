@@ -36,6 +36,8 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
         {
             public Guid CoinId { get; set; }
 
+            public int PoolId { get; set; }
+
             public TimeSpan Duration { get; set; }
 
             public int ValidShares { get; set; }

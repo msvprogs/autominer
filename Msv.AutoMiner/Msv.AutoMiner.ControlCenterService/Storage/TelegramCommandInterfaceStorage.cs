@@ -33,6 +33,22 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             }
         }
 
+        public Dictionary<int, PoolAccountState> GetLastPoolAccountStates(int[] poolIds)
+        {
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+                return context.PoolAccountStates
+                    .Include(x => x.Pool)
+                    .AsNoTracking()
+                    .Where(x => poolIds.Contains(x.PoolId))
+                    .GroupBy(x => x.PoolId)
+                    .Select(x => new
+                    {
+                        x.Key,
+                        LastState = x.OrderByDescending(y => y.DateTime).FirstOrDefault()
+                    })
+                    .ToDictionary(x => x.Key, x => x.LastState);
+        }
+
         public KeyValuePair<string, Heartbeat>[] GetLastHeartbeats(string[] rigNames)
         {
             using (var context = new AutoMinerDbContext(m_ConnectionString))

@@ -36,6 +36,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 ? new Heartbeat.MiningState
                 {
                     CoinId = currentState.CoinId,
+                    PoolId = currentState.PoolId,
                     Duration = DateTime.UtcNow - m_MinerProcessController.StateChanged,
                     ValidShares = currentState.AcceptedShares.GetValueOrDefault(),
                     InvalidShares = currentState.RejectedShares.GetValueOrDefault(),
@@ -51,7 +52,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             {
                 DateTime = DateTime.UtcNow,
                 ClientVersion = M_AssemblyVersion.ToString(),
-                MiningStates = new[] {heartbeatMiningState},
+                MiningStates = heartbeatMiningState != null ? new []{ heartbeatMiningState } : null,
                 OsVersion = Environment.OSVersion.ToString(),
                 VideoDriverVersion = videoState?.DriverVersion,
                 VideoAdapterStates = videoState?.AdapterStates
