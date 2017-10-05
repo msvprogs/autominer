@@ -1,10 +1,13 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.FrontEnd.Models.Coins;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Pools
 {
     public class PoolDisplayModel : PoolBaseModel
     {
+        public CoinBaseModel Coin { get; set; }
+
         public bool HasApi { get; set; }
 
         public ActivityState Activity { get; set; }

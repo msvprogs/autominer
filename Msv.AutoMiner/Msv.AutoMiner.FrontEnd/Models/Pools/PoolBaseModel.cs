@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
-using Msv.AutoMiner.FrontEnd.Models.Coins;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Pools
 {
@@ -9,8 +8,6 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
     {
         [HiddenInput]
         public int Id { get; set; }
-
-        public CoinBaseModel Coin { get; set; }
 
         [Required(ErrorMessage = "Pool name is required")]
         public string Name { get; set; }
