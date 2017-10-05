@@ -12,3 +12,11 @@
 .div-table-actions {
     margin-bottom: 5px;
 }
+
+th.column-actions {
+    min-width: 95px;
+}
+
+.text-strong {
+    font-weight: bolder
+}

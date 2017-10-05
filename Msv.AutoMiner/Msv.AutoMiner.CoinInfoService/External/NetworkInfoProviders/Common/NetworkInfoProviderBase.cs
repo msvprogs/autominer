@@ -23,7 +23,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
                 .Zip(lastBlocks.Skip(1), (x, y) => x.Timestamp - y.Timestamp)
                 .Average();
             // If current block is generating longer than the average of previous 5, consider it too
-            var currentBlockTime = DateTimeHelper.Now - lastBlocks.Max(x => x.Timestamp);
+            var currentBlockTime = DateTimeHelper.NowTimestamp - lastBlocks.Max(x => x.Timestamp);
             var averageBlockTime = currentBlockTime > averageFromChain
                 ? new[] {currentBlockTime, averageFromChain}.Average()
                 : averageFromChain;

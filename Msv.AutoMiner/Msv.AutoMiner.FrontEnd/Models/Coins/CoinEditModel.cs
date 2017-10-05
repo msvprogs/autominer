@@ -13,8 +13,6 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         public CoinNetworkInfoApiType NetworkInfoApiType { get; set; }
 
-        public string NetworkApiKey { get; set; }
-
         public string NetworkApiName { get; set; }
 
         [Url(ErrorMessage = "Invalid network API URL")]

@@ -114,7 +114,7 @@ Shares: <b>{2}</b> valid, <b>{3}</b> invalid, <b>{4}</b>
 Video card temperatures: <b>{5}</b>
 Video card usages: <b>{6}</b>
 Client version: <b>{7}</b>
-Last updated: <b>{8:r}</b>
+Last updated: <b>{8}</b>
 Pool shares: <b>{9}</b> valid, <b>{10}</b> invalid, <b>{11}</b>
 Pool balance: confirmed <b>{12:N6} {14}</b>, unconfirmed <b>{13:N6} {14}</b>";
 
@@ -145,7 +145,7 @@ Pool balance: confirmed <b>{12:N6} {14}</b>, unconfirmed <b>{13:N6} {14}</b>";
                     string.Join(", ", x.VideoCardStates.Select(y => y.Temperature.Current + "°C")),
                     string.Join(", ", x.VideoCardStates.Select(y => y.Utilization + "%")),
                     HtmlEntity.Entitize(x.ClientVersion),
-                    x.DateTime,
+                    HtmlEntity.Entitize(DateTimeHelper.ToRelativeTime(x.DateTime)),
                     x.PoolState.ValidShares,
                     x.PoolState.InvalidShares,
                     HtmlEntity.Entitize(ConversionHelper.ToHashRateWithUnits(x.PoolState.HashRate, coins[x.NowMining.CoinId].Algorithm.KnownValue)),

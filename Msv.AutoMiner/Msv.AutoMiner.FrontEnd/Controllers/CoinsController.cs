@@ -63,7 +63,6 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return View(coins);
         }
 
-        [HttpGet]
         public async Task<IActionResult> Create() 
             => View("Edit", new CoinEditModel
             {
@@ -71,7 +70,6 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 AvailableAlgorithms = await GetAvailableAlgorithms()
             });
 
-        [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
             var coin = await m_Context.Coins

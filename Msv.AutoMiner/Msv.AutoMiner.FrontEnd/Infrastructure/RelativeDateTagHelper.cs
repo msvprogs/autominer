@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Msv.AutoMiner.Common.Helpers;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {
@@ -20,33 +21,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 return;
             }
             output.Attributes.SetAttribute("title", $"{AbsoluteDate.Value:yyyy-MM-dd HH:mm:ss} GMT");
-            var difference = DateTime.UtcNow - AbsoluteDate.Value;
-            if (difference == TimeSpan.Zero)
-            {
-                output.Content.SetContent("Right now");
-                return;
-            }
-
-            string postfix;
-            if (difference < TimeSpan.Zero)
-            {
-                postfix = "later";
-                difference = difference.Negate();
-            }
-            else
-                postfix = "ago";
-
-            string relativeTimeString;
-            if (difference.TotalSeconds < 60)
-                relativeTimeString = $"{difference.TotalSeconds:F0} seconds";
-            else if (difference.TotalMinutes < 60)
-                relativeTimeString = $"{difference.TotalMinutes:F0} minutes";
-            else if (difference.TotalHours < 24)
-                relativeTimeString = $"{difference.Hours:F0} hours";
-            else
-                relativeTimeString = $"{difference.Hours:F0} days";
-
-            output.Content.SetContent($"{relativeTimeString} {postfix}");
+            output.Content.SetContent(DateTimeHelper.ToRelativeTime(AbsoluteDate.Value));
         }
     }
 }

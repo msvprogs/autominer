@@ -1,0 +1,85 @@
+﻿@using Msv.AutoMiner.Data
+@model Msv.AutoMiner.FrontEnd.Models.Pools.PoolEditModel
+
+<h2 class="text-center">Edit pool details</h2>
+
+<div class="text-danger" asp-validation-summary="All"></div>
+
+<form asp-action="Save" method="post">
+    <input asp-for="Id" />
+
+    <h3>Basic info</h3>
+    <div class="form-group">
+        <label asp-for="CoinId">Coin:</label>
+        <select asp-for="CoinId" class="form-control">
+            <option value="" disabled="disabled" selected="@(Model.Coin == null ? "selected" : "")">Select...</option>
+            @foreach (var coin in Model.AvailableCoins.OrderBy(x => x.Symbol))
+            {
+                <option value="@coin.Id">@coin.Symbol - @coin.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Name">Name:</label>
+        <input asp-for="Name" class="form-control" placeholder="For example, SuprNova_BitCoin"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="Url">URL:</label>
+        <input asp-for="Url" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="IsAnonymous">
+            <input type="checkbox" asp-for="IsAnonymous" /> Is anonymous (coin wallet address will be used as login)
+        </label>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkerLogin">Login:</label>
+        <input asp-for="WorkerLogin" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkerPassword">Password:</label>
+        <input asp-for="WorkerPassword" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Priority">Priority (the higher is the number, the more important pool is):</label>
+        <input asp-for="Priority" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="FeeRatio">Pool fee (in %):</label>
+        <input asp-for="FeeRatio" class="form-control" />
+    </div>
+
+    <h3>Pool info provider parameters</h3>
+    <div class="form-group">
+        <label asp-for="ApiProtocol">API type:</label>
+        <select asp-for="ApiProtocol" class="form-control">
+            @foreach (PoolApiProtocol apiType in Enum.GetValues(typeof(PoolApiProtocol)))
+        {
+                <option value="@apiType">@apiType</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiUrl">API URL:</label>
+        <input asp-for="ApiUrl" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiKey">API key:</label>
+        <input asp-for="ApiKey" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiPoolName">API pool name:</label>
+        <input asp-for="ApiPoolName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiPoolUserId">API pool user ID:</label>
+        <input asp-for="ApiPoolUserId" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Save
+    </button>
+    <a class="btn btn-default" asp-action="Index">
+        <i class="glyphicon glyphicon-chevron-left"></i> Return to pools list
+    </a>
+</form>

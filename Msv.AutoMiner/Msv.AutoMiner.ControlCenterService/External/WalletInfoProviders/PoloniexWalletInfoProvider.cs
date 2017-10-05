@@ -40,7 +40,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 new Dictionary<string, string>
                 {
                     ["start"] = DateTimeHelper.ToTimestamp(startDate, TimeZoneInfo.Utc).ToString(),
-                    ["end"] = DateTimeHelper.Now.ToString()
+                    ["end"] = DateTimeHelper.NowTimestamp.ToString()
                 });
             return operations["deposits"]
                 .Cast<dynamic>()
