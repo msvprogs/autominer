@@ -17,6 +17,7 @@ th.column-actions {
     min-width: 95px;
 }
 
-.positive-balance {
-    font-weight: bolder
+.wallet-address {
+    overflow: hidden;
+    max-width: 350px;
 }

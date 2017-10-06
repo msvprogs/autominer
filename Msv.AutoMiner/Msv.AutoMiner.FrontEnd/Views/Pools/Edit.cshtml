@@ -12,7 +12,7 @@
     <div class="form-group">
         <label asp-for="CoinId">Coin:</label>
         <select asp-for="CoinId" class="form-control">
-            <option value="" disabled="disabled" selected="@(Model.Coin == null ? "selected" : "")">Select...</option>
+            <option value="" disabled="disabled" selected="@(Model.CoinId == null ? "selected" : "")">Select...</option>
             @foreach (var coin in Model.AvailableCoins.OrderBy(x => x.Symbol))
             {
                 <option value="@coin.Id">@coin.Symbol - @coin.Name</option>
@@ -29,7 +29,7 @@
     </div>
     <div class="form-group">
         <label asp-for="IsAnonymous">
-            <input type="checkbox" asp-for="IsAnonymous" /> Is anonymous (coin wallet address will be used as login)
+            <input type="checkbox" asp-for="IsAnonymous" /> Is anonymous (coin wallet address will be used as login, worker login will become the rig ID)
         </label>
     </div>
     <div class="form-group">

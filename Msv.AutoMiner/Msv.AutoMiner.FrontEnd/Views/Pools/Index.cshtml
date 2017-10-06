@@ -66,33 +66,12 @@
                 title = null;
             }
 
-            var confirmedBalanceClass = "text-right";
-            var unconfirmedBalanceClass = confirmedBalanceClass;
-
-            if (pool.ConfirmedBalance <= 0)
-            {
-                confirmedBalanceClass += " text-muted";
-            }
-            else
-            {
-                confirmedBalanceClass += " positive-balance";
-            }
-
-            if (pool.UnconfirmedBalance <= 0)
-            {
-                unconfirmedBalanceClass += " text-muted";
-            }
-            else
-            {
-                unconfirmedBalanceClass += " positive-balance";
-            }
-
             <tr class="@rowClass" title="@title">
                 <td>@pool.Coin.Symbol</td>
                 <td>@pool.Coin.Name</td>
                 <td>@pool.Name</td>
-                <td class="@confirmedBalanceClass">@pool.ConfirmedBalance.ToString("N6")</td>
-                <td class="@unconfirmedBalanceClass">@pool.UnconfirmedBalance.ToString("N6")</td>
+                <td msv-balance="@pool.ConfirmedBalance"></td>
+                <td msv-balance="@pool.UnconfirmedBalance"></td>
                 <td>@(pool.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(pool.PoolHashRate, pool.Coin.Algorithm.KnownValue) : "unavailable")</td>
                 <td>@pool.PoolWorkers</td>
                 <td>@pool.Priority</td>

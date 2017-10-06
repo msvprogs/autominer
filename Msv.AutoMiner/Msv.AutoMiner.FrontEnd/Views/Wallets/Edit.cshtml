@@ -1,0 +1,45 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletEditModel
+
+<h2 class="text-center">Edit wallet details</h2>
+
+<div class="text-danger" asp-validation-summary="All"></div>
+
+<form asp-action="Save" method="post">
+    <input asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="CoinId">Coin:</label>
+        <select asp-for="CoinId" class="form-control">
+            <option value="" disabled="disabled" selected="@(Model.CoinId == null ? "selected" : "")">Select...</option>
+            @foreach (var coin in Model.AvailableCoins.OrderBy(x => x.Symbol))
+            {
+                <option value="@coin.Id">@coin.Symbol - @coin.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Address">Address:</label>
+        <input asp-for="Address" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ExchangeType">Exchange:</label>
+        <select asp-for="ExchangeType" class="form-control">
+            <option value="">&lt;Local&gt;</option>
+            @foreach (ExchangeType exchangeType in Enum.GetValues(typeof(ExchangeType)))
+            {
+                if (exchangeType != ExchangeType.Unknown)
+                {
+                    <option value="@exchangeType">@exchangeType</option>
+                }
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Save
+    </button>
+    <a class="btn btn-default" asp-action="Index">
+        <i class="glyphicon glyphicon-chevron-left"></i> Return to wallets list
+    </a>
+</form>
