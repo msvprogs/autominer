@@ -1,0 +1,42 @@
+﻿@model Msv.AutoMiner.FrontEnd.Models.Exchanges.ExchangeModel[]
+
+<h2 class="text-center">Exchanges</h2>
+
+<div id="dialogSection" class="modal fade">
+</div>
+
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>Name</th>
+        <th>Has keys</th>
+        <th class="column-actions">Actions</th>
+    </tr>
+    @foreach (var exchange in Model.OrderBy(x => x.Type.ToString()))
+    {
+        <tr>
+            <td>@exchange.Type</td>
+            <td id="hasKeys_@exchange.Type" class="text-center">
+                @if (exchange.HasKeys)
+                {
+                    <i class="glyphicon glyphicon-ok"></i>
+                }
+            </td>
+            <td>
+                <ul class="list-inline">
+                    <li>
+                        <a class="btn btn-xs btn-primary" asp-action="SetKeys" asp-route-exchangeType="@exchange.Type" title="Register API keys">
+                            <i class="fa fa-key" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+    }
+</table>
+
+@section Scripts
+{
+    <script>
+        bindAnchorsToDialog("SetKeys", "dialogSection");
+    </script>
+}

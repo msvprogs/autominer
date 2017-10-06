@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Msv.AutoMiner.Common.External;
@@ -15,13 +14,6 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
     public class NovaexchangeWalletInfoProvider : ExchangeWalletInfoProviderBase
     {
-        private static readonly Uri[] M_BaseUris =
-        {
-            new Uri("https://novaexchange.com"),
-            //use anonymiser to bypass IP range blocks
-            new Uri("http://0s.nzxxmylfpbrwqylom5ss4y3pnu.cmle.ru")
-        };
-
         public NovaexchangeWalletInfoProvider(IWebClient webClient, string apiKey, string apiSecret)
             : base(webClient, apiKey, Encoding.ASCII.GetBytes(apiSecret))
         { }
@@ -69,10 +61,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         {
             using (var hmac = new HMACSHA512(ApiSecret))
             {
-                var relativeUrl = $"/remote/v2/private/{method}/?nonce={DateTime.Now.Ticks}";
-                var signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.ASCII.GetBytes(M_BaseUris[0] + relativeUrl)));
-                var response = UploadString(
-                    relativeUrl,
+                var url = $"https://novaexchange.com/remote/v2/private/{method}/?nonce={DateTime.Now.Ticks}";
+                var signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.ASCII.GetBytes(url)));
+                var response = WebClient.UploadString(
+                    url,
                     $"apikey={Uri.EscapeDataString(ApiKey)}&signature={Uri.EscapeDataString(signature)}",
                     new Dictionary<string, string>
                     {
@@ -83,28 +75,6 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     throw new ExternalDataUnavailableException(json["message"].Value<string>());
                 return (T) json[resultKey];
             }
-        }
-
-        private string UploadString(string relativeUrl, string data, Dictionary<string, string> headers)
-        {
-            Exception exception = null;
-            var jsonStr = M_BaseUris
-                .Select(x =>
-                {
-                    try
-                    {
-                        return WebClient.UploadString(new Uri(x, relativeUrl).ToString(), data, headers);
-                    }
-                    catch (WebException ex)
-                    {
-                        exception = ex;
-                        return null;
-                    }
-                })
-                .FirstOrDefault(x => x != null);
-            if (jsonStr == null)
-                throw exception ?? new ExternalDataUnavailableException("Unknown error");
-            return jsonStr;
         }
     }
 }

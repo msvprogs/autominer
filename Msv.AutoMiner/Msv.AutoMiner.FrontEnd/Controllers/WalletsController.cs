@@ -60,7 +60,21 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 })
                 .ToArray();
 
-            return View(wallets);
+            var totalBtc = wallets.Where(x => x.Coin.Symbol == "BTC")
+                .Select(x => x.Available)
+                .DefaultIfEmpty(0)
+                .Sum();
+
+            var btcUsdRate = await m_Context.CoinFiatValues
+                .OrderByDescending(x => x.DateTime)
+                .FirstOrDefaultAsync(x => x.Coin.Symbol == "BTC" && x.FiatCurrency.Symbol == "USD");
+
+            return View(new WalletIndexModel
+            {
+                Wallets = wallets,
+                TotalBtc = totalBtc,
+                TotalUsd = (decimal)(totalBtc * btcUsdRate?.Value).GetValueOrDefault()
+            });
         }
 
         public async Task<IActionResult> Create()

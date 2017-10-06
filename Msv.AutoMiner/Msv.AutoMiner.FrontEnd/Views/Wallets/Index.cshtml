@@ -1,6 +1,6 @@
 ﻿@using Msv.AutoMiner.Common.Enums
 @using Msv.AutoMiner.FrontEnd.Controllers
-@model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletDisplayModel[]
+@model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletIndexModel
 
     @if (TempData[WalletsController.WalletsMessageKey] != null)
     {
@@ -12,11 +12,19 @@
     }
 
     <h2 class="text-center">Wallets</h2>
-    <div class="pull-right div-table-actions">
-        <a class="btn btn-info" asp-action="Create">
-            <i class="glyphicon glyphicon-plus"></i> Add new wallet...
-        </a>
-    </div>
+    <div class="row">
+        <div class="col-xs-8">
+            <h4>Total <strong>@Model.TotalBtc.ToString("N6")</strong> BTC, <strong>$@Model.TotalUsd.ToString("N2")</strong></h4>
+        </div>
+        <div class="col-xs-4">
+            <div class="pull-right div-table-actions">
+                <a class="btn btn-info" asp-action="Create">
+                    <i class="glyphicon glyphicon-plus"></i> Add new wallet...
+                </a>
+            </div>
+        </div>
+    </div>    
+
     <table class="table table-bordered table-striped">
         <tr>
             <th>Coin symbol</th>
@@ -29,7 +37,7 @@
             <th>Last updated</th>
             <th class="column-actions">Actions</th>
         </tr>
-        @foreach (var wallet in Model.OrderBy(x => x.Coin.Symbol)
+        @foreach (var wallet in Model.Wallets.OrderBy(x => x.Coin.Symbol)
    .ThenBy(x => x.Coin.Name)
    .ThenByDescending(x => x.IsMiningTarget))
         {
