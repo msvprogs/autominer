@@ -3,11 +3,8 @@
         $.ajaxSetup({ cache: false });
         $("a[href*='/" + action + "?']").click(function(e) {
             e.preventDefault();
-            $.get(this.href,
-                function(data) {
-                    $('#' + dialogSectionId).html(data);
-                    $('#' + dialogSectionId).modal('show');
-                });
+            var dialogSection = $('#' + dialogSectionId);
+            dialogSection.load(this.href, null, function() { dialogSection.modal('show') });
         });
     });
 }

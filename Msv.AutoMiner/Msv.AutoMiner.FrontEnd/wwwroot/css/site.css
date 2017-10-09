@@ -21,3 +21,11 @@ th.column-actions {
     overflow: hidden;
     max-width: 350px;
 }
+
+.table-total-caption {
+    font-size: larger;
+}
+
+.modal-title-large {
+    font-size: large;
+}

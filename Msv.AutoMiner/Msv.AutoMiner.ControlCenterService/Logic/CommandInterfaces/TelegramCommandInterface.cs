@@ -52,7 +52,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
                     {
                         try
                         {
-                            ProcessMessage(x);
+                            ProcessMessage(x).GetAwaiter().GetResult();
                         }
                         catch (Exception ex)
                         {
@@ -64,8 +64,10 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
             return disposable;
         }
 
-        private async void ProcessMessage(Message message)
+        private async Task ProcessMessage(Message message)
         {
+            if (message.Text == null)
+                return;
             if (!m_UserWhiteList.Contains(message.From.Username))
             {
                 await m_Client.SendTextMessageAsync(message.From.Id, "You're not permitted to use this bot");
