@@ -1,0 +1,87 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@model Msv.AutoMiner.FrontEnd.Models.Rigs.RigDisplayModel[]
+
+    <h2 class="text-center">Rigs</h2>
+    <div class="pull-right div-table-actions">
+        <a class="btn btn-info" asp-action="Create">
+            <i class="glyphicon glyphicon-plus"></i> Add new rig...
+        </a>
+    </div>    
+
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Name</th>
+            <th>Certificate serial</th>
+            <th>Last heartbeat</th>
+            <th class="column-actions">Actions</th>
+        </tr>
+        @foreach (var rig in Model.OrderBy(x => x.Name))
+        {
+            string rowClass;
+            string title;
+            if (!rig.IsActive)
+            {
+                rowClass = "text-muted";
+                title = "Rig is inactive";
+            }
+            else if (rig.CertificateSerial == null)
+            {
+                rowClass = "warning";
+                title = "Certificate for the rig isn't registered";
+            }
+            else if (rig.LastHeartbeat == null || rig.LastHeartbeat < DateTime.UtcNow - TimeSpan.FromMinutes(10))
+            {
+                rowClass = "warning";
+                title = "Rig data is unavailable or obsolete, no recent heartbeats";
+            }
+            else
+            {
+                rowClass = null;
+                title = null;
+            }
+
+            <tr class="@rowClass" title="@title">
+                <td>@rig.Name</td>
+                <td>@rig.CertificateSerial</td>
+                <td msv-absolute-date="@rig.LastHeartbeat"></td>
+                <td>
+                    <ul class="list-inline">
+                        <li>
+                            <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@rig.Id" title="Edit rig">
+                                <i class="glyphicon glyphicon-edit"></i>
+                            </a>
+                        </li>
+                        <li>
+                            @{
+                                var activationButtonTitle = rig.IsActive
+                                    ? "Disable rig"
+                                    : "Enable rig";
+                            }
+                            <form asp-action="ToggleActive" asp-route-id="@rig.Id" method="post" title="@activationButtonTitle">
+                                <button class="btn btn-xs btn-info">
+                                    @if (rig.IsActive)
+                                    {
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="glyphicon glyphicon-flash"></i>
+                                    }
+                                </button>
+                            </form>
+                        </li>
+                        <li>
+                            @if (rig.CertificateSerial == null)
+                            {
+
+                            }
+                            else
+                            {
+
+                            }
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        }
+    </table>

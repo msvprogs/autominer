@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Msv.AutoMiner.FrontEnd
 {
@@ -19,6 +13,7 @@ namespace Msv.AutoMiner.FrontEnd
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseKestrel(x => x.Listen(IPAddress.Any, 4500))
                 .UseStartup<Startup>()
                 .Build();
     }
