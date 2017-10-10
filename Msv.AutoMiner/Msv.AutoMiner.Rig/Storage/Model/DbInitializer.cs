@@ -166,7 +166,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
                     new MinerAlgorithmSetting
                     {
                         AlgorithmId = new Guid("785b605d-0709-070a-0e9a-e735416c8990"),
-                        MinerId = miners[CcminerTpruvot].Id,
+                        MinerId = miners[CcminerAlexis].Id,
                         AlgorithmArgument = "blake2s"
                     },
                     new MinerAlgorithmSetting
