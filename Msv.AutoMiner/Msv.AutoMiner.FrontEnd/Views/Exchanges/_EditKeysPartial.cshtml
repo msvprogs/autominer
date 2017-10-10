@@ -1,43 +1,45 @@
 ﻿@model Msv.AutoMiner.FrontEnd.Models.Exchanges.EditKeysModel
 
-<div class="modal-dialog" role="document">
-    <div class="modal-content">
-        <form asp-action="SetKeys" method="post" id="setKeysForm">
-            <div class="modal-header">
-                <span class="modal-title modal-title-large">Enter API keys for @Model.Exchange</span>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input asp-for="Exchange" />
-                <div class="form-group">
-                    <label asp-for="PublicKey">Public key:</label>
-                    <input asp-for="PublicKey" class="form-control" autocomplete="off" />
+<div id="dialogSection" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form asp-action="SetKeys" method="post" id="setKeysForm">
+                <div class="modal-header">
+                    <span class="modal-title modal-title-large">Enter API keys for @Model.Exchange</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label asp-for="PrivateKey">Private key (secret):</label>
-                    <input asp-for="PrivateKey" class="form-control" autocomplete="off" />
+                <div class="modal-body">
+                    <input asp-for="Exchange" />
+                    <div class="form-group">
+                        <label asp-for="PublicKey">Public key:</label>
+                        <input asp-for="PublicKey" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PrivateKey">Private key (secret):</label>
+                        <input asp-for="PrivateKey" class="form-control" autocomplete="off" />
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Register keys</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </form>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Register keys</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
     </div>
+    <script>
+        $(function() {
+            $('#setKeysForm').submit(function(e) {
+                e.preventDefault();
+                $.post(
+                    $(this).attr('action'),
+                    $(this).serialize(),
+                    function () {
+                        $('#hasKeys_@Model.Exchange').html("<i class='glyphicon glyphicon-ok'></i>");
+                        $('#dialogSection').modal('hide');
+                    });
+            });
+        })
+    </script>
 </div>
-<script>
-    $(function() {
-        $('#setKeysForm').submit(function(e) {
-            e.preventDefault();
-            $.post(
-                $(this).attr('action'),
-                $(this).serialize(),
-                function () {
-                    $('#hasKeys_@Model.Exchange').html("<i class='glyphicon glyphicon-ok'></i>");
-                    $('#dialogSection').modal('hide');
-                });
-        });
-    })
-</script>

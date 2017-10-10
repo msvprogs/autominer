@@ -1,0 +1,149 @@
+﻿@using Msv.AutoMiner.Common
+@model Msv.AutoMiner.FrontEnd.Models.Rigs.RigStatisticsModel
+    
+<h3>Statistics of rig @Model.Name</h3>
+<div class="row">
+    <div class="col-xs-5">
+        <h4>Current state</h4>
+        <div class="text-right">
+            Received: <span msv-absolute-date="@Model.LastHeartbeat?.DateTime"></span>
+        </div>
+        @if (Model.LastHeartbeat != null)
+        {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">System info</h3>
+                        </div>
+                        <div class="panel-body">
+                            Client version: <span class="system-info-value">@Model.LastHeartbeat.ClientVersion</span>
+                            <br />
+                            OS version: <span class="system-info-value">@Model.LastHeartbeat.OsVersion</span>
+                            <br />
+                            CPU count: <span class="system-info-value">@Model.LastHeartbeat.CpuStates?.Length</span>
+                            <br />
+                            Graphic cards count: <span class="system-info-value">@Model.LastHeartbeat.VideoAdapterStates?.Length</span>
+                        </div>
+                    </div>
+                    
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">CPU info</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="margined-rows-container">
+                                @foreach (var cpuState in Model.LastHeartbeat.CpuStates.EmptyIfNull())
+                                {
+                                    <div class="row">
+                                        <div class="col-xs-5">
+                                            <i class="fa fa-microchip" aria-hidden="true"></i> @cpuState.Name
+                                            <br/>
+                                            <small>SN: @cpuState.SerialNumber</small>
+                                        </div>
+                                        <div class="col-xs-7">
+                                            <i class="fa fa-clock-o" aria-hidden="true" title="Core frequency"></i>
+                                            <span class="system-info-value">@cpuState.ClockMhz.Current MHz</span>
+                                            <br/>
+                                            <i class="fa fa-area-chart" aria-hidden="true" title="Utilization"></i>
+                                            <span class="system-info-value">@cpuState.Utilization%</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Graphic adapters info</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="text-right">Video driver: @Model.LastHeartbeat.VideoDriverVersion</div>
+                                <div class="margined-rows-container">
+                                    @foreach (var videoState in Model.LastHeartbeat.VideoAdapterStates.EmptyIfNull())
+                                    {
+                                        <div class="row">
+                                            <div class="col-xs-5">
+                                                <i class="fa fa-television" aria-hidden="true"></i> @videoState.Name
+                                                <br />
+                                                <small>BIOS: @videoState.BiosVersion</small>
+                                            </div>
+                                            <div class="col-xs-7">
+                                                <i class="fa fa-clock-o" aria-hidden="true" title="Core frequency"></i>
+                                                Core: <span class="system-info-value">@videoState.CoreClockMhz.Current / @videoState.CoreClockMhz.Max MHz</span>
+                                                <br />
+                                                <i class="fa fa-clock-o" aria-hidden="true" title="Memory frequency"></i>
+                                                Memory: <span class="system-info-value">@videoState.MemoryClockMhz.Current / @videoState.MemoryClockMhz.Max MHz</span>
+                                                <br />
+                                                <i class="fa fa-microchip" aria-hidden="true" title="Memory usage"></i>
+                                                Mem. usage: <span class="system-info-value">@videoState.MemoryUsageMb.Current / @videoState.MemoryUsageMb.Max Mb</span>
+                                                <br />
+                                                <i class="fa fa-thermometer" aria-hidden="true" title="Temperature"></i>
+                                                Temp.: <span class="system-info-value">@videoState.Temperature.Current°C / @videoState.Temperature.Max°C</span>
+                                                <br />
+                                                <i class="fa fa-snowflake-o" aria-hidden="true" title="Fan speed"></i>
+                                                Fan speed: <span class="system-info-value">@videoState.FanSpeed%</span>
+                                                <br />
+                                                <i class="fa fa-area-chart" aria-hidden="true" title="Utilization"></i>
+                                                Utiliz.: <span class="system-info-value">@videoState.Utilization%</span>
+                                                <br />
+                                                <i class="fa fa-bolt" aria-hidden="true" title="Power usage"></i>
+                                                Power: <span class="system-info-value">@videoState.PowerUsageWatts.Current.ToString("F2") / @videoState.PowerUsageWatts.Max.ToString("F2") W</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-xs-7">
+        <h4>Profitability table</h4>
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th>Coin symbol</th>
+                <th>Coin name</th>
+                <th>Pool name</th>
+                <th>BTC per day</th>
+                <th>USD per day</th>
+            </tr>
+            @foreach (var item in Model.LastProfitabilityTable.OrderByDescending(x => x.UsdPerDay))
+            {
+                var trClass = (Model.LastHeartbeat?.MiningStates
+                    .Select(x => x.CoinId)
+                    .Contains(item.CoinId)).GetValueOrDefault()
+                    ? "now-mining success"
+                    : "";
+                <tr class="@trClass">
+                    <td>@item.CoinSymbol</td>
+                    <td>@item.CoinName</td>
+                    <td>@item.PoolName</td>
+                    <td>@item.BtcPerDay.ToString("N6")</td>
+                    <td>@item.UsdPerDay.ToString("N2")</td>
+                </tr>
+            }
+        </table>
+    </div>
+    
+    <h4>Last day activity</h4>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Time</th>
+            <th>Mining coin symbols</th>
+            <th>Mining coin names</th>
+            <th>Duration</th>
+        </tr>
+        @foreach (var item in Model.LastDayActivity.OrderBy(x => x.Time))
+        {
+            <tr>
+                <td>@item.Time.ToShortTimeString()</td>
+                <td>@item.CoinSymbol</td>
+                <td>@item.CoinName</td>
+                <td>@item.Duration.Hours hours, @item.Duration.Minutes minutes, @item.Duration.Seconds seconds</td>
+            </tr>
+        }
+    </table>
+</div>

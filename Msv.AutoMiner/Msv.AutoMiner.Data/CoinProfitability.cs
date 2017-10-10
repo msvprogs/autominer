@@ -15,7 +15,11 @@ namespace Msv.AutoMiner.Data
 
         public Guid CoinId { get; set; }
 
+        public virtual Coin Coin { get; set; }
+
         public int PoolId { get; set; }
+
+        public virtual Pool Pool { get; set; }
 
         public double CoinsPerDay { get; set; }
 

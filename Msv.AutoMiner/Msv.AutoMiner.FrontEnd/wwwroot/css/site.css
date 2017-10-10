@@ -29,3 +29,43 @@ th.column-actions {
 .modal-title-large {
     font-size: large;
 }
+
+.alert-icon i {
+    font-size: xx-large;
+    text-align: center;
+    margin: 20px 40px 20px 0;
+}
+
+#throbber {
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000000;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#throbber img {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+}
+
+.modal-middle {
+    width: 450px;
+}
+
+.system-info-value {
+    font-weight: bold
+}
+
+tr.now-mining {
+    font-weight: bold
+}
+
+.margined-rows-container div.row {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
