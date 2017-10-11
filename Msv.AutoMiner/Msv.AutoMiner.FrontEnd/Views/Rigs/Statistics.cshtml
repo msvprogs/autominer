@@ -38,19 +38,33 @@
                                     <div class="row">
                                         <div class="col-xs-5">
                                             <i class="fa fa-microchip" aria-hidden="true"></i> @cpuState.Name
-                                            <br/>
-                                            <small>SN: @cpuState.SerialNumber</small>
                                         </div>
                                         <div class="col-xs-7">
                                             <i class="fa fa-clock-o" aria-hidden="true" title="Core frequency"></i>
-                                            <span class="system-info-value">@cpuState.ClockMhz.Current MHz</span>
-                                            <br/>
-                                            <i class="fa fa-area-chart" aria-hidden="true" title="Utilization"></i>
-                                            <span class="system-info-value">@cpuState.Utilization%</span>
+                                            Clock: <span class="system-info-value">@cpuState.ClockMhz.Current / @cpuState.ClockMhz.Reference MHz</span>
+                                            @foreach (var coreUtilization in cpuState.CoreUtilizations.Select((x,i) => (index:i+1, value:x)))
+                                            {
+                                                <br/>
+                                                <i class="fa fa-area-chart" aria-hidden="true" title="Utilization"></i>
+                                                <span>Core @coreUtilization.index:</span> <span class="system-info-value">@coreUtilization.value%</span>
+                                            }
                                         </div>
                                     </div>
                                 }
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">RAM info</h3>
+                        </div>
+                        <div class="panel-body">
+                            <i class="fa fa-microchip" aria-hidden="true" title="Total memory"></i>
+                            Total memory: <span class="system-info-value">@Model.LastHeartbeat.MemoryUsageMb.Max.ToString("N2") Mb</span>
+                            <br/>
+                            <i class="fa fa-microchip" aria-hidden="true" title="Used memory"></i>
+                            Used memory: <span class="system-info-value">@Model.LastHeartbeat.MemoryUsageMb.Current.ToString("N2") Mb</span>
                         </div>
                     </div>
                     

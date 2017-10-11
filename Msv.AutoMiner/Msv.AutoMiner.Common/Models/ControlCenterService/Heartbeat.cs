@@ -14,18 +14,20 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
 
         public CpuState[] CpuStates { get; set; }
 
+        public ValueWithLimits<double> MemoryUsageMb { get; set; }
+
         public string VideoDriverVersion { get; set; }
 
         public VideoAdapterState[] VideoAdapterStates { get; set; }
 
-        public class ValueWithReference<T>
+        public struct ValueWithReference<T>
         {
             public T Current { get; set; }
 
             public T Reference { get; set; }
         }
 
-        public class ValueWithLimits<T>
+        public struct ValueWithLimits<T>
         {
             public T Current { get; set; }
 
@@ -51,11 +53,9 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
         {
             public string Name { get; set; }
 
-            public string SerialNumber { get; set; }
-
             public ValueWithReference<int> ClockMhz { get; set; }
 
-            public int Utilization { get; set; }
+            public int[] CoreUtilizations { get; set; }
         }
 
         public class VideoAdapterState

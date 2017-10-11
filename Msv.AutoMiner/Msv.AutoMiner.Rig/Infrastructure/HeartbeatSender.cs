@@ -5,12 +5,14 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Remote;
+using Msv.AutoMiner.Rig.System.Contracts;
 using Msv.AutoMiner.Rig.System.Video;
 
 namespace Msv.AutoMiner.Rig.Infrastructure
 {
     public class HeartbeatSender : MonitorBase
     {
+        private readonly ISystemStateProvider m_SystemStateProvider;
         private static readonly Version M_AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
         private readonly IVideoAdapterMonitor m_VideoAdapterMonitor;
@@ -18,11 +20,13 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly IControlCenterService m_Service;
 
         public HeartbeatSender(
+            ISystemStateProvider systemStateProvider,
             IVideoAdapterMonitor videoAdapterMonitor,
             IMinerProcessController minerProcessController,
             IControlCenterService service)
             : base(TimeSpan.FromMinutes(1), true)
         {
+            m_SystemStateProvider = systemStateProvider ?? throw new ArgumentNullException(nameof(systemStateProvider));
             m_VideoAdapterMonitor = videoAdapterMonitor ?? throw new ArgumentNullException(nameof(videoAdapterMonitor));
             m_MinerProcessController =
                 minerProcessController ?? throw new ArgumentNullException(nameof(minerProcessController));
@@ -57,6 +61,23 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 VideoDriverVersion = videoState?.DriverVersion,
                 VideoAdapterStates = videoState?.AdapterStates
                     .Select(ToHeartbeatVideoAdapterState)
+                    .ToArray(),
+                MemoryUsageMb = new Heartbeat.ValueWithLimits<double>
+                {
+                    Current = m_SystemStateProvider.GetUsedMemoryMb(),
+                    Max = m_SystemStateProvider.GetTotalMemoryMb()
+                },
+                CpuStates = m_SystemStateProvider.GetCpuStates()
+                    .Select(x => new Heartbeat.CpuState
+                    {
+                        Name = x.Name,
+                        ClockMhz = new Heartbeat.ValueWithReference<int>
+                        {
+                            Current = x.CurrentClockMhz,
+                            Reference = x.MaxClockMhz
+                        },
+                        CoreUtilizations = x.CoreUsages
+                    })
                     .ToArray()
             };
             m_Service.SendHeartbeat(heartbeat);

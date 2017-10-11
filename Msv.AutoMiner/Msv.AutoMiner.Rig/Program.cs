@@ -128,7 +128,8 @@ namespace Msv.AutoMiner.Rig
                     ThresholdRatio = Settings.Default.CurrencyChangeThresholdRatio
                 }))
             using (var videoAdapterMonitor = new VideoAdapterMonitor(new NVidiaVideoSystemStateProvider()))
-            using (new HeartbeatSender(videoAdapterMonitor, controller, controlCenterClient))
+            using (new HeartbeatSender(
+                new SystemStateProviderFactory().Create(), videoAdapterMonitor, controller, controlCenterClient))
             using (CreateWatchdogDisposable(videoAdapterMonitor))
             {
                 M_Logger.Info("Automatic miner controller started.");

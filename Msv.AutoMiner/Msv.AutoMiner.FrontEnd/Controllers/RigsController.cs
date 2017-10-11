@@ -140,7 +140,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .Where(x => x.RigId == id && x.Requested == lastProfitabilityTime)
                 .Select(x => new RigStatisticsModel.CoinProfitabilityInfo
                 {
-                    UsdPerDay = x.UsdPerDay,
+                    UsdPerDay = x.UsdPerDay - x.ElectricityCost,
                     BtcPerDay = x.BtcPerDay,
                     CoinId = x.CoinId,
                     CoinName = x.Coin.Name,
