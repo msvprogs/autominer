@@ -6,6 +6,7 @@ using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService.Controllers
 {
@@ -15,11 +16,13 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         private const int CryptoCurrencyDecimalPlaces = 8;
         private const int FiatDecimalPlaces = 4;
 
+        private readonly IStoredFiatValueProvider m_FiatProvider;
         private readonly IProfitabilityCalculator m_Calculator;
         private readonly ICoinInfoControllerStorage m_Storage;
 
-        public CoinInfoController(IProfitabilityCalculator calculator, ICoinInfoControllerStorage storage)
+        public CoinInfoController(IStoredFiatValueProvider fiatProvider, IProfitabilityCalculator calculator, ICoinInfoControllerStorage storage)
         {
+            m_FiatProvider = fiatProvider ?? throw new ArgumentNullException(nameof(fiatProvider));
             m_Calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
@@ -49,7 +52,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                 .GroupBy(x => x.SourceCoinId)
                 .ToDictionary(x => x.Key, x => x.ToArray());
 
-            var btcUsdValue = await m_Storage.GetBtcUsdValue();
+            var btcUsdValue = await m_FiatProvider.GetLastBtcUsdValueAsync();
             var profitabilities = request.AlgorithmDatas
                 .Join(networkInfos, x => x.AlgorithmId, x => x.Coin.AlgorithmId,
                     (x, y) => (networkInfo: y, algorithmInfo: x))

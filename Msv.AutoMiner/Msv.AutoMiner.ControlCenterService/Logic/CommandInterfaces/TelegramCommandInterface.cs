@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -48,6 +49,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
                         x => client.OnMessage += x,
                         x => client.OnMessage -= x)
                     .Select(x => x.EventArgs.Message)
+                    .SubscribeOn(TaskPoolScheduler.Default)
                     .Subscribe(x =>
                     {
                         try
@@ -68,7 +70,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
         {
             if (message.Text == null)
                 return;
-            if (!m_UserWhiteList.Contains(message.From.Username))
+            if (string.IsNullOrEmpty(message.From.Username) || !m_UserWhiteList.Contains(message.From.Username))
             {
                 await m_Client.SendTextMessageAsync(message.From.Id, "You're not permitted to use this bot");
                 return;

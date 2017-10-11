@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.FrontEnd
 {
@@ -30,6 +27,7 @@ namespace Msv.AutoMiner.FrontEnd
                 ServiceLifetime.Transient);
 
             services.AddMvc();
+            services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

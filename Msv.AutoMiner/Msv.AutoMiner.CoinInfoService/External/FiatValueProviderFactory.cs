@@ -20,6 +20,10 @@ namespace Msv.AutoMiner.CoinInfoService.External
             {
                 case CoinFiatValueSource.BlockChainInfo:
                     return new BlockChainInfoFiatValueProvider(m_WebClient);
+                case CoinFiatValueSource.Bitfinex:
+                    return new BitfinexFiatValueProvider(m_WebClient);
+                case CoinFiatValueSource.Coinbase:
+                    return new CoinbaseFiatValueProvider(m_WebClient);
                 default:
                     return new DummyFiatValueProvider();
             }

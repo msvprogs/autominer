@@ -10,6 +10,5 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
         Task<CoinNetworkInfo[]> GetNetworkInfos(ValueAggregationType aggregationType);
         Task<ExchangeMarketPrice[]> GetExchangeMarketPrices(ValueAggregationType aggregationType);
         Task<Coin> GetBtcCurrency();
-        Task<CoinFiatValue> GetBtcUsdValue();
     }
 }

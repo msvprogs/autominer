@@ -21,7 +21,7 @@ namespace Msv.AutoMiner.Common
             Period = period;
             Log = LogManager.GetLogger(GetType().Name);
 
-            var sequence = Observable.Timer(period).Repeat();
+            var sequence = Observable.Interval(period, TaskPoolScheduler.Default);
             if (!skipFirst)
                 sequence = sequence.StartWith(TaskPoolScheduler.Default, 0);
             m_Disposable = sequence

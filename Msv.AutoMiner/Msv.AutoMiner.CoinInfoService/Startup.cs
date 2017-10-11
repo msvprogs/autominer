@@ -8,6 +8,7 @@ using Msv.AutoMiner.CoinInfoService.Logic.Storage;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService
 {
@@ -37,6 +38,7 @@ namespace Msv.AutoMiner.CoinInfoService
             services.AddTransient<IFiatValueMonitorStorage, FiatValueMonitorStorage>();
             services.AddTransient<IMarketInfoMonitorStorage, MarketInfoMonitorStorage>();
             services.AddTransient<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
+            services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

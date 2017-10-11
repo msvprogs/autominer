@@ -102,6 +102,9 @@
     </div>
     <div class="col-xs-7">
         <h4>Profitability table</h4>
+        <div class="text-right">
+            Requested: <span msv-absolute-date="@Model.ProfitabilityTableTime"></span>
+        </div>
         <table class="table table-bordered table-striped">
             <tr>
                 <th>Coin symbol</th>
@@ -113,8 +116,7 @@
             @foreach (var item in Model.LastProfitabilityTable.OrderByDescending(x => x.UsdPerDay))
             {
                 var trClass = (Model.LastHeartbeat?.MiningStates
-                    .Select(x => x.CoinId)
-                    .Contains(item.CoinId)).GetValueOrDefault()
+                    .Any(x => x.CoinId == item.CoinId && x.PoolId == item.PoolId)).GetValueOrDefault()
                     ? "now-mining success"
                     : "";
                 <tr class="@trClass">
@@ -139,7 +141,7 @@
         @foreach (var item in Model.LastDayActivity.OrderBy(x => x.Time))
         {
             <tr>
-                <td>@item.Time.ToShortTimeString()</td>
+                <td>@item.Time.ToString("HH:mm:ss") GMT</td>
                 <td>@item.CoinSymbol</td>
                 <td>@item.CoinName</td>
                 <td>@item.Duration.Hours hours, @item.Duration.Minutes minutes, @item.Duration.Seconds seconds</td>

@@ -100,14 +100,6 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
         public async Task<Coin> GetBtcCurrency()
             => await m_Context.Coins.AsNoTracking().FirstAsync(x => x.Symbol == "BTC");
 
-        public async Task<CoinFiatValue> GetBtcUsdValue()
-            => await m_Context.CoinFiatValues
-                .AsNoTracking()
-                .Where(x => x.Coin.Symbol == "BTC" && x.FiatCurrency.Symbol == "USD")
-                .GroupBy(x => new {x.CoinId, x.FiatCurrencyId})
-                .Select(x => x.OrderByDescending(y => y.DateTime).FirstOrDefault())
-                .FirstAsync();
-
         private static DateTime GetMinDateTime(ValueAggregationType aggregationType)
         {
             var now = DateTime.UtcNow;

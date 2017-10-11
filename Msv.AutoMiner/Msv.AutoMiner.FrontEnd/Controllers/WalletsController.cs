@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Wallets;
 
@@ -15,10 +16,14 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     {
         public const string WalletsMessageKey = "WalletsMessage";
 
+        private readonly IStoredFiatValueProvider m_FiatValueProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public WalletsController(AutoMinerDbContext context)
-            => m_Context = context;
+        public WalletsController(IStoredFiatValueProvider fiatValueProvider, AutoMinerDbContext context)
+        {
+            m_FiatValueProvider = fiatValueProvider;
+            m_Context = context;
+        }
 
         public async Task<IActionResult> Index()
         {
@@ -65,15 +70,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .DefaultIfEmpty(0)
                 .Sum();
 
-            var btcUsdRate = await m_Context.CoinFiatValues
-                .OrderByDescending(x => x.DateTime)
-                .FirstOrDefaultAsync(x => x.Coin.Symbol == "BTC" && x.FiatCurrency.Symbol == "USD");
-
+            var btcUsdRate = await m_FiatValueProvider.GetLastBtcUsdValueAsync();
             return View(new WalletIndexModel
             {
                 Wallets = wallets,
                 TotalBtc = totalBtc,
-                TotalUsd = (decimal)(totalBtc * btcUsdRate?.Value).GetValueOrDefault()
+                TotalUsd = (decimal)(totalBtc * btcUsdRate.Value)
             });
         }
 

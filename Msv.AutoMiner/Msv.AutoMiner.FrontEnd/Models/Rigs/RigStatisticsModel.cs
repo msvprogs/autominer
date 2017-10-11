@@ -7,6 +7,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Rigs
     {
         public Heartbeat LastHeartbeat { get; set; }
 
+        public DateTime? ProfitabilityTableTime { get; set; }
+
         public CoinProfitabilityInfo[] LastProfitabilityTable { get; set; }
 
         public CoinMiningDuration[] LastDayActivity { get; set; }
@@ -14,6 +16,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Rigs
         public class CoinProfitabilityInfo
         {
             public Guid CoinId { get; set; }
+
+            public int PoolId { get; set; }
 
             public string CoinName { get; set; }
 

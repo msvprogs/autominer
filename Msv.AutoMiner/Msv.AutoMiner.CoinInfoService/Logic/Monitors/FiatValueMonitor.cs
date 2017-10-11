@@ -57,7 +57,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                         Source = x.type,
                         Value = y.value.Value,
                         DateTime = now
-                    }))
+                    })
+                    .Where(y => y.Value > 0))
                 .ToArray();
             storage.StoreValues(values);
         }

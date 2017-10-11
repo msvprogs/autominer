@@ -122,7 +122,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             if (rig == null)
                 return NotFound();
 
-            var heartbeatTimeLimit =  DateTime.UtcNow.Date.AddDays(-5);// DateTime.UtcNow.Date.AddDays(-1);
+            var heartbeatTimeLimit = DateTime.UtcNow.Date.AddDays(-1);
             var lastDayHeartbeats = (await m_Context.RigHeartbeats
                     .Where(x => x.RigId == id && x.Received >= heartbeatTimeLimit)
                     .ToArrayAsync())
@@ -131,7 +131,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             var lastProfitabilityTime = await m_Context.CoinProfitabilities
                 .Where(x => x.RigId == id)
-                .MaxAsync(x => x.Requested);
+                .Select(x => x.Requested)
+                .DefaultIfEmpty(default(DateTime))
+                .MaxAsync();
             var profitabilityTable = await m_Context.CoinProfitabilities
                 .Include(x => x.Coin)
                 .Include(x => x.Pool)
@@ -143,7 +145,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     CoinId = x.CoinId,
                     CoinName = x.Coin.Name,
                     CoinSymbol = x.Coin.Symbol,
-                    PoolName = x.Pool.Name
+                    PoolName = x.Pool.Name,
+                    PoolId = x.PoolId
                 })
                 .ToArrayAsync();
 
@@ -192,6 +195,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     ? JsonConvert.DeserializeObject<Heartbeat>(lastRigHeartbeat.ContentsJson)
                     : null,
                 LastProfitabilityTable = profitabilityTable,
+                ProfitabilityTableTime = lastProfitabilityTime != default(DateTime)
+                    ? lastProfitabilityTime
+                    : (DateTime?) null,
                 LastDayActivity = durations.ToArray()
             });
         }
