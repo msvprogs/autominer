@@ -19,6 +19,22 @@ namespace Msv.AutoMiner.Rig.System.Unix
         private const string CpuCurrentFreqPath = "cpufreq/scaling_cur_freq";
         private const string CpuMaxFreqPath = "cpufreq/scaling_max_freq";
         private const string MemInfoPath = "/proc/meminfo";
+        private const string DistribInfoPath = "/etc/lsb-release";
+
+        public string GetOsName()
+        {
+            var osInfo = ParseKeyValuePairs(ReadFileLines(DistribInfoPath), "=")
+                .ToLookup(x => x.Key, x => x.Value);
+            var id = TryGetValue("distrib_id");
+            var version = TryGetValue("distrib_release");
+            var description = TryGetValue("distrib_description")?.Trim().Trim('"');
+            if (string.IsNullOrEmpty(id) && string.IsNullOrEmpty(version) && string.IsNullOrEmpty(description))
+                return null;
+            return $"{description} ({id} {version})";
+
+            string TryGetValue(string key)
+                => osInfo.Contains(key) ? osInfo[key].FirstOrDefault() : null;
+        }
 
         public CpuState[] GetCpuStates()
         {
@@ -41,7 +57,7 @@ namespace Msv.AutoMiner.Rig.System.Unix
                                     new PerformanceCounter("Processor", "% Processor Time", y.ToString()))
                                 {
                                     counter.NextValue();
-                                    Thread.Sleep(50);
+                                    Thread.Sleep(100);
                                     return (int) counter.NextValue();
                                 }
                             })
@@ -50,13 +66,17 @@ namespace Msv.AutoMiner.Rig.System.Unix
                 })
                 .ToArray();
 
-            int GetFrequencyValue(string infoPath) 
-                => (int)new DirectoryInfo(CpuInfoFolder).GetDirectories("cpu*")
+            int GetFrequencyValue(string infoPath)
+            {
+                var cpuInfoDirectory = new DirectoryInfo(CpuInfoFolder);
+                return (int)cpuInfoDirectory.GetDirectories("cpu?")
+                    .Concat(cpuInfoDirectory.GetDirectories("cpu??"))
                     .Select(y => ReadFileLines(Path.Combine(y.FullName, infoPath)).FirstOrDefault())
                     .Where(y => !string.IsNullOrEmpty(y))
                     .Select(y => long.Parse(y) / 1000.0)
                     .DefaultIfEmpty(0)
                     .Average();
+            }
         }
 
         public double GetTotalMemoryMb()
@@ -92,8 +112,8 @@ namespace Msv.AutoMiner.Rig.System.Unix
             }
         }
 
-        private static KeyValuePair<string, string>[] ParseKeyValuePairs(string[] lines)
-            => lines.Select(x => x.Split(":".ToCharArray(), 2))
+        private static KeyValuePair<string, string>[] ParseKeyValuePairs(string[] lines, string separator = ":")
+            => lines.Select(x => x.Split(separator.ToCharArray(), 2))
                 .Where(x => x.Length == 2)
                 .Select(x => new KeyValuePair<string, string>(x[0].Trim().ToLowerInvariant(), x[1].Trim()))
                 .ToArray();

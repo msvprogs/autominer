@@ -57,7 +57,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 DateTime = DateTime.UtcNow,
                 ClientVersion = M_AssemblyVersion.ToString(),
                 MiningStates = heartbeatMiningState != null ? new []{ heartbeatMiningState } : null,
-                OsVersion = Environment.OSVersion.ToString(),
+                OsVersion = m_SystemStateProvider.GetOsName() ?? Environment.OSVersion.ToString(),
                 VideoDriverVersion = videoState?.DriverVersion,
                 VideoAdapterStates = videoState?.AdapterStates
                     .Select(ToHeartbeatVideoAdapterState)
