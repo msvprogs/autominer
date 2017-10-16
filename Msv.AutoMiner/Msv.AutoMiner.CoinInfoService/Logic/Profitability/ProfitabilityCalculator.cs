@@ -17,7 +17,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
             if (networkInfo == null)
                 throw new ArgumentNullException(nameof(networkInfo));
 
-            if (networkInfo.Difficulty <= 0 && networkInfo.NetHashRate == 0)
+            if (networkInfo.Difficulty <= 0 && networkInfo.NetHashRate <= 0)
                 return 0;
             switch (coin.Algorithm.ProfitabilityFormulaType)
             {
@@ -60,8 +60,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
             => SecondsInDay * networkInfo.BlockReward / (networkInfo.Difficulty * coin.SolsPerDiff.GetValueOrDefault() / yourHashRate);
 
         private static double CalculateByNetHashRate(
-            long yourHashRate, long netHashRate, double blockReward, double blockTimeSec)
-            => SecondsInDay * (double)yourHashRate / (yourHashRate + netHashRate) * (blockReward / blockTimeSec);
+            double yourHashRate, double netHashRate, double blockReward, double blockTimeSec)
+            => SecondsInDay * yourHashRate / (yourHashRate + netHashRate) * (blockReward / blockTimeSec);
 
         private static double CalculateByDifficulty(long yourHashRate, double blockReward, double difficulty, double coefficient)
             => SecondsInDay * blockReward * yourHashRate / (difficulty * coefficient);

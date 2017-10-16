@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.Common.Enums;
 
@@ -27,10 +26,10 @@ namespace Msv.AutoMiner.Common.Helpers
             };
 
         public static string ToHashRateWithUnits(long hashRate, KnownCoinAlgorithm? algorithm = KnownCoinAlgorithm.Unknown)
-        {
-            if (hashRate < 0)
-                throw new ArgumentOutOfRangeException(nameof(hashRate));
+            => ToHashRateWithUnits((double) hashRate, algorithm);
 
+        public static string ToHashRateWithUnits(double hashRate, KnownCoinAlgorithm? algorithm = KnownCoinAlgorithm.Unknown)
+        {
             var prefixKeyPair = M_Prefixes
                 .OrderByDescending(x => x.Key)
                 .FirstOrDefault(x => hashRate >= x.Key);

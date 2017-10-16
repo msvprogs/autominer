@@ -26,7 +26,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
                 Difficulty = (double)statsJson.difficulty,
                 BlockReward = double.Parse(blockRewardString) / 1e8,
                 BlockTimeSeconds = (double)statsJson.minutes_between_blocks * 60,
-                NetHashRate = (long)((double)statsJson.hash_rate * 1e9),
+                NetHashRate = (double)statsJson.hash_rate * 1e9,
                 Height = (long)statsJson.n_blocks_total
             };
         }

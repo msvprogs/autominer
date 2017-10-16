@@ -34,8 +34,6 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new CoinsMarketsMarketInfoProvider(m_WebClient);
                 case ExchangeType.Novaexchange:
                     return new NovaexchangeMarketInfoProvider(m_WebClient);
-                case ExchangeType.Bitzure:
-                    return new BitzureMarketInfoProvider(m_WebClient);
                 default:
                     return new DummyMarketInfoProvider();
             }

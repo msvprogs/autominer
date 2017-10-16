@@ -605,7 +605,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "TrezarCoin",
                     Symbol = "TZC",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.NeoScrypt],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Iquidus,
+                    NetworkInfoApiType = CoinNetworkInfoApiType.IquidusWithPos,
                     NetworkInfoApiUrl = "http://tzc.explorerz.top:3004/"
                 },
                 new Coin

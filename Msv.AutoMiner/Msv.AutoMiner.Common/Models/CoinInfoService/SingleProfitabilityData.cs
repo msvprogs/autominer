@@ -14,7 +14,7 @@ namespace Msv.AutoMiner.Common.Models.CoinInfoService
 
         public double Difficulty { get; set; }
 
-        public long NetHashRate { get; set; }
+        public double NetHashRate { get; set; }
 
         public double BlockReward { get; set; }
 

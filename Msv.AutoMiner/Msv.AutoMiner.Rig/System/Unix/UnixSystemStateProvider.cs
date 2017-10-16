@@ -57,7 +57,7 @@ namespace Msv.AutoMiner.Rig.System.Unix
                                     new PerformanceCounter("Processor", "% Processor Time", y.ToString()))
                                 {
                                     counter.NextValue();
-                                    Thread.Sleep(100);
+                                    Thread.Sleep(200);
                                     return (int) counter.NextValue();
                                 }
                             })

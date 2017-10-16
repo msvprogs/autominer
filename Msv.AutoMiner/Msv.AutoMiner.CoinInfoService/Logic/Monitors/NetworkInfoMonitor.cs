@@ -35,10 +35,12 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
 
             var previousInfos = storage.GetLastNetworkInfos()
                 .ToDictionary(x => x.CoinId);
+#if !DEBUG
             if (previousInfos.Select(x => x.Value.Created)
                 .OrderByDescending(x => x)
                 .FirstOrDefault() > DateTime.UtcNow - Period)
                 return;
+#endif
 
             var multiProvider = m_ProviderFactory.CreateMulti(multiProviderCoins);
             var multiResults = new Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>>();
@@ -96,7 +98,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             var networkInfoBuilder = new StringBuilder($"New network info for {coin.Name}: ")
                 .Append($"Difficulty {current.Difficulty:N4} ({GetPercentRatio(previous.Difficulty, current.Difficulty)}), ")
                 .Append($"Hash Rate {ConversionHelper.ToHashRateWithUnits(current.NetHashRate, coin.Algorithm.KnownValue)}")
-                .Append($" ({GetPercentRatio(current.NetHashRate, previous.NetHashRate)})");
+                .Append($" ({GetPercentRatio((double)current.NetHashRate, (double)previous.NetHashRate)})");
             if (current.BlockTimeSeconds != null)
                 networkInfoBuilder.Append($", Current Block Time: {current.BlockTimeSeconds:F2} sec");
             if (current.BlockReward != null)

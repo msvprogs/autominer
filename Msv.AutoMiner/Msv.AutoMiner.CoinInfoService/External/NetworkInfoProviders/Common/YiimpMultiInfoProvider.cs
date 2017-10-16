@@ -76,7 +76,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
                 .Select(x => new
                 {
                     DateTime = x.SelectSingleNode(".//td[1]/span").GetAttributeValue("title", string.Empty),
-                    Height = long.Parse(x.SelectSingleNode(".//td[2]/a").InnerText),
+                    Height = long.Parse(x.SelectSingleNode(".//td[2]").InnerText),
                     Type = x.SelectSingleNode(".//td[4]").InnerText,
                     Difficulty = x.SelectSingleNode(".//td[3]").InnerText,
                     Algorithm = hasAlgorithm

@@ -10,7 +10,6 @@
         YoBit = 5,
         TradeSatoshi = 6,
         CoinsMarkets = 7,
-        Novaexchange = 8,
-        Bitzure = 9
+        Novaexchange = 8
     }
 }
