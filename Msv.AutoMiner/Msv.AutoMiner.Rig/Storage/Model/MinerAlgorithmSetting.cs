@@ -1,10 +1,13 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
     public class MinerAlgorithmSetting
     {
-        public Guid AlgorithmId { get; set; }
+        [MaxLength(64)]
+        public string AlgorithmId { get; set; }
+
+        public virtual AlgorithmData Algorithm { get; set; }
 
         public int MinerId { get; set; }
 

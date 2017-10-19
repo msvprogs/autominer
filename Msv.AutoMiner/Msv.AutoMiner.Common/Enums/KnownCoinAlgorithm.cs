@@ -44,6 +44,8 @@
         Blake256With8RoundsXvc = 39,
         Pascal = 40,
         M7 = 41,
-        Skunk = 42
+        Skunk = 42,
+        Hsr = 43,
+        Phi1612 = 44
     }
 }

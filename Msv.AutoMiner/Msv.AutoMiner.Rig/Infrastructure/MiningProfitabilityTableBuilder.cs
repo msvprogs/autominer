@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
+using Msv.AutoMiner.Rig.Commands;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Remote;
@@ -34,7 +34,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         {
             M_Logger.Info("Requesting new mining works...");
             var algorithmDatas = m_Storage.GetAlgorithmDatas()
-                .ToDictionary(x => x.AlgorithmId);
+                .ToDictionary(x => Guid.Parse(x.AlgorithmId));
             var miningWorksTask = m_ControlCenterService.GetMiningWork(
                 new GetMiningWorkRequestModel
                 {
@@ -42,14 +42,14 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     AlgorithmDatas = algorithmDatas.Values
                         .Select(x => new AlgorithmPowerData
                         {
-                            AlgorithmId = x.AlgorithmId,
+                            AlgorithmId = Guid.Parse(x.AlgorithmId),
                             NetHashRate = x.SpeedInHashes,
                             Power = x.Power
                         })
                         .ToArray()
                 });
             var minerSettings = m_Storage.GetAlgorithmSettings()
-                .ToDictionary(x => x.AlgorithmId);
+                .ToDictionary(x => Guid.Parse(x.AlgorithmId));
             var profitabilityTable = miningWorksTask
                 .SelectMany(x => x.Pools.Select(y => new CoinMiningData
                 {
@@ -62,19 +62,21 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 }))
                 .OrderByDescending(x => x.UsdPerDayTotal)
                 .ToArray();
-            M_Logger.Debug("Current profitability table:"
-                           + Environment.NewLine
-                           + "Symbol    Name                     Pool                     Coins per day   BTC per day   USD per day  Electricity  Total"
-                           + Environment.NewLine
-                           + string.Join(Environment.NewLine, profitabilityTable.Select(
-                               x => new StringBuilder(x.CoinSymbol.PadRight(8))
-                                   .Append(x.CoinName.PadRight(22))
-                                   .Append(x.PoolData.Name.PadRight(26))
-                                   .Append(x.ToCoinsPerDayString().PadLeft(6))
-                                   .Append($"{x.PoolData.BtcPerDay,12:N6}")
-                                   .Append($"{x.PoolData.UsdPerDay,10:N2}")
-                                   .Append($"{-x.PoolData.ElectricityCost,13:N2}$")
-                                   .Append($"{x.UsdPerDayTotal,10:N2}$"))));
+
+            var tableBuilder = new TableStringBuilder(
+                "Symbol", "Name", "Pool", "Coins per day", "BTC per day", "USD per day", "Electricity", "Total");
+            profitabilityTable.ForEach(
+                x => tableBuilder.AppendValues(
+                    x.CoinSymbol, 
+                    x.CoinName,
+                    x.PoolData.Name, 
+                    x.ToCoinsPerDayString(),
+                    x.PoolData.BtcPerDay.ToString("N6"), 
+                    x.PoolData.UsdPerDay.ToString("N2"), 
+                    $"${-x.PoolData.ElectricityCost:N2}",
+                    $"${x.UsdPerDayTotal:N2}"));
+            M_Logger.Debug("Current profitability table: " + Environment.NewLine + tableBuilder);
+
             return profitabilityTable;
         }
     }

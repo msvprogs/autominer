@@ -46,7 +46,7 @@ namespace Msv.AutoMiner.Rig.System.Video.NVidia
                 if (!ThrowOnFatalError(NativeNvml.DeviceGetHandleByIndex(i, out var handle)))
                     return state;
                 var nameBuilder = new StringBuilder(NativeNvml.DeviceNameBufferSize);
-                var adapterState = state.AdapterStates[i] = new VideoAdapterState();
+                var adapterState = state.AdapterStates[i] = new VideoAdapterState {Index = i};
                 ThrowOnFatalError(NativeNvml.DeviceGetName(handle, nameBuilder, NativeNvml.DeviceNameBufferSize));
                 adapterState.Name = nameBuilder.ToString();
                 var vbiosVersionBuilder = new StringBuilder(NativeNvml.DeviceVbiosVersionBufferSize);

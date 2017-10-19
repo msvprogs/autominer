@@ -34,6 +34,10 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
         public string AlgorithmArgument { get; set; }
 
+        public string DeviceListArgument { get; set; }
+
+        public string DeviceListSeparator { get; set; }
+
         public string AlternativeServerArgument { get; set; }
 
         public string AlternativeUserArgument { get; set; }
@@ -47,6 +51,10 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public string ValidShareRegex { get; set; }
 
         public string InvalidShareRegex { get; set; }
+
+        public string BenchmarkArgument { get; set; }
+
+        public string BenchmarkResultRegex { get; set; }
 
         public bool OmitUrlSchema { get; set; }
 

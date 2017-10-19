@@ -13,6 +13,7 @@ namespace Msv.AutoMiner.Rig.Storage
             using (var context = new AutoMinerRigDbContext())
                 return context.MinerAlgorithmSettings
                     .Include(x => x.Miner)
+                    .Include(x => x.Algorithm)
                     .AsNoTracking()
                     .ToArray();
         }
@@ -21,10 +22,11 @@ namespace Msv.AutoMiner.Rig.Storage
         {
             using (var context = new AutoMinerRigDbContext())
             {
-                var data = context.AlgorithmDatas.FirstOrDefault(x => x.AlgorithmId == algorithmId)
+                var idString = algorithmId.ToString();
+                var data = context.AlgorithmDatas.FirstOrDefault(x => x.AlgorithmId == idString)
                            ?? context.AlgorithmDatas.Add(new AlgorithmData
                            {
-                               AlgorithmId = algorithmId,
+                               AlgorithmId = idString,
                                AlgorithmName = algorithmName
                            });
                 data.SpeedInHashes = hashRate;

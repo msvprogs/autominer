@@ -10,6 +10,7 @@ namespace Msv.AutoMiner.Rig.Data
         public Guid CoinId { get; set; }
         public string CoinName { get; set; }
         public string CoinSymbol { get; set; }
+        public bool BenchmarkMode { get; set; }
         public MinerAlgorithmSetting MinerSettings { get; set; }
         public PoolDataModel PoolData { get; set; }
         public double PowerUsage { get; set; }

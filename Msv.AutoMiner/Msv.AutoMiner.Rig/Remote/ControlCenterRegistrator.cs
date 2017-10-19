@@ -6,7 +6,7 @@ using NLog;
 
 namespace Msv.AutoMiner.Rig.Remote
 {
-    public class ControlCenterRegistrator
+    public class ControlCenterRegistrator : IControlCenterRegistrator
     {
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 

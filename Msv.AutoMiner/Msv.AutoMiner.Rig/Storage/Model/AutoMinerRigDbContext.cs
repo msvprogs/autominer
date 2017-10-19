@@ -8,6 +8,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public DbSet<Miner> Miners { get; set; }
         public DbSet<MinerAlgorithmSetting> MinerAlgorithmSettings { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<ManualDeviceMapping> ManualDeviceMappings { get; set; }
 
         public AutoMinerRigDbContext()
         {
@@ -20,6 +21,8 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
             modelBuilder.Entity<MinerAlgorithmSetting>()
                 .HasKey(x => new {x.MinerId, x.AlgorithmId});
+            modelBuilder.Entity<ManualDeviceMapping>()
+                .HasKey(x => new {x.DeviceId, x.DeviceType});
 
             Database.SetInitializer(new DbInitializer(modelBuilder));
         }

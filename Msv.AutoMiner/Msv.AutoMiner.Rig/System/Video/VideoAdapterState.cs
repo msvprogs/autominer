@@ -2,6 +2,7 @@
 {
     public class VideoAdapterState
     {
+        public int Index { get; set; }
         public string Name { get; set; }
         public string VbiosVersion { get; set; }
         public uint GpuClocksMhz { get; set; }

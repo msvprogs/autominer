@@ -5,7 +5,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.System.Contracts;
-using Msv.AutoMiner.Service.Infrastructure.Contracts;
 using NLog;
 
 namespace Msv.AutoMiner.Rig.Infrastructure
@@ -22,8 +21,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly bool m_ListenOutput;
         private readonly IChildProcessTracker m_ProcessTracker;
         private volatile bool m_Stopped;
-
-        public bool IsAlive => !m_Process.HasExited;
 
         public event EventHandler Exited;
 
@@ -87,7 +84,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
         public void Stop(bool forcefully)
         { 
-            if (m_Stopped || m_Process.HasExited)
+            if (m_Stopped || GetHasExited())
                 return;
             if (m_ListenOutput)
             {
@@ -126,7 +123,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
         public void Dispose()
         {
-            if (!m_Process.HasExited)
+            if (!GetHasExited())
                 Stop(false);
             if (m_ListenOutput)
             {
@@ -134,6 +131,19 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 m_Process.ErrorDataReceived -= LogOutput;
             }
             m_Process.Dispose();
+        }
+
+        private bool GetHasExited()
+        {
+            try
+            {
+                return m_Process.HasExited;
+            }
+            catch (InvalidOperationException)
+            {
+                //process descriptor is invalid
+                return true;
+            }
         }
 
         private void LogOutput(object sender, DataReceivedEventArgs e)

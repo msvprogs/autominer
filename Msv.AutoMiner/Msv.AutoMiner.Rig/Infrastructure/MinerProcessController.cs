@@ -101,7 +101,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     ? miningData.MinerSettings.LogFile
                     : null;
                 m_MinerOutputProcessor = new MinerOutputProcessor(
-                    Path.GetFileNameWithoutExtension(file.Name), miner, miningData.CoinSymbol, null);
+                    Path.GetFileNameWithoutExtension(file.Name), miner, miningData.CoinSymbol, null, miningData.BenchmarkMode);
                 if (outputLogFile != null)
                 {
                     var directory = Path.GetDirectoryName(outputLogFile);
@@ -134,8 +134,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                             RunNew(miningData, --attempts);
                         },
                         x => m_CurrentProcessDisposable.Disposable = null));
-                if (!string.IsNullOrEmpty(miner.ValidShareRegex)
-                    && miningData.PoolData.Protocol == PoolProtocol.Stratum) //TODO: disable share checking for solomining
+                if (!miningData.BenchmarkMode 
+                    && !string.IsNullOrEmpty(miner.ValidShareRegex)
+                    && miningData.PoolData?.Protocol == PoolProtocol.Stratum) //TODO: disable share checking for solomining & benchmark mode
                     newDisposable.Add(Observable.Interval(TimeSpan.FromSeconds(10))
                         .Select(x => m_MinerOutputProcessor.AcceptedShares)
                         .DistinctUntilChanged()
@@ -202,7 +203,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 argumentValues.Add(GetArgumentValuePair(miner.AlgorithmArgument, miningData.MinerSettings.AlgorithmArgument));
 
             AddServerArgumentValues(
-                argumentValues, miningData, miner.ServerArgument, miner.PortArgument, miner.UserArgument, miner.PasswordArgument);
+                argumentValues, miningData, miner.ServerArgument, miner.PortArgument, miner.UserArgument, miner.PasswordArgument, miner.BenchmarkArgument);
             if (miner.IntensityArgument != null && miningData.MinerSettings.Intensity != null)
                 argumentValues.Add(GetArgumentValuePair(
                     miner.IntensityArgument,
@@ -216,8 +217,15 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         }
 
         private static void AddServerArgumentValues(
-            ICollection<string> args, CoinMiningData miningData, string serverKey, string portKey, string userKey, string passwordKey)
+            ICollection<string> args, CoinMiningData miningData, string serverKey, string portKey, string userKey, string passwordKey, string benchmarkKey)
         {
+            if (miningData.BenchmarkMode && miningData.PoolData == null)
+            {
+                M_Logger.Warn($"There is no active pool for {miningData.CoinName}, running offline benchmark");
+                args.Add(benchmarkKey);
+                return;
+            }
+
             args.Add(miningData.MinerSettings.Miner.OmitUrlSchema
                 ? GetArgumentValuePair(serverKey,
                     portKey == null

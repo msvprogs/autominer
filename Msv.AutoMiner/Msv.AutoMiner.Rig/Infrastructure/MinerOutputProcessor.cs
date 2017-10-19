@@ -14,9 +14,11 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly string m_ProcessName;
         private readonly string m_PrimaryCurrency;
         private readonly string m_SecondaryCurrency;
+        private readonly bool m_BenchmarkMode;
         private static readonly ILogger M_MinerOutputLogger = LogManager.GetLogger("MinerOutput");
 
         private readonly Regex m_SpeedRegex;
+        private readonly Regex m_BenchmarkSpeedRegex;
         private readonly Regex m_ValidShareRegex;
         private readonly Regex m_InvalidShareRegex;
 
@@ -25,7 +27,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         public int? AcceptedShares { get; private set; }
         public int? RejectedShares { get; private set; }
 
-        public MinerOutputProcessor(string processName, Miner miner, string primaryCurrency, string secondaryCurrency)
+        public MinerOutputProcessor(
+            string processName, Miner miner, string primaryCurrency, string secondaryCurrency, bool benchmarkMode)
         {
             if (miner == null)
                 throw new ArgumentNullException(nameof(miner));
@@ -35,9 +38,12 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             m_ProcessName = processName ?? throw new ArgumentNullException(nameof(processName));
             m_PrimaryCurrency = primaryCurrency;
             m_SecondaryCurrency = secondaryCurrency;
+            m_BenchmarkMode = benchmarkMode;
 
             if (!string.IsNullOrWhiteSpace(miner.SpeedRegex))
                 m_SpeedRegex = new Regex(miner.SpeedRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (!string.IsNullOrWhiteSpace(miner.BenchmarkResultRegex))
+                m_BenchmarkSpeedRegex = new Regex(miner.BenchmarkResultRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (!string.IsNullOrWhiteSpace(miner.ValidShareRegex))
                 m_ValidShareRegex = new Regex(miner.ValidShareRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (!string.IsNullOrWhiteSpace(miner.InvalidShareRegex))
@@ -54,6 +60,15 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 AcceptedShares += m_ValidShareRegex.Matches(output).Count;
             if (m_InvalidShareRegex != null)
                 RejectedShares += m_InvalidShareRegex.Matches(output).Count;
+            if (m_BenchmarkMode && m_BenchmarkSpeedRegex != null)
+            {
+                var benchmarkMatch = m_BenchmarkSpeedRegex.Match(output);
+                if (benchmarkMatch.Success)
+                {
+                    CurrentHashRate = ParsingHelper.ParseHashRate(benchmarkMatch.Groups["speed"].Value);
+                    return;
+                }
+            }
 
             if (m_SpeedRegex == null)
                 return;
