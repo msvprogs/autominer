@@ -262,7 +262,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
                         DeviceListArgument = "-d",
                         DeviceListSeparator = ",",
                         BenchmarkArgument = "--benchmark",
-                        BenchmarkResultRegex = @"Total:\s*(?<speed>\d+(\.\d+)?\s*[kMGT]H/s)"
+                        BenchmarkResultRegex = @"Total:\s*(?<speed>\d+(\.\d+)?\s*[kMGT]hash)"
                     },
                     new Miner
                     {
