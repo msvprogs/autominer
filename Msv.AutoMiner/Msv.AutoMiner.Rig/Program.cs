@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -89,8 +88,6 @@ namespace Msv.AutoMiner.Rig
                     return;
                 }
 
-                Console.TreatControlCAsInput = true;
-
                 var started = DateTime.Now;
                 using (Observable.Interval(TimeSpan.FromSeconds(10))
                     .Where(x => controller.CurrentState != null)
@@ -115,25 +112,38 @@ namespace Msv.AutoMiner.Rig
                     }))
                 using (var videoAdapterMonitor = new VideoAdapterMonitor(videoStateProvider))
                 using (new HeartbeatSender(
-                    new SystemStateProviderFactory().Create(), videoAdapterMonitor, controller, controlCenterClient))
+                    new SystemStateProviderFactory().Create(), 
+                    videoAdapterMonitor, 
+                    controller, 
+                    controlCenterClient,
+                    new HeartbeatSenderStorage()))
                 using (CreateWatchdogDisposable(videoAdapterMonitor))
                 {
                     M_Logger.Info("Automatic miner controller started.");
-                    M_Logger.Info("Type 'exit' or press Ctrl+C to exit");
-                    var keysList = new List<ConsoleKeyInfo>();
-                    var exitKeys = new[] {ConsoleKey.E, ConsoleKey.X, ConsoleKey.I, ConsoleKey.T, ConsoleKey.Enter};
+                    M_Logger.Info("Press Ctrl+C to exit");
+                    Console.TreatControlCAsInput = true;
+                    ConsoleKeyInfo key;
                     do
                     {
-                        if (keysList.Count > exitKeys.Length)
-                            keysList.RemoveAt(0);
-                        keysList.Add(Console.ReadKey(false));
-                    } while (!keysList[0].Modifiers.HasFlag(ConsoleModifiers.Control)
-                             && keysList[0].Key != ConsoleKey.C
-                             && !keysList.Select(x => x.Key).SequenceEqual(exitKeys));
-                    M_Logger.Debug("Exiting...");
+                        key = Console.ReadKey(true);
+                    } while (!IsCtrlCKey(key));
+                    M_Logger.Debug("Exiting (press Ctrl+C again to exit immediately)...");
+                    Observable.Interval(TimeSpan.FromMilliseconds(100))
+                        .Where(x => Console.KeyAvailable)
+                        .Select(x => Console.ReadKey(true))
+                        .Where(IsCtrlCKey)
+                        .Take(1)
+                        .Subscribe(x =>
+                        {
+                            M_Logger.Warn("Exiting forcibly...");
+                            Environment.Exit(0);
+                        });
                 }
             }
         }
+
+        private static bool IsCtrlCKey(ConsoleKeyInfo key)
+            => key.Modifiers.HasFlag(ConsoleModifiers.Control) && key.Key == ConsoleKey.C;
 
         private static IDisposable CreateWatchdogDisposable(IVideoAdapterMonitor videoAdapterMonitor)
         {

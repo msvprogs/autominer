@@ -222,7 +222,7 @@ Copyright: {info.LegalCopyright}");
         public void Register(string name, string password)
             => m_Registrator.Register(name, password);
 
-        public void Test(bool isBenchmark, string[] algorithms)
-            => m_Tester.Test(isBenchmark, algorithms);
+        public void Test(string[] algorithms)
+            => m_Tester.Test(algorithms);
     }
 }

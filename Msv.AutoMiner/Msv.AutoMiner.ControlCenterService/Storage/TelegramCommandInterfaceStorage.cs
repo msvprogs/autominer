@@ -36,17 +36,14 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
         public Dictionary<int, PoolAccountState> GetLastPoolAccountStates(int[] poolIds)
         {
             using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                var maxDate = context.PoolAccountStates.Max(x => x.DateTime);
                 return context.PoolAccountStates
                     .Include(x => x.Pool)
                     .AsNoTracking()
-                    .Where(x => poolIds.Contains(x.PoolId))
-                    .GroupBy(x => x.PoolId)
-                    .Select(x => new
-                    {
-                        x.Key,
-                        LastState = x.OrderByDescending(y => y.DateTime).FirstOrDefault()
-                    })
-                    .ToDictionary(x => x.Key, x => x.LastState);
+                    .Where(x => poolIds.Contains(x.PoolId) && x.DateTime == maxDate)
+                    .ToDictionary(x => x.PoolId);
+            }
         }
 
         public KeyValuePair<string, Heartbeat>[] GetLastHeartbeats(string[] rigNames)

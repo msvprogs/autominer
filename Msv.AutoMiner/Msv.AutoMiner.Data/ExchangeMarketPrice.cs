@@ -11,6 +11,8 @@ namespace Msv.AutoMiner.Data
 
         public Guid TargetCoinId { get; set; }
 
+        public virtual Coin TargetCoin { get; set; }
+
         public ExchangeType Exchange { get; set; }
 
         public DateTime DateTime { get; set; }

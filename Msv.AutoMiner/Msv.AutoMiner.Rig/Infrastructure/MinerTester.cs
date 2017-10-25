@@ -11,6 +11,7 @@ using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Remote;
 using Msv.AutoMiner.Rig.Storage.Contracts;
+using Msv.AutoMiner.Rig.Storage.Model;
 using Msv.AutoMiner.Rig.System.Video;
 using NLog;
 using AlgorithmData = Msv.AutoMiner.Rig.Storage.Model.AlgorithmData;
@@ -41,122 +42,120 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             m_TestDuration = testDuration;
         }
 
-        public void Test(bool benchmarkMode, string[] algorithmNames)
+        public void Test(string[] algorithmNames)
         {
-            M_Logger.Info("Running miner tests...");
-            if (algorithmNames != null)
-                M_Logger.Info("Selected algorithms: " + string.Join(", ", algorithmNames));
-
+            M_Logger.Info("Checking if there are active coins for selected algorithms...");
             var algorithmSettings = m_Storage.GetMinerAlgorithmSettings()
                 .Where(x => algorithmNames == null 
                     || algorithmNames.Contains(x.Algorithm.AlgorithmName, StringComparer.InvariantCultureIgnoreCase))
                 .ToDictionary(x => Guid.Parse(x.AlgorithmId));
-            var coins = m_ControlCenterService.GetMiningWork(
-                new GetMiningWorkRequestModel
-                {
-                    TestMode = true,
-                    AlgorithmDatas = algorithmSettings.Keys
-                        .Select(x => new AlgorithmPowerData
-                        {
-                            AlgorithmId = x
-                        })
-                        .ToArray()
-                })
+            var algorithmsWithCoins = m_ControlCenterService.GetMiningWork(
+                    new GetMiningWorkRequestModel
+                    {
+                        TestMode = true,
+                        AlgorithmDatas = algorithmSettings.Keys
+                            .Select(x => new AlgorithmPowerData
+                            {
+                                AlgorithmId = x
+                            })
+                            .ToArray()
+                    })
+                .GroupBy(x => x.CoinAlgorithmId)
                 .Select(x => new
                 {
-                    Algorithm = x.CoinAlgorithmId,
-                    Coin = x,
-                    MinerSetting = algorithmSettings.TryGetValue(x.CoinAlgorithmId)
+                    Coin = x.FirstOrDefault(y => y.Pools.Any()),
+                    MinerSetting = algorithmSettings.TryGetValue(x.Key),
+                    AlgorithmId = x.Key
                 })
-                .Where(x => x.MinerSetting != null
-                            && (x.Coin.Pools.Any() || x.MinerSetting.Miner.BenchmarkArgument != null))
+                .Where(x => x.Coin != null && x.MinerSetting != null)
+                .ToDictionary(x => x.AlgorithmId, x => (coin:x.Coin, settings:x.MinerSetting));
+            var algorithmsWithoutCoins = algorithmSettings
+                .Where(x => !algorithmsWithCoins.ContainsKey(x.Key))
+                .ToDictionary(x => x.Key, x => (coin: (MiningWorkModel) null, settings:x.Value));
+            M_Logger.Info("Algorithms with coins: "
+                + string.Join(", ", algorithmsWithCoins.Select(x => x.Value.settings.Algorithm.AlgorithmName).OrderBy(x => x)));
+            M_Logger.Info("Algorithms without coins (offline benchmark): "
+                          + string.Join(", ", algorithmsWithoutCoins.Select(x => x.Value.settings.Algorithm.AlgorithmName).OrderBy(x => x)));
+
+            var results = algorithmsWithCoins.Values
+                .Concat(algorithmsWithoutCoins.Values)
+                .OrderBy(x => x.settings.Algorithm.AlgorithmName)
+                .Select((x, i) => TestSingle(x.coin, x.settings, i + 1, algorithmsWithCoins.Count + algorithmsWithoutCoins.Count))
                 .ToArray();
-            M_Logger.Info($"Got {coins.Length} coins from server");
-
-            if (benchmarkMode)
-                coins = coins
-                    .GroupBy(x => x.Algorithm)
-                    .Select(x => new
-                    {
-                        Algorithm = x.Key,
-                        x.First().Coin,
-                        MinerSetting = algorithmSettings.TryGetValue(x.Key)
-                    })
-                    .ToArray();
-
-            var testedAlgorithms = new List<AlgorithmData>();
-            var results = new List<TestResult>();
-            foreach (var coinGroup in coins)
-            {
-                var algorithm = coinGroup.MinerSetting.Algorithm;
-                M_Logger.Info(
-                    $"Testing {coinGroup.Coin.CoinName} [{algorithm.AlgorithmName}]...");
-                var result = new TestResult
-                {
-                    Symbol = coinGroup.Coin.CoinSymbol,
-                    Algorithm = algorithm
-                };
-                try
-                {
-                    m_Controller.RunNew(new CoinMiningData
-                    {
-                        CoinId = coinGroup.Coin.CoinId,
-                        CoinName = coinGroup.Coin.CoinName,
-                        CoinSymbol = coinGroup.Coin.CoinSymbol,
-                        MinerSettings = coinGroup.MinerSetting,
-                        BenchmarkMode = true,
-                        //PoolData = coinGroup.Coin.Pools.FirstOrDefault()
-                    });
-                    M_Logger.Info($"Waiting {m_TestDuration.TotalMinutes:F2} minutes...");
-                    var powerUsages = new List<decimal>();
-                    using (Observable.Interval(TimeSpan.FromSeconds(10))
-                        .Select(x => m_VideoStateProvider.CanUse ? m_VideoStateProvider.GetState() : null)
-                        .Where(x => x != null && x.AdapterStates?.Length > 0)
-                        .Subscribe(x => powerUsages.Add(x.AdapterStates.Sum(y => y.PowerUsage))))
-                    {
-                        Thread.Sleep(m_TestDuration);
-                    }
-                    var hashRate = m_Controller.CurrentState.CurrentHashRate;
-                    m_Controller.Stop();
-
-                    if (hashRate == 0)
-                    {
-                        M_Logger.Error("FAIL: Something is wrong, because hashrate is zero");
-                        result.IsSuccess = false;
-                        results.Add(result);
-                        continue;
-                    }
-                    M_Logger.Info(
-                        $"SUCCESS: Current hashrate of {algorithm.AlgorithmName} is {ConversionHelper.ToHashRateWithUnits(hashRate, algorithm.KnownValue)}");
-                    result.IsSuccess = true;
-                    result.HashRate = hashRate;
-                    result.PowerUsage = Math.Round((double) powerUsages.DefaultIfEmpty().Average(), 2);
-                    results.Add(result);
-                    if (testedAlgorithms.Any(x => x.AlgorithmId == algorithm.AlgorithmId))
-                        continue;
-                    M_Logger.Info("Storing hashrate in DB");
-                    m_Storage.StoreAlgorithmData(Guid.Parse(algorithm.AlgorithmId), algorithm.AlgorithmName, hashRate, result.PowerUsage);
-                    testedAlgorithms.Add(algorithm);
-                }
-                catch (Exception ex)
-                {
-                    M_Logger.Error(ex, "FAIL: Test failed with exception");
-                    result.IsSuccess = false;
-                    results.Add(result);
-                }
-            }
 
             M_Logger.Info("Test results: "
                           + Environment.NewLine
                           + string.Join(Environment.NewLine,
-                              results.Select(x => $"{x.Symbol} [{x.Algorithm.AlgorithmName}]: {(x.IsSuccess ? "OK" : "Fail")}, "
+                              results.Select(x => $"{x.Algorithm.AlgorithmName}: {(x.IsSuccess ? "OK" : "Fail")}, "
                                                   + $" hashrate {ConversionHelper.ToHashRateWithUnits(x.HashRate, x.Algorithm.KnownValue)},"
                                                   + $" power usage {x.PowerUsage:F2} W")));
         }
 
+        private TestResult TestSingle(MiningWorkModel coin, MinerAlgorithmSetting settings, int index, int total)
+        {
+            var algorithm = settings.Algorithm;
+            M_Logger.Info(
+                $"Testing {algorithm.AlgorithmName} ({(coin != null ? coin.CoinName : "<offline>")}) [{index} / {total}]...");
+            var result = new TestResult
+            {
+                Algorithm = algorithm
+            };
+            if (coin == null
+                && settings.Miner.BenchmarkArgument == null
+                || settings.Miner.BenchmarkResultRegex == null)
+            {
+                M_Logger.Warn(
+                    $"{algorithm.AlgorithmName}: no active coins available, and offline benchmark is not supported");
+                return result;
+            }
+            try
+            {
+                m_Controller.RunNew(new CoinMiningData
+                {
+                    CoinId = coin?.CoinId ?? default,
+                    CoinName = coin?.CoinName,
+                    CoinSymbol = coin?.CoinSymbol,
+                    MinerSettings = settings,
+                    BenchmarkMode = true,
+                    PoolData = coin?.Pools.FirstOrDefault()
+                });
+                M_Logger.Info($"Waiting {m_TestDuration.TotalMinutes:F2} minutes...");
+                var powerUsages = new List<decimal>();
+                using (Observable.Interval(TimeSpan.FromSeconds(10))
+                    .Select(x => m_VideoStateProvider.CanUse ? m_VideoStateProvider.GetState() : null)
+                    .Where(x => x != null && x.AdapterStates?.Length > 0)
+                    .Subscribe(x => powerUsages.Add(x.AdapterStates.Sum(y => y.PowerUsage))))
+                {
+                    Thread.Sleep(m_TestDuration);
+                }
+                var hashRate = m_Controller.CurrentState.CurrentHashRate;
+                m_Controller.Stop();
+
+                if (hashRate == 0)
+                {
+                    M_Logger.Error("FAIL: Something is wrong, because hashrate is zero");
+                    result.IsSuccess = false;
+                    return result;
+                }
+                M_Logger.Info(
+                    $"SUCCESS: Current hashrate of {algorithm.AlgorithmName} is {ConversionHelper.ToHashRateWithUnits(hashRate, algorithm.KnownValue)}");
+                result.IsSuccess = true;
+                result.HashRate = hashRate;
+                result.PowerUsage = Math.Round((double) powerUsages.DefaultIfEmpty().Average(), 2);
+                M_Logger.Info("Storing hashrate in DB");
+                m_Storage.StoreAlgorithmData(Guid.Parse(algorithm.AlgorithmId), algorithm.AlgorithmName, hashRate,
+                    result.PowerUsage);
+            }
+            catch (Exception ex)
+            {
+                M_Logger.Error(ex, "FAIL: Test failed with exception");
+                result.IsSuccess = false;
+            }
+            return result;
+        }
+
         private class TestResult
         {
-            public string Symbol { get; set; }
             public bool IsSuccess { get; set; }
             public long HashRate { get; set; }
             public double PowerUsage { get; set; }

@@ -20,10 +20,13 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                 return context.Rigs.AsNoTracking().First(x => x.Id == rigId);
         }
 
-        public int[] GetReceiverIds()
+        public int[] GetReceiverIds(string[] userWhiteList)
         {
             using (var context = new AutoMinerDbContext(m_ConnectionString))
-                return context.TelegramUsers.Select(x => x.Id).ToArray();
+                return context.TelegramUsers
+                    .Where(x => userWhiteList.Contains(x.UserName))
+                    .Select(x => x.Id)
+                    .ToArray();
         }
     }
 }

@@ -13,11 +13,13 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Notifiers
     {
         private readonly ITelegramBotClient m_Client;
         private readonly IRigStatusNotifierStorage m_Storage;
+        private readonly string[] m_UserWhiteList;
 
-        public TelegramRigStatusNotifier(ITelegramBotClient client, IRigStatusNotifierStorage storage)
+        public TelegramRigStatusNotifier(ITelegramBotClient client, IRigStatusNotifierStorage storage, string[] userWhiteList)
         {
             m_Client = client ?? throw new ArgumentNullException(nameof(client));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
+            m_UserWhiteList = userWhiteList ?? throw new ArgumentNullException(nameof(userWhiteList));
         }
 
         public void NotifyLowVideoUsage(int rigId, int[] samples) 
@@ -33,7 +35,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Notifiers
             => SendMessageToSubscribers(CreateMessage(rigId, "Current hashrate differs too much from reference one", samples, "%"));
 
         private void SendMessageToSubscribers(string message) 
-            => Task.WaitAll(m_Storage.GetReceiverIds()
+            => Task.WaitAll(m_Storage.GetReceiverIds(m_UserWhiteList)
                 .Select(x => m_Client.SendTextMessageAsync(new ChatId(x), message, ParseMode.Html))
                 .Cast<Task>()
                 .ToArray());

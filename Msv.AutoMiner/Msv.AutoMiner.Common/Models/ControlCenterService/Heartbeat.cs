@@ -1,4 +1,5 @@
 ﻿using System;
+using Msv.AutoMiner.Common.Models.CoinInfoService;
 
 namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {
@@ -19,6 +20,8 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
         public string VideoDriverVersion { get; set; }
 
         public VideoAdapterState[] VideoAdapterStates { get; set; }
+
+        public AlgorithmPowerData[] AlgorithmMiningCapabilities { get; set; }
 
         public struct ValueWithReference<T>
         {

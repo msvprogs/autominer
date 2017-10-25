@@ -2,6 +2,6 @@
 {
     public interface IMinerTester
     {
-        void Test(bool benchmarkMode, string[] algorithmNames);
+        void Test(string[] algorithmNames);
     }
 }

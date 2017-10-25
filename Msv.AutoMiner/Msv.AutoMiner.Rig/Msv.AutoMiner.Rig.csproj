@@ -111,9 +111,7 @@
     <Compile Include="Data\ProfitabilityTableBuilderParams.cs" />
     <Compile Include="DllMapConfigurationSection.cs" />
     <Compile Include="Infrastructure\AutomaticMinerChanger.cs" />
-    <Compile Include="Infrastructure\ConsolidationRouteBuilder.cs" />
     <Compile Include="Infrastructure\Contracts\IAutomaticMinerChanger.cs" />
-    <Compile Include="Infrastructure\Contracts\IConsolidationRouteBuilder.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerProcessController.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerTester.cs" />
@@ -143,6 +141,8 @@
     <Compile Include="Security\X509CertificateStorageFactory.cs" />
     <Compile Include="Storage\CommandProcessorStorage.cs" />
     <Compile Include="Storage\Contracts\ICommandProcessorStorage.cs" />
+    <Compile Include="Storage\Contracts\IHeartbeatSenderStorage.cs" />
+    <Compile Include="Storage\HeartbeatSenderStorage.cs" />
     <Compile Include="Storage\Model\DbInitializer.cs" />
     <Compile Include="Storage\Model\DeviceType.cs" />
     <Compile Include="Storage\Model\ManualDeviceMapping.cs" />
@@ -159,8 +159,6 @@
     <Compile Include="Remote\ControlCenterServiceClient.cs" />
     <Compile Include="Security\ClientCertificateProvider.cs" />
     <Compile Include="Security\IClientCertificateProvider.cs" />
-    <Compile Include="Storage\ConsolidationRouteBuilderStorage.cs" />
-    <Compile Include="Storage\Contracts\IConsolidationRouteBuilderStorage.cs" />
     <Compile Include="Storage\Contracts\IMinerTesterStorage.cs" />
     <Compile Include="Storage\Contracts\IMiningProfitabilityTableBuilderStorage.cs" />
     <Compile Include="Storage\Contracts\IStoredSettings.cs" />

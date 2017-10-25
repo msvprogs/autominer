@@ -24,10 +24,9 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
 
         public CoinNetworkInfo[] GetLastNetworkInfos()
         {
+            var maxDate = m_Context.CoinNetworkInfos.Max(x => x.Created);
             return m_Context.CoinNetworkInfos
-                .Where(x => x.Coin.Activity != ActivityState.Deleted)
-                .GroupBy(x => x.CoinId)
-                .Select(x => x.OrderByDescending(y => y.Created).First())
+                .Where(x => x.Coin.Activity != ActivityState.Deleted && x.Created == maxDate)
                 .ToArray();
         }
 

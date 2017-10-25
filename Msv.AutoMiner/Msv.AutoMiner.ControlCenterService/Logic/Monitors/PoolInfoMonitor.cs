@@ -61,7 +61,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     {
                         try
                         {
-                            return (pool:x.pool, info: x.provider.GetInfo(startDate));
+                            return (x.pool, info: x.provider.GetInfo(startDate));
                         }
                         catch (Exception ex)
                         {

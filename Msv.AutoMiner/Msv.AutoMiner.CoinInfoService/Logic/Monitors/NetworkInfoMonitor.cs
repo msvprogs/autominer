@@ -68,10 +68,10 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                         var result = multiResult?.TryGetValue(x.Algorithm.KnownValue.GetValueOrDefault())
                                      ?? multiResult?.TryGetValue(KnownCoinAlgorithm.Unknown)
                                      ?? provider.GetNetworkStats();
-                        if (result.NetHashRate == 0 && result.Difficulty <= 0)
+                        if (result.NetHashRate <= 0 && result.Difficulty <= 0)
                             return (coin: x, result: null);
                         LogResults(x, result, previousInfos.TryGetValue(x.Id, new CoinNetworkInfo()));
-                        return (coin: x, result: result);
+                        return (coin: x, result);
                     }
                     catch (Exception ex)
                     {
@@ -98,7 +98,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             var networkInfoBuilder = new StringBuilder($"New network info for {coin.Name}: ")
                 .Append($"Difficulty {current.Difficulty:N4} ({GetPercentRatio(previous.Difficulty, current.Difficulty)}), ")
                 .Append($"Hash Rate {ConversionHelper.ToHashRateWithUnits(current.NetHashRate, coin.Algorithm.KnownValue)}")
-                .Append($" ({GetPercentRatio((double)current.NetHashRate, (double)previous.NetHashRate)})");
+                .Append($" ({GetPercentRatio(current.NetHashRate, previous.NetHashRate)})");
             if (current.BlockTimeSeconds != null)
                 networkInfoBuilder.Append($", Current Block Time: {current.BlockTimeSeconds:F2} sec");
             if (current.BlockReward != null)

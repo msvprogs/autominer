@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 
@@ -24,35 +23,35 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
 
         public async Task<CoinNetworkInfo[]> GetNetworkInfos(ValueAggregationType aggregationType)
         {
-            var coins = await m_Context.Coins
-                .Include(x => x.Algorithm)
+            var coinIds = await m_Context.Coins
                 .AsNoTracking()
-                .Where(x => x.Activity != ActivityState.Deleted)
-                .ToDictionaryAsync(x => x.Id);
-            var coinIds = coins.Select(x => x.Key).ToArray();
-            var lastNetworkInfos = await m_Context.CoinNetworkInfos
-                .AsNoTracking()
-                .Where(x => coinIds.Contains(x.CoinId))
-                .GroupBy(x => x.CoinId)
-                .Select(x => x.OrderByDescending(y => y.Created).FirstOrDefault())
+                .Where(x => x.Activity == ActivityState.Active)
+                .Select(x => x.Id)
                 .ToArrayAsync();
-            lastNetworkInfos.ForEach(x => x.Coin = coins[x.CoinId]);
+            var maxDate = await m_Context.CoinNetworkInfos.MaxAsync(x => x.Created);
+            var lastNetworkInfos = await m_Context.CoinNetworkInfos
+                .Include(x => x.Coin)
+                .Include(x => x.Coin.Algorithm)
+                .AsNoTracking()
+                .Where(x => coinIds.Contains(x.CoinId) && x.Created == maxDate)
+                .ToArrayAsync();
 
             if (aggregationType == ValueAggregationType.Last)
                 return lastNetworkInfos;
             var to = DateTime.UtcNow;
             var from = GetMinDateTime(aggregationType);
-            return (await m_Context.CoinNetworkInfos
-                    .AsNoTracking()
-                    .Where(x => coinIds.Contains(x.CoinId))
-                    .Where(x => x.Created >= from && x.Created <= to)
-                    .GroupBy(x => x.CoinId)
-                    .Select(x => new
-                    {
-                        CoinId = x.Key,
-                        Difficulty = x.Average(y => y.Difficulty)
-                    })
-                    .ToArrayAsync())
+            return m_Context.CoinNetworkInfos
+                .AsNoTracking()
+                .Where(x => coinIds.Contains(x.CoinId))
+                .Where(x => x.Created >= from && x.Created <= to)
+                .Select(x => new { x.CoinId, x.Difficulty })
+                .AsEnumerable()
+                .GroupBy(x => x.CoinId)
+                .Select(x => new
+                {
+                    CoinId = x.Key,
+                    Difficulty = x.Average(y => y.Difficulty)
+                })
                 .Join(lastNetworkInfos, x => x.CoinId, x => x.CoinId, (x, y) =>
                 {
                     y.Difficulty = x.Difficulty;
@@ -63,30 +62,30 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
 
         public async Task<ExchangeMarketPrice[]> GetExchangeMarketPrices(ValueAggregationType aggregationType)
         {
+            var maxDate = await m_Context.ExchangeMarketPrices.Select(x => x.DateTime).MaxAsync();
             var lastPrices = await m_Context.ExchangeMarketPrices
                 .AsNoTracking()
-                .Where(x => x.SourceCoin.Activity != ActivityState.Deleted)
-                .GroupBy(x => new {x.SourceCoinId, x.TargetCoinId, x.Exchange})
-                .Select(x => x.OrderByDescending(y => y.DateTime).FirstOrDefault())
+                .Where(x => x.SourceCoin.Activity == ActivityState.Active && x.DateTime == maxDate)
                 .ToArrayAsync();
             if (aggregationType == ValueAggregationType.Last)
                 return lastPrices;
             var coinIds = lastPrices.Select(x => x.SourceCoinId).ToArray();
             var to = DateTime.UtcNow;
             var from = GetMinDateTime(aggregationType);
-            return (await m_Context.ExchangeMarketPrices
-                    .AsNoTracking()
-                    .Where(x => coinIds.Contains(x.SourceCoinId))
-                    .Where(x => x.DateTime >= from && x.DateTime <= to)
-                    .GroupBy(x => new {x.SourceCoinId, x.TargetCoinId, x.Exchange})
-                    .Select(x => new
-                    {
-                        x.Key,
-                        Bid = x.Average(y => y.HighestBid),
-                        Ask = x.Average(y => y.LowestAsk),
-                        Last = x.Average(y => y.LastPrice)
-                    })
-                    .ToArrayAsync())
+            return m_Context.ExchangeMarketPrices
+                .AsNoTracking()
+                .Where(x => coinIds.Contains(x.SourceCoinId))
+                .Where(x => x.DateTime >= from && x.DateTime <= to)
+                .Select(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange, x.HighestBid, x.LowestAsk, x.LastPrice })
+                .AsEnumerable()
+                .GroupBy(x => new {x.SourceCoinId, x.TargetCoinId, x.Exchange})
+                .Select(x => new
+                {
+                    x.Key,
+                    Bid = x.Average(y => y.HighestBid),
+                    Ask = x.Average(y => y.LowestAsk),
+                    Last = x.Average(y => y.LastPrice)
+                })
                 .Join(lastPrices, x => x.Key, x => new {x.SourceCoinId, x.TargetCoinId, x.Exchange}, (x, y) =>
                 {
                     y.HighestBid = x.Bid;

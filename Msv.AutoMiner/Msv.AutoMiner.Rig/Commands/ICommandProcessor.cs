@@ -52,7 +52,6 @@
 
         [CommandAction("--test", Description = "Run algorithm speed tests with active coins")]
         void Test(
-            [CommandParameter("-b", Description = "benchmark mode (test one coin per algorithm)")] bool isBenchmark,
             [CommandParameter("-a", Description = "algorithms to test", Example = "sha256t,groestl")]
             string[] algorithms);
     }

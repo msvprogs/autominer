@@ -221,11 +221,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         {
             if (miningData.BenchmarkMode && miningData.PoolData == null)
             {
-                M_Logger.Warn($"There is no active pool for {miningData.CoinName}, running offline benchmark");
                 args.Add(benchmarkKey);
                 return;
             }
-
             args.Add(miningData.MinerSettings.Miner.OmitUrlSchema
                 ? GetArgumentValuePair(serverKey,
                     portKey == null

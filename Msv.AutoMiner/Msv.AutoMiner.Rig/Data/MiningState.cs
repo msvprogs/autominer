@@ -18,18 +18,17 @@ namespace Msv.AutoMiner.Rig.Data
         public MiningState(
             CoinMiningData miningData, long? currentHashRate, long? storedHashRate, int? acceptedShares, int? rejectedShares)
         {
-            Currency = miningData?.CoinSymbol ?? throw new ArgumentNullException(nameof(miningData));
+            Currency = miningData.CoinSymbol;
             CoinId = miningData.CoinId;
-            PoolId = miningData.PoolData.Id;
+            PoolId = miningData.PoolData?.Id ?? default;
             Name = miningData.CoinName;
-            Algorithm = miningData.MinerSettings.AlgorithmId.ToString();
+            Algorithm = miningData.MinerSettings.Algorithm.AlgorithmName;
             CurrentHashRate = currentHashRate.GetValueOrDefault();
             StoredHashRate = storedHashRate.GetValueOrDefault();
             AcceptedShares = acceptedShares;
             RejectedShares = rejectedShares;
         }
 
-        //TODO: algorithm
         public override string ToString()
             => $"{Name} ({Currency}) [{Algorithm}], " 
             + $"hash rate {ConversionHelper.ToHashRateWithUnits(CurrentHashRate)} "

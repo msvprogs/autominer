@@ -32,7 +32,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 if (clientCertificate == null)
                 {
                     M_Logger.Warn($"{ip}: Client certificate not found");
-                    context.Result = new ForbidResult();
+                    context.Result = new UnauthorizedResult();
                     return;
                 }
                 //if (!certificate.Verify())
@@ -46,13 +46,13 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 if (rig == null)
                 {
                     M_Logger.Warn($"{ip}: Rig with the specified CN and serial not found ({clientCertificate.SubjectName.Name}, serial {clientCertificate.SerialNumber})");
-                    context.Result = new ForbidResult();
+                    context.Result = new UnauthorizedResult();
                     return;
                 }
                 if (!rig.IsActive)
                 {
                     M_Logger.Warn($"{ip}: Rig {rig.Id} ({rig.Name}) is inactive");
-                    context.Result = new ForbidResult();
+                    context.Result = new UnauthorizedResult();
                     return;
                 }
                 M_Logger.Info($"{ip}: Authenticated rig {rig.Id} ({rig.Name})");

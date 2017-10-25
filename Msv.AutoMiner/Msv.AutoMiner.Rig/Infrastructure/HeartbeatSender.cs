@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Remote;
+using Msv.AutoMiner.Rig.Storage.Contracts;
 using Msv.AutoMiner.Rig.System.Contracts;
 using Msv.AutoMiner.Rig.System.Video;
 
@@ -18,12 +20,14 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly IVideoAdapterMonitor m_VideoAdapterMonitor;
         private readonly IMinerProcessController m_MinerProcessController;
         private readonly IControlCenterService m_Service;
+        private readonly IHeartbeatSenderStorage m_Storage;
 
         public HeartbeatSender(
             ISystemStateProvider systemStateProvider,
             IVideoAdapterMonitor videoAdapterMonitor,
             IMinerProcessController minerProcessController,
-            IControlCenterService service)
+            IControlCenterService service,
+            IHeartbeatSenderStorage storage)
             : base(TimeSpan.FromMinutes(1), true)
         {
             m_SystemStateProvider = systemStateProvider ?? throw new ArgumentNullException(nameof(systemStateProvider));
@@ -31,6 +35,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             m_MinerProcessController =
                 minerProcessController ?? throw new ArgumentNullException(nameof(minerProcessController));
             m_Service = service ?? throw new ArgumentNullException(nameof(service));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         protected override void DoWork()
@@ -77,6 +82,15 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                             Reference = x.MaxClockMhz
                         },
                         CoreUtilizations = x.CoreUsages
+                    })
+                    .ToArray(),
+                AlgorithmMiningCapabilities = m_Storage.GetAlgorithms()
+                    .Where(x => x.SpeedInHashes > 0)
+                    .Select(x => new AlgorithmPowerData
+                    {
+                        AlgorithmId = Guid.Parse(x.AlgorithmId),
+                        NetHashRate = x.SpeedInHashes,
+                        Power = x.Power
                     })
                     .ToArray()
             };

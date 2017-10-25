@@ -63,7 +63,14 @@ namespace Msv.AutoMiner.ControlCenterService
                 MaxVideoTemperature = Configuration.GetValue<int>("NormalRigStateCriteria:MaxVideoTemperature")
             });
             //@autominer_test
-            services.AddSingleton<IRigStatusNotifier, TelegramRigStatusNotifier>();
+            services.AddSingleton<IRigStatusNotifier, TelegramRigStatusNotifier>(
+                x => new TelegramRigStatusNotifier(
+                    x.GetRequiredService<ITelegramBotClient>(),
+                    x.GetRequiredService<IRigStatusNotifierStorage>(),
+                    Configuration.GetSection("Notifications:Telegram:Subscribers")
+                        .GetChildren()
+                        .Select(y => y.Value)
+                        .ToArray()));
             services.AddSingleton<IHeartbeatAnalyzer, HeartbeatAnalyzer>();
 
             services.AddTransient<ICertificateService, CertificateService>();

@@ -32,8 +32,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         {
             if (miner == null)
                 throw new ArgumentNullException(nameof(miner));
-            if (string.IsNullOrEmpty(primaryCurrency))
-                throw new ArgumentException("Value cannot be null or empty.", nameof(primaryCurrency));
 
             m_ProcessName = processName ?? throw new ArgumentNullException(nameof(processName));
             m_PrimaryCurrency = primaryCurrency;
