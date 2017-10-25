@@ -101,8 +101,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 Algorithm = algorithm
             };
             if (coin == null
-                && settings.Miner.BenchmarkArgument == null
-                || settings.Miner.BenchmarkResultRegex == null)
+                && (settings.Miner.BenchmarkArgument == null
+                || settings.Miner.BenchmarkResultRegex == null))
             {
                 M_Logger.Warn(
                     $"{algorithm.AlgorithmName}: no active coins available, and offline benchmark is not supported");

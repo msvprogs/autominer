@@ -18,6 +18,7 @@ namespace Msv.AutoMiner.Rig.Storage
             using (var context = new AutoMinerRigDbContext())
                 return context.MinerAlgorithmSettings
                     .Include(x => x.Miner)
+                    .Include(x => x.Algorithm)
                     .ToArray();
         }
     }
