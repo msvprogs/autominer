@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Msv.AutoMiner.Common.Helpers;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {
@@ -7,7 +8,6 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
     public class BalanceTagHelper : TagHelper
     {
         private const string BalancePropertyKey = "msv-balance";
-        private const string BalanceFormat = "N6";
 
         [HtmlAttributeName(BalancePropertyKey)]
         public double? Balance { get; set; }
@@ -22,13 +22,13 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             {
                 output.Attributes.SetAttribute("class", "text-right");
                 var strongTag = new TagBuilder("strong");
-                strongTag.InnerHtml.Append(Balance.Value.ToString(BalanceFormat));
+                strongTag.InnerHtml.Append(ConversionHelper.ToCryptoCurrencyValue(Balance.Value));
                 output.Content.SetHtmlContent(strongTag);
             }
             else
             {
                 output.Attributes.SetAttribute("class", "text-right text-muted");
-                output.Content.SetContent(Balance.Value.ToString(BalanceFormat));
+                output.Content.SetContent(ConversionHelper.ToCryptoCurrencyValue(Balance.Value));
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Rig.Commands;
@@ -64,17 +65,17 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 .ToArray();
 
             var tableBuilder = new TableStringBuilder(
-                "Symbol", "Name", "Pool", "Coins per day", "BTC per day", "USD per day", "Electricity", "Total");
+                "Symbol", "Name", "Pool", "Coins per day", "BTC per day", "USD per day", "Electricity", "Total $");
             profitabilityTable.ForEach(
                 x => tableBuilder.AppendValues(
                     x.CoinSymbol, 
                     x.CoinName,
                     x.PoolData.Name, 
                     x.ToCoinsPerDayString(),
-                    x.PoolData.BtcPerDay.ToString("N6"), 
-                    x.PoolData.UsdPerDay.ToString("N2"), 
-                    $"${-x.PoolData.ElectricityCost:N2}",
-                    $"${x.UsdPerDayTotal:N2}"));
+                    ConversionHelper.ToCryptoCurrencyValue(x.PoolData.BtcPerDay), 
+                    x.PoolData.UsdPerDay.ToString("N2"),
+                    $"-${x.PoolData.ElectricityCost:N2}",
+                    $"{x.UsdPerDayTotal:N2}"));
             M_Logger.Debug("Current profitability table: " + Environment.NewLine + tableBuilder);
 
             return profitabilityTable;

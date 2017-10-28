@@ -20,6 +20,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
         public PoolInfo GetInfo(DateTime minPaymentDate)
         {
             var info = m_RpcClient.Execute<dynamic>("getinfo");
+            var miningInfo = m_RpcClient.Execute<dynamic>("getmininginfo");
             var transactions = m_RpcClient.Execute<JArray>("listtransactions", string.Empty, LastTransactionCount)
                 .Cast<dynamic>()
                 .Where(x => (int) x.confirmations > 0)
@@ -31,11 +32,13 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 {
                     ConfirmedBalance = ((double?) info.balance).GetValueOrDefault(),
                     UnconfirmedBalance = ((double?) info.newmint).GetValueOrDefault()
+                        + ((double?)info.stake).GetValueOrDefault()
                 },
                 State = new PoolState
                 {
                     LastBlock = (long?) info.blocks,
-                    TotalWorkers = 1
+                    TotalWorkers = 1,
+                    TotalHashRate = (long)(((double?)miningInfo.netmhashps).GetValueOrDefault() * 1e6)
                 },
                 PaymentsData = transactions
                     .Select(x => new PoolPaymentData

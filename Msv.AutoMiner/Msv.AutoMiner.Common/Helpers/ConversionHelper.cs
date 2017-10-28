@@ -40,6 +40,9 @@ namespace Msv.AutoMiner.Common.Helpers
             return $"{normalizedHashRate:F3} {prefixKeyPair.Value}{unit}";
         }
 
+        public static string ToCryptoCurrencyValue(double value)
+            => value.ToString("N8");
+
         public static double GetDiffRatio(decimal oldValue, decimal newValue)
             => GetDiffRatio((double) oldValue, (double) newValue);
 

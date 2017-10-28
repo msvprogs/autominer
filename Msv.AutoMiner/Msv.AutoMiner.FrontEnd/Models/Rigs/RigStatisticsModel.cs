@@ -1,5 +1,6 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
+using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Rigs
 {
@@ -12,6 +13,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Rigs
         public CoinProfitabilityInfo[] LastProfitabilityTable { get; set; }
 
         public CoinMiningDuration[] LastDayActivity { get; set; }
+
+        public CoinAlgorithm[] Algorithms { get; set; }
 
         public class CoinProfitabilityInfo
         {

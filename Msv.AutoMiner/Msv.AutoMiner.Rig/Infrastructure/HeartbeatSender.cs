@@ -21,6 +21,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly IMinerProcessController m_MinerProcessController;
         private readonly IControlCenterService m_Service;
         private readonly IHeartbeatSenderStorage m_Storage;
+        private readonly double m_SystemPowerUsage;
 
         public HeartbeatSender(
             ISystemStateProvider systemStateProvider,
@@ -28,7 +29,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             IMinerProcessController minerProcessController,
             IControlCenterService service,
             IPeriodicTaskDelayProvider delayProvider,
-            IHeartbeatSenderStorage storage)
+            IHeartbeatSenderStorage storage,
+            double systemPowerUsage)
             : base(TimeSpan.FromMinutes(1), delayProvider.GetDelay<HeartbeatSender>(), true)
         {
             m_SystemStateProvider = systemStateProvider ?? throw new ArgumentNullException(nameof(systemStateProvider));
@@ -37,6 +39,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 minerProcessController ?? throw new ArgumentNullException(nameof(minerProcessController));
             m_Service = service ?? throw new ArgumentNullException(nameof(service));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
+            m_SystemPowerUsage = systemPowerUsage;
         }
 
         protected override void DoWork()
@@ -91,7 +94,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     {
                         AlgorithmId = Guid.Parse(x.AlgorithmId),
                         NetHashRate = x.SpeedInHashes,
-                        Power = x.Power
+                        Power = x.Power + m_SystemPowerUsage
                     })
                     .ToArray()
             };

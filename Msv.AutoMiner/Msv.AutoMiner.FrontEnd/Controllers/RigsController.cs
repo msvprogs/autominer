@@ -127,6 +127,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     .Where(x => x.RigId == id && x.Received >= heartbeatTimeLimit)
                     .ToArrayAsync())
                 .Select(x => JsonConvert.DeserializeObject<Heartbeat>(x.ContentsJson))
+                .Where(x => x != null)
                 .ToArray();
 
             var lastProfitabilityTime = await m_Context.CoinProfitabilities
@@ -198,7 +199,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 ProfitabilityTableTime = lastProfitabilityTime != default(DateTime)
                     ? lastProfitabilityTime
                     : (DateTime?) null,
-                LastDayActivity = durations.ToArray()
+                LastDayActivity = durations.ToArray(),
+                Algorithms = m_Context.CoinAlgorithms.AsNoTracking().ToArray()
             });
         }
     }
