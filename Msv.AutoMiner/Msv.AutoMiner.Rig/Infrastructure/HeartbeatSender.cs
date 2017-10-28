@@ -27,8 +27,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             IVideoAdapterMonitor videoAdapterMonitor,
             IMinerProcessController minerProcessController,
             IControlCenterService service,
+            IPeriodicTaskDelayProvider delayProvider,
             IHeartbeatSenderStorage storage)
-            : base(TimeSpan.FromMinutes(1), true)
+            : base(TimeSpan.FromMinutes(1), delayProvider.GetDelay<HeartbeatSender>(), true)
         {
             m_SystemStateProvider = systemStateProvider ?? throw new ArgumentNullException(nameof(systemStateProvider));
             m_VideoAdapterMonitor = videoAdapterMonitor ?? throw new ArgumentNullException(nameof(videoAdapterMonitor));

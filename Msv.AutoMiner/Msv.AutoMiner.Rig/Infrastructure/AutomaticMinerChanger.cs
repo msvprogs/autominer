@@ -19,6 +19,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly IMinerProcessController m_ProcessController;
         private readonly IMiningProfitabilityTableBuilder m_MiningProfitabilityTableBuilder;
         private readonly IPoolStatusProvider m_PoolStatusProvider;
+        private readonly IPeriodicTaskDelayProvider m_DelayProvider;
         private readonly MinerChangingOptions m_ChangingOptions;
 
         private readonly IDisposable m_Disposable;
@@ -29,11 +30,13 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             IMinerProcessController processController,
             IMiningProfitabilityTableBuilder miningProfitabilityTableBuilder,
             IPoolStatusProvider poolStatusProvider,
+            IPeriodicTaskDelayProvider delayProvider,
             MinerChangingOptions changingOptions)
         {
             m_ProcessController = processController ?? throw new ArgumentNullException(nameof(processController));
             m_MiningProfitabilityTableBuilder = miningProfitabilityTableBuilder ?? throw new ArgumentNullException(nameof(miningProfitabilityTableBuilder));
             m_PoolStatusProvider = poolStatusProvider ?? throw new ArgumentNullException(nameof(poolStatusProvider));
+            m_DelayProvider = delayProvider ?? throw new ArgumentNullException(nameof(delayProvider));
             m_ChangingOptions = changingOptions ?? throw new ArgumentNullException(nameof(changingOptions));
             m_Disposable = CreateSubscription();
         }
@@ -43,17 +46,20 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private IDisposable CreateSubscription()
         {
             var random = new Random();
+            var delay = m_DelayProvider.GetDelay<AutomaticMinerChanger>();
+            M_Logger.Info($"Adding server load balancing delay {(int)delay.TotalSeconds} seconds");
             var intervalDispersionMsec = (int) m_ChangingOptions.Dispersion.TotalMilliseconds;
             return Observable.Generate(Unit.Default, x => true, x => x, x => x,
                     x => m_ChangingOptions.Interval
                          + TimeSpan.FromMilliseconds(random.Next(-intervalDispersionMsec, intervalDispersionMsec)),
                     TaskPoolScheduler.Default)
+                .StartWith(TaskPoolScheduler.Default, Unit.Default)
+                .Delay(delay)
                 .Merge(Observable.FromEventPattern(
                         x => m_ProcessController.ProcessExited += x,
                         x => m_ProcessController.ProcessExited -= x)
                     .Do(x => m_CurrentCoinData = null)
                     .Select(x => Unit.Default))
-                .StartWith(TaskPoolScheduler.Default, Unit.Default)
                 .Subscribe(x =>
                 {
                     try

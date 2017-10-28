@@ -89,6 +89,7 @@ namespace Msv.AutoMiner.Rig
                 }
 
                 var started = DateTime.Now;
+                var delayProvider = new PeriodicTaskDelayProvider(certificateProvider);
                 using (Observable.Interval(TimeSpan.FromSeconds(10))
                     .Where(x => controller.CurrentState != null)
                     .Subscribe(x =>
@@ -104,6 +105,7 @@ namespace Msv.AutoMiner.Rig
                             SystemPowerUsageWatts = Settings.Default.SystemPowerUsageWatts
                         }),
                     new PoolStatusProvider(),
+                    delayProvider,
                     new MinerChangingOptions
                     {
                         Interval = Settings.Default.ProfitabilityQueryInterval,
@@ -116,6 +118,7 @@ namespace Msv.AutoMiner.Rig
                     videoAdapterMonitor, 
                     controller, 
                     controlCenterClient,
+                    delayProvider,
                     new HeartbeatSenderStorage()))
                 using (CreateWatchdogDisposable(videoAdapterMonitor))
                 {

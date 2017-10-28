@@ -112,6 +112,7 @@
     <Compile Include="DllMapConfigurationSection.cs" />
     <Compile Include="Infrastructure\AutomaticMinerChanger.cs" />
     <Compile Include="Infrastructure\Contracts\IAutomaticMinerChanger.cs" />
+    <Compile Include="Infrastructure\Contracts\IPeriodicTaskDelayProvider.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerProcessController.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerTester.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Infrastructure\MinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\MinerProcessController.cs" />
     <Compile Include="Infrastructure\MinerTester.cs" />
+    <Compile Include="Infrastructure\PeriodicTaskDelayProvider.cs" />
     <Compile Include="Infrastructure\PoolStatusProvider.cs" />
     <Compile Include="Infrastructure\ProcessWrapper.cs" />
     <Compile Include="Infrastructure\MiningProfitabilityTableBuilder.cs" />

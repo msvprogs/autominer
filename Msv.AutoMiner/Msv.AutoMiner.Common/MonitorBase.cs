@@ -16,7 +16,7 @@ namespace Msv.AutoMiner.Common
 
         private readonly IDisposable m_Disposable;
 
-        protected MonitorBase(TimeSpan period, bool skipFirst = false)
+        protected MonitorBase(TimeSpan period, TimeSpan? delay = null, bool skipFirst = false)
         {
             Period = period;
             Log = LogManager.GetLogger(GetType().Name);
@@ -24,6 +24,11 @@ namespace Msv.AutoMiner.Common
             var sequence = Observable.Interval(period, TaskPoolScheduler.Default);
             if (!skipFirst)
                 sequence = sequence.StartWith(TaskPoolScheduler.Default, 0);
+            if (delay != null)
+            {
+                Log.Info($"Adding server load balancing delay {(int)delay.Value.TotalSeconds} seconds");
+                sequence = sequence.Delay(delay.Value);
+            }
             m_Disposable = sequence
                 .Subscribe(
                     x => DoWorkWrapped(),
