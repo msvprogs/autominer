@@ -51,4 +51,6 @@ $(function () {
     $(document).ajaxComplete(function () {
         $('#throbber').hide();
     });
+
+    $("li.disabled, li.active").click(function(e) { e.preventDefault(); });
 })

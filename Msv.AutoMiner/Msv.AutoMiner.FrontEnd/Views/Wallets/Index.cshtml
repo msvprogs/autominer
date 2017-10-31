@@ -1,4 +1,5 @@
 ﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletIndexModel
 
@@ -14,7 +15,7 @@
     <h2 class="text-center">Wallets</h2>
     <div class="row">
         <div class="col-xs-8 table-total-caption">
-            Total <strong>@Model.TotalBtc.ToString("N6")</strong> BTC, <strong>$@Model.TotalUsd.ToString("N2")</strong>
+            Total <strong>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalBtc)</strong> BTC, <strong>$@Model.TotalUsd.ToString("N2")</strong>
         </div>
         <div class="col-xs-4">
             <div class="pull-right div-table-actions">
@@ -66,9 +67,18 @@
 
             <tr class="@rowClass" title="@title">
                 <td>@wallet.Coin.Symbol</td>
-                <td>@wallet.Coin.Name</td>
-                <td class="wallet-address">@wallet.Address</td>
-                <td>@(wallet.ExchangeType != null ? wallet.ExchangeType.ToString() : "<local>")</td>
+                <td><a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
+                       title="Show all operations for @wallet.Coin.Name wallets">@wallet.Coin.Name</a></td>
+                <td class="wallet-address">
+                    <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
+                       title="Show all operations for this wallet">@wallet.Address</a>
+                </td>
+                <td>
+                    <a asp-controller="WalletOperations" asp-action="Index" asp-route-exchange="@wallet.ExchangeType"
+                       title="Show all operations for exchange @wallet.ExchangeType">
+                        @(wallet.ExchangeType !=null ? wallet.ExchangeType.ToString() : "<local>")
+                    </a>
+                </td>
                 <td msv-balance="@wallet.Available"></td>
                 <td msv-balance="@wallet.Blocked"></td>
                 <td msv-balance="@wallet.Unconfirmed"></td>

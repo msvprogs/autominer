@@ -22,6 +22,11 @@ th.column-actions {
     max-width: 350px;
 }
 
+.wallet-address-narrow {
+    overflow: hidden;
+    max-width: 100px;
+}
+
 .table-total-caption {
     font-size: larger;
 }
@@ -68,4 +73,23 @@ tr.now-mining {
 .margined-rows-container div.row {
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+.positive-amount {
+    color: green;
+}
+
+.negative-amount {
+    color: darkred;
+}
+
+.transaction-small {
+    color: gray;
+    font-size: 8pt;
+}
+
+.wallet-small {
+    color: gray;
+    font-size: 9pt;
+    font-weight: bold;
 }

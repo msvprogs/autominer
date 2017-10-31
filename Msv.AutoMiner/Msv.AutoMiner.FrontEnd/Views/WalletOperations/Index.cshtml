@@ -1,0 +1,35 @@
+﻿@using Msv.AutoMiner.FrontEnd.Models.Shared
+@using Msv.AutoMiner.FrontEnd.Models.WalletOperations
+@model PaginationModel<WalletOperationModel>
+
+<h2 class="text-center">@Model.Title</h2>
+
+@await Component.InvokeAsync("Pagination", Model)
+
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Currency</th>
+        <th>Amount</th>
+        <th>Exchange</th>
+        <th>Tx data</th>
+    </tr>
+    @foreach (var operation in Model.CurrentPageItems)
+    {
+        <tr>
+            <td>@operation.Id</td>
+            <td msv-absolute-date="@operation.DateTime"></td>
+            <td>@operation.CurrencyName</td>
+            <td msv-amount="@operation.Amount" msv-currency="@operation.CurrencySymbol"></td>
+            <td>@operation.Exchange</td>
+            <td>
+                <span class="wallet-small">@operation.TargetAddress</span>
+                <br />
+                <span class="transaction-small">@operation.Transaction</span>
+            </td>
+        </tr>
+    }
+</table>
+
+@await Component.InvokeAsync("Pagination", Model)

@@ -30,7 +30,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 new WalletBalanceData
                 {
                     Available = (double) info.balance,
-                    Unconfirmed = (double) info.newmint,
+                    Unconfirmed = (double) info.newmint + ((double?)info.stake).GetValueOrDefault(),
                     CurrencySymbol = m_Coin.Symbol
                 }
             };
