@@ -1,7 +1,9 @@
 ﻿@using Msv.AutoMiner.Common
 @using Msv.AutoMiner.Common.Helpers
 @model Msv.AutoMiner.FrontEnd.Models.Rigs.RigStatisticsModel
-    
+
+@{ ViewBag.Title = Model.Name + " rig statistics";}    
+
 <h3>Statistics of rig @Model.Name</h3>
 <div class="row">
     <div class="col-xs-5">

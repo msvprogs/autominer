@@ -1,6 +1,8 @@
 ﻿@using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Rigs.RigDisplayModel[]
-    
+   
+@{ ViewBag.Title = "Rigs"; }    
+
 @if (TempData[RigsController.RigsMessageKey] != null)
 {
     <div class="panel panel-success">

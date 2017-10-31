@@ -3,124 +3,130 @@
 @using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletIndexModel
 
-    @if (TempData[WalletsController.WalletsMessageKey] != null)
+@{ ViewBag.Title = "Wallets"; }        
+
+@if (TempData[WalletsController.WalletsMessageKey] != null)
+{
+    <div class="panel panel-success">
+        <div class="panel-body text-success">
+            @TempData[WalletsController.WalletsMessageKey]
+        </div>
+    </div>
+}
+
+<h2 class="text-center">Wallets</h2>
+<div class="row">
+    <div class="col-xs-8 table-total-caption">
+        Total <strong>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalBtc)</strong> BTC, <strong>$@Model.TotalUsd.ToString("N2")</strong>
+    </div>
+    <div class="col-xs-4">
+        <div class="pull-right div-table-actions">
+            <a class="btn btn-info" asp-action="Create">
+                <i class="glyphicon glyphicon-plus"></i> Add new wallet...
+            </a>
+        </div>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>Coin symbol</th>
+        <th>Coin name</th>
+        <th class="wallet-address">Address</th>
+        <th>Exchange</th>
+        <th>Available</th>
+        <th>Blocked</th>
+        <th>Unconfirmed</th>
+        <th>Last updated</th>
+        <th class="column-actions">Actions</th>
+    </tr>
+    @foreach (var wallet in Model.Wallets.OrderBy(x => x.Coin.Symbol)
+        .ThenBy(x => x.Coin.Name)
+        .ThenByDescending(x => x.IsMiningTarget))
     {
-        <div class="panel panel-success">
-            <div class="panel-body text-success">
-                @TempData[WalletsController.WalletsMessageKey]
-            </div>
-        </div>
-    }
-
-    <h2 class="text-center">Wallets</h2>
-    <div class="row">
-        <div class="col-xs-8 table-total-caption">
-            Total <strong>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalBtc)</strong> BTC, <strong>$@Model.TotalUsd.ToString("N2")</strong>
-        </div>
-        <div class="col-xs-4">
-            <div class="pull-right div-table-actions">
-                <a class="btn btn-info" asp-action="Create">
-                    <i class="glyphicon glyphicon-plus"></i> Add new wallet...
-                </a>
-            </div>
-        </div>
-    </div>    
-
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>Coin symbol</th>
-            <th>Coin name</th>
-            <th class="wallet-address">Address</th>
-            <th>Exchange</th>
-            <th>Available</th>
-            <th>Blocked</th>
-            <th>Unconfirmed</th>
-            <th>Last updated</th>
-            <th class="column-actions">Actions</th>
-        </tr>
-        @foreach (var wallet in Model.Wallets.OrderBy(x => x.Coin.Symbol)
-   .ThenBy(x => x.Coin.Name)
-   .ThenByDescending(x => x.IsMiningTarget))
+        string rowClass;
+        string title;
+        if (wallet.Activity == ActivityState.Inactive)
         {
-            string rowClass;
-            string title;
-            if (wallet.Activity == ActivityState.Inactive)
-            {
-                rowClass = "text-muted";
-                title = "Wallet is inactive";
-            }
-            else if (wallet.LastUpdated == null || wallet.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(30))
-            {
-                rowClass = "warning";
-                title = "Wallet data is unavailable or obsolete";
-            }
-            else if (wallet.IsMiningTarget)
-            {
-                rowClass = "success";
-                title = "This wallet is mining target for its coin";
-            }
-            else
-            {
-                rowClass = null;
-                title = null;
-            }
+            rowClass = "text-muted";
+            title = "Wallet is inactive";
+        }
+        else if (wallet.LastUpdated == null || wallet.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(30))
+        {
+            rowClass = "warning";
+            title = "Wallet data is unavailable or obsolete";
+        }
+        else if (wallet.IsMiningTarget)
+        {
+            rowClass = "success";
+            title = "This wallet is mining target for its coin";
+        }
+        else
+        {
+            rowClass = null;
+            title = null;
+        }
 
-            <tr class="@rowClass" title="@title">
-                <td>@wallet.Coin.Symbol</td>
-                <td><a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
-                       title="Show all operations for @wallet.Coin.Name wallets">@wallet.Coin.Name</a></td>
-                <td class="wallet-address">
-                    <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
-                       title="Show all operations for this wallet">@wallet.Address</a>
-                </td>
-                <td>
-                    <a asp-controller="WalletOperations" asp-action="Index" asp-route-exchange="@wallet.ExchangeType"
-                       title="Show all operations for exchange @wallet.ExchangeType">
-                        @(wallet.ExchangeType !=null ? wallet.ExchangeType.ToString() : "<local>")
-                    </a>
-                </td>
-                <td msv-balance="@wallet.Available"></td>
-                <td msv-balance="@wallet.Blocked"></td>
-                <td msv-balance="@wallet.Unconfirmed"></td>
-                <td msv-absolute-date="@wallet.LastUpdated"></td>
-                <td>
-                    <ul class="list-inline">
+        <tr class="@rowClass" title="@title">
+            <td>@wallet.Coin.Symbol</td>
+            <td>
+                <a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
+                   title="Show all operations for @wallet.Coin.Name wallets">
+                    @wallet.Coin.Name</a>
+            </td>
+            <td class="wallet-address">
+                <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
+                   title="Show all operations for this wallet">
+                    @wallet.Address</a>
+            </td>
+            <td>
+                <a asp-controller="WalletOperations" asp-action="Index" asp-route-exchange="@wallet.ExchangeType"
+                   title="Show all operations for exchange @wallet.ExchangeType">
+                    @(wallet.ExchangeType != null ? wallet.ExchangeType.ToString() : "<local>")
+                </a>
+            </td>
+            <td msv-balance="@wallet.Available"></td>
+            <td msv-balance="@wallet.Blocked"></td>
+            <td msv-balance="@wallet.Unconfirmed"></td>
+            <td msv-absolute-date="@wallet.LastUpdated"></td>
+            <td>
+                <ul class="list-inline">
+                    <li>
+                        <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@wallet.Id" title="Edit wallet">
+                            <i class="glyphicon glyphicon-edit"></i>
+                        </a>
+                    </li>
+                    <li>
+                        @{
+                            var activationButtonTitle = wallet.Activity == ActivityState.Active
+                                ? "Disable wallet"
+                                : "Enable wallet";
+                        }
+                        <form asp-action="ToggleActive" asp-route-id="@wallet.Id" method="post" title="@activationButtonTitle">
+                            <button class="btn btn-xs btn-info">
+                                @if (wallet.Activity == ActivityState.Active)
+                                {
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                }
+                                else if (wallet.Activity == ActivityState.Inactive)
+                                {
+                                    <i class="glyphicon glyphicon-flash"></i>
+                                }
+                            </button>
+                        </form>
+                    </li>
+                    @if (!wallet.IsMiningTarget)
+                    {
                         <li>
-                            <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@wallet.Id" title="Edit wallet">
-                                <i class="glyphicon glyphicon-edit"></i>
-                            </a>
-                        </li>
-                        <li>
-                            @{
-                                var activationButtonTitle = wallet.Activity == ActivityState.Active
-                                    ? "Disable wallet"
-                                    : "Enable wallet";
-                            }
-                            <form asp-action="ToggleActive" asp-route-id="@wallet.Id" method="post" title="@activationButtonTitle">
+                            <form asp-action="SetAsMiningTarget" asp-route-id="@wallet.Id" method="post" title="Set as mining target">
                                 <button class="btn btn-xs btn-info">
-                                    @if (wallet.Activity == ActivityState.Active)
-                                    {
-                                        <i class="glyphicon glyphicon-remove"></i>
-                                    }
-                                    else if (wallet.Activity == ActivityState.Inactive)
-                                    {
-                                        <i class="glyphicon glyphicon-flash"></i>
-                                    }
+                                    <i class="glyphicon glyphicon-flag"></i>
                                 </button>
                             </form>
                         </li>
-                        @if (!wallet.IsMiningTarget)
-                        {
-                            <li>
-                                <form asp-action="SetAsMiningTarget" asp-route-id="@wallet.Id" method="post" title="Set as mining target">
-                                    <button class="btn btn-xs btn-info">
-                                        <i class="glyphicon glyphicon-flag"></i>
-                                    </button>
-                                </form>
-                            </li>
-                        }
-                    </ul>
-                </td>
-            </tr>
-        }
-    </table>
+                    }
+                </ul>
+            </td>
+        </tr>
+    }
+</table>

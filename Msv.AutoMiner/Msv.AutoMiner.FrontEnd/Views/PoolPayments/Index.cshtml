@@ -2,6 +2,8 @@
 @using Msv.AutoMiner.FrontEnd.Models.Shared
 @model PaginationModel<PoolPaymentModel>
 
+@{ ViewBag.Title = "Pool payments";}    
+
 <h2 class="text-center">@Model.Title</h2>
 
 @await Component.InvokeAsync("Pagination", Model)
