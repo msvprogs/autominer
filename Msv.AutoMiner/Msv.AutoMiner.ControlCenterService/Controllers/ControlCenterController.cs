@@ -96,6 +96,9 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
         [AuthenticateRigByCertificate]
         public async Task<SendHeartbeatResponseModel> SendHeartbeat([FromBody] Heartbeat heartbeat)
         {
+            if (heartbeat == null)
+                throw new ArgumentNullException(nameof(heartbeat));
+
             var rigId = (int)ControllerContext.RouteData.Values["rigId"];
             M_Logger.Info($"Got heartbeat from rig {rigId}");
             await m_Storage.SaveHeartbeat(new RigHeartbeat

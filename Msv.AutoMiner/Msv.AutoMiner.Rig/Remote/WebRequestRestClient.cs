@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.Rig.Remote
@@ -53,6 +54,7 @@ namespace Msv.AutoMiner.Rig.Remote
             public ExtendedWebClient(X509Certificate2 clientCertificate)
             {
                 m_ClientCertificate = clientCertificate;
+                Encoding = Encoding.UTF8;
             }
 
             protected override WebRequest GetWebRequest(Uri address)
