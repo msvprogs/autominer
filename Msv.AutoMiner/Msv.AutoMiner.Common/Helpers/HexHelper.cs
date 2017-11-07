@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
+using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Msv.AutoMiner.Common.Helpers
 {
     public static class HexHelper
     {
+        private static readonly Regex M_HexRegex = new Regex(
+            @"^(0x)?[0-9a-f]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         public static string ToHex(byte[] bytes)
         {
             if (bytes == null)
@@ -24,7 +30,8 @@ namespace Msv.AutoMiner.Common.Helpers
             if (string.IsNullOrWhiteSpace(str))
                 return new byte[0];
 
-            if (str.StartsWith("0x"))
+            str = str.Trim();
+            if (str.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
                 str = str.Substring(2);
             str = str.Replace("-", "").Replace(" ", "");
             if (str.Length % 2 != 0)
@@ -34,5 +41,19 @@ namespace Msv.AutoMiner.Common.Helpers
                 bytes[i / 2] = byte.Parse(str.Substring(i, 2), NumberStyles.HexNumber);
             return bytes;
         }
+
+        public static BigInteger HexToBigInteger(string str)
+        {
+            var bytes = FromHex(str);
+            if (bytes.Length == 0)
+                return BigInteger.Zero;
+            Array.Reverse(bytes);
+            if ((bytes.Last() & 0x80) != 0)
+                Array.Resize(ref bytes, bytes.Length + 1);
+            return new BigInteger(bytes);
+        }
+
+        public static bool IsHex(string str)
+            => M_HexRegex.IsMatch(str.Trim());
     }
 }

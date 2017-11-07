@@ -11,6 +11,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         private const string CcminerAlexis = "Ccminer Alexis";
         private const string CcminerM7 = "Ccminer M7";
         private const string EwbfEquihash = "EWBF Equihash";
+        private const string MxMiner = "MxMiner";
 
         public DbInitializer(DbModelBuilder modelBuilder) 
             : base(modelBuilder)
@@ -279,6 +280,21 @@ namespace Msv.AutoMiner.Rig.Storage.Model
                         OmitUrlSchema = true,
                         DeviceListArgument = "--cuda_devices",
                         DeviceListSeparator = " "
+                    },
+                    new Miner
+                    {
+                        Name = MxMiner,
+                        FileName = @"/home/yamamoto/Mine/mxminer/mxMiner_0.17a-suprnova/Linux x64/mxminer",
+                        UserArgument = "-u",
+                        PasswordArgument = "-p",
+                        AdditionalArguments = "-cd 0 1 2 3 -ed",
+                        SpeedRegex = @"Speed \[\d+ sec\]: \d+(\.\d+)? I/s, (?<speed>\d+(\.\d+)?) Sols/s$",
+                        ValidShareRegex = @"Accepted share #\d+",
+                        InvalidShareRegex = @"Rejected share #\d+",
+                        DeviceListArgument = "-cd",
+                        DeviceListSeparator = " ",
+                        BenchmarkArgument = "-b 3500",
+                        BenchmarkResultRegex = @"Speed: (?<speed>\d+(\.\d+)?) Sols/s$"
                     }
                 });
             context.SaveChanges();

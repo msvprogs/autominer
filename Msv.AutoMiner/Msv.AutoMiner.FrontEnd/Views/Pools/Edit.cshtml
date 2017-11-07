@@ -77,6 +77,10 @@
         <label asp-for="ApiPoolUserId">API pool user ID:</label>
         <input asp-for="ApiPoolUserId" class="form-control" />
     </div>
+    <div class="form-group">
+        <label asp-for="TimeZoneCorrectionHours">Timezone offset from UTC in hours (may be fractional):</label>
+        <input asp-for="TimeZoneCorrectionHours" class="form-control" placeholder="1 means UTC+1, -5 means UTC-5" />
+    </div>
 
     <button type="submit" class="btn btn-success">
         <i class="glyphicon glyphicon-floppy-disk"></i> Save

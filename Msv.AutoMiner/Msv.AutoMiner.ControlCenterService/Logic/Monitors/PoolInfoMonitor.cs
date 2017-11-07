@@ -61,7 +61,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     {
                         try
                         {
-                            return (x.pool, info: x.provider.GetInfo(startDate));
+                            return (x.pool, info: x.provider.GetInfo(startDate.AddHours(x.pool.TimeZoneCorrectionHours)));
                         }
                         catch (Exception ex)
                         {
@@ -94,6 +94,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 })
                 .ToArray());
 
+            var wallets = m_StorageGetter.Invoke().GetWalletIds(poolInfos
+                .SelectMany(x => x.info.PaymentsData.Select(y => y.Address))
+                .Where(x => x != null).ToArray());
             var newPayments = poolInfos
                 .SelectMany(x => x.info.PaymentsData
                     .EmptyIfNull()
@@ -101,9 +104,15 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     {
                         ExternalId = y.ExternalId ?? y.DateTime.Ticks.ToString(),
                         Amount = y.Amount,
-                        DateTime = y.DateTime,
+                        DateTime = y.DateTime.AddHours(-x.pool.TimeZoneCorrectionHours),
                         PoolId = x.pool.Id,
-                        Transaction = y.Transaction
+                        Transaction = y.Transaction,
+                        BlockHash = y.BlockHash,
+                        CoinAddress = y.Address,
+                        Type = y.Type,
+                        WalletId = y.Address != null && wallets.ContainsKey(y.Address)
+                            ? wallets[y.Address]
+                            : (int?)null
                     })
                     .Where(y => y.DateTime >= startDate))
                 .ToArray();

@@ -12,20 +12,35 @@
     <tr>
         <th>ID</th>
         <th>Pool</th>
+        <th>Type</th>
         <th>Date</th>
         <th>Currency</th>
         <th>Amount</th>
-        <th>Tx hash</th>
+        <th>Data</th>
     </tr>
     @foreach (var payment in Model.CurrentPageItems)
     {
         <tr>
             <td>@payment.Id</td>
             <td>@payment.PoolName</td>
+            <td>@payment.Type</td>
             <td msv-absolute-date="@payment.DateTime"></td>
             <td>@payment.CurrencyName</td>
             <td msv-amount="@payment.Amount" msv-currency="@payment.CurrencySymbol"></td>
-            <td class="transaction-small">@payment.Transaction</td>
+            <td>
+                @if (payment.Transaction != null)
+                {
+                    <div class="transaction-small">Tx: @payment.Transaction</div>
+                }
+                @if (payment.BlockHash != null)
+                {
+                    <div class="transaction-small">Block: @payment.BlockHash</div>
+                }
+                @if (payment.Address != null)
+                {
+                    <div class="transaction-small">Wallet: @payment.Address</div>
+                }
+            </td>
         </tr>
     }
 </table>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Enums;
@@ -63,6 +64,20 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                     .AsNoTracking()
                     .Where(x => x.DateTime >= startDate && externalIds.Contains(x.ExternalId))
                     .ToArray();
+            }
+        }
+
+        public Dictionary<string, int> GetWalletIds(string[] addresses)
+        {
+            if (addresses == null)
+                throw new ArgumentNullException(nameof(addresses));
+
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                return context.Wallets
+                    .AsNoTracking()
+                    .Where(x => addresses.Contains(x.Address))
+                    .ToDictionary(x => x.Address, x => x.Id);
             }
         }
     }

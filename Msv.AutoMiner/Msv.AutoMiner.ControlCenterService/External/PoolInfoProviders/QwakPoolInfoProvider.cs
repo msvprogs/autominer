@@ -77,12 +77,26 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             var payments = ((JArray) transactionsJson.getusertransactions.data.transactions)
                 .Cast<dynamic>()
                 .Where(x => x.amount != null)
+                .Select(x => new
+                {
+                    Id = (string)x.id,
+                    Type = (string)x.type,
+                    Amount = (double)x.amount,
+                    DateTime = (string)x.timestamp,
+                    BlockHash = (string)x.blockhash,
+                    TxHash = (string)x.txid,
+                    Confirmations = (int?)x.confirmations,
+                    Address = (string)x.coin_address
+                })
                 .Select(x => new PoolPaymentData
                 {
-                    Amount = (string) x.type == "Fee" ? -(double) x.amount : (double) x.amount,
-                    DateTime = DateTime.ParseExact(
-                        (string) x.timestamp, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
-                    Transaction = (string) x.blockhash
+                    Amount = x.Amount,
+                    DateTime = DateTime.ParseExact(x.DateTime, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    Transaction = x.TxHash,
+                    Address = x.Address,
+                    BlockHash = x.BlockHash,
+                    ExternalId = x.Id,
+                    Type = GetPaymentType(x.Type)
                 })
                 .Where(x => x.DateTime > minPaymentDate)
                 .ToArray();
@@ -117,6 +131,26 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 parameters.Add("id", m_UserId.ToString());
             var queryString = string.Join("&", parameters.Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));
             return new UriBuilder(m_BaseUrl) { Query = queryString }.Uri.ToString();
+        }
+
+        private static PoolPaymentType GetPaymentType(string type)
+        {
+            switch (type?.ToLowerInvariant())
+            {
+                case "fee":
+                    return PoolPaymentType.PoolFee;
+                case "txfee":
+                    return PoolPaymentType.TransactionFee;
+                case "credit":
+                    return PoolPaymentType.Reward;
+                case "debit_mp":
+                case "debit_ap":
+                    return PoolPaymentType.TransferToWallet;
+                case "donation":
+                    return PoolPaymentType.Donation;
+                default:
+                    return PoolPaymentType.Unknown;
+            }
         }
     }
 }

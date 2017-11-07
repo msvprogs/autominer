@@ -26,6 +26,7 @@
         <th>Symbol</th>
         <th>Name</th>
         <th>Algorithm</th>
+        <th>Height</th>
         <th>Difficulty</th>
         <th>Net hashrate</th>
         <th>Block reward</th>
@@ -57,6 +58,7 @@
             <td>@coin.Symbol</td>
             <td>@coin.Name</td>
             <td>@coin.Algorithm.Name</td>
+            <td>@coin.Height</td>
             <td>@coin.Difficulty.ToString("0.###")</td>
             <td>@(coin.NetHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(coin.NetHashRate, coin.Algorithm.KnownValue) : "unavailable")</td>
             <td class="text-right">@coin.BlockReward.ToString("N2")</td>

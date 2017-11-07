@@ -179,7 +179,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Symbol = "ZEC",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Equihash],
                     NetworkInfoApiType = CoinNetworkInfoApiType.Special,
-                    SolsPerDiff = 8192
+                    MaxTarget = "0x0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
                 },
                 new Coin
                 {
@@ -189,7 +189,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Equihash],
                     NetworkInfoApiType = CoinNetworkInfoApiType.Insight,
                     NetworkInfoApiUrl = "http://zclexplorer.org/api",
-                    SolsPerDiff = 8192
+                    MaxTarget = "0x0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
                 },
                 new Coin
                 {
@@ -334,7 +334,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Equihash],
                     NetworkInfoApiType = CoinNetworkInfoApiType.Insight,
                     NetworkInfoApiUrl = "https://explorer.myhush.org/api",
-                    SolsPerDiff = 2
+                    MaxTarget = "0x0007fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
                 },
                 new Coin
                 {
@@ -367,7 +367,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Symbol = "KMD",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Equihash],
                     NetworkInfoApiType = CoinNetworkInfoApiType.Special,
-                    SolsPerDiff = 16
+                    MaxTarget = "0x0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f"
                 },
                 new Coin
                 {
@@ -394,7 +394,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Equihash],
                     NetworkInfoApiType = CoinNetworkInfoApiType.Insight,
                     NetworkInfoApiUrl = "https://explorer.zensystem.io/insight-api-zen",
-                    SolsPerDiff = 8192
+                    MaxTarget = "0x0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
                 },
                 new Coin
                 {
@@ -615,6 +615,14 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Symbol = "OC",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Sha256T],
                     NetworkInfoApiType = CoinNetworkInfoApiType.ChainzCryptoid,
+                },
+                new Coin
+                {
+                    Id = new Guid("77D04EEE-A3DC-493B-9E47-7FD6533F6E75"),
+                    Name = "MinexCoin",
+                    Symbol = "MNX",
+                    AlgorithmId = algorithms[KnownCoinAlgorithm.Mars],
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 }
             };
 

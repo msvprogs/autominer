@@ -15,6 +15,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         public double BlockTimeSecs { get; set; }
 
+        public long Height { get; set; }
+
         public DateTime? LastUpdated { get; set; }
     }
 }

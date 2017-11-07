@@ -53,6 +53,8 @@
         [CommandAction("--test", Description = "Run algorithm speed tests with active coins")]
         void Test(
             [CommandParameter("-a", Description = "algorithms to test", Example = "sha256t,groestl")]
-            string[] algorithms);
+            string[] algorithms,
+            [CommandParameter("-c", Description = "coins to test", Example = "xcn,zcash")]
+            string[] coinNames);
     }
 }

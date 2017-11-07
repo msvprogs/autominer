@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Coins
@@ -25,7 +26,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         public string NodePassword { get; set; }
 
-        public int? SolsPerDiff { get; set; }
+        [HexNumber(ErrorMessage = "Max target should be a hex number")]
+        public string MaxTarget { get; set; }
 
         [Required(ErrorMessage = "Algorithm isn't chosen")]
         public Guid? AlgorithmId { get; set; }

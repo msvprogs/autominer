@@ -64,7 +64,8 @@ namespace Msv.AutoMiner.Rig.Storage
                 if (algorithm == null)
                     return null;
                 return context.MinerAlgorithmSettings
-                           .FirstOrDefault(x => x.AlgorithmId == algorithm.AlgorithmId) ?? new MinerAlgorithmSetting();
+                           .FirstOrDefault(x => x.AlgorithmId == algorithm.AlgorithmId) 
+                           ?? new MinerAlgorithmSetting {AlgorithmId = algorithm.AlgorithmId};
             }
         }
 

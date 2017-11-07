@@ -28,7 +28,7 @@ namespace Msv.AutoMiner.Data
 
         public string NetworkInfoApiName { get; set; }
 
-        public int? SolsPerDiff { get; set; }
+        public string MaxTarget { get; set; }
 
         public string NodeHost { get; set; }
 

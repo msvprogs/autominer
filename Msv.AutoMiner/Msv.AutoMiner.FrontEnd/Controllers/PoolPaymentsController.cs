@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.PoolPayments;
@@ -50,13 +51,16 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 CurrentPageItems = await GetCurrentPageItems(payments, page)
                     .Select(x => new PoolPaymentModel
                     {
-                        Amount = x.Amount,
+                        Amount = x.Amount * (x.Type == PoolPaymentType.Reward || x.Type == PoolPaymentType.Unknown ? 1 : -1),
                         CurrencySymbol = x.Pool.Coin.Symbol,
                         CurrencyName = x.Pool.Coin.Name,
                         DateTime = x.DateTime,
                         Id = x.ExternalId,
                         PoolName = x.Pool.Name,
-                        Transaction = x.Transaction
+                        Transaction = x.Transaction,
+                        Address = x.CoinAddress,
+                        BlockHash = x.BlockHash,
+                        Type = x.Type
                     })
                     .ToArrayAsync(),
                 CurrentPage = page,

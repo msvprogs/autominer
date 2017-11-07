@@ -42,12 +42,13 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             m_TestDuration = testDuration;
         }
 
-        public void Test(string[] algorithmNames)
+        public void Test(string[] algorithmNames, string[] coinNames)
         {
-            M_Logger.Info("Checking if there are active coins for selected algorithms...");
+            M_Logger.Info("Getting coin info from server...");
             var algorithmSettings = m_Storage.GetMinerAlgorithmSettings()
-                .Where(x => algorithmNames == null 
-                    || algorithmNames.Contains(x.Algorithm.AlgorithmName, StringComparer.InvariantCultureIgnoreCase))
+                .Where(x => algorithmNames == null
+                            || algorithmNames.Contains(x.Algorithm.AlgorithmName,
+                                StringComparer.InvariantCultureIgnoreCase))
                 .ToDictionary(x => Guid.Parse(x.AlgorithmId));
             var algorithmsWithCoins = m_ControlCenterService.GetMiningWork(
                     new GetMiningWorkRequestModel
@@ -60,6 +61,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                             })
                             .ToArray()
                     })
+                .Where(x => coinNames == null
+                            || coinNames.Contains(x.CoinName, StringComparer.InvariantCultureIgnoreCase)
+                            || coinNames.Contains(x.CoinSymbol, StringComparer.InvariantCultureIgnoreCase))
                 .GroupBy(x => x.CoinAlgorithmId)
                 .Select(x => new
                 {
@@ -69,18 +73,25 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 })
                 .Where(x => x.Coin != null && x.MinerSetting != null)
                 .ToDictionary(x => x.AlgorithmId, x => (coin:x.Coin, settings:x.MinerSetting));
-            var algorithmsWithoutCoins = algorithmSettings
-                .Where(x => !algorithmsWithCoins.ContainsKey(x.Key))
-                .ToDictionary(x => x.Key, x => (coin: (MiningWorkModel) null, settings:x.Value));
+            var algorithmsWithoutCoins = coinNames == null
+                ? algorithmSettings
+                    .Where(x => !algorithmsWithCoins.ContainsKey(x.Key))
+                    .ToDictionary(x => x.Key, x => (coin: (MiningWorkModel) null, settings:x.Value))
+                : new Dictionary<Guid, (MiningWorkModel coin, MinerAlgorithmSetting settings)>();
             M_Logger.Info("Algorithms with coins: "
-                + string.Join(", ", algorithmsWithCoins.Select(x => x.Value.settings.Algorithm.AlgorithmName).OrderBy(x => x)));
+                          + string.Join(", ",
+                              algorithmsWithCoins.Select(x => x.Value.settings.Algorithm.AlgorithmName)
+                                  .OrderBy(x => x)));
             M_Logger.Info("Algorithms without coins (offline benchmark): "
-                          + string.Join(", ", algorithmsWithoutCoins.Select(x => x.Value.settings.Algorithm.AlgorithmName).OrderBy(x => x)));
+                          + string.Join(", ",
+                              algorithmsWithoutCoins.Select(x => x.Value.settings.Algorithm.AlgorithmName)
+                                  .OrderBy(x => x)));
 
             var results = algorithmsWithCoins.Values
                 .Concat(algorithmsWithoutCoins.Values)
                 .OrderBy(x => x.settings.Algorithm.AlgorithmName)
-                .Select((x, i) => TestSingle(x.coin, x.settings, i + 1, algorithmsWithCoins.Count + algorithmsWithoutCoins.Count))
+                .Select((x, i) => TestSingle(x.coin, x.settings, i + 1,
+                    algorithmsWithCoins.Count + algorithmsWithoutCoins.Count))
                 .ToArray();
 
             M_Logger.Info("Test results: "

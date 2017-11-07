@@ -1,4 +1,5 @@
 ﻿using System;
+using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.ControlCenterService.External.Data
 {
@@ -8,6 +9,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.Data
         public DateTime DateTime { get; set; }
         public double Amount { get; set; }
         public string Transaction { get; set; }
+        public string BlockHash { get; set; }
+        public PoolPaymentType Type { get; set; }
+        public string Address { get; set; }
     }
 }
 

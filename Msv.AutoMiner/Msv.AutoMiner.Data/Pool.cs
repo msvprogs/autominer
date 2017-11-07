@@ -47,6 +47,8 @@ namespace Msv.AutoMiner.Data
 
         public string ApiPoolName { get; set; }
 
+        public double TimeZoneCorrectionHours { get; set; }
+
         public DateTime? ResponsesStoppedDate { get; set; }
     }
 }

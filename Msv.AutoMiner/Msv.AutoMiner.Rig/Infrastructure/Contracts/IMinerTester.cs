@@ -2,6 +2,6 @@
 {
     public interface IMinerTester
     {
-        void Test(string[] algorithmNames);
+        void Test(string[] algorithmNames, string[] coinNames);
     }
 }

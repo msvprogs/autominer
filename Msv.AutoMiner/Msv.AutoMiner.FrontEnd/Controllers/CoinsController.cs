@@ -54,6 +54,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     BlockTimeSecs = x.network.BlockTimeSeconds,
                     Difficulty = x.network.Difficulty,
                     NetHashRate = x.network.NetHashRate,
+                    Height = x.network.Height,
                     LastUpdated = x.network.Created != default(DateTime)
                         ? x.network.Created
                         : (DateTime?) null
@@ -88,7 +89,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 NetworkInfoApiType = coin.NetworkInfoApiType,
                 CanonicalBlockReward = coin.CanonicalBlockReward,
                 NodeLogin = coin.NodeLogin,
-                SolsPerDiff = coin.SolsPerDiff,
+                MaxTarget = coin.MaxTarget,
                 NodePassword = coin.NodePassword,
                 CanonicalBlockTimeSeconds = coin.CanonicalBlockTimeSeconds,
                 NetworkApiName = coin.NetworkInfoApiName,
@@ -129,7 +130,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.NodePort = (nodeUrl?.Port).GetValueOrDefault();
             coin.NodeLogin = coinModel.NodeLogin;
             coin.NodePassword = coinModel.NodePassword;
-            coin.SolsPerDiff = coinModel.SolsPerDiff;
+            coin.MaxTarget = coinModel.MaxTarget;
             await m_Context.SaveChangesAsync();
             TempData[CoinsMessageKey] = $"Coin {coin.Name} ({coin.Symbol}) has been successfully saved";
             return RedirectToAction("Index");

@@ -1,5 +1,6 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
@@ -7,8 +8,9 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
     public class ProfitabilityCalculator : IProfitabilityCalculator
     {
         private const int SecondsInDay = 60 * 60 * 24;
-        private static readonly double M_BtcLikeCoefficient = Math.Pow(2, 48) / 0xFFFF;
-        private static readonly double M_M7Coefficient = Math.Pow(2, 20);
+        private static readonly double M_32ByteHashesCount = Math.Pow(256, 32);
+        private static readonly double M_BtcMaxTarget =
+            (double) HexHelper.HexToBigInteger("0x00000000FFFF0000000000000000000000000000000000000000000000000000");
 
         public double CalculateCoinsPerDay(Coin coin, CoinNetworkInfo networkInfo, long yourHashRate)
         {
@@ -22,7 +24,10 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
             switch (coin.Algorithm.ProfitabilityFormulaType)
             {
                 case ProfitabilityFormulaType.BitcoinLike:
-                    return CalculateByDifficulty(yourHashRate, networkInfo.BlockReward, networkInfo.Difficulty, M_BtcLikeCoefficient);
+                    var maxTarget = string.IsNullOrEmpty(coin.MaxTarget)
+                        ? M_BtcMaxTarget
+                        : (double) HexHelper.HexToBigInteger(coin.MaxTarget);
+                    return CalculateByDifficulty(yourHashRate, networkInfo.BlockReward, networkInfo.Difficulty, maxTarget);
                 case ProfitabilityFormulaType.ByHashRate:
                     return CalculateByNetHashRate(
                         yourHashRate, networkInfo.NetHashRate, networkInfo.BlockReward, networkInfo.BlockTimeSeconds);
@@ -44,11 +49,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
                 case KnownCoinAlgorithm.PrimeChain:
                     //For PrimeChain units, 1 Scrypt Mh = 15.6 CPD, as http://xpmforall.org/ says
                     hashRate = (long)(hashRate / 15.6 * 1e6);
-                    return CalculateByDifficulty(hashRate, network.BlockReward, network.Difficulty, M_BtcLikeCoefficient);
-                case KnownCoinAlgorithm.Equihash:
-                    return CalculateForEquihash(coin, network, hashRate);
-                case KnownCoinAlgorithm.M7:
-                    return CalculateByDifficulty(hashRate, network.BlockReward, network.Difficulty, M_M7Coefficient);
+                    return CalculateByDifficulty(hashRate, network.BlockReward, network.Difficulty, M_BtcMaxTarget);
                 case KnownCoinAlgorithm.Blake2B:
                     return CalculateByDifficulty(hashRate, network.BlockReward, network.Difficulty, 1);
                 default:
@@ -56,14 +57,11 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
             }
         }
 
-        private static double CalculateForEquihash(Coin coin, CoinNetworkInfo networkInfo, long yourHashRate) 
-            => SecondsInDay * networkInfo.BlockReward / (networkInfo.Difficulty * coin.SolsPerDiff.GetValueOrDefault() / yourHashRate);
-
         private static double CalculateByNetHashRate(
             double yourHashRate, double netHashRate, double blockReward, double blockTimeSec)
             => SecondsInDay * yourHashRate / (yourHashRate + netHashRate) * (blockReward / blockTimeSec);
 
-        private static double CalculateByDifficulty(long yourHashRate, double blockReward, double difficulty, double coefficient)
-            => SecondsInDay * blockReward * yourHashRate / (difficulty * coefficient);
+        private static double CalculateByDifficulty(long yourHashRate, double blockReward, double difficulty, double maxTarget)
+            => SecondsInDay * blockReward * yourHashRate * maxTarget / (difficulty * M_32ByteHashesCount);
     }
 }

@@ -10,6 +10,7 @@
         YoBit = 5,
         TradeSatoshi = 6,
         CoinsMarkets = 7,
-        Novaexchange = 8
+        Novaexchange = 8,
+        LiveCoin = 9
     }
 }

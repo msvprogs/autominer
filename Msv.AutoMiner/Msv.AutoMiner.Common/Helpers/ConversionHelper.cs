@@ -22,6 +22,7 @@ namespace Msv.AutoMiner.Common.Helpers
             new Dictionary<KnownCoinAlgorithm, string>
             {
                 [KnownCoinAlgorithm.Equihash] = "Sol/s",
+                [KnownCoinAlgorithm.Mars] = "Sol/s",
                 [KnownCoinAlgorithm.PrimeChain] = "CPD"
             };
 

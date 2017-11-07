@@ -125,15 +125,16 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     file, arguments, m_VariableCreator, m_ProcessStopper,
                     outputLogFile == null ? m_MinerOutputProcessor : null, m_ProcessTracker);
                 newDisposable.Add(process);
-                newDisposable.Add(Observable.FromEventPattern(x => process.Exited += x, x => process.Exited -= x)
-                    .Take(1)
-                    .Subscribe(x =>
-                        {
-                            M_Logger.Warn(
-                                $"Process \"{file.Name}\" has exited on its own, restarting it (remaining {attempts} attempts)...");
-                            RunNew(miningData, --attempts);
-                        },
-                        x => m_CurrentProcessDisposable.Disposable = null));
+                if (!miningData.BenchmarkMode)
+                    newDisposable.Add(Observable.FromEventPattern(x => process.Exited += x, x => process.Exited -= x)
+                        .Take(1)
+                        .Subscribe(x =>
+                            {
+                                M_Logger.Warn(
+                                    $"Process \"{file.Name}\" has exited on its own, restarting it (remaining {attempts} attempts)...");
+                                RunNew(miningData, --attempts);
+                            },
+                            x => m_CurrentProcessDisposable.Disposable = null));
                 if (!miningData.BenchmarkMode 
                     && !string.IsNullOrEmpty(miner.ValidShareRegex)
                     && miningData.PoolData?.Protocol == PoolProtocol.Stratum) //TODO: disable share checking for solomining & benchmark mode

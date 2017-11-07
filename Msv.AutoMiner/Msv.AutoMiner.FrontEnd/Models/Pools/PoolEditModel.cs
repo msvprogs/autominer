@@ -29,6 +29,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
 
         public string WorkerPassword { get; set; }
 
+        public double TimeZoneCorrectionHours { get; set; }
+
         [Required(ErrorMessage = "Coin isn't chosen")]
         public Guid? CoinId { get; set; }
 

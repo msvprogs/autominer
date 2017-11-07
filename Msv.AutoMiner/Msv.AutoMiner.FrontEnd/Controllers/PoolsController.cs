@@ -106,6 +106,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 IsAnonymous = pool.IsAnonymous,
                 WorkerLogin = pool.WorkerLogin,
                 WorkerPassword = pool.WorkerPassword,
+                TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
                 AvailableCoins = await GetAvailableCoins()
             };
             return View(poolModel);
@@ -136,6 +137,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             pool.WorkerPassword = poolModel.WorkerPassword;
             pool.Priority = poolModel.Priority;
             pool.Name = poolModel.Name;
+            pool.TimeZoneCorrectionHours = poolModel.TimeZoneCorrectionHours;
 
             var poolUrl = new Uri(poolModel.Url);
             pool.Host = poolUrl.Host;

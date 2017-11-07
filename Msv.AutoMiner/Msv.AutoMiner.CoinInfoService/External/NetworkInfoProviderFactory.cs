@@ -121,6 +121,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new DaxxCoinInfoProvider(m_OrdinaryClient);
                 case "MAX":
                     return new MaxCoinInfoProvider(m_OrdinaryClient);
+                case "MNX":
+                    return new MinexCoinInfoProvider(m_OrdinaryClient);
                 default:
                     return new DummyInfoProvider();
             }

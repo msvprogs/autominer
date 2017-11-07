@@ -39,7 +39,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 {
                     try
                     {
-                        var result = (exchange:x.exchange, balances:x.provider.GetBalances(), operations:x.provider
+                        var result = (x.exchange, balances:x.provider.GetBalances(), operations:x.provider
                             .GetOperations(startDate));
                         Log.Info($"Got {result.balances.Length} balances and {result.operations.Length} operations for exchange {x.exchange}");
                         return result;
@@ -47,7 +47,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     catch (Exception ex)
                     {
                         Log.Error(ex, $"Couldn't get data from exchange {x.exchange}");
-                        return (exchange:x.exchange, balances:null, operations:null);
+                        return (x.exchange, balances:null, operations:null);
                     }
                 })
                 .Where(x => x.balances != null)
@@ -69,13 +69,13 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 {
                     try
                     {
-                        return (wallet: x.wallet, balances: x.provider.GetBalances(), operations: x.provider
+                        return (x.wallet, balances: x.provider.GetBalances(), operations: x.provider
                             .GetOperations(startDate));
                     }
                     catch (Exception ex)
                     {
                         Log.Error(ex, $"Couldn't get data from local wallet of coin {x.wallet.Coin.Name}");
-                        return (wallet: x.wallet, balances: null, operations: null);
+                        return (x.wallet, balances: null, operations: null);
                     }
                 })
                 .Where(x => x.balances != null)
@@ -93,7 +93,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         .ToArray()
                 })
                 .SelectMany(x => x.MappingByAddress.Any() ? x.MappingByAddress : x.MappingByCurrency)
-                .Concat(localResults.Select(x => (wallet:x.wallet, result: x.balances.First())))
+                .Concat(localResults.Select(x => (x.wallet, result: x.balances.First())))
                 .Select(x => new WalletBalance
                 {
                     WalletId = x.wallet.Id,
@@ -108,7 +108,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
             var newOperations = exchangeResults
                 .SelectMany(x => x.WalletCandidates.Join(
                     x.Data.operations, y => y.Coin.Symbol, y => y.CurrencySymbol, (y, z) => (wallet: y, operation: z)))
-                .Concat(localResults.SelectMany(x => x.operations.Select(y => (wallet:x.wallet, operation: y))))
+                .Concat(localResults.SelectMany(x => x.operations.Select(y => (x.wallet, operation: y))))
                 .Where(x => x.operation.DateTime >= startDate)
                 .Select(x => new WalletOperation
                 {
