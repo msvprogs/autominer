@@ -95,7 +95,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .ToArray());
 
             var wallets = m_StorageGetter.Invoke().GetWalletIds(poolInfos
-                .SelectMany(x => x.info.PaymentsData.Select(y => y.Address))
+                .SelectMany(x => x.info.PaymentsData.EmptyIfNull().Select(y => y.Address))
                 .Where(x => x != null).ToArray());
             var newPayments = poolInfos
                 .SelectMany(x => x.info.PaymentsData

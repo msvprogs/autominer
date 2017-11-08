@@ -33,6 +33,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             var poolStates = m_Pools
                 .Where(x => x.ApiPoolName != null)
                 .Select(x => (pool:x, poolInfo: poolsJson[x.ApiPoolName]))
+                .Where(x => x.poolInfo != null)
                 .ToDictionary(x => x.pool, x => new PoolState
                 {
                     TotalWorkers = (int) x.poolInfo.workers,
@@ -53,7 +54,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .LeftOuterJoin(poolStates, x => x, x => x.Key,
                     (x, y) => (pool:x, poolState: y.Value ?? new PoolState()))
                 .LeftOuterJoin(poolAccountInfos, x => x.pool, x => x.Key,
-                    (x, y) => (pool: x.pool, poolState: x.poolState,
+                    (x, y) => (x.pool, x.poolState,
                         accountInfo: y.EmptyIfNull()
                             .Aggregate(
                                 new PoolAccountInfo(), (z, a) =>

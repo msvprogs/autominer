@@ -8,6 +8,7 @@ namespace Msv.AutoMiner.Common.External
 {
     public class JsonRpcClient : IRpcClient
     {
+        private const int MaxLoggableLength = 256;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         private readonly Uri m_Uri;
@@ -44,9 +45,9 @@ namespace Msv.AutoMiner.Common.External
                     method,
                     @params = args
                 });
-                M_Logger.Info($"Sending JSON-RPC request to {m_Uri}: {requestStr}");
+                M_Logger.Info($"Sending JSON-RPC request to {m_Uri}: {Truncate(requestStr)}");
                 var responseStr = client.UploadString(m_Uri, requestStr);
-                M_Logger.Info($"Received JSON-RPC response {responseStr} from {m_Uri} ({client.ResponseHeaders[HttpResponseHeader.Server]})");
+                M_Logger.Info($"Received JSON-RPC response {Truncate(responseStr)} from {m_Uri} ({client.ResponseHeaders[HttpResponseHeader.Server]})");
                 var response = (dynamic)JsonConvert.DeserializeObject(responseStr);
                 if ((int) response.id == requestId && response.error != null)
                     throw new ExternalDataUnavailableException((string) response.error.ToString());
@@ -55,5 +56,8 @@ namespace Msv.AutoMiner.Common.External
                 return (TResponse)response.result;
             }
         }
+
+        private static string Truncate(string str)
+            => str.Length <= MaxLoggableLength ? str : str.Substring(0, MaxLoggableLength) + "...";
     }
 }

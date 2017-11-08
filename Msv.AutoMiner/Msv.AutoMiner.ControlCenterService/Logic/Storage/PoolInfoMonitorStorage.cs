@@ -26,6 +26,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                     .Include(x => x.Coin.Wallets)
                     .AsNoTracking()
                     .Where(x => x.Activity != ActivityState.Deleted)
+                    .Where(x => x.Coin.Activity != ActivityState.Deleted)
                     .ToArray();
         }
 
