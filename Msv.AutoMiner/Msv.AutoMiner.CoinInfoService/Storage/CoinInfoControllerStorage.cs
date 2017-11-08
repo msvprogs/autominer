@@ -28,13 +28,21 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                 .Where(x => x.Activity == ActivityState.Active)
                 .Select(x => x.Id)
                 .ToArrayAsync();
-            var maxDate = await m_Context.CoinNetworkInfos.MaxAsync(x => x.Created);
-            var lastNetworkInfos = await m_Context.CoinNetworkInfos
+            var maxDates = await m_Context.CoinNetworkInfos
+                .Select(x => x.Created)
+                .OrderByDescending(x => x)
+                .Distinct()
+                .Take(2)
+                .ToArrayAsync();
+            var lastNetworkInfos = m_Context.CoinNetworkInfos
                 .Include(x => x.Coin)
                 .Include(x => x.Coin.Algorithm)
                 .AsNoTracking()
-                .Where(x => coinIds.Contains(x.CoinId) && x.Created == maxDate)
-                .ToArrayAsync();
+                .Where(x => coinIds.Contains(x.CoinId) && maxDates.Contains(x.Created))
+                .AsEnumerable()
+                .GroupBy(x => x.CoinId)
+                .Select(x => x.OrderByDescending(y => y.Created).First())
+                .ToArray();
 
             if (aggregationType == ValueAggregationType.Last)
                 return lastNetworkInfos;
