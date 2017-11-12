@@ -230,7 +230,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     portKey == null
                         ? $"{miningData.PoolData.Url.Host}:{miningData.PoolData.Url.Port}"
                         : miningData.PoolData.Url.Host)
-                : GetArgumentValuePair(serverKey, miningData.PoolData.Url.ToString()));
+                : GetArgumentValuePair(serverKey, miningData.PoolData.Url.ToString().TrimEnd('/')));
 
             if (portKey != null)
                 args.Add(GetArgumentValuePair(portKey, miningData.PoolData.Url.Port.ToString()));
