@@ -123,6 +123,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new MaxCoinInfoProvider(m_OrdinaryClient);
                 case "MNX":
                     return new MinexCoinInfoProvider(m_OrdinaryClient);
+                case "HSR":
+                    return new HshareInfoProvider(m_OrdinaryClient);
                 default:
                     return new DummyInfoProvider();
             }
