@@ -31,8 +31,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             var blockStats = CalculateBlockStats(
                 ((JArray) transactions.data)
                 .Cast<dynamic>()
-                .Where(x => x.vin.Count > 0 && (string)x.vin[0].addresses == "coinbase")
-                .Select(x => new BlockInfo((long)x.timestamp, (long)x.blockindex, (double)x.vin[0].amount / 1e8))
+                .Where(x => x.vin.Count > 0 && (string)x.vin[0].addresses == "coinbase" && ((JArray)x.vout).Count > 0)
+                .Select(x => new BlockInfo((long)x.timestamp, (long)x.blockindex, (double)x.vout[0].amount / 1e8))
                 .Distinct());
             var hashRate = ParsingHelper.ParseHashRate((string) stats.data[0].hashrate);
             return new CoinNetworkStatistics

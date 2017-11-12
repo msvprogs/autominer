@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using System.Net;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.CoinInfoService.External;
@@ -20,6 +21,9 @@ namespace Msv.AutoMiner.CoinInfoService
         public static void Main(string[] args)
         {
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
+
+            //to bypass certificates' CA validation (particularly for Linux)
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
