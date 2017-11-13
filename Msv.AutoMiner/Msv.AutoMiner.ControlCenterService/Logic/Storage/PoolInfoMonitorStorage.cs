@@ -78,7 +78,10 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                 return context.Wallets
                     .AsNoTracking()
                     .Where(x => addresses.Contains(x.Address))
-                    .ToDictionary(x => x.Address, x => x.Id);
+                    .Select(x => new { x.Address, x.Id })
+                    .AsEnumerable()
+                    .GroupBy(x => x.Address)
+                    .ToDictionary(x => x.Key, x => x.First().Id);
             }
         }
     }
