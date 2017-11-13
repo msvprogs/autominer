@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common.External.Contracts;
-using Msv.AutoMiner.Common.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -31,15 +31,17 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             var blockStats = CalculateBlockStats(
                 ((JArray) transactions.data)
                 .Cast<dynamic>()
-                .Where(x => x.vin.Count > 0 && (string)x.vin[0].addresses == "coinbase" && ((JArray)x.vout).Count > 0)
-                .Select(x => new BlockInfo((long)x.timestamp, (long)x.blockindex, (double)x.vout[0].amount / 1e8))
+                .Where(x => x.vin.Count > 0 && (string) x.vin[0].addresses == "coinbase" && ((JArray) x.vout).Count > 0)
+                .Select(x => new BlockInfo((long) x.timestamp, (long) x.blockindex, (double) x.vout[0].amount / 1e8))
                 .Distinct());
-            var hashRate = ParsingHelper.ParseHashRate((string) stats.data[0].hashrate);
             return new CoinNetworkStatistics
             {
                 Difficulty = GetDifficulty(stats.data[0].difficulty),
-                NetHashRate = (long)(hashRate * 1e9),
-                Height = (long)stats.data[0].blockcount,
+                NetHashRate = double.TryParse(
+                    (string) stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
+                    ? GetRealHashRate(hashRate)
+                    : 0,
+                Height = (long) stats.data[0].blockcount,
                 BlockTimeSeconds = blockStats?.MeanBlockTime,
                 BlockReward = blockStats?.LastReward
             };
@@ -50,5 +52,18 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
 
         protected virtual double GetDifficulty(dynamic difficultyValue)
             => (double)difficultyValue;
+
+        private double GetRealHashRate(double hashRate)
+        {
+            switch (m_BaseUrl.Host.ToLowerInvariant())
+            {
+                case "btczexplorer.blockhub.info":
+                    return hashRate * 1e3;
+                case "btgexp.com":
+                    return hashRate;
+                default:
+                    return hashRate * 1e9;
+            }
+        }
     }
 }
