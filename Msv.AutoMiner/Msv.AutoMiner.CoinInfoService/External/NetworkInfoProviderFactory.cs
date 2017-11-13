@@ -125,6 +125,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new MinexCoinInfoProvider(m_OrdinaryClient);
                 case "HSR":
                     return new HshareInfoProvider(m_OrdinaryClient);
+                case "XMY":
+                    return new MyriadCoinInfoProvider(m_OrdinaryClient, coin.Algorithm.KnownValue.GetValueOrDefault());
                 default:
                     return new DummyInfoProvider();
             }
