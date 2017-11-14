@@ -59,8 +59,6 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             {
                 case "btczexplorer.blockhub.info":
                     return hashRate * 1e3;
-                case "btgexp.com":
-                    return hashRate * 1e6;
                 default:
                     return hashRate * 1e9;
             }

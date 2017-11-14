@@ -127,6 +127,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new HshareInfoProvider(m_OrdinaryClient);
                 case "XMY":
                     return new MyriadCoinInfoProvider(m_OrdinaryClient, coin.Algorithm.KnownValue.GetValueOrDefault());
+                case "BTG":
+                    return new BitCoinGoldInfoProvider(m_OrdinaryClient);
                 default:
                     return new DummyInfoProvider();
             }
