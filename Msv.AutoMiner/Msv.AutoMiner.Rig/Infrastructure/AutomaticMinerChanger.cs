@@ -81,7 +81,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             CurrentMiningProfitabilityTable = profitabilityTable;
 
             var mostProfitable = profitabilityTable
-                .OrderByDescending(x => x.PoolData.BtcPerDay)
                 .Where(x => x.PoolData.BtcPerDay >= 0)
                 .Where(x => m_PoolStatusProvider.CheckAvailability(x.PoolData))
                 .FirstOrDefault();
