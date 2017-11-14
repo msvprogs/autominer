@@ -17,9 +17,10 @@ killall mono
 
 # Deploy new versions
 cd $MINER_DIR
-for artifact in $artifacts; do
+for artifactPath in $artifacts; do
+	artifact=$(echo $artifactPath | tr "/" "\n" | tail -1)
 	echo Deploying $artifact...
-	wget $TEAMCITY_URL$artifact --user $TEAMCITY_LOGIN --password $TEAMCITY_PASSWORD -q
+	wget $TEAMCITY_URL$artifactPath --user $TEAMCITY_LOGIN --password $TEAMCITY_PASSWORD -q
 	if [[ $artifact == coin-info-* ]]; then
 		targetDir=coin-info
 	elif [[ $artifact == control-center-* ]]; then
@@ -31,7 +32,7 @@ for artifact in $artifacts; do
 	else
 		continue
 	fi
-	7z x $artifact -o{./$targetDir} -y
+	7z x $artifact -o$targetDir -y > /dev/null
 	rm $artifact
 	echo Deployed $artifact
 done
