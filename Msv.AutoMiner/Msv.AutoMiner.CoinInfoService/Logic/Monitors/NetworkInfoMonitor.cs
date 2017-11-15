@@ -84,8 +84,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     CoinId = x.coin.Id,
                     Created = now,
-                    BlockReward = x.result.BlockReward ?? x.coin.CanonicalBlockReward ?? 0,
-                    BlockTimeSeconds = x.result.BlockTimeSeconds ?? x.coin.CanonicalBlockTimeSeconds ?? 0,
+                    BlockReward = x.coin.CanonicalBlockReward ?? x.result.BlockReward ?? 0,
+                    BlockTimeSeconds = x.coin.CanonicalBlockTimeSeconds ?? x.result.BlockTimeSeconds ?? 0,
                     Difficulty = x.result.Difficulty,
                     Height = x.result.Height,
                     NetHashRate = x.result.NetHashRate
