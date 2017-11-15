@@ -53,7 +53,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             var reward = JsonConvert.DeserializeObject<JArray>(rewardPage)
                 .Cast<dynamic>()
                 .Where(x => ((JToken)x.inputs).Values<string>().Any(y => y.Contains("Generation")))
-                .Select(x => (double)x.outputs[0].v)
+                .Select(x => (double)x.outputs[0].v > 0 ? (double)x.outputs[0].v : (double)x.v)
                 .First();
 
             return new CoinNetworkStatistics
