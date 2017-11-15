@@ -48,11 +48,12 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             hashPage.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, $"/{m_CurrencySymbol}/block.dws?{height}.htm")));
             var hash = hashPage.DocumentNode.SelectSingleNode("//code[@class='hash']").InnerText;
 
-            var reward = JsonConvert.DeserializeObject<JArray>(m_WebClient.DownloadString(
-                    new Uri(M_BaseUri, $"/explorer/block.txs.dws?coin={m_CurrencySymbol}&h={hash}&fmt.js")))
+            var rewardPage = m_WebClient.DownloadString(
+                new Uri(M_BaseUri, $"/explorer/block.txs.dws?coin={m_CurrencySymbol}&h={hash}&fmt.js"));
+            var reward = JsonConvert.DeserializeObject<JArray>(rewardPage)
                 .Cast<dynamic>()
                 .Where(x => ((JToken)x.inputs).Values<string>().Any(y => y.Contains("Generation")))
-                .Select(x => (double)x.v)
+                .Select(x => (double)x.outputs[0].v)
                 .First();
 
             return new CoinNetworkStatistics
