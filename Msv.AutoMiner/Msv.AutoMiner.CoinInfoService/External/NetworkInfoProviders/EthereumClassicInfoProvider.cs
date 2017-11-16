@@ -42,8 +42,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
                 Difficulty = ParsingHelper.ParseHashRate(difficulty),
                 NetHashRate = ParsingHelper.ParseHashRate(hashrate),
                 Height = height,
-                BlockTimeSeconds = ParsingHelper.ParseDouble(blockTime.Split()[0]),
-                BlockReward = ParsingHelper.ParseDouble(reward.Split()[0])
+                BlockTimeSeconds = ParsingHelper.ParseValueWithUnits(blockTime),
+                BlockReward = ParsingHelper.ParseValueWithUnits(reward)
             };
         }
     }

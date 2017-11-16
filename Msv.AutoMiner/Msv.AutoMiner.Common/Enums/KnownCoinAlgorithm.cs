@@ -47,6 +47,7 @@
         Skunk = 42,
         Hsr = 43,
         Phi1612 = 44,
-        Mars = 45
+        Mars = 45,
+        Equihash1927 = 46
     }
 }

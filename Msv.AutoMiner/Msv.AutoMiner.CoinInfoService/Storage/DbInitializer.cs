@@ -14,7 +14,6 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
         private static readonly Dictionary<KnownCoinAlgorithm, ProfitabilityFormulaType> M_ProfitabilityFormulaTypes =
             new Dictionary<KnownCoinAlgorithm, ProfitabilityFormulaType>
             {
-                [KnownCoinAlgorithm.Equihash] = ProfitabilityFormulaType.Special,
                 [KnownCoinAlgorithm.EtHash] = ProfitabilityFormulaType.EtHash,
                 [KnownCoinAlgorithm.PrimeChain] = ProfitabilityFormulaType.Special,
                 [KnownCoinAlgorithm.CryptoNight] = ProfitabilityFormulaType.Special,

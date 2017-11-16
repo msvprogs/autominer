@@ -6,6 +6,8 @@ namespace Msv.AutoMiner.Common.Helpers
 {
     public static class ConversionHelper
     {
+        private const string SolS = "Sol/s";
+
         private static readonly Dictionary<double, string> M_Prefixes =
             new Dictionary<double, string>
             {
@@ -21,8 +23,9 @@ namespace Msv.AutoMiner.Common.Helpers
         private static readonly Dictionary<KnownCoinAlgorithm, string> M_SpecialUnits =
             new Dictionary<KnownCoinAlgorithm, string>
             {
-                [KnownCoinAlgorithm.Equihash] = "Sol/s",
-                [KnownCoinAlgorithm.Mars] = "Sol/s",
+                [KnownCoinAlgorithm.Equihash] = SolS,
+                [KnownCoinAlgorithm.Mars] = SolS,
+                [KnownCoinAlgorithm.Equihash1927] = SolS,
                 [KnownCoinAlgorithm.PrimeChain] = "CPD"
             };
 

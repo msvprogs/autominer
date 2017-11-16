@@ -34,8 +34,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
             var txTable = blockPage.DocumentNode.SelectSingleNode(
                 "//table[@class='table transactions-table'][1]");
             var reserve =
-                ParsingHelper.ParseDouble(txTable.SelectSingleNode(".//div[@class='mnc-value'][2]").InnerText.Split()[0]);
-            var totalCoinbase = ParsingHelper.ParseDouble(txTable.SelectSingleNode(".//div[@class='blue-bg']").InnerText.Split()[0]);
+                ParsingHelper.ParseValueWithUnits(txTable.SelectSingleNode(".//div[@class='mnc-value'][2]").InnerText);
+            var totalCoinbase = ParsingHelper.ParseValueWithUnits(txTable.SelectSingleNode(".//div[@class='blue-bg']").InnerText);
 
             var hashrate = JsonConvert.DeserializeObject<JArray>(
                     m_WebClient.DownloadString(new Uri(M_BaseUri, "hashrate.json")))

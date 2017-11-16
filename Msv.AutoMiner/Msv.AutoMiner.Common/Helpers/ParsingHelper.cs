@@ -12,6 +12,9 @@ namespace Msv.AutoMiner.Common.Helpers
         private static readonly Regex M_GenerationRewardRegex = new Regex(
             @"Generation:?\s*(?<reward>\d+(\.\d+)?)\s*\+\s*(?<fee>-?\d+(\.\d+)?) total fee", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        public static double ParseValueWithUnits(string str)
+            => ParseDouble(str.Trim().Split()[0]);
+
         public static double ParseDouble(string str)
             => double.Parse(str.Trim()
                     .Replace(" ", string.Empty)
