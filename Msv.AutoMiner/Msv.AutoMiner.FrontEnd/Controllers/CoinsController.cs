@@ -55,7 +55,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Difficulty = x.network.Difficulty,
                     NetHashRate = x.network.NetHashRate,
                     Height = x.network.Height,
-                    LastUpdated = x.network.Created != default(DateTime)
+                    LastUpdated = x.network.Created != default
                         ? x.network.Created
                         : (DateTime?) null
                 })
@@ -151,6 +151,20 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             TempData[CoinsMessageKey] =
                 $"Coin {coin.Name} ({coin.Symbol}) has been successfully {(coin.Activity == ActivityState.Active ? "activated" : "deactivated")}";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
+            if (coin == null)
+                return NotFound();
+            coin.Activity = ActivityState.Deleted;
+            await m_Context.SaveChangesAsync();
+
+            TempData[CoinsMessageKey] =
+                $"Coin {coin.Name} ({coin.Symbol}) has been successfully deleted";
             return RedirectToAction("Index");
         }
 

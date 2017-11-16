@@ -32,7 +32,7 @@
         <th>Block reward</th>
         <th>Time between blocks, sec</th>
         <th>Last updated</th>
-        <th class="column-actions">Actions</th>
+        <th>Actions</th>
     </tr>
     @foreach (var coin in Model.OrderBy(x => x.Symbol))
     {
@@ -87,6 +87,16 @@
                                 {
                                     <i class="glyphicon glyphicon-flash"></i>
                                 }
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form asp-action="Delete" asp-route-id="@coin.Id" 
+                              method="post" title="Delete coin"
+                              data-confirm-title="Delete coin @coin.Name?"
+                              data-confirm-body="You are going to delete coin @coin.Name. Are you sure?">
+                            <button class="btn btn-xs btn-danger">
+                                <i class="glyphicon glyphicon-trash"></i>
                             </button>
                         </form>
                     </li>

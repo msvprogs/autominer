@@ -16,6 +16,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
 
         public double UnconfirmedBalance { get; set; }
 
+        public double CoinBtcPrice { get; set; }
+
         public long PoolHashRate { get; set; }
 
         public int PoolWorkers { get; set; }

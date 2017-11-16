@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.FrontEnd.Data;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Pools;
+using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
@@ -16,10 +18,14 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     {
         public const string PoolsMessageKey = "PoolsMessage";
 
+        private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public PoolsController(AutoMinerDbContext context)
-            => m_Context = context;
+        public PoolsController(ICoinValueProvider coinValueProvider, AutoMinerDbContext context)
+        {
+            m_CoinValueProvider = coinValueProvider;
+            m_Context = context;
+        }
 
         public async Task<IActionResult> Index()
         {
@@ -31,6 +37,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     PoolInfo = x.OrderByDescending(y => y.DateTime).FirstOrDefault()
                 })
                 .ToDictionaryAsync(x => x.PoolId, x => x.PoolInfo);
+            var coinPrices = m_CoinValueProvider.GetCurrentCoinValues();
 
             var pools = m_Context.Pools
                 .Include(x => x.Coin)
@@ -40,6 +47,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .AsEnumerable()
                 .LeftOuterJoin(lastInfos, x => x.Id, x => x.Key,
                     (x, y) => (pool: x, state: y.Value ?? new PoolAccountState()))
+                .LeftOuterJoin(coinPrices, x => x.pool.Coin.Id, x => x.CurrencyId,
+                    (x, y) => (x.pool, x.state, price: y ?? new CoinValue()))
                 .Select(x => new PoolDisplayModel
                 {
                     Id = x.pool.Id,
@@ -51,6 +60,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Symbol = x.pool.Coin.Symbol,
                         Algorithm = new AlgorithmModel { KnownValue = x.pool.Coin.Algorithm.KnownValue }
                     },
+                    CoinBtcPrice = x.price.BtcValue,
                     Activity = x.pool.Activity,
                     HasApi = x.pool.ApiProtocol != PoolApiProtocol.None,
                     ConfirmedBalance = x.state.ConfirmedBalance,
@@ -58,7 +68,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     PoolHashRate = x.state.PoolHashRate,
                     PoolWorkers = x.state.PoolWorkers,
                     Url = GetPoolUri(x.pool).ToString(),
-                    LastUpdated = x.state.DateTime != default(DateTime)
+                    LastUpdated = x.state.DateTime != default
                         ? x.state.DateTime
                         : (DateTime?)null
                 })
@@ -166,6 +176,19 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             TempData[PoolsMessageKey] =
                 $"Pool {pool.Name} has been successfully {(pool.Activity == ActivityState.Active ? "activated" : "deactivated")}";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var pool = await m_Context.Pools.FirstOrDefaultAsync(x => x.Id == id);
+            if (pool == null)
+                return NotFound();
+            pool.Activity = ActivityState.Deleted;
+            await m_Context.SaveChangesAsync();
+
+            TempData[PoolsMessageKey] = $"Pool {pool.Name} has been successfully deleted";
             return RedirectToAction("Index");
         }
 

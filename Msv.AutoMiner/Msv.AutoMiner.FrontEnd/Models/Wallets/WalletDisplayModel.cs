@@ -12,6 +12,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Wallets
 
         public bool IsMiningTarget { get; set; }
 
+        public double CoinBtcPrice { get; set; }
+
         public double Available { get; set; }
 
         public double Blocked { get; set; }

@@ -8,9 +8,13 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
     public class BalanceTagHelper : TagHelper
     {
         private const string BalancePropertyKey = "msv-balance";
+        private const string BtcUnitPricePropertyKey = "msv-btc-price";
 
         [HtmlAttributeName(BalancePropertyKey)]
         public double? Balance { get; set; }
+
+        [HtmlAttributeName(BtcUnitPricePropertyKey)]
+        public double? BtcUnitPrice { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -21,9 +25,20 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             if (Balance > 0)
             {
                 output.Attributes.SetAttribute("class", "text-right");
+                var balanceContainer = new TagBuilder("div");
                 var strongTag = new TagBuilder("strong");
                 strongTag.InnerHtml.Append(ConversionHelper.ToCryptoCurrencyValue(Balance.Value));
-                output.Content.SetHtmlContent(strongTag);
+                balanceContainer.InnerHtml.AppendHtml(strongTag);
+                var btcPriceContainer = new TagBuilder("div")
+                {
+                    Attributes = {{"class", "btc-equivalent"}}
+                };
+                if (BtcUnitPrice != null)
+                    btcPriceContainer.InnerHtml.AppendHtml(
+                        $"≈{ConversionHelper.ToCryptoCurrencyValue(BtcUnitPrice.Value * Balance.Value)}&nbsp;BTC");
+                output.Content.SetHtmlContent(new TagBuilder("div").InnerHtml
+                    .AppendHtml(balanceContainer)
+                    .AppendHtml(btcPriceContainer));
             }
             else
             {

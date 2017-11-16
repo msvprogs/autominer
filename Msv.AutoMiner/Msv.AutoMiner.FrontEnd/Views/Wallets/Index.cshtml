@@ -38,7 +38,7 @@
         <th>Blocked</th>
         <th>Unconfirmed</th>
         <th>Last updated</th>
-        <th class="column-actions">Actions</th>
+        <th>Actions</th>
     </tr>
     @foreach (var wallet in Model.Wallets.OrderBy(x => x.Coin.Symbol)
         .ThenBy(x => x.Coin.Name)
@@ -74,7 +74,7 @@
                    title="Show all operations for @wallet.Coin.Name wallets">
                     @wallet.Coin.Name</a>
             </td>
-            <td class="wallet-address">
+            <td class="wallet-address wallet-small">
                 <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
                    title="Show all operations for this wallet">
                     @wallet.Address</a>
@@ -85,9 +85,9 @@
                     @(wallet.ExchangeType != null ? wallet.ExchangeType.ToString() : "<local>")
                 </a>
             </td>
-            <td msv-balance="@wallet.Available"></td>
-            <td msv-balance="@wallet.Blocked"></td>
-            <td msv-balance="@wallet.Unconfirmed"></td>
+            <td msv-balance="@wallet.Available" msv-btc-price="@wallet.CoinBtcPrice"></td>
+            <td msv-balance="@wallet.Blocked" msv-btc-price="@wallet.CoinBtcPrice"></td>
+            <td msv-balance="@wallet.Unconfirmed" msv-btc-price="@wallet.CoinBtcPrice"></td>
             <td msv-absolute-date="@wallet.LastUpdated"></td>
             <td>
                 <ul class="list-inline">
@@ -125,6 +125,16 @@
                             </form>
                         </li>
                     }
+                    <li>
+                        <form asp-action="Delete" asp-route-id="@wallet.Id" 
+                              method="post" title="Delete wallet"
+                              data-confirm-title="Delete wallet @wallet.Address?"
+                              data-confirm-body="You are going to delete wallet @wallet.Address. Are you sure?">
+                            <button class="btn btn-xs btn-danger">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </button>
+                        </form>
+                    </li>
                 </ul>
             </td>
         </tr>

@@ -34,7 +34,7 @@
         <th>Total workers</th>
         <th>Priority</th>
         <th>Last updated</th>
-        <th class="column-actions">Actions</th>
+        <th>Actions</th>
     </tr>
     @foreach (var pool in Model.OrderBy(x => x.Coin.Symbol)
         .ThenBy(x => x.Coin.Name)
@@ -82,8 +82,8 @@
                     @pool.Name
                 </a>
             </td>
-            <td msv-balance="@pool.ConfirmedBalance"></td>
-            <td msv-balance="@pool.UnconfirmedBalance"></td>
+            <td msv-balance="@pool.ConfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
+            <td msv-balance="@pool.UnconfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
             <td>@(pool.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(pool.PoolHashRate, pool.Coin.Algorithm.KnownValue) : "unavailable")</td>
             <td>@pool.PoolWorkers</td>
             <td>@pool.Priority</td>
@@ -111,6 +111,16 @@
                                 {
                                     <i class="glyphicon glyphicon-flash"></i>
                                 }
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form asp-action="Delete" asp-route-id="@pool.Id" 
+                              method="post" title="Delete pool"
+                              data-confirm-title="Delete pool @pool.Name?"
+                              data-confirm-body="You are going to delete pool @pool.Name. Are you sure?">
+                            <button class="btn btn-xs btn-danger">
+                                <i class="glyphicon glyphicon-trash"></i>
                             </button>
                         </form>
                     </li>

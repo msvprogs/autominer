@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd
 {
@@ -29,6 +30,7 @@ namespace Msv.AutoMiner.FrontEnd
 
             services.AddMvc();
             services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
+            services.AddTransient<ICoinValueProvider, CoinValueProvider>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
         }
 

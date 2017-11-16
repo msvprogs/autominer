@@ -1,4 +1,82 @@
-﻿function bindAnchorsToModal(action) {
+﻿// --- MessageBox ----
+
+function MessageBox()
+{ }
+
+MessageBox.alert = function(title, icon, body, callback) {
+    title = title || "Alert";
+    icon = icon || "info";
+    body = body || "";
+
+    $("#alertDialogTitle").html(title);
+    var alertIconClass;
+    switch (icon.toLowerCase()) {
+        case "info":
+            alertIconClass = "fa-info-circle";
+            break;
+        case "warning":
+            alertIconClass = "fa-exclamation-triangle";
+            break;
+        default:
+            alertIconClass = "";
+            break;
+    }
+    $("#alertDialogIcon").addClass("fa").addClass(alertIconClass);
+    $("#alertDialogBody").html(body);
+
+    if (callback !== undefined) {
+        var okButton = $("#alertDialogOkButton");
+        okButton.click(function () {
+            callback();
+            okButton.off("click");
+        });
+    }
+    $("#alertDialog").modal("show");
+}
+
+MessageBox.confirm = function (title, body, callback) {
+    title = title || "Confirm";
+    body = body || "";
+    callback = callback || function() {};
+
+    $("#confirmDialogTitle").html(title);
+    $("#confirmDialogBody").html(body);
+
+    var yesButton = $("#confirmDialogYesButton");
+    yesButton.click(function () {
+        callback(true);
+        yesButton.off("click");
+    });
+    var noButton = $("#confirmDialogNoButton");
+    noButton.click(function () {
+        callback(false);
+        noButton.off("click");
+    });
+
+    $("#confirmDialog").modal("show");
+}
+
+// --- End of MessageBox ----
+
+$(function() {
+    $("form[data-confirm-body]").submit(function(e) {
+        var self = $(this);
+        if (self.data("confirmed"))
+            return;
+        MessageBox.confirm(
+            self.data("confirm-title") || "Confirmation",
+            self.data("confirm-body"),
+            function(result) {
+                if (result) {
+                    self.data("confirmed", true);
+                    self.submit();
+                }
+            });
+        e.preventDefault();
+    });
+});
+
+function bindAnchorsToModal(action) {
     $(function() {
         $.ajaxSetup({ cache: false });
         $("a[href*='/" + action + "?']").click(function(e) {
@@ -15,7 +93,7 @@ function showModal(srcHref, callback) {
     });
     dialogSection.on("hidden.bs.modal",
         function () {
-            if (callback != undefined)
+            if (callback !== undefined)
                 callback(dialogSection);
             dialogSection.off();
             dialogSection.remove();

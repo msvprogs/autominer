@@ -7,8 +7,10 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Data;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Wallets;
+using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
@@ -17,11 +19,14 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public const string WalletsMessageKey = "WalletsMessage";
 
         private readonly IStoredFiatValueProvider m_FiatValueProvider;
+        private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public WalletsController(IStoredFiatValueProvider fiatValueProvider, AutoMinerDbContext context)
+        public WalletsController(
+            IStoredFiatValueProvider fiatValueProvider, ICoinValueProvider coinValueProvider, AutoMinerDbContext context)
         {
             m_FiatValueProvider = fiatValueProvider;
+            m_CoinValueProvider = coinValueProvider;
             m_Context = context;
         }
 
@@ -35,6 +40,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Balances = x.OrderByDescending(y => y.DateTime).FirstOrDefault()
                 })
                 .ToDictionaryAsync(x => x.WalletId, x => x.Balances);
+            var coinValues = m_CoinValueProvider.GetCurrentCoinValues();
 
             var wallets = m_Context.Wallets
                 .Include(x => x.Coin)
@@ -43,6 +49,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .AsEnumerable()
                 .LeftOuterJoin(lastBalances, x => x.Id, x => x.Key,
                     (x, y) => (wallet: x, balances: y.Value ?? new WalletBalance()))
+                .LeftOuterJoin(coinValues, x => x.wallet.CoinId, x => x.CurrencyId,
+                    (x, y) => (x.wallet, x.balances, price: y ?? new CoinValue()))
                 .Select(x => new WalletDisplayModel
                 {
                     Id = x.wallet.Id,
@@ -54,19 +62,20 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Name = x.wallet.Coin.Name,
                         Symbol = x.wallet.Coin.Symbol
                     },
+                    CoinBtcPrice = x.price.BtcValue,
                     ExchangeType = x.wallet.ExchangeType,
                     Available = x.balances.Balance,
                     Blocked = x.balances.BlockedBalance,
                     Unconfirmed = x.balances.UnconfirmedBalance,
                     IsMiningTarget = x.wallet.IsMiningTarget,
-                    LastUpdated = x.balances.DateTime != default(DateTime)
+                    LastUpdated = x.balances.DateTime != default
                         ? x.balances.DateTime
                         : (DateTime?)null
                 })
                 .ToArray();
 
-            var totalBtc = wallets.Where(x => x.Coin.Symbol == "BTC")
-                .Select(x => x.Available)
+            var totalBtc = wallets
+                .Select(x => x.Available * x.CoinBtcPrice)
                 .DefaultIfEmpty(0)
                 .Sum();
 
@@ -163,6 +172,19 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             TempData[WalletsMessageKey] =
                 $"Wallet {wallet.Address} has been successfully set as mining target";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var wallet = await m_Context.Wallets.FirstOrDefaultAsync(x => x.Id == id);
+            if (wallet == null)
+                return NotFound();
+            wallet.Activity = ActivityState.Deleted;
+            await m_Context.SaveChangesAsync();
+
+            TempData[WalletsMessageKey] = $"Wallet {wallet.Address} has been successfully deleted";
             return RedirectToAction("Index");
         }
 
