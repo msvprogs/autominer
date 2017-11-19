@@ -51,6 +51,8 @@ namespace Msv.AutoMiner.ControlCenterService.External
                     return new TradeSatoshiWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
                 case ExchangeType.Novaexchange:
                     return new NovaexchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                case ExchangeType.StocksExchange:
+                    return new StocksExchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
                 default:
                     return new DummyWalletInfoProvider();
             }

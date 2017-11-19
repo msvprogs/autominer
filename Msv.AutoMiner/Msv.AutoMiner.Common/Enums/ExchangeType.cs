@@ -11,6 +11,7 @@
         TradeSatoshi = 6,
         CoinsMarkets = 7,
         Novaexchange = 8,
-        LiveCoin = 9
+        LiveCoin = 9,
+        StocksExchange = 10
     }
 }

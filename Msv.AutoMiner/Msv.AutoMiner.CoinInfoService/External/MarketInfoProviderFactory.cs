@@ -36,6 +36,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new NovaexchangeMarketInfoProvider(m_WebClient);
                 case ExchangeType.LiveCoin:
                     return new LiveCoinMarketInfoProvider(m_WebClient);
+                case ExchangeType.StocksExchange:
+                    return new StocksExchangeMarketInfoProvider(m_WebClient);
                 default:
                     return new DummyMarketInfoProvider();
             }
