@@ -83,7 +83,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         MaxTarget = x.coin.MaxTarget,
                         BtcPrice = x.price?.BtcValue
                     })
-                    .OrderBy(x => x.Name)
+                    .OrderBy(x => x.Symbol)
                     .ToArray()
             });
         }

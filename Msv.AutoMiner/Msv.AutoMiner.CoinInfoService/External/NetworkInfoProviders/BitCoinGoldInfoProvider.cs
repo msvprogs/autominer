@@ -27,19 +27,21 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
                 .Cast<dynamic>()
                 .Where(x => x.transactions.vin.Count > 0
                             && x.transactions.vin[0].coinbase != null
-                            && ((JArray)x.transactions.vout).Count > 0
-                            && (double)x.transactions.vout[0].value > 0)
+                            && ((JArray) x.transactions.vout).Count > 0)
                 .Select(x =>
-                    new BlockInfo((long)x.time, (long)x.height, (double)x.transactions.vout[0].value))
+                    new BlockInfo((long) x.time, (long) x.height, ((JArray) x.transactions.vout)
+                        .Cast<dynamic>()
+                        .Select(y => (double) y.value)
+                        .FirstOrDefault(y => y > 0)))
                 .Distinct());
             return new CoinNetworkStatistics
             {
-                Difficulty = (double)stats.data[0].difficulty,
+                Difficulty = (double) stats.data[0].difficulty,
                 NetHashRate = double.TryParse(
-                    (string)stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
+                    (string) stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
                     ? hashRate * 1e6
                     : 0,
-                Height = (long)stats.data[0].blockcount,
+                Height = (long) stats.data[0].blockcount,
                 BlockTimeSeconds = blockStats?.MeanBlockTime,
                 BlockReward = blockStats?.LastReward
             };
