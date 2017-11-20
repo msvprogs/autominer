@@ -4,6 +4,6 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
 {
     public interface IProfitabilityCalculator
     {
-        double CalculateCoinsPerDay(Coin coin, CoinNetworkInfo networkInfo, long yourHashRate);
+        double CalculateCoinsPerDay(Coin coin, CoinNetworkInfo networkInfo, double yourHashRate);
     }
 }

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Msv.AutoMiner.Common.Helpers;
 
-namespace Msv.AutoMiner.FrontEnd.Infrastructure
+namespace Msv.AutoMiner.Common.Infrastructure
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class HexNumberAttribute : ValidationAttribute

@@ -12,6 +12,7 @@ using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Models.Rigs;
 using Msv.AutoMiner.FrontEnd.Models.Shared;
+using Msv.AutoMiner.FrontEnd.Providers;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
@@ -20,27 +21,23 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     {
         public const string RigsMessageKey = "RigsMessage";
 
+        private readonly IRigHeartbeatProvider m_HeartbeatProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public RigsController(AutoMinerDbContext context)
-            => m_Context = context;
-
-        public async Task<IActionResult> Index()
+        public RigsController(IRigHeartbeatProvider heartbeatProvider, AutoMinerDbContext context)
         {
-            var lastHeartbeats = await m_Context.RigHeartbeats
-                .GroupBy(x => x.RigId)
-                .Select(x => new
-                {
-                    RigId = x.Key,
-                    Heartbeat = x.OrderByDescending(y => y.Received).FirstOrDefault()
-                })
-                .ToDictionaryAsync(x => x.RigId, x => x.Heartbeat);
+            m_HeartbeatProvider = heartbeatProvider;
+            m_Context = context;
+        }
 
+        public IActionResult Index()
+        {
+            var lastHeartbeats = m_HeartbeatProvider.GetLastActiveHeartbeats();
             var rigs = m_Context.Rigs
                 .AsNoTracking()
                 .AsEnumerable()
                 .LeftOuterJoin(lastHeartbeats, x => x.Id, x => x.Key,
-                    (x, y) => (rig: x, heartbeat: y.Value ?? new RigHeartbeat()))
+                    (x, y) => (rig: x, heartbeat: y.Value ?? new Heartbeat()))
                 .Select(x => new RigDisplayModel
                 {
                     Id = x.rig.Id,
@@ -49,12 +46,11 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     CertificateSerial = x.rig.ClientCertificateSerial != null
                         ? HexHelper.ToHex(x.rig.ClientCertificateSerial)
                         : null,
-                    LastHeartbeat = x.heartbeat.Received != default(DateTime)
-                        ? x.heartbeat.Received
+                    LastHeartbeat = x.heartbeat.DateTime != default
+                        ? x.heartbeat.DateTime
                         : (DateTime?)null
                 })
                 .ToArray();
-
             return View(rigs);
         }
 
@@ -133,7 +129,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var lastProfitabilityTime = await m_Context.CoinProfitabilities
                 .Where(x => x.RigId == id)
                 .Select(x => x.Requested)
-                .DefaultIfEmpty(default(DateTime))
+                .DefaultIfEmpty(default)
                 .MaxAsync();
             var profitabilityTable = await m_Context.CoinProfitabilities
                 .Include(x => x.Coin)
@@ -176,27 +172,23 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 currentMiningState = heartbeatState;
             }
 
-            var lastRigHeartbeat = await m_Context.RigHeartbeats
-                .OrderByDescending(x => x.Received)
-                .FirstOrDefaultAsync(x => x.RigId == id);
-            if (currentMiningState != null)
+            var lastRigHeartbeat = m_HeartbeatProvider.GetLastHeartbeat(id);
+            if (currentMiningState != null && lastRigHeartbeat != null)
                 durations.Add(new RigStatisticsModel.CoinMiningDuration
                 {
                     CoinName = coins[currentMiningState.CoinId].Name,
                     CoinSymbol = coins[currentMiningState.CoinId].Symbol,
                     Duration = currentMiningState.Duration,
-                    Time = lastRigHeartbeat.Received
+                    Time = lastRigHeartbeat.DateTime
                 });
 
             return View(new RigStatisticsModel
             {
                 Id = id,
                 Name = rig.Name,
-                LastHeartbeat = lastRigHeartbeat != null
-                    ? JsonConvert.DeserializeObject<Heartbeat>(lastRigHeartbeat.ContentsJson)
-                    : null,
+                LastHeartbeat = lastRigHeartbeat,
                 LastProfitabilityTable = profitabilityTable,
-                ProfitabilityTableTime = lastProfitabilityTime != default(DateTime)
+                ProfitabilityTableTime = lastProfitabilityTime != default
                     ? lastProfitabilityTime
                     : (DateTime?) null,
                 LastDayActivity = durations.ToArray(),

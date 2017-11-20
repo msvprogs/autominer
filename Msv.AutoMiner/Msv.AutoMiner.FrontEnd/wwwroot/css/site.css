@@ -113,3 +113,7 @@ ul.list-inline > li {
     color: gray;
     margin-top: 4px;
 }
+
+div.padded {
+    padding: 5px
+}

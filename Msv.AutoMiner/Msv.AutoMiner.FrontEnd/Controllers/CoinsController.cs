@@ -8,6 +8,7 @@ using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
+using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
@@ -15,29 +16,25 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     {
         public const string CoinsMessageKey = "CoinsMessage";
 
+        private readonly ICoinNetworkInfoProvider m_NetworkInfoProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public CoinsController(AutoMinerDbContext context)
-            => m_Context = context;
-
-        public async Task<IActionResult> Index()
+        public CoinsController(ICoinNetworkInfoProvider networkInfoProvider, AutoMinerDbContext context)
         {
-            var lastInfos = await m_Context.CoinNetworkInfos
-                .GroupBy(x => x.CoinId)
-                .Select(x => new
-                {
-                    CoinId = x.Key,
-                    NetworkInfo = x.OrderByDescending(y => y.Created).FirstOrDefault()
-                })
-                .ToDictionaryAsync(x => x.CoinId, x => x.NetworkInfo);
+            m_NetworkInfoProvider = networkInfoProvider;
+            m_Context = context;
+        }
 
+        public IActionResult Index()
+        {
+            var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos();
             var coins = m_Context.Coins
                 .Include(x => x.Algorithm)
                 .AsNoTracking()
                 .Where(x => x.Activity != ActivityState.Deleted)
                 .AsEnumerable()
-                .LeftOuterJoin(lastInfos, x => x.Id, x => x.Key,
-                    (x, y) => (coin:x, network:y.Value ?? new CoinNetworkInfo()))
+                .LeftOuterJoin(lastInfos, x => x.Id, x => x.CoinId,
+                    (x, y) => (coin:x, network: y ?? new CoinNetworkInfo()))
                 .Select(x => new CoinDisplayModel
                 {
                     Id = x.coin.Id,

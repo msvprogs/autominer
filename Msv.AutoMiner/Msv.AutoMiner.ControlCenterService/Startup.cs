@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.ServiceContracts;
-using Msv.AutoMiner.ControlCenterService.External.CoinInfoService;
 using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
 using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage;

@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
         private static readonly double M_BtcMaxTarget =
             (double) HexHelper.HexToBigInteger("0x00000000FFFF0000000000000000000000000000000000000000000000000000");
 
-        public double CalculateCoinsPerDay(Coin coin, CoinNetworkInfo networkInfo, long yourHashRate)
+        public double CalculateCoinsPerDay(Coin coin, CoinNetworkInfo networkInfo, double yourHashRate)
         {
             if (coin == null)
                 throw new ArgumentNullException(nameof(coin));
@@ -42,7 +42,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
             }
         }
 
-        private static double CalculateSpecial(Coin coin, CoinNetworkInfo network, long hashRate)
+        private static double CalculateSpecial(Coin coin, CoinNetworkInfo network, double hashRate)
         {
             switch (coin.Algorithm.KnownValue)
             {
@@ -61,7 +61,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
             double yourHashRate, double netHashRate, double blockReward, double blockTimeSec)
             => SecondsInDay * yourHashRate / (yourHashRate + netHashRate) * (blockReward / blockTimeSec);
 
-        private static double CalculateByDifficulty(long yourHashRate, double blockReward, double difficulty, double maxTarget)
+        private static double CalculateByDifficulty(double yourHashRate, double blockReward, double difficulty, double maxTarget)
             => SecondsInDay * blockReward * yourHashRate * maxTarget / (difficulty * M_32ByteHashesCount);
     }
 }

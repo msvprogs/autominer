@@ -7,5 +7,6 @@ namespace Msv.AutoMiner.Common.ServiceContracts
     {
         Task<AlgorithmInfo[]> GetAlgorithms();
         Task<ProfitabilityResponseModel> GetProfitabilities(ProfitabilityRequestModel request);
+        Task<EstimateProfitabilityResponseModel> EstimateProfitability(EstimateProfitabilityRequestModel request);
     }
 }

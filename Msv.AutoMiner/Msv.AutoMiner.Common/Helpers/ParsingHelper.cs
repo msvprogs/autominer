@@ -15,13 +15,21 @@ namespace Msv.AutoMiner.Common.Helpers
         public static double ParseValueWithUnits(string str)
             => ParseDouble(str.Trim().Split()[0]);
 
-        public static double ParseDouble(string str)
-            => double.Parse(str.Trim()
-                    .Replace(" ", string.Empty)
-                    .Replace("'", string.Empty)
-                    .Replace("%", string.Empty),
+        public static double ParseDouble(string str, bool commaIsDecimalPoint = false)
+        {
+            var normalizedValue = str
+                .Replace(" ", string.Empty)
+                .Replace("'", string.Empty)
+                .Replace("%", string.Empty)
+                .Trim();
+            if (normalizedValue == string.Empty)
+                return 0;
+            if (commaIsDecimalPoint)
+                normalizedValue = normalizedValue.Replace(',', '.');
+            return double.Parse(normalizedValue,
                 NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign,
                 M_AmericanCulture);
+        }
 
         public static double? ParseGenerationReward(string str)
         {
@@ -32,7 +40,7 @@ namespace Msv.AutoMiner.Common.Helpers
                    + ParseDouble(match.Groups["fee"].Value);
         }
 
-        public static long ParseHashRate(string str)
+        public static long ParseHashRate(string str, bool commaIsDecimalPoint = false)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return 0;
@@ -42,7 +50,7 @@ namespace Msv.AutoMiner.Common.Helpers
             var value = match.Groups["value"].Value;
             var unit = match.Groups["unit"].Value.ToLowerInvariant();
             if (unit == string.Empty)
-                return (long) ParseDouble(value);
+                return (long) ParseDouble(value, commaIsDecimalPoint);
             double multiplier;
             if (unit.StartsWith("h") || unit.StartsWith("s"))
                 multiplier = 1;

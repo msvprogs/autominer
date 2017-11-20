@@ -6,6 +6,7 @@
     "jquery-validation": "1.14.0",
     "jquery-validation-unobtrusive": "3.2.6",
     "font-awesome": "Font-Awesome#v4.7.0",
-    "bootstrap": "v3.3.6"
+    "bootstrap": "v3.3.6",
+    "jquery-serialize-object": "2.5.0"
   }
 }

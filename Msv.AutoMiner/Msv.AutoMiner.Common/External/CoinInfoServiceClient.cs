@@ -4,7 +4,7 @@ using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
 
-namespace Msv.AutoMiner.ControlCenterService.External.CoinInfoService
+namespace Msv.AutoMiner.Common.External
 {
     public class CoinInfoServiceClient : ICoinInfoService
     {
@@ -23,5 +23,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.CoinInfoService
         public Task<ProfitabilityResponseModel> GetProfitabilities(ProfitabilityRequestModel request)
             => m_RestClient.PostAsync<ProfitabilityRequestModel, ProfitabilityResponseModel>(
                 $"/api/coinInfo/getProfitabilities?apikey={m_ApiKey}", request);
+
+        public Task<EstimateProfitabilityResponseModel> EstimateProfitability(EstimateProfitabilityRequestModel request)
+            => m_RestClient.PostAsync<EstimateProfitabilityRequestModel, EstimateProfitabilityResponseModel>(
+                $"/api/coinInfo/estimateProfitability?apikey={m_ApiKey}", request);
     }
 }

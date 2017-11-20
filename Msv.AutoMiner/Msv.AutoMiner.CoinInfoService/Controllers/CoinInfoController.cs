@@ -6,6 +6,7 @@ using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
+using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService.Controllers
@@ -62,7 +63,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                         NetworkInfo = x.networkInfo,
                         AlgorithmInfo = x.algorithmInfo,
                         MarketPrices = y.Value,
-                        CoinsPerDay =  Math.Round(m_Calculator.CalculateCoinsPerDay(
+                        CoinsPerDay = Math.Round(m_Calculator.CalculateCoinsPerDay(
                             x.networkInfo.Coin, x.networkInfo, x.algorithmInfo.NetHashRate),
                             CryptoCurrencyDecimalPlaces)
                     })
@@ -78,7 +79,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                     CoinId = x.NetworkInfo.CoinId,
                     CoinsPerDay = x.CoinsPerDay,
                     LastUpdatedUtc = x.NetworkInfo.Created,
-                    ElectricityCostPerDay = Math.Round(x.AlgorithmInfo.Power / 1000 * request.ElectricityCostUsd * 24, FiatDecimalPlaces),
+                    ElectricityCostPerDay = GetElectricityCostPerDay(x.AlgorithmInfo.Power, request.ElectricityCostUsd),
                     MarketPrices = x.MarketPrices.Select(y => new MarketPriceData
                         {
                             Exchange = y.Exchange,
@@ -95,5 +96,37 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                 Profitabilities = profitabilities
             };
         }
+
+        [HttpPost("estimateProfitability")]
+        //[ValidateApiKey(ApiKeyType.CoinInfoService)]
+        public async Task<EstimateProfitabilityResponseModel> EstimateProfitability(
+            [FromBody] EstimateProfitabilityRequestModel request)
+        {
+            var btcUsdValue = await m_FiatProvider.GetLastBtcUsdValueAsync();
+            var coinsPerDay = m_Calculator.CalculateCoinsPerDay(
+                new Coin
+                {
+                    Algorithm = new CoinAlgorithm {ProfitabilityFormulaType = ProfitabilityFormulaType.BitcoinLike},
+                    MaxTarget = request.MaxTarget
+                },
+                new CoinNetworkInfo
+                {
+                    BlockReward = request.BlockReward,
+                    Difficulty = request.Difficulty
+                },
+                request.ClientHashRate);
+            var btcPerDay = coinsPerDay * request.BtcPrice;
+            var electricityCostPerDay = GetElectricityCostPerDay(request.ClientPowerUsage, request.ElectricityCostUsd);
+            return new EstimateProfitabilityResponseModel
+            {
+                Coins = new EstimateProfitabilityResponseModel.CumulativeProfitability(coinsPerDay),
+                Btc = new EstimateProfitabilityResponseModel.CumulativeProfitability(btcPerDay),
+                Usd = new EstimateProfitabilityResponseModel.CumulativeProfitability(
+                    btcPerDay * btcUsdValue.Value - electricityCostPerDay)
+            };
+        }
+
+        private static double GetElectricityCostPerDay(double unitCost, double powerUsageWatts)
+            => Math.Round(powerUsageWatts / 1000 * unitCost * 24, FiatDecimalPlaces);
     }
 }

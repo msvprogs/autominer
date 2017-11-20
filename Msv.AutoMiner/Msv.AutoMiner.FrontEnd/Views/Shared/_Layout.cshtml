@@ -23,8 +23,8 @@
     <div id="throbber" style="display: none">
         <img src="images/ajax-loader.gif" alt="Please wait..." />
     </div>
-    @Html.Partial("_AlertPartial");
-    @Html.Partial("_ConfirmPartial");
+    @Html.Partial("_AlertPartial")
+    @Html.Partial("_ConfirmPartial")
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
@@ -49,6 +49,7 @@
                     <li><a asp-controller="WalletOperations" asp-action="Index"><i class="fa fa-handshake-o" aria-hidden="true"></i> Wallet operations</a></li>
                     <li><a asp-controller="Exchanges" asp-action="Index"><i class="fa fa-exchange" aria-hidden="true"></i> Exchanges</a></li>
                     <li><a asp-controller="Rigs" asp-action="Index"><i class="fa fa-desktop" aria-hidden="true"></i> Rigs</a></li>
+                    <li><a asp-controller="Tools" asp-action="Index"><i class="fa fa-wrench" aria-hidden="true"></i> Tools</a></li>
                 </ul>
             </div>
         </div>
@@ -64,6 +65,7 @@
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/jquery-serialize-object/dist/jquery.serialize-object.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
     <environment exclude="Development">
@@ -79,6 +81,7 @@
                 crossorigin="anonymous"
                 integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
         </script>
+        <script src="~/lib/jquery-serialize-object/dist/jquery.serialize-object.min.js"></script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
 

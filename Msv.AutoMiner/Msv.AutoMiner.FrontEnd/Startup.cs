@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Msv.AutoMiner.Common.External;
+using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Providers;
@@ -29,9 +32,17 @@ namespace Msv.AutoMiner.FrontEnd
                 ServiceLifetime.Transient);
 
             services.AddMvc();
+            services.AddDistributedMemoryCache();
+            services.AddSession();
             services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
             services.AddTransient<ICoinValueProvider, CoinValueProvider>();
+            services.AddTransient<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
+            services.AddTransient<IRigHeartbeatProvider, RigHeartbeatProvider>();
+
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
+                new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
+                Configuration["Services:CoinInfo:ApiKey"]));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -48,6 +59,7 @@ namespace Msv.AutoMiner.FrontEnd
 
             app.UseStaticFiles();
 
+            app.UseSession();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

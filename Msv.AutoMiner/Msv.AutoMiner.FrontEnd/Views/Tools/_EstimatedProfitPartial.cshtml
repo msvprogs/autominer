@@ -1,0 +1,30 @@
+﻿@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.Common.Models.CoinInfoService
+@model EstimateProfitabilityResponseModel
+
+<table class="table table-condensed table-striped table-bordered">
+    <tr>
+        <th></th>
+        <th>Daily profit</th>
+        <th>Weekly profit</th>
+        <th>Monthly profit</th>
+    </tr>
+    <tr>
+        <th>Coins</th>
+        <td>@ConversionHelper.ToCryptoCurrencyValue(Model.Coins.PerDay)</td>
+        <td>@ConversionHelper.ToCryptoCurrencyValue(Model.Coins.PerWeek)</td>
+        <td>@ConversionHelper.ToCryptoCurrencyValue(Model.Coins.PerMonth)</td>
+    </tr>
+    <tr>
+        <th>BTC</th>
+        <td>@ConversionHelper.ToCryptoCurrencyValue(Model.Btc.PerDay) BTC</td>
+        <td>@ConversionHelper.ToCryptoCurrencyValue(Model.Btc.PerWeek) BTC</td>
+        <td>@ConversionHelper.ToCryptoCurrencyValue(Model.Btc.PerMonth) BTC</td>
+    </tr>
+    <tr>
+        <th>USD</th>
+        <td>$@ConversionHelper.ToFiatValue(Model.Usd.PerDay)</td>
+        <td>$@ConversionHelper.ToFiatValue(Model.Usd.PerWeek)</td>
+        <td>$@ConversionHelper.ToFiatValue(Model.Usd.PerMonth)</td>
+    </tr>
+</table>
