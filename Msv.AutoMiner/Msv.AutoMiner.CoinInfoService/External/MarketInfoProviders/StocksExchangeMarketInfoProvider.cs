@@ -72,8 +72,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     HighestBid = (double)x.ticker.Data.bid,
                     LastDayVolume = (double)x.ticker.Data.vol,
                     LowestAsk = (double)x.ticker.Data.ask,
-                    LastDayLow = (double)x.ticker.Data.low,
-                    LastDayHigh = (double)x.ticker.Data.high,
+                    LastDayLow = 0, //(double)x.ticker.Data.low,
+                    LastDayHigh = 0, //(double)x.ticker.Data.high,
                     BuyFeePercent = (double)x.ticker.Data.buy_fee_percent,
                     SellFeePercent = (double)x.ticker.Data.sell_fee_percent,
                 })

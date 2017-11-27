@@ -59,7 +59,7 @@ namespace Msv.AutoMiner.Common
                     {
                         Log.Error(ex, "Exception occurred");
                     }
-                });
+                }) { IsBackground = true };
                 thread.Start();
                 if (thread.Join(M_WorkTimeout))
                     Log.Info("Work completed");
