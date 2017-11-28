@@ -117,3 +117,14 @@ ul.list-inline > li {
 div.padded {
     padding: 5px
 }
+
+.coin-price-table {
+    font-size: 8pt;
+    color: darkslategray;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.coin-price-table div {
+    padding: 0 4px !important;
+}

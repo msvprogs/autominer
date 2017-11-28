@@ -19,24 +19,19 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public const string PoolsMessageKey = "PoolsMessage";
 
         private readonly ICoinValueProvider m_CoinValueProvider;
+        private readonly IPoolInfoProvider m_PoolInfoProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public PoolsController(ICoinValueProvider coinValueProvider, AutoMinerDbContext context)
+        public PoolsController(ICoinValueProvider coinValueProvider, IPoolInfoProvider poolInfoProvider, AutoMinerDbContext context)
         {
             m_CoinValueProvider = coinValueProvider;
+            m_PoolInfoProvider = poolInfoProvider;
             m_Context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var lastInfos = await m_Context.PoolAccountStates
-                .GroupBy(x => x.PoolId)
-                .Select(x => new
-                {
-                    PoolId = x.Key,
-                    PoolInfo = x.OrderByDescending(y => y.DateTime).FirstOrDefault()
-                })
-                .ToDictionaryAsync(x => x.PoolId, x => x.PoolInfo);
+            var lastPoolInfos = m_PoolInfoProvider.GetCurrentPoolInfos();
             var coinPrices = m_CoinValueProvider.GetCurrentCoinValues();
 
             var pools = m_Context.Pools
@@ -45,8 +40,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .AsNoTracking()
                 .Where(x => x.Activity != ActivityState.Deleted && x.Coin.Activity != ActivityState.Deleted)
                 .AsEnumerable()
-                .LeftOuterJoin(lastInfos, x => x.Id, x => x.Key,
-                    (x, y) => (pool: x, state: y.Value ?? new PoolAccountState()))
+                .LeftOuterJoin(lastPoolInfos, x => x.Id, x => x.PoolId,
+                    (x, y) => (pool: x, state: y ?? new PoolAccountState()))
                 .LeftOuterJoin(coinPrices, x => x.pool.Coin.Id, x => x.CurrencyId,
                     (x, y) => (x.pool, x.state, price: y ?? new CoinValue()))
                 .Select(x => new PoolDisplayModel
@@ -60,7 +55,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Symbol = x.pool.Coin.Symbol,
                         Algorithm = new AlgorithmModel { KnownValue = x.pool.Coin.Algorithm.KnownValue }
                     },
-                    CoinBtcPrice = x.price.BtcValue,
+                    CoinBtcPrice = x.price.AverageBtcValue,
                     Activity = x.pool.Activity,
                     HasApi = x.pool.ApiProtocol != PoolApiProtocol.None,
                     ConfirmedBalance = x.state.ConfirmedBalance,
@@ -120,6 +115,31 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 AvailableCoins = await GetAvailableCoins()
             };
             return View(poolModel);
+        }
+
+        public async Task<IActionResult> Clone(int id)
+        {
+            var pool = await m_Context.Pools
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (pool == null)
+                return NotFound();
+            var poolModel = new PoolEditModel
+            {
+                Url = GetPoolUri(pool).Scheme + "://",
+                ApiKey = pool.ApiKey,
+                ApiPoolName = pool.ApiPoolName,
+                ApiPoolUserId = pool.PoolUserId,
+                ApiProtocol = pool.ApiProtocol,
+                ApiUrl = pool.ApiUrl,
+                FeeRatio = pool.FeeRatio,
+                IsAnonymous = pool.IsAnonymous,
+                WorkerLogin = pool.WorkerLogin,
+                WorkerPassword = pool.WorkerPassword,
+                TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
+                AvailableCoins = await GetAvailableCoins()
+            };
+            return View("Edit", poolModel);
         }
 
         [HttpPost]

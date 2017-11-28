@@ -81,7 +81,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Name = x.coin.Name,
                         Symbol = x.coin.Symbol,
                         MaxTarget = x.coin.MaxTarget,
-                        BtcPrice = x.price?.BtcValue
+                        BtcPrice = x.price?.AverageBtcValue
                     })
                     .OrderBy(x => x.Symbol)
                     .ToArray()

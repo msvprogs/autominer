@@ -9,6 +9,8 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
 {
     public class CoinInfoControllerStorage : ICoinInfoControllerStorage
     {
+        private static readonly TimeSpan M_MinDatePeriod = TimeSpan.FromDays(4);
+
         private readonly AutoMinerDbContext m_Context;
 
         public CoinInfoControllerStorage(AutoMinerDbContext context)
@@ -23,18 +25,25 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
 
         public async Task<CoinNetworkInfo[]> GetNetworkInfos(ValueAggregationType aggregationType)
         {
+            var minDate = DateTime.UtcNow - M_MinDatePeriod;
             var coinIds = await m_Context.Coins
                 .AsNoTracking()
                 .Where(x => x.Activity == ActivityState.Active)
                 .Select(x => x.Id)
                 .ToArrayAsync();
-            var maxDates = await m_Context.CoinNetworkInfos
-                .Select(x => x.Created)
-                .OrderByDescending(x => x)
+            var maxDates = m_Context.CoinNetworkInfos
+                .AsNoTracking()
+                .Where(x => x.Created > minDate)
+                .Where(x => coinIds.Contains(x.CoinId))
+                .Select(x => new { x.CoinId, x.Created })
+                .AsEnumerable()
+                .GroupBy(x => x.CoinId)
+                .Select(x => x.OrderByDescending(y => y.Created).First().Created)
                 .Distinct()
-                .Take(2)
-                .ToArrayAsync();
+                .ToArray();
+
             var lastNetworkInfos = m_Context.CoinNetworkInfos
+                .AsNoTracking()
                 .Include(x => x.Coin)
                 .Include(x => x.Coin.Algorithm)
                 .AsNoTracking()
@@ -68,13 +77,29 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                 .ToArray();
         }
 
-        public async Task<ExchangeMarketPrice[]> GetExchangeMarketPrices(ValueAggregationType aggregationType)
+        public ExchangeMarketPrice[] GetExchangeMarketPrices(ValueAggregationType aggregationType)
         {
-            var maxDate = await m_Context.ExchangeMarketPrices.Select(x => x.DateTime).MaxAsync();
-            var lastPrices = await m_Context.ExchangeMarketPrices
+            var minDate = DateTime.UtcNow - M_MinDatePeriod;
+            var maxDates = m_Context.ExchangeMarketPrices
                 .AsNoTracking()
-                .Where(x => x.SourceCoin.Activity == ActivityState.Active && x.DateTime == maxDate)
-                .ToArrayAsync();
+                .Where(x => x.SourceCoin.Activity == ActivityState.Active)
+                .Where(x => x.DateTime > minDate)
+                .Select(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange, x.DateTime })
+                .AsEnumerable()
+                .GroupBy(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange })
+                .Select(x => x.OrderByDescending(y => y.DateTime).First().DateTime)
+                .Distinct()
+                .ToArray();
+
+            var lastPrices = m_Context.ExchangeMarketPrices
+                .AsNoTracking()
+                .Where(x => x.SourceCoin.Activity == ActivityState.Active)
+                .Where(x => maxDates.Contains(x.DateTime))
+                .AsEnumerable()
+                .GroupBy(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange })
+                .Select(x => x.OrderByDescending(y => y.DateTime).First())
+                .ToArray();
+
             if (aggregationType == ValueAggregationType.Last)
                 return lastPrices;
             var coinIds = lastPrices.Select(x => x.SourceCoinId).ToArray();

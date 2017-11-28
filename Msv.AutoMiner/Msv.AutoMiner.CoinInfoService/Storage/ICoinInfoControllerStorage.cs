@@ -8,7 +8,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
     {
         Task<CoinAlgorithm[]> GetAlgorithms();
         Task<CoinNetworkInfo[]> GetNetworkInfos(ValueAggregationType aggregationType);
-        Task<ExchangeMarketPrice[]> GetExchangeMarketPrices(ValueAggregationType aggregationType);
+        ExchangeMarketPrice[] GetExchangeMarketPrices(ValueAggregationType aggregationType);
         Task<Coin> GetBtcCurrency();
     }
 }

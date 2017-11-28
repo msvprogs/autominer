@@ -38,6 +38,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddTransient<ICoinValueProvider, CoinValueProvider>();
             services.AddTransient<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
             services.AddTransient<IRigHeartbeatProvider, RigHeartbeatProvider>();
+            services.AddTransient<IPoolInfoProvider, PoolInfoProvider>();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(

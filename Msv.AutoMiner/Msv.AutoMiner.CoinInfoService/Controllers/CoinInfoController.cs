@@ -48,12 +48,12 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         {
             var networkInfos = await m_Storage.GetNetworkInfos(request.DifficultyAggregationType);
             var btc = await m_Storage.GetBtcCurrency();
-            var marketPrices = (await m_Storage.GetExchangeMarketPrices(request.PriceAggregationType))
+            var marketPrices = m_Storage.GetExchangeMarketPrices(request.PriceAggregationType)
                 .Where(x => x.TargetCoinId == btc.Id)
                 .GroupBy(x => x.SourceCoinId)
                 .ToDictionary(x => x.Key, x => x.ToArray());
 
-            var btcUsdValue = await m_FiatProvider.GetLastBtcUsdValueAsync();
+            var btcUsdValue = m_FiatProvider.GetLastBtcUsdValue();
             var profitabilities = request.AlgorithmDatas
                 .Join(networkInfos, x => x.AlgorithmId, x => x.Coin.AlgorithmId,
                     (x, y) => (networkInfo: y, algorithmInfo: x))
@@ -99,10 +99,10 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
 
         [HttpPost("estimateProfitability")]
         //[ValidateApiKey(ApiKeyType.CoinInfoService)]
-        public async Task<EstimateProfitabilityResponseModel> EstimateProfitability(
+        public Task<EstimateProfitabilityResponseModel> EstimateProfitability(
             [FromBody] EstimateProfitabilityRequestModel request)
         {
-            var btcUsdValue = await m_FiatProvider.GetLastBtcUsdValueAsync();
+            var btcUsdValue = m_FiatProvider.GetLastBtcUsdValue();
             var coinsPerDay = m_Calculator.CalculateCoinsPerDay(
                 new Coin
                 {
@@ -117,13 +117,14 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                 request.ClientHashRate);
             var btcPerDay = coinsPerDay * request.BtcPrice;
             var electricityCostPerDay = GetElectricityCostPerDay(request.ClientPowerUsage, request.ElectricityCostUsd);
-            return new EstimateProfitabilityResponseModel
+            var result = new EstimateProfitabilityResponseModel
             {
                 Coins = new EstimateProfitabilityResponseModel.CumulativeProfitability(coinsPerDay),
                 Btc = new EstimateProfitabilityResponseModel.CumulativeProfitability(btcPerDay),
                 Usd = new EstimateProfitabilityResponseModel.CumulativeProfitability(
                     btcPerDay * btcUsdValue.Value - electricityCostPerDay)
             };
+            return Task.FromResult(result);
         }
 
         private static double GetElectricityCostPerDay(double unitCost, double powerUsageWatts)

@@ -2,7 +2,7 @@
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
 @using Msv.AutoMiner.FrontEnd.Models.Coins
-@model CoinDisplayModel[]
+@model CoinsIndexModel
 
 @{ ViewBag.Title = "Coins";}
 
@@ -16,6 +16,11 @@
 }
 
 <h2 class="text-center">Coins</h2>
+<div class="panel panel-default">
+    <div class="panel-body">
+        Current BTC rate: 1 BTC = <strong>$@Model.BtcUsdRate.ToString("N2")</strong>
+    </div>
+</div>
 <div class="pull-right div-table-actions">
     <a class="btn btn-info" asp-action="Create">
         <i class="glyphicon glyphicon-plus"></i> Add new coin...
@@ -30,11 +35,11 @@
         <th>Difficulty</th>
         <th>Net hashrate</th>
         <th>Block reward</th>
-        <th>Time between blocks, sec</th>
+        <th>BTC price</th>
         <th>Last updated</th>
         <th>Actions</th>
     </tr>
-    @foreach (var coin in Model.OrderBy(x => x.Symbol))
+    @foreach (var coin in Model.Coins.OrderBy(x => x.Symbol))
     {
         string rowClass;
         string title;
@@ -62,7 +67,21 @@
             <td>@coin.Difficulty.ToString("0.###")</td>
             <td>@(coin.NetHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(coin.NetHashRate, coin.Algorithm.KnownValue) : "unavailable")</td>
             <td class="text-right">@coin.BlockReward.ToString("N2")</td>
-            <td>@coin.BlockTimeSecs.ToString("F2")</td>
+            <td>
+                <div class="coin-price-table">
+                    @foreach (var price in coin.ExchangePrices.OrderByDescending(x => x.Price))
+                    {
+                        <div class="row">
+                            <div class="col-xs-7">
+                                <em>@price.Exchange</em>
+                            </div>
+                            <div class="col-xs-5" title="$@ConversionHelper.ToFiatValue(price.UsdPrice)">
+                                @ConversionHelper.ToCryptoCurrencyValue(price.Price)
+                            </div>
+                        </div>
+                    }
+                </div>
+            </td>
             <td msv-absolute-date="@coin.LastUpdated"></td>
             <td>
                 <ul class="list-inline">

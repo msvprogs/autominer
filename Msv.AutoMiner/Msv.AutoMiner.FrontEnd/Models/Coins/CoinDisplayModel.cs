@@ -1,5 +1,6 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.FrontEnd.Data;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Coins
 {
@@ -13,7 +14,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         public double BlockReward { get; set; }
 
-        public double BlockTimeSecs { get; set; }
+        public CoinExchangePrice[] ExchangePrices { get; set; }
 
         public long Height { get; set; }
 

@@ -62,7 +62,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Name = x.wallet.Coin.Name,
                         Symbol = x.wallet.Coin.Symbol
                     },
-                    CoinBtcPrice = x.price.BtcValue,
+                    CoinBtcPrice = x.price.AverageBtcValue,
                     ExchangeType = x.wallet.ExchangeType,
                     Available = x.balances.Balance,
                     Blocked = x.balances.BlockedBalance,
@@ -79,7 +79,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .DefaultIfEmpty(0)
                 .Sum();
 
-            var btcUsdRate = await m_FiatValueProvider.GetLastBtcUsdValueAsync();
+            var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue();
             return View(new WalletIndexModel
             {
                 Wallets = wallets,

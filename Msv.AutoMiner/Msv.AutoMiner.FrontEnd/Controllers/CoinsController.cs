@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Data;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Providers;
@@ -17,17 +19,27 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public const string CoinsMessageKey = "CoinsMessage";
 
         private readonly ICoinNetworkInfoProvider m_NetworkInfoProvider;
+        private readonly ICoinValueProvider m_CoinValueProvider;
+        private readonly IStoredFiatValueProvider m_FiatValueProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public CoinsController(ICoinNetworkInfoProvider networkInfoProvider, AutoMinerDbContext context)
+        public CoinsController(
+            ICoinNetworkInfoProvider networkInfoProvider,
+            ICoinValueProvider coinValueProvider,
+            IStoredFiatValueProvider fiatValueProvider, 
+            AutoMinerDbContext context)
         {
             m_NetworkInfoProvider = networkInfoProvider;
+            m_CoinValueProvider = coinValueProvider;
+            m_FiatValueProvider = fiatValueProvider;
             m_Context = context;
         }
 
         public IActionResult Index()
         {
             var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos();
+            var lastCoinValues = m_CoinValueProvider.GetCurrentCoinValues();
+            var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
             var coins = m_Context.Coins
                 .Include(x => x.Algorithm)
                 .AsNoTracking()
@@ -35,6 +47,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .AsEnumerable()
                 .LeftOuterJoin(lastInfos, x => x.Id, x => x.CoinId,
                     (x, y) => (coin:x, network: y ?? new CoinNetworkInfo()))
+                .LeftOuterJoin(lastCoinValues, x => x.coin.Id, x => x.CurrencyId,
+                    (x, y) => (x.coin, x.network, value: y ?? new CoinValue()))
                 .Select(x => new CoinDisplayModel
                 {
                     Id = x.coin.Id,
@@ -46,9 +60,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         KnownValue = x.coin.Algorithm.KnownValue,
                         Name = x.coin.Algorithm.Name
                     },
+                    ExchangePrices = x.value?.ExchangePrices
+                        .EmptyIfNull()
+                        .Do(y => y.UsdPrice = y.Price * btcUsdRate)
+                        .ToArray(),
                     Activity = x.coin.Activity,
                     BlockReward = x.network.BlockReward,
-                    BlockTimeSecs = x.network.BlockTimeSeconds,
                     Difficulty = x.network.Difficulty,
                     NetHashRate = x.network.NetHashRate,
                     Height = x.network.Height,
@@ -58,7 +75,11 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 })
                 .ToArray();
 
-            return View(coins);
+            return View(new CoinsIndexModel
+            {
+                Coins = coins,
+                BtcUsdRate = (decimal)btcUsdRate
+            });
         }
 
         public async Task<IActionResult> Create() 
