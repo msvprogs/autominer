@@ -32,7 +32,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
             var feesHtml = new HtmlDocument();
             feesHtml.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, "/fees.php")));
             return feesHtml.DocumentNode
-                .SelectNodes("//h1[contains(.,'What Are the withdraw')]/following-sibling::table/tr")
+                .SelectNodes("//h1[contains(.,'What Are the withdraw')]/following-sibling::table//tr")
                 .EmptyIfNull()
                 .Select(x => x.SelectNodes(".//td"))
                 .Where(x => x?.Count >= 3)
@@ -72,7 +72,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     LastPrice = (double) x.Data.last,
                     LastDayLow = (double) x.Data.low24hr,
                     LastDayHigh = (double) x.Data.high24hr,
-                    LastDayVolume = (double) x.Data["24htrade"].Value<double>(),
+                    LastDayVolume = ((JToken)x.Data["24htrade"]).Value<double>(),
                     BuyFeePercent = ConversionFeePercent,
                     SellFeePercent = ConversionFeePercent,
                     IsActive = true
