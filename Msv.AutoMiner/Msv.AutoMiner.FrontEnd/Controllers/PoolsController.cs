@@ -117,11 +117,11 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return View(poolModel);
         }
 
-        public async Task<IActionResult> Clone(int id)
+        public async Task<IActionResult> Clone(int originalId)
         {
             var pool = await m_Context.Pools
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == originalId);
             if (pool == null)
                 return NotFound();
             var poolModel = new PoolEditModel
