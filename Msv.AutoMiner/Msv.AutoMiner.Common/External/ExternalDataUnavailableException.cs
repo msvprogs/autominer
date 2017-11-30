@@ -10,5 +10,9 @@ namespace Msv.AutoMiner.Common.External
         public ExternalDataUnavailableException(string message) 
             : base(message)
         { }
+
+        public ExternalDataUnavailableException(Exception internalException)
+            : base("", internalException)
+        { }
     }
 }

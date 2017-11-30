@@ -15,7 +15,7 @@ namespace Msv.AutoMiner.Common.External
 
         static LoggedWebClient()
         {
-            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
         }
 
         public virtual string DownloadString(

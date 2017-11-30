@@ -131,6 +131,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new BitCoinGoldInfoProvider(m_OrdinaryClient);
                 case "ZER":
                     return new ZeroInfoProvider(m_OrdinaryClient);
+                case "STAK":
+                    return new StraksInfoProvider(m_OrdinaryClient);
                 default:
                     return new DummyInfoProvider();
             }

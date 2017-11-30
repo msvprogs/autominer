@@ -53,6 +53,8 @@ namespace Msv.AutoMiner.ControlCenterService.External
                     return new NovaexchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
                 case ExchangeType.StocksExchange:
                     return new StocksExchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                case ExchangeType.LiveCoin:
+                    return new LiveCoinWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
                 default:
                     return new DummyWalletInfoProvider();
             }

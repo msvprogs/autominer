@@ -9,14 +9,22 @@ namespace Msv.AutoMiner.Common.Helpers
 
         public static long NowTimestamp => ToTimestamp(DateTime.UtcNow, TimeZoneInfo.Utc);
 
+        public static long NowTimestampMsec => ToTimestampMsec(DateTime.UtcNow, TimeZoneInfo.Utc);
+
         public static long ToTimestamp(DateTime dateTime, TimeZoneInfo timeZone)
             => (long) (TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone) - M_EpochStart).TotalSeconds;
+
+        public static long ToTimestampMsec(DateTime dateTime, TimeZoneInfo timeZone)
+            => (long)(TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone) - M_EpochStart).TotalMilliseconds;
 
         public static DateTime ToDateTimeLocal(long timestamp)
             => TimeZoneInfo.ConvertTimeFromUtc(ToDateTimeUtc(timestamp), TimeZoneInfo.Local);
 
         public static DateTime ToDateTimeUtc(long timestamp)
             => M_EpochStart.AddSeconds(timestamp);
+
+        public static DateTime ToDateTimeUtcMsec(long timestamp)
+            => M_EpochStart.AddMilliseconds(timestamp);
 
         public static DateTime ToLocalNormalized(DateTime dateTime)
         {
