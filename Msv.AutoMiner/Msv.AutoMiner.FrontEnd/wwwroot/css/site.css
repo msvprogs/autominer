@@ -13,18 +13,9 @@
     margin-bottom: 5px;
 }
 
-.wallet-address {
-    overflow: hidden;
-    max-width: 350px;
-}
-
 .wallet-address-narrow {
     overflow: hidden;
     max-width: 100px;
-}
-
-.table-total-caption {
-    font-size: larger;
 }
 
 .modal-title-large {
@@ -127,4 +118,17 @@ div.padded {
 
 .coin-price-table div {
     padding: 0 4px !important;
+}
+
+table.wallet-totals {
+    text-align: right;
+}
+
+table.wallet-totals td {
+    padding: 1px 3px;
+}
+
+.wallet-monospace {
+    font-size: 9pt;
+    font-family: "Courier New", monospace
 }

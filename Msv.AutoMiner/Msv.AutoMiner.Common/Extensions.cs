@@ -84,5 +84,15 @@ namespace Msv.AutoMiner.Common
             return left.GroupJoin(right, leftKeySelector, rightKeySelector,
                 (x, y) => resultSelector.Invoke(x, y.FirstOrDefault()));
         }
+
+        public static string Truncate(this string source, int maxLength)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            return source.Length > maxLength + 3
+                ? source.Substring(0, maxLength) + "..."
+                : source;
+        }
     }
 }

@@ -58,6 +58,31 @@ MessageBox.confirm = function (title, body, callback) {
 
 // --- End of MessageBox ----
 
+// --- Clipboard ---
+
+function Clipboard()
+{ }
+
+Clipboard.setText = function(text, callbackOk, callbackFail) {
+    var tempInput = $("<input>").css({
+        position: "absolute",
+        left: "-999px"
+    }).appendTo($(document.body));
+    tempInput.val(text).select();
+    try {
+        document.execCommand("copy");
+        if (callbackOk !== undefined)
+            callbackOk();
+    } catch (e) {
+        if (callbackFail !== undefined)
+            callbackFail();
+    } finally {
+        tempInput.remove();
+    }
+}
+
+// --- End of Clipboard
+
 $(function() {
     $("form[data-confirm-body]").submit(function(e) {
         var self = $(this);

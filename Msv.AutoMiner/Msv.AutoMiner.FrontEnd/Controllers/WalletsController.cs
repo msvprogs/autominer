@@ -75,6 +75,15 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .ToArray();
 
             var totalBtc = wallets
+                .Where(x => x.Coin.Symbol == "BTC")
+                .Select(x => x.Available)
+                .DefaultIfEmpty(0)
+                .Sum();
+
+            var totalAltcoinBtc = wallets
+                .Where(x => x.Coin.Symbol != "BTC")
+                .GroupBy(x => x.Address)
+                .Select(x => x.First())
                 .Select(x => x.Available * x.CoinBtcPrice)
                 .DefaultIfEmpty(0)
                 .Sum();
@@ -84,7 +93,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             {
                 Wallets = wallets,
                 TotalBtc = totalBtc,
-                TotalUsd = (decimal)(totalBtc * btcUsdRate.Value)
+                TotalUsd = totalBtc * btcUsdRate.Value,
+                TotalAltcoinBtc = totalAltcoinBtc,
+                TotalAltcoinUsd = totalAltcoinBtc * btcUsdRate.Value
             });
         }
 

@@ -6,6 +6,10 @@
 
         public double TotalBtc { get; set; }
 
-        public decimal TotalUsd { get; set; }
+        public double TotalUsd { get; set; }
+
+        public double TotalAltcoinBtc { get; set; }
+
+        public double TotalAltcoinUsd { get; set; }
     }
 }
