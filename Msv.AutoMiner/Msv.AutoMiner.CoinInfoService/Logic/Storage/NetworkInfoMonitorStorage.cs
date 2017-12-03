@@ -9,6 +9,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
 {
     public class NetworkInfoMonitorStorage : INetworkInfoMonitorStorage
     {
+        private static readonly TimeSpan M_MinDatePeriod = TimeSpan.FromDays(4);
+
         private readonly AutoMinerDbContext m_Context;
 
         public NetworkInfoMonitorStorage(AutoMinerDbContext context)
@@ -24,11 +26,32 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
 
         public CoinNetworkInfo[] GetLastNetworkInfos()
         {
-            var maxDate = m_Context.CoinNetworkInfos.Any() 
-                ? m_Context.CoinNetworkInfos.Max(x => x.Created)
-                : DateTime.MinValue;
+            var minDate = DateTime.UtcNow - M_MinDatePeriod;
+            var coinIds = m_Context.Coins
+                .AsNoTracking()
+                .Where(x => x.Activity != ActivityState.Deleted)
+                .Select(x => x.Id)
+                .ToArray();
+            var maxDates = m_Context.CoinNetworkInfos
+                .AsNoTracking()
+                .Where(x => x.Created > minDate)
+                .Where(x => coinIds.Contains(x.CoinId))
+                .Select(x => new { x.CoinId, x.Created })
+                .AsEnumerable()
+                .GroupBy(x => x.CoinId)
+                .Select(x => x.OrderByDescending(y => y.Created).First().Created)
+                .Distinct()
+                .ToArray();
+
             return m_Context.CoinNetworkInfos
-                .Where(x => x.Coin.Activity != ActivityState.Deleted && x.Created == maxDate)
+                .AsNoTracking()
+                .Include(x => x.Coin)
+                .Include(x => x.Coin.Algorithm)
+                .AsNoTracking()
+                .Where(x => coinIds.Contains(x.CoinId) && maxDates.Contains(x.Created))
+                .AsEnumerable()
+                .GroupBy(x => x.CoinId)
+                .Select(x => x.OrderByDescending(y => y.Created).First())
                 .ToArray();
         }
 
