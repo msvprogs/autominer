@@ -1,6 +1,19 @@
-﻿@model Msv.AutoMiner.FrontEnd.Models.Exchanges.ExchangeModel[]
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.FrontEnd.Controllers
+@model Msv.AutoMiner.FrontEnd.Models.Exchanges.ExchangeModel[]
     
 @{ ViewBag.Title = "Exchanges";}    
+
+@Html.Partial("_EditKeysPartial")
+
+@if (TempData[ExchangesController.ExchangesMessageKey] != null)
+{
+    <div class="panel panel-success">
+        <div class="panel-body text-success">
+            @TempData[ExchangesController.ExchangesMessageKey]
+        </div>
+    </div>
+}
 
 <h2 class="text-center">Exchanges</h2>
 
@@ -8,11 +21,18 @@
     <tr>
         <th>Name</th>
         <th>Has keys</th>
+        <th>Wallets count</th>
+        <th>Last price received</th>
+        <th>Last balance received</th>
         <th>Actions</th>
     </tr>
     @foreach (var exchange in Model.OrderBy(x => x.Type.ToString()))
     {
-        <tr>
+        var rowClass = exchange.Activity == ActivityState.Active
+            ? ""
+            : "text-muted";
+
+        <tr class="@rowClass">
             <td>@exchange.Type</td>
             <td id="hasKeys_@exchange.Type" class="text-center">
                 @if (exchange.HasKeys)
@@ -20,12 +40,44 @@
                     <i class="glyphicon glyphicon-ok"></i>
                 }
             </td>
+            <td>@exchange.WalletCount</td>
+            <td msv-absolute-date="@exchange.LastPriceDate"></td>
+            <td msv-absolute-date="@exchange.LastBalanceDate"></td>
             <td>
                 <ul class="list-inline">
                     <li>
-                        <a class="btn btn-xs btn-primary" asp-action="SetKeys" asp-route-exchangeType="@exchange.Type" title="Register API keys">
+                        <button class="btn btn-xs btn-primary" data-action="register-keys" data-exchange="@exchange.Type" title="Register API keys">
                             <i class="fa fa-key" aria-hidden="true"></i>
-                        </a>
+                        </button>
+                    </li>
+                    <li>
+                        @{
+                            var activationButtonTitle = exchange.Activity == ActivityState.Active
+                                ? "Disable exchange"
+                                : "Enable exchange";
+                        }
+                        <form asp-action="ToggleActive" asp-route-id="@exchange.Type" method="post" title="@activationButtonTitle">
+                            <button class="btn btn-xs btn-info">
+                                @if (exchange.Activity == ActivityState.Active)
+                                {
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                }
+                                else if (exchange.Activity == ActivityState.Inactive)
+                                {
+                                    <i class="glyphicon glyphicon-flash"></i>
+                                }
+                            </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form asp-action="Delete" asp-route-id="@exchange.Type" 
+                              method="post" title="Delete exchange"
+                              data-confirm-title="Delete exchange @exchange.Type?"
+                              data-confirm-body="You are going to delete exchange @exchange.Type. Are you sure?">
+                            <button class="btn btn-xs btn-danger">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </td>
@@ -36,6 +88,27 @@
 @section Scripts
 {
     <script>
-        bindAnchorsToModal("SetKeys");
+        $(function () {
+            $("button[data-action='register-keys']").click(function() {
+                var exchange = $(this).data("exchange");
+                $("#editKeysExchange").text(exchange);
+                $("#exchangeInput").val(exchange);
+                $("#publicKeyInput").val("");
+                $("#privateKeyInput").val("");
+                $("#editKeysDialog").modal("show");
+            });
+
+            $('#editKeysForm').submit(function(e) {
+                e.preventDefault();
+                var self = this;
+                $.post(
+                    $(self).attr("action"),
+                    $(self).serialize(),
+                    function() {
+                        $("#hasKeys_" + self.exchange.value).html("<i class='glyphicon glyphicon-ok'></i>");
+                        $("#editKeysDialog").modal("hide");
+                    });
+            });
+        })
     </script>
 }

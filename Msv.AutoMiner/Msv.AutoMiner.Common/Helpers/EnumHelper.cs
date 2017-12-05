@@ -14,5 +14,14 @@ namespace Msv.AutoMiner.Common.Helpers
 
             return Enum.GetValues(typeof(T)).Cast<T>();
         }
+
+        public static T Parse<T>(string value, bool ignoreCase = false)
+            where T : struct
+        {
+            if (!typeof(T).IsEnum)
+                throw new ArgumentOutOfRangeException(nameof(T), "Not an enum type");
+
+            return (T) Enum.Parse(typeof(T), value, ignoreCase);
+        }
     }
 }

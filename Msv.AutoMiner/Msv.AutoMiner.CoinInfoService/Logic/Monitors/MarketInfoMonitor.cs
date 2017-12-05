@@ -30,12 +30,9 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             var coins = storage.GetCoins()
                 .ToLookup(x => x.Symbol, x => x.Id);
             var coinSymbols = coins.Select(x => x.Key).ToArray();
-            var exchanges = storage.GetExchanges()
-                .ToDictionary(x => x.Type);
             var now = DateTime.UtcNow;
             var downloadedExchangeData = EnumHelper.GetValues<ExchangeType>()
-                .Where(x => x != ExchangeType.Unknown)
-                .Where(x => exchanges.TryGetValue(x)?.Activity != ActivityState.Deleted)
+                .Join(storage.GetExchanges().Where(x => x.Activity == ActivityState.Active), x => x, x => x.Type, (x, y) => x)
                 .Select(x => (type:x, provider: m_ProviderFactory.Create(x)))
                 .Select(x =>
                 {
@@ -72,7 +69,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                         .SelectMany(y => y)
                         .Select(y => new ExchangeMarketPrice
                         {
-                            Exchange = x.type,
+                            ExchangeType = x.type,
                             IsActive = y.coin.IsActive,
                             LowestAsk = y.coin.LowestAsk,
                             HighestBid = y.coin.HighestBid,

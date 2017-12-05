@@ -6,6 +6,8 @@ namespace Msv.AutoMiner.Data
     {
         public int WalletId { get; set; }
 
+        public virtual Wallet Wallet { get; set; }
+
         public DateTime DateTime { get; set; }
 
         public double Balance { get; set; }

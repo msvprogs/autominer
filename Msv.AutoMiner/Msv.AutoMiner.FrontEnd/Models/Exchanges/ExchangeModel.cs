@@ -1,4 +1,5 @@
-﻿using Msv.AutoMiner.Common.Enums;
+﻿using System;
+using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Exchanges
 {
@@ -9,5 +10,11 @@ namespace Msv.AutoMiner.FrontEnd.Models.Exchanges
         public ActivityState Activity { get; set; }
 
         public bool HasKeys { get; set; }
+
+        public int WalletCount { get; set; }
+
+        public DateTime? LastPriceDate { get; set; }
+
+        public DateTime? LastBalanceDate { get; set; }
     }
 }

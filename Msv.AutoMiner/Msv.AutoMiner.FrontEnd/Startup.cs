@@ -9,6 +9,7 @@ using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd
@@ -31,7 +32,8 @@ namespace Msv.AutoMiner.FrontEnd
                 x => x.UseMySql(connectionString, y => y.CommandTimeout(30)),
                 ServiceLifetime.Transient);
 
-            services.AddMvc();
+            services.AddMvc()
+                .AddMvcOptions(x => x.ModelBinderProviders.Insert(0, new TrimmingModelBinderProvider()));
             services.AddDistributedMemoryCache();
             services.AddSession();
             services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
@@ -39,6 +41,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddTransient<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
             services.AddTransient<IRigHeartbeatProvider, RigHeartbeatProvider>();
             services.AddTransient<IPoolInfoProvider, PoolInfoProvider>();
+            services.AddTransient<IWalletBalanceProvider, WalletBalanceProvider>();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(

@@ -20,35 +20,34 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
         private readonly IStoredFiatValueProvider m_FiatValueProvider;
         private readonly ICoinValueProvider m_CoinValueProvider;
+        private readonly IWalletBalanceProvider m_WalletBalanceProvider;
         private readonly AutoMinerDbContext m_Context;
 
         public WalletsController(
-            IStoredFiatValueProvider fiatValueProvider, ICoinValueProvider coinValueProvider, AutoMinerDbContext context)
+            IStoredFiatValueProvider fiatValueProvider,
+            ICoinValueProvider coinValueProvider,
+            IWalletBalanceProvider walletBalanceProvider,
+            AutoMinerDbContext context)
         {
             m_FiatValueProvider = fiatValueProvider;
             m_CoinValueProvider = coinValueProvider;
+            m_WalletBalanceProvider = walletBalanceProvider;
             m_Context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var lastBalances = await m_Context.WalletBalances
-                .GroupBy(x => x.WalletId)
-                .Select(x => new
-                {
-                    WalletId = x.Key,
-                    Balances = x.OrderByDescending(y => y.DateTime).FirstOrDefault()
-                })
-                .ToDictionaryAsync(x => x.WalletId, x => x.Balances);
+            var lastBalances = m_WalletBalanceProvider.GetLastBalances();
             var coinValues = m_CoinValueProvider.GetCurrentCoinValues();
 
             var wallets = m_Context.Wallets
                 .Include(x => x.Coin)
                 .AsNoTracking()
+                .Where(x => x.ExchangeType == null || x.Exchange.Activity != ActivityState.Deleted)
                 .Where(x => x.Activity != ActivityState.Deleted)
                 .AsEnumerable()
-                .LeftOuterJoin(lastBalances, x => x.Id, x => x.Key,
-                    (x, y) => (wallet: x, balances: y.Value ?? new WalletBalance()))
+                .LeftOuterJoin(lastBalances, x => x.Id, x => x.WalletId,
+                    (x, y) => (wallet: x, balances: y ?? new WalletBalance()))
                 .LeftOuterJoin(coinValues, x => x.wallet.CoinId, x => x.CurrencyId,
                     (x, y) => (x.wallet, x.balances, price: y ?? new CoinValue()))
                 .Select(x => new WalletDisplayModel
@@ -76,7 +75,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             var totalBtc = wallets
                 .Where(x => x.Coin.Symbol == "BTC")
-                .Select(x => x.Available)
+                .Select(x => x.Available + x.Blocked)
                 .DefaultIfEmpty(0)
                 .Sum();
 
@@ -84,7 +83,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .Where(x => x.Coin.Symbol != "BTC")
                 .GroupBy(x => x.Address)
                 .Select(x => x.First())
-                .Select(x => x.Available * x.CoinBtcPrice)
+                .Select(x => (x.Available + x.Blocked) * x.CoinBtcPrice)
                 .DefaultIfEmpty(0)
                 .Sum();
 

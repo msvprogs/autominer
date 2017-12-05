@@ -21,10 +21,11 @@ namespace Msv.AutoMiner.FrontEnd.Providers
             var minDate = DateTime.UtcNow - M_MinDatePeriod;
             var maxDates = m_Context.ExchangeMarketPrices
                 .AsNoTracking()
+                .Where(x => x.Exchange.Activity == ActivityState.Active)
                 .Where(x => x.SourceCoin.Activity != ActivityState.Deleted)
                 .Where(x => x.TargetCoin.Symbol == "BTC")
                 .Where(x => x.DateTime > minDate)
-                .Select(x => new { x.SourceCoinId, x.Exchange, x.DateTime })
+                .Select(x => new { x.SourceCoinId, Exchange = x.ExchangeType, x.DateTime })
                 .AsEnumerable()
                 .GroupBy(x => new { x.SourceCoinId, x.Exchange })
                 .Select(x => x.OrderByDescending(y => y.DateTime).First().DateTime)
@@ -34,6 +35,7 @@ namespace Msv.AutoMiner.FrontEnd.Providers
             var btc = m_Context.Coins.First(x => x.Symbol == "BTC");
             return m_Context.ExchangeMarketPrices
                 .AsNoTracking()
+                .Where(x => x.Exchange.Activity == ActivityState.Active)
                 .Where(x => x.SourceCoin.Activity != ActivityState.Deleted)
                 .Where(x => x.TargetCoin.Symbol == "BTC")
                 .Where(x => maxDates.Contains(x.DateTime))
@@ -43,20 +45,19 @@ namespace Msv.AutoMiner.FrontEnd.Providers
                 {
                     CurrencyId = x.Key,
                     AverageBtcValue = x.Average(y => y.LastPrice),
-                    ExchangePrices = x.GroupBy(y => y.Exchange)
+                    ExchangePrices = x.GroupBy(y => y.ExchangeType)
                         .Select(y => new CoinExchangePrice
                         {
-                            Exchange = y.Key.ToString(),
-                            Price = y.OrderByDescending(z => z.DateTime).First().LastPrice
+                            Exchange = y.Key,
+                            Price = y.OrderByDescending(z => z.DateTime).First().LastPrice,
+                            Updated = y.OrderByDescending(z => z.DateTime).First().DateTime
                         })
-                        .ToArray(),
-                    Updated = x.Max(y => y.DateTime)
+                        .ToArray()
                 })
                 .Concat(new[] {new CoinValue
                 {
                     CurrencyId = btc.Id,
-                    AverageBtcValue = 1,
-                    Updated = DateTime.UtcNow
+                    AverageBtcValue = 1
                 }})
                 .ToArray();
         }

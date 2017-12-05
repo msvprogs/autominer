@@ -1,24 +1,22 @@
-﻿@model Msv.AutoMiner.FrontEnd.Models.Exchanges.EditKeysModel
-
-<div id="dialogSection" class="modal fade">
+﻿<div id="editKeysDialog" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form asp-action="SetKeys" method="post" id="setKeysForm">
+            <form asp-action="SetKeys" method="post" id="editKeysForm">
                 <div class="modal-header">
-                    <span class="modal-title modal-title-large">Enter API keys for @Model.Exchange</span>
+                    <span class="modal-title modal-title-large">Enter API keys for <span id="editKeysExchange"></span></span>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input asp-for="Exchange" />
+                    <input type="hidden" name="exchange" id="exchangeInput" />
                     <div class="form-group">
-                        <label asp-for="PublicKey">Public key:</label>
-                        <input asp-for="PublicKey" class="form-control" autocomplete="off" />
+                        <label for="publicKeyInput">Public key:</label>
+                        <input name="publicKey" id="publicKeyInput" class="form-control" autocomplete="off" />
                     </div>
                     <div class="form-group">
-                        <label asp-for="PrivateKey">Private key (secret):</label>
-                        <input asp-for="PrivateKey" class="form-control" autocomplete="off" />
+                        <label for="privateKeyInput">Private key (secret):</label>
+                        <input name="privateKey" id="privateKeyInput" class="form-control" autocomplete="off" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -28,18 +26,4 @@
             </form>
         </div>
     </div>
-    <script>
-        $(function() {
-            $('#setKeysForm').submit(function(e) {
-                e.preventDefault();
-                $.post(
-                    $(this).attr('action'),
-                    $(this).serialize(),
-                    function () {
-                        $('#hasKeys_@Model.Exchange').html("<i class='glyphicon glyphicon-ok'></i>");
-                        $('#dialogSection').modal('hide');
-                    });
-            });
-        })
-    </script>
 </div>

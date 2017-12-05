@@ -82,7 +82,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                     ElectricityCostPerDay = GetElectricityCostPerDay(x.AlgorithmInfo.Power, request.ElectricityCostUsd),
                     MarketPrices = x.MarketPrices.Select(y => new MarketPriceData
                         {
-                            Exchange = y.Exchange,
+                            Exchange = y.ExchangeType,
                             LastDayVolume = y.LastDayVolume,
                             BtcPerDay = Math.Round(x.CoinsPerDay * y.LastPrice, CryptoCurrencyDecimalPlaces),
                             UsdPerDay = Math.Round(x.CoinsPerDay * y.LastPrice * btcUsdValue.Value, FiatDecimalPlaces)

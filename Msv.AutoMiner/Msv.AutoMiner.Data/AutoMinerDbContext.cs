@@ -52,7 +52,7 @@ namespace Msv.AutoMiner.Data
             modelBuilder.Entity<CoinNetworkInfo>()
                 .HasKey(x => new {x.CoinId, x.Created});
             modelBuilder.Entity<ExchangeMarketPrice>()
-                .HasKey(x => new {x.SourceCoinId, x.TargetCoinId, x.Exchange, x.DateTime});
+                .HasKey(x => new {x.SourceCoinId, x.TargetCoinId, Exchange = x.ExchangeType, x.DateTime});
             modelBuilder.Entity<ExchangeCoin>()
                 .HasKey(x => new {x.CoinId, x.Exchange});
             modelBuilder.Entity<CoinFiatValue>()

@@ -101,16 +101,6 @@ $(function() {
     });
 });
 
-function bindAnchorsToModal(action) {
-    $(function() {
-        $.ajaxSetup({ cache: false });
-        $("a[href*='/" + action + "?']").click(function(e) {
-            e.preventDefault();
-            showModal(this.href);
-        });
-    });
-}
-
 function showModal(srcHref, callback) {
     var dialogSection = $("<div>").prependTo("body");
     dialogSection.load(srcHref, null, function() {

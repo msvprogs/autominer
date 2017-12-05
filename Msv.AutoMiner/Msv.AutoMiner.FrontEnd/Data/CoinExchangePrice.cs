@@ -1,9 +1,13 @@
-﻿namespace Msv.AutoMiner.FrontEnd.Data
+﻿using System;
+using Msv.AutoMiner.Common.Enums;
+
+namespace Msv.AutoMiner.FrontEnd.Data
 {
     public class CoinExchangePrice
     {
-        public string Exchange { get; set; }
+        public ExchangeType Exchange { get; set; }
         public double Price { get; set; }
         public double UsdPrice { get; set; }
+        public DateTime Updated { get; set; }
     }
 }

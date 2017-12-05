@@ -82,9 +82,10 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
             var minDate = DateTime.UtcNow - M_MinDatePeriod;
             var maxDates = m_Context.ExchangeMarketPrices
                 .AsNoTracking()
+                .Where(x => x.Exchange.Activity == ActivityState.Active)
                 .Where(x => x.SourceCoin.Activity == ActivityState.Active)
                 .Where(x => x.DateTime > minDate)
-                .Select(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange, x.DateTime })
+                .Select(x => new { x.SourceCoinId, x.TargetCoinId, Exchange = x.ExchangeType, x.DateTime })
                 .AsEnumerable()
                 .GroupBy(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange })
                 .Select(x => x.OrderByDescending(y => y.DateTime).First().DateTime)
@@ -93,10 +94,11 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
 
             var lastPrices = m_Context.ExchangeMarketPrices
                 .AsNoTracking()
+                .Where(x => x.Exchange.Activity == ActivityState.Active)
                 .Where(x => x.SourceCoin.Activity == ActivityState.Active)
                 .Where(x => maxDates.Contains(x.DateTime))
                 .AsEnumerable()
-                .GroupBy(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange })
+                .GroupBy(x => new { x.SourceCoinId, x.TargetCoinId, Exchange = x.ExchangeType })
                 .Select(x => x.OrderByDescending(y => y.DateTime).First())
                 .ToArray();
 
@@ -107,9 +109,10 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
             var from = GetMinDateTime(aggregationType);
             return m_Context.ExchangeMarketPrices
                 .AsNoTracking()
+                .Where(x => x.Exchange.Activity == ActivityState.Active)
                 .Where(x => coinIds.Contains(x.SourceCoinId))
                 .Where(x => x.DateTime >= from && x.DateTime <= to)
-                .Select(x => new { x.SourceCoinId, x.TargetCoinId, x.Exchange, x.HighestBid, x.LowestAsk, x.LastPrice })
+                .Select(x => new { x.SourceCoinId, x.TargetCoinId, Exchange = x.ExchangeType, x.HighestBid, x.LowestAsk, x.LastPrice })
                 .AsEnumerable()
                 .GroupBy(x => new {x.SourceCoinId, x.TargetCoinId, x.Exchange})
                 .Select(x => new
@@ -119,7 +122,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Ask = x.Average(y => y.LowestAsk),
                     Last = x.Average(y => y.LastPrice)
                 })
-                .Join(lastPrices, x => x.Key, x => new {x.SourceCoinId, x.TargetCoinId, x.Exchange}, (x, y) =>
+                .Join(lastPrices, x => x.Key, x => new {x.SourceCoinId, x.TargetCoinId, Exchange = x.ExchangeType}, (x, y) =>
                 {
                     y.HighestBid = x.Bid;
                     y.LowestAsk = x.Ask;

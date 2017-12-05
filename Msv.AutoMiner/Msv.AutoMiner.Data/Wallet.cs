@@ -20,6 +20,8 @@ namespace Msv.AutoMiner.Data
 
         public ExchangeType? ExchangeType { get; set; }
 
+        public virtual Exchange Exchange { get; set; }
+
         public string Address { get; set; }
 
         public bool IsMiningTarget { get; set; }

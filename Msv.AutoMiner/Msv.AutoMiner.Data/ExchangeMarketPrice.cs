@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
@@ -13,7 +14,10 @@ namespace Msv.AutoMiner.Data
 
         public virtual Coin TargetCoin { get; set; }
 
-        public ExchangeType Exchange { get; set; }
+        [Column("Exchange")]
+        public ExchangeType ExchangeType { get; set; }
+
+        public virtual Exchange Exchange { get; set; }
 
         public DateTime DateTime { get; set; }
 
