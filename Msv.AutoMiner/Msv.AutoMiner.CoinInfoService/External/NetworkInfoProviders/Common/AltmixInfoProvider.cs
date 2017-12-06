@@ -29,8 +29,9 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             mainPage.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, "/coins/" + m_CurrencyName)));
             var infoNodes = mainPage.DocumentNode
                 .SelectNodes("//tr[contains(.,'Blocks last 24h')]/following-sibling::tr/td");
-            var lastBlockLink = mainPage.DocumentNode
-                .SelectSingleNode("//table[@class='table blocksTable']/tr[contains(.,'PoW')]/td[1]/a");
+            var lastBlockInfo = mainPage.DocumentNode
+                .SelectSingleNode("//table[@class='table blocksTable']/tr[contains(.,'PoW')]");
+            var lastBlockLink = lastBlockInfo.SelectSingleNode(".//td[1]/a");
 
             var blockPage = new HtmlDocument();
             blockPage.LoadHtml(m_WebClient.DownloadString(lastBlockLink.GetAttributeValue("href", null)));
@@ -42,8 +43,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             {
                 BlockReward = ParsingHelper.ParseDouble(blockRewardNode.InnerText),
                 BlockTimeSeconds = 60 * ParsingHelper.ParseValueWithUnits(infoNodes[1].InnerText),
-                Difficulty = ParsingHelper.ParseDouble(infoNodes[0].InnerText),
-                Height = long.Parse(lastBlockLink.InnerText),
+                Difficulty = ParsingHelper.ParseDouble(lastBlockInfo.SelectSingleNode(".//td[3]").InnerText),
+                Height = long.Parse(lastBlockLink.InnerText)
             };
         }
     }
