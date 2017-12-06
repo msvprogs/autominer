@@ -3,8 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.Data;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Common.ServiceContracts;
@@ -19,7 +22,7 @@ using NLog;
 namespace Msv.AutoMiner.ControlCenterService.Controllers
 {
     [Route("api/[controller]")]
-    public class ControlCenterController : Controller
+    public class ControlCenterController : Controller, IControlCenterService
     {
         private static readonly TimeSpan M_MaxInactivityInterval = TimeSpan.FromHours(2);
 
@@ -185,6 +188,15 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 .ToArray());
             return works;
         }
+
+        [HttpGet("getLog")]
+        //TODO: ONLY FOR INTERNAL SERVICE!!!!!!!!
+        public Task<ServiceLogs> GetLog()
+            => Task.FromResult(new ServiceLogs
+            {
+                Errors = MemoryBufferTarget.GetBuffer("ErrorLogBuffer"),
+                Full = MemoryBufferTarget.GetBuffer("FullLogBuffer")
+            });
 
         private static PoolDataModel CreatePoolDataModel(
             Pool currentPool, (SingleProfitabilityData profitability, IGrouping<Coin, Pool> pools, Wallet miningTarget) miningData)

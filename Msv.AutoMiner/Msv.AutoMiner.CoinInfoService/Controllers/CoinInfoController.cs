@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Storage;
+using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
@@ -21,7 +23,8 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         private readonly IProfitabilityCalculator m_Calculator;
         private readonly ICoinInfoControllerStorage m_Storage;
 
-        public CoinInfoController(IStoredFiatValueProvider fiatProvider, IProfitabilityCalculator calculator, ICoinInfoControllerStorage storage)
+        public CoinInfoController(IStoredFiatValueProvider fiatProvider, IProfitabilityCalculator calculator,
+            ICoinInfoControllerStorage storage)
         {
             m_FiatProvider = fiatProvider ?? throw new ArgumentNullException(nameof(fiatProvider));
             m_Calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
@@ -64,7 +67,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                         AlgorithmInfo = x.algorithmInfo,
                         MarketPrices = y.Value,
                         CoinsPerDay = Math.Round(m_Calculator.CalculateCoinsPerDay(
-                            x.networkInfo.Coin, x.networkInfo, x.algorithmInfo.NetHashRate),
+                                x.networkInfo.Coin, x.networkInfo, x.algorithmInfo.NetHashRate),
                             CryptoCurrencyDecimalPlaces)
                     })
                 .Select(x => new SingleProfitabilityData
@@ -126,6 +129,15 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
             };
             return Task.FromResult(result);
         }
+
+        [HttpGet("getLog")]
+        //[ValidateApiKey(ApiKeyType.CoinInfoService)] // ONLY FOR INTERNAL SERVICE!!!!!!!!
+        public Task<ServiceLogs> GetLog()
+            => Task.FromResult(new ServiceLogs
+            {
+                Errors = MemoryBufferTarget.GetBuffer("ErrorLogBuffer"),
+                Full = MemoryBufferTarget.GetBuffer("FullLogBuffer")
+            });
 
         private static double GetElectricityCostPerDay(double unitCost, double powerUsageWatts)
             => Math.Round(powerUsageWatts / 1000 * unitCost * 24, FiatDecimalPlaces);

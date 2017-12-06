@@ -8,8 +8,11 @@ using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
+using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Data;
 using NLog;
+using NLog.Targets;
+
 // ReSharper disable AccessToDisposedClosure
 
 namespace Msv.AutoMiner.CoinInfoService
@@ -20,6 +23,8 @@ namespace Msv.AutoMiner.CoinInfoService
 
         public static void Main(string[] args)
         {
+            Target.Register<MemoryBufferTarget>("MemoryBuffer");
+
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
 
             //to bypass certificates' CA validation (particularly for Linux)

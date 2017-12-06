@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -12,6 +13,12 @@ namespace Msv.AutoMiner.Common.External
         private const string JsonMime = "application/json";
 
         private readonly Uri m_BaseUrl;
+
+        static AsyncRestClient()
+        {
+            ServicePointManager.SecurityProtocol |=
+                SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+        }
 
         public AsyncRestClient(Uri baseUrl)
         {

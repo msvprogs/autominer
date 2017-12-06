@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
+using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces;
@@ -19,6 +20,7 @@ using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using NLog;
+using NLog.Targets;
 using Telegram.Bot;
 using ILogger = NLog.ILogger;
 // ReSharper disable AccessToDisposedClosure
@@ -32,6 +34,8 @@ namespace Msv.AutoMiner.ControlCenterService
         public static void Main(string[] args)
         { 
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
+
+            Target.Register<MemoryBufferTarget>("MemoryBuffer");
 
             var certificateStorage = new X509CertificateStorage(
                 StoreLocation.CurrentUser, new X509Certificate2(File.ReadAllBytes("rootCa.cer")));
@@ -91,17 +95,22 @@ namespace Msv.AutoMiner.ControlCenterService
                 })
                 .UseDefaultServiceProvider((context, options) =>
                     options.ValidateScopes = context.HostingEnvironment.IsDevelopment())
-                .UseKestrel(x => SiteCertificates.PortCertificates
-                    .ForEach(z => x.Listen(IPAddress.Any, z.Key, y =>
-                    {
-                        y.UseHttps(new HttpsConnectionAdapterOptions
+                .UseKestrel(x =>
+                {
+                    SiteCertificates.PortCertificates
+                        .ForEach(z => x.Listen(IPAddress.Any, z.Key, y =>
                         {
-                            ClientCertificateMode = ClientCertificateMode.AllowCertificate,
-                            CheckCertificateRevocation = false,
-                            ClientCertificateValidation = delegate { return true; },
-                            ServerCertificate = z.Value
-                        });
-                    })))
+                            y.UseHttps(new HttpsConnectionAdapterOptions
+                            {
+                                ClientCertificateMode = ClientCertificateMode.AllowCertificate,
+                                CheckCertificateRevocation = false,
+                                ClientCertificateValidation = delegate { return true; },
+                                ServerCertificate = z.Value
+                            });
+                        }));
+                    //For internal method invocations
+                    x.Listen(IPAddress.Any, 6285);
+                })
                 .UseStartup<Startup>()
                 .Build();
     }

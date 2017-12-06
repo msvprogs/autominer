@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common.External;
+using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
@@ -47,6 +48,8 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
                 Configuration["Services:CoinInfo:ApiKey"]));
+            services.AddSingleton<IControlCenterService>(x => new ControlCenterServiceClient(
+                new AsyncRestClient(new Uri(Configuration["Services:ControlCenter:Url"]))));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

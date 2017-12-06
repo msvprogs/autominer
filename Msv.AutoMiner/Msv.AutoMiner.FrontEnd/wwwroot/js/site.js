@@ -137,12 +137,14 @@ function confirmAndPost(srcHref) {
 }
 
 $(function () {
-    $(document).ajaxSend(function () {
-        $('#throbber').show();
+    $(document).ajaxSend(function (ev, xhr, options) {
+        if (!options.disableThrobber)
+            $("#throbber").show();
     });
 
-    $(document).ajaxComplete(function () {
-        $('#throbber').hide();
+    $(document).ajaxComplete(function (ev, xhr, options) {
+        if (!options.disableThrobber)
+            $("#throbber").hide();
     });
 
     $("li.disabled, li.active").click(function(e) { e.preventDefault(); });
