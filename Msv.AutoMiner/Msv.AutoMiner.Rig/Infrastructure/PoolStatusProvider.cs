@@ -47,6 +47,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         {
             try
             {
+                M_Logger.Info($"Pool {pool.Name} ({pool.Url}): connecting...");
                 switch (pool.Protocol)
                 {
                     case PoolProtocol.Stratum:

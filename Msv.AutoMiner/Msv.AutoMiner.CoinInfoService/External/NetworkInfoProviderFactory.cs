@@ -131,8 +131,6 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new MyriadCoinInfoProvider(m_OrdinaryClient, coin.Algorithm.KnownValue.GetValueOrDefault());
                 case "BTG":
                     return new BitCoinGoldInfoProvider(m_OrdinaryClient);
-                case "ZER":
-                    return new ZeroInfoProvider(m_OrdinaryClient);
                 case "STAK":
                     return new StraksInfoProvider(m_OrdinaryClient);
                 default:
