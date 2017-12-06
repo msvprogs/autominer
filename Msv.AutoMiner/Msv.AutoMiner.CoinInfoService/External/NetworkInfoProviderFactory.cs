@@ -78,6 +78,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new TheCryptoChatInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiName);
                 case CoinNetworkInfoApiType.Special:
                     return CreateExternalSpecial(coin);
+                case CoinNetworkInfoApiType.Altmix:
+                    return new AltmixInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiName);
                 default:
                     return new DummyInfoProvider();
             }

@@ -15,6 +15,7 @@
         TheBlockFactory = 10,
         TheCryptoChat = 11,
         Zpool = 12,
-        Special = 13
+        Special = 13,
+        Altmix = 14
     }
 }

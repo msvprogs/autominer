@@ -12,6 +12,7 @@ namespace Msv.AutoMiner.Common.External
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0";
+        private const string AcceptEncodings = "gzip, deflate";
 
         static LoggedWebClient()
         {
@@ -25,7 +26,7 @@ namespace Msv.AutoMiner.Common.External
             {
                 if (encoding != null)
                     webClient.Encoding = encoding;
-                webClient.Headers[HttpRequestHeader.UserAgent] = UserAgent;
+                SetEssentialHeaders(webClient);
                 if (headers != null)
                     foreach (var header in headers)
                         webClient.Headers[header.Key] = header.Value;
@@ -43,7 +44,7 @@ namespace Msv.AutoMiner.Common.External
         {
             using (var webClient = new ExtendedWebClient(null))
             {
-                webClient.Headers[HttpRequestHeader.UserAgent] = UserAgent;
+                SetEssentialHeaders(webClient);
                 foreach (var header in headers)
                     webClient.Headers[header.Key] = header.Value;
                 M_Logger.Debug($"GET {url}...");
@@ -57,7 +58,7 @@ namespace Msv.AutoMiner.Common.External
         {
             using (var webClient = new ExtendedWebClient(null) {SkipCertificateValidation = skipCertificateValidation})
             {
-                webClient.Headers[HttpRequestHeader.UserAgent] = UserAgent;
+                SetEssentialHeaders(webClient);
                 foreach (var header in headers)
                     webClient.Headers[header.Key] = header.Value;
                 M_Logger.Debug($"POST {url}{Environment.NewLine}{data}");
@@ -65,6 +66,12 @@ namespace Msv.AutoMiner.Common.External
                 M_Logger.Debug($"POST {url} response:{Environment.NewLine}{response}");
                 return response;
             }
+        }
+
+        private static void SetEssentialHeaders(WebClient webClient)
+        {
+            webClient.Headers[HttpRequestHeader.UserAgent] = UserAgent;
+            webClient.Headers[HttpRequestHeader.AcceptEncoding] = AcceptEncodings;
         }
 
         private class ExtendedWebClient : WebClient
