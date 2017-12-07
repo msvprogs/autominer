@@ -24,11 +24,15 @@ namespace Msv.AutoMiner.Common
             var sequence = Observable.Interval(period, TaskPoolScheduler.Default);
             if (!skipFirst)
                 sequence = sequence.StartWith(TaskPoolScheduler.Default, 0);
+
             if (delay != null)
             {
+#if !DEBUG
                 Log.Info($"Adding server load balancing delay {(int)delay.Value.TotalSeconds} seconds");
                 sequence = sequence.Delay(delay.Value);
+#endif
             }
+
             m_Disposable = sequence
                 .Subscribe(
                     x => DoWorkWrapped(),

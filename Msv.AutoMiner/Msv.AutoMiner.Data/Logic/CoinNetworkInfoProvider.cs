@@ -38,7 +38,7 @@ namespace Msv.AutoMiner.Data.Logic
                     @"SELECT source.CoinId, source.Created, aggregated.AvgBlockReward AS BlockReward, source.BlockTimeSeconds, aggregated.AvgDifficulty AS Difficulty, source.Height, source.NetHashRate
   FROM CoinNetworkInfos source
   JOIN (SELECT CoinId, AVG(BlockReward) AS AvgBlockReward, AVG(Difficulty) AS AvgDifficulty FROM CoinNetworkInfos
-    WHERE Created > '{0:yyyy-MM-dd}'
+    WHERE Created > @p0
     GROUP BY CoinId) AS aggregated
   ON source.CoinId = aggregated.CoinId
   JOIN (SELECT CoinId, MAX(Created) AS MaxCreated FROM CoinNetworkInfos

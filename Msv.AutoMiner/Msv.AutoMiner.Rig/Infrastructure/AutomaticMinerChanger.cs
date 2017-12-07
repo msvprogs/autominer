@@ -46,8 +46,13 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private IDisposable CreateSubscription()
         {
             var random = new Random();
-            var delay = m_DelayProvider.GetDelay<AutomaticMinerChanger>();
+            TimeSpan delay;
+#if !DEBUG
+            delay = m_DelayProvider.GetDelay<AutomaticMinerChanger>();
             M_Logger.Info($"Adding server load balancing delay {(int)delay.TotalSeconds} seconds");
+#else
+            delay = TimeSpan.FromSeconds(3);
+#endif
             var intervalDispersionMsec = (int) m_ChangingOptions.Dispersion.TotalMilliseconds;
             return Observable.Generate(Unit.Default, x => true, x => x, x => x,
                     x => m_ChangingOptions.Interval
