@@ -130,8 +130,7 @@
                 $.ajax({
                         url: profitForm.attr("action"),
                         type: "POST",
-                        data: JSON.stringify(profitForm.serializeObject()),
-                        contentType: "application/json; charset=utf-8",
+                        data: profitForm.serialize(),
                         success: function(result) {
                             $("#estimationResult").html(result);
                         }

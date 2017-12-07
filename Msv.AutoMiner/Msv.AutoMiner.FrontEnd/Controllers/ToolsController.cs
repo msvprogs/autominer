@@ -89,7 +89,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EstimateProfitability([FromBody] EstimateProfitabilityRawRequestModel request)
+        public async Task<IActionResult> EstimateProfitability(EstimateProfitabilityRawRequestModel request)
         {
             var electricityCostUsd = ParsingHelper.ParseDouble(request.ElectricityCostUsd, true);
             if (electricityCostUsd > 0)

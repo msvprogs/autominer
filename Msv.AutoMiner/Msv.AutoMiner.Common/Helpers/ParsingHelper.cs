@@ -17,6 +17,9 @@ namespace Msv.AutoMiner.Common.Helpers
 
         public static double ParseDouble(string str, bool commaIsDecimalPoint = false)
         {
+            if (str == null)
+                return 0;
+
             var normalizedValue = str
                 .Replace(" ", string.Empty)
                 .Replace("'", string.Empty)
