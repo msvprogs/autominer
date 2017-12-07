@@ -11,8 +11,5 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
 
         protected override double GetDifficulty(dynamic difficultyValue)
             => ParsingHelper.ParseDouble(((string)difficultyValue).Split(':')[1]);
-
-        protected override string GetTransactionUrl()
-            => "/ext/getlasttxs/0.00000001";
     }
 }

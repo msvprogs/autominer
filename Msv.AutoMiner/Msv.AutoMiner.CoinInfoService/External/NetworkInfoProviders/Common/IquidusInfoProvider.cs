@@ -48,7 +48,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
         }
 
         protected virtual string GetTransactionUrl()
-            => "/ext/getlasttxs/10/0.00000001";
+            => "/ext/getlasttxs/0.00000001/50";
 
         protected virtual double GetDifficulty(dynamic difficultyValue)
             => (double)difficultyValue;
