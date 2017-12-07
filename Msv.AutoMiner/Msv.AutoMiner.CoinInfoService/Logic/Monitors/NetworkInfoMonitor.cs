@@ -15,7 +15,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
 {
     public class NetworkInfoMonitor : MonitorBase
     {
-        private readonly IBlockRewardCalculator m_BlockRewardCalculator;
+        private readonly IBlockRewardCalculator m_RewardCalculator;
         private const int ProviderParallelismDegree = 3;
         private readonly INetworkInfoProviderFactory m_ProviderFactory;
         private readonly Func<INetworkInfoMonitorStorage> m_StorageGetter;
@@ -26,7 +26,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             Func<INetworkInfoMonitorStorage> storageGetter) 
             : base(TimeSpan.FromMinutes(10))
         {
-            m_BlockRewardCalculator = blockRewardCalculator ?? throw new ArgumentNullException(nameof(blockRewardCalculator));
+            m_RewardCalculator = blockRewardCalculator ?? throw new ArgumentNullException(nameof(blockRewardCalculator));
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
             m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
         }
@@ -76,6 +76,12 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                                      ?? provider.GetNetworkStats();
                         if (result.NetHashRate <= 0 && result.Difficulty <= 0)
                             return (coin: x, result: null);
+                        if (!string.IsNullOrWhiteSpace(x.RewardCalculationJavaScript))
+                        {
+                            var reward = m_RewardCalculator.Calculate(x.RewardCalculationJavaScript, result.Height);
+                            if (reward != null)
+                                result.BlockReward = reward;
+                        }
                         LogResults(x, result, previousInfos.TryGetValue(x.Id, new CoinNetworkInfo()));
                         return (coin: x, result);
                     }
@@ -90,9 +96,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     CoinId = x.coin.Id,
                     Created = now,
-                    BlockReward = (!string.IsNullOrWhiteSpace(x.coin.RewardCalculationJavaScript)
-                        ? m_BlockRewardCalculator.Calculate(x.coin.RewardCalculationJavaScript, x.result.Height)
-                        : null) ?? x.result.BlockReward ?? 0,
+                    BlockReward = x.result.BlockReward ?? 0,
                     BlockTimeSeconds = x.coin.CanonicalBlockTimeSeconds ?? x.result.BlockTimeSeconds ?? 0,
                     Difficulty = x.result.Difficulty,
                     Height = x.result.Height,
