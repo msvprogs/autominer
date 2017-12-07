@@ -15,7 +15,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
 
             try
             {
-                return new Engine()
+                return new Engine(x => x.TimeoutInterval(TimeSpan.FromSeconds(2)))
                     .Execute($"function calc(height) {{ {code} }} calc({height});")
                     .GetCompletionValue()
                     .AsNumber();
