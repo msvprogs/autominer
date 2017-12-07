@@ -7,7 +7,6 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
-using Msv.AutoMiner.FrontEnd.Data;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Providers;
@@ -37,8 +36,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
         public IActionResult Index()
         {
-            var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos();
-            var lastCoinValues = m_CoinValueProvider.GetCurrentCoinValues();
+            var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
+            var lastCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
             var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
             var coins = m_Context.Coins
                 .Include(x => x.Algorithm)

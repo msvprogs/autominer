@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Storage;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
@@ -21,13 +23,18 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
 
         private readonly IStoredFiatValueProvider m_FiatProvider;
         private readonly IProfitabilityCalculator m_Calculator;
+        private readonly ICoinNetworkInfoProvider m_CoinNetworkInfoProvider;
+        private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly ICoinInfoControllerStorage m_Storage;
 
         public CoinInfoController(IStoredFiatValueProvider fiatProvider, IProfitabilityCalculator calculator,
+            ICoinNetworkInfoProvider coinNetworkInfoProvider, ICoinValueProvider coinValueProvider,
             ICoinInfoControllerStorage storage)
         {
             m_FiatProvider = fiatProvider ?? throw new ArgumentNullException(nameof(fiatProvider));
             m_Calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
+            m_CoinNetworkInfoProvider = coinNetworkInfoProvider ?? throw new ArgumentNullException(nameof(coinNetworkInfoProvider));
+            m_CoinValueProvider = coinValueProvider ?? throw new ArgumentNullException(nameof(coinValueProvider));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
@@ -47,25 +54,26 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
 
         [HttpPost("getProfitabilities")]
         //[ValidateApiKey(ApiKeyType.CoinInfoService)]
-        public async Task<ProfitabilityResponseModel> GetProfitabilities([FromBody] ProfitabilityRequestModel request)
+        public Task<ProfitabilityResponseModel> GetProfitabilities([FromBody] ProfitabilityRequestModel request)
         {
-            var networkInfos = await m_Storage.GetNetworkInfos(request.DifficultyAggregationType);
-            var btc = await m_Storage.GetBtcCurrency();
-            var marketPrices = m_Storage.GetExchangeMarketPrices(request.PriceAggregationType)
-                .Where(x => x.TargetCoinId == btc.Id)
-                .GroupBy(x => x.SourceCoinId)
-                .ToDictionary(x => x.Key, x => x.ToArray());
+            var networkInfos = request.DifficultyAggregationType == ValueAggregationType.Last
+                ? m_CoinNetworkInfoProvider.GetCurrentNetworkInfos(true)
+                : m_CoinNetworkInfoProvider.GetAggregatedNetworkInfos(true, GetMinDateTime(request.DifficultyAggregationType));
+
+            var marketPrices = request.PriceAggregationType == ValueAggregationType.Last
+                ? m_CoinValueProvider.GetCurrentCoinValues(true)
+                : m_CoinValueProvider.GetAggregatedCoinValues(true, GetMinDateTime(request.PriceAggregationType));
 
             var btcUsdValue = m_FiatProvider.GetLastBtcUsdValue();
             var profitabilities = request.AlgorithmDatas
                 .Join(networkInfos, x => x.AlgorithmId, x => x.Coin.AlgorithmId,
                     (x, y) => (networkInfo: y, algorithmInfo: x))
-                .Join(marketPrices, x => x.networkInfo.CoinId, x => x.Key,
+                .Join(marketPrices, x => x.networkInfo.CoinId, x => x.CurrencyId,
                     (x, y) => new
                     {
                         NetworkInfo = x.networkInfo,
                         AlgorithmInfo = x.algorithmInfo,
-                        MarketPrices = y.Value,
+                        MarketPrices = y.ExchangePrices.EmptyIfNull(),
                         CoinsPerDay = Math.Round(m_Calculator.CalculateCoinsPerDay(
                                 x.networkInfo.Coin, x.networkInfo, x.algorithmInfo.NetHashRate),
                             CryptoCurrencyDecimalPlaces)
@@ -85,19 +93,18 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                     ElectricityCostPerDay = GetElectricityCostPerDay(x.AlgorithmInfo.Power, request.ElectricityCostUsd),
                     MarketPrices = x.MarketPrices.Select(y => new MarketPriceData
                         {
-                            Exchange = y.ExchangeType,
-                            LastDayVolume = y.LastDayVolume,
-                            BtcPerDay = Math.Round(x.CoinsPerDay * y.LastPrice, CryptoCurrencyDecimalPlaces),
-                            UsdPerDay = Math.Round(x.CoinsPerDay * y.LastPrice * btcUsdValue.Value, FiatDecimalPlaces)
+                            Exchange = y.Exchange,
+                            BtcPerDay = Math.Round(x.CoinsPerDay * y.Price, CryptoCurrencyDecimalPlaces),
+                            UsdPerDay = Math.Round(x.CoinsPerDay * y.Price * btcUsdValue.Value, FiatDecimalPlaces)
                         })
                         .ToArray()
                 })
                 .OrderBy(x => x.CoinName)
                 .ToArray();
-            return new ProfitabilityResponseModel
+            return Task.FromResult(new ProfitabilityResponseModel
             {
                 Profitabilities = profitabilities
-            };
+            });
         }
 
         [HttpPost("estimateProfitability")]
@@ -141,5 +148,25 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
 
         private static double GetElectricityCostPerDay(double unitCost, double powerUsageWatts)
             => Math.Round(powerUsageWatts / 1000 * unitCost * 24, FiatDecimalPlaces);
+
+        private static DateTime GetMinDateTime(ValueAggregationType aggregationType)
+        {
+            var now = DateTime.UtcNow;
+            switch (aggregationType)
+            {
+                case ValueAggregationType.Last12Hours:
+                    return now.AddHours(-12);
+                case ValueAggregationType.Last24Hours:
+                    return now.AddDays(-1);
+                case ValueAggregationType.Last3Days:
+                    return now.AddDays(-3);
+                case ValueAggregationType.LastWeek:
+                    return now.AddDays(-7);
+                case ValueAggregationType.Last2Weeks:
+                    return now.AddDays(-14);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(aggregationType));
+            }
+        }
     }
 }

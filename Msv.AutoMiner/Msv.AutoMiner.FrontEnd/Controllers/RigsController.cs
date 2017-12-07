@@ -32,7 +32,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
         public IActionResult Index()
         {
-            var lastHeartbeats = m_HeartbeatProvider.GetLastActiveHeartbeats();
+            var lastHeartbeats = m_HeartbeatProvider.GetLastHeartbeats();
             var rigs = m_Context.Rigs
                 .AsNoTracking()
                 .AsEnumerable()

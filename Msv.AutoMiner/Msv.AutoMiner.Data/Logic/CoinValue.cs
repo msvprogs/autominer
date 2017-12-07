@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Msv.AutoMiner.FrontEnd.Data
+namespace Msv.AutoMiner.Data.Logic
 {
     public class CoinValue
     {

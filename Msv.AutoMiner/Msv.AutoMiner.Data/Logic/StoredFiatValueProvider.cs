@@ -7,8 +7,6 @@ namespace Msv.AutoMiner.Data.Logic
 {
     public class StoredFiatValueProvider : IStoredFiatValueProvider
     {
-        private static readonly TimeSpan M_MinDatePeriod = TimeSpan.FromDays(4);
-
         private readonly AutoMinerDbContext m_Context;
 
         public StoredFiatValueProvider(AutoMinerDbContext context)
@@ -23,30 +21,25 @@ namespace Msv.AutoMiner.Data.Logic
             if (fiatCurrency == null)
                 throw new ArgumentNullException(nameof(fiatCurrency));
 
-            var minDate = DateTime.UtcNow - M_MinDatePeriod;
-            var maxDates = m_Context.CoinFiatValues
-                .AsNoTracking()
-                .Where(x => x.Coin.Symbol == currency && x.FiatCurrency.Symbol == fiatCurrency)
-                .Where(x => x.DateTime > minDate)
-                .Select(x => new {x.Source, x.DateTime})
-                .AsEnumerable()
-                .GroupBy(x => x.Source)
-                .Select(x => x.OrderByDescending(y => y.DateTime).First().DateTime)
-                .Distinct()
-                .ToArray();
-
+            var minDate = DateTime.UtcNow - TimeSpan.FromHours(6);
             var values = m_Context.CoinFiatValues
                 .AsNoTracking()
+                .FromSql(@"SELECT source.* FROM CoinFiatValues source
+  JOIN (SELECT CoinId, FiatCurrencyId, Source, MAX(DateTime) AS MaxDateTime FROM CoinFiatValues
+  GROUP BY CoinId, FiatCurrencyId, Source) AS grouped
+  ON source.CoinId = grouped.CoinId
+  AND source.FiatCurrencyId = grouped.FiatCurrencyId
+  AND source.Source = grouped.Source
+  AND source.DateTime = grouped.MaxDateTime")
                 .Where(x => x.Coin.Symbol == currency && x.FiatCurrency.Symbol == fiatCurrency)
-                .Where(x => maxDates.Contains(x.DateTime))
+                .Where(x => x.DateTime > minDate)
                 .AsEnumerable()
-                .GroupBy(x => x.Source)
-                .Select(x => x.OrderByDescending(y => y.DateTime).First().Value)
+                .DefaultIfEmpty(new CoinFiatValue{DateTime = DateTime.UtcNow})
                 .ToArray();
             return new TimestampedValue
             {
-                DateTime = maxDates.DefaultIfEmpty(DateTime.UtcNow).Max(),
-                Value = values.DefaultIfEmpty(0).Average()
+                DateTime = values.Max(x => x.DateTime),
+                Value = values.Average(x => x.Value)
             };
         }
 

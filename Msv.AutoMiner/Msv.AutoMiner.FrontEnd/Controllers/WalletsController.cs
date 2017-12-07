@@ -7,7 +7,6 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
-using Msv.AutoMiner.FrontEnd.Data;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Wallets;
 using Msv.AutoMiner.FrontEnd.Providers;
@@ -38,7 +37,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public IActionResult Index()
         {
             var lastBalances = m_WalletBalanceProvider.GetLastBalances();
-            var coinValues = m_CoinValueProvider.GetCurrentCoinValues();
+            var coinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
 
             var wallets = m_Context.Wallets
                 .Include(x => x.Coin)

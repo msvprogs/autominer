@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
@@ -10,8 +9,6 @@ namespace Msv.AutoMiner.FrontEnd.Providers
 {
     public class RigHeartbeatProvider : IRigHeartbeatProvider
     {
-        private static readonly TimeSpan M_OldestHeartbeatInterval = TimeSpan.FromDays(3);
-
         private readonly AutoMinerDbContext m_Context;
 
         public RigHeartbeatProvider(AutoMinerDbContext context)
@@ -27,15 +24,13 @@ namespace Msv.AutoMiner.FrontEnd.Providers
                 : null;
         }
 
-        public Dictionary<int, Heartbeat> GetLastActiveHeartbeats()
+        public Dictionary<int, Heartbeat> GetLastHeartbeats()
         {
-            var rigIds = m_Context.Rigs
-                .Where(x => x.IsActive)
-                .Select(x => x.Id)
-                .ToArray();
-            var maxDates = GetMaxDates(rigIds).Values.ToArray();
             return m_Context.RigHeartbeats
-                .Where(x => rigIds.Contains(x.RigId) && maxDates.Contains(x.Received))
+                .FromSql(@"SELECT source.* FROM RigHeartbeats source
+  JOIN (SELECT RigId, MAX(Received) AS MaxReceived FROM RigHeartbeats
+    GROUP BY RigId) as grouped
+  ON source.RigId = grouped.RigId AND source.Received = grouped.MaxReceived;")
                 .AsEnumerable()
                 .GroupBy(x => x.RigId)
                 .ToDictionary(
@@ -44,18 +39,6 @@ namespace Msv.AutoMiner.FrontEnd.Providers
                         x.OrderByDescending(y => y.Received)
                             .First()
                             .ContentsJson));
-        }
-
-        private Dictionary<int, DateTime> GetMaxDates(int[] rigIds)
-        {
-            var minDate = DateTime.UtcNow - M_OldestHeartbeatInterval;
-            var lastDates = m_Context.RigHeartbeats
-                .AsNoTracking()
-                .Where(x => x.Received > minDate && rigIds.Contains(x.RigId))
-                .Select(x => new {x.RigId, x.Received})
-                .ToArray();
-            return lastDates.GroupBy(x => x.RigId)
-                .ToDictionary(x => x.Key, x => x.OrderByDescending(y => y.Received).First().Received);
         }
     }
 }

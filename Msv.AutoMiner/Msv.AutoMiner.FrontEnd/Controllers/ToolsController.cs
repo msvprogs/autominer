@@ -7,6 +7,7 @@ using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Tools;
@@ -40,11 +41,11 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
         public IActionResult Index()
         {
-            var networkInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos();
-            var coinValues = m_CoinValueProvider.GetCurrentCoinValues();
+            var networkInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
+            var coinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
 
             var rigNames = m_Context.Rigs.ToDictionary(x => x.Id, x => x.Name);
-            var rigs = m_RigHeartbeatProvider.GetLastActiveHeartbeats()
+            var rigs = m_RigHeartbeatProvider.GetLastHeartbeats()
                 .Join(rigNames, x => x.Key, x => x.Key, (x, y) => new RigModel
                 {
                     Id = x.Key,

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.FrontEnd.Data;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Pools;
@@ -32,7 +32,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public IActionResult Index()
         {
             var lastPoolInfos = m_PoolInfoProvider.GetCurrentPoolInfos();
-            var coinPrices = m_CoinValueProvider.GetCurrentCoinValues();
+            var coinPrices = m_CoinValueProvider.GetCurrentCoinValues(false);
 
             var pools = m_Context.Pools
                 .Include(x => x.Coin)

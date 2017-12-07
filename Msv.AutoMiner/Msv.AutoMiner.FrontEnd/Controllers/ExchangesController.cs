@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Exchanges;
 using Msv.AutoMiner.FrontEnd.Providers;
 
@@ -38,12 +39,14 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .AsEnumerable()
                 .GroupBy(x => x)
                 .ToDictionary(x => x.Key, x => x.Count());
-            var lastPriceDates = m_CoinValueProvider.GetCurrentCoinValues()
+            var lastPriceDates = m_CoinValueProvider.GetCurrentCoinValues(false)
                 .SelectMany(x => x.ExchangePrices.EmptyIfNull())
                 .GroupBy(x => x.Exchange)
                 .ToDictionary(x => x.Key, x => (DateTime?)x.Max(y => y.Updated));
-            var lastBalanceDates = m_WalletBalanceProvider.GetLastBalanceDates()
-                .ToDictionary(x => x.Key, x => (DateTime?) x.Value);
+            var lastBalanceDates = m_WalletBalanceProvider.GetLastBalances()
+                .GroupBy(x => x.Wallet.ExchangeType)
+                .Where(x => x.Key != null)
+                .ToDictionary(x => x.Key, x => (DateTime?) x.OrderByDescending(y => y.DateTime).First().DateTime);
 
             var exchanges = m_Context.Exchanges
                 .Where(x => x.Activity != ActivityState.Deleted)
