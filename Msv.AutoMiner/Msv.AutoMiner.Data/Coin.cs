@@ -42,6 +42,8 @@ namespace Msv.AutoMiner.Data
 
         public double? CanonicalBlockTimeSeconds { get; set; }
 
+        public string RewardCalculationJavaScript { get; set; }
+
         public virtual ICollection<Wallet> Wallets { get; set; }
     }
 }

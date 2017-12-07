@@ -112,6 +112,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 CanonicalBlockTimeSeconds = coin.CanonicalBlockTimeSeconds,
                 NetworkApiName = coin.NetworkInfoApiName,
                 NetworkApiUrl = coin.NetworkInfoApiUrl,
+                RewardCalculationJavaScript = coin.RewardCalculationJavaScript,
                 NodeUrl = coin.NodeHost != null
                     ? $"http://{coin.NodeHost}:{coin.NodePort}"
                     : null
@@ -149,6 +150,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.NodeLogin = coinModel.NodeLogin;
             coin.NodePassword = coinModel.NodePassword;
             coin.MaxTarget = coinModel.MaxTarget;
+            coin.RewardCalculationJavaScript = coinModel.RewardCalculationJavaScript;
             await m_Context.SaveChangesAsync();
             TempData[CoinsMessageKey] = $"Coin {coin.Name} ({coin.Symbol}) has been successfully saved";
             return RedirectToAction("Index");

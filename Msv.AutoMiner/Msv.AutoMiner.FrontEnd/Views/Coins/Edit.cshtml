@@ -68,17 +68,16 @@
         <label asp-for="NetworkApiName">API coin name:</label>
         <input asp-for="NetworkApiName" class="form-control"/>
     </div>
-
-    <h3>Additional parameters</h3>
-    <div class="form-group">
-        <label asp-for="CanonicalBlockReward">Fixed block reward:</label>
-        <input asp-for="CanonicalBlockReward" class="form-control"/>
-    </div>
-    <div class="form-group">
-        <label asp-for="CanonicalBlockTimeSeconds">Fixed time between blocks, sec:</label>
-        <input asp-for="CanonicalBlockTimeSeconds" class="form-control"/>
-    </div>
     
+    <h3>Block reward calculation function</h3>
+    <p>
+        <small>Here you can write JS code to calculate the coin block reward. <br />
+            You can use the variable <code>height</code> that contains the current block height. <br />
+            Calculated value should be returned by using the <code>return</code> operator.
+        </small>
+    </p>
+    <textarea asp-for="RewardCalculationJavaScript"></textarea>
+
     <button type="submit" class="btn btn-success">
         <i class="glyphicon glyphicon-floppy-disk"></i> Save
     </button>
@@ -86,3 +85,14 @@
         <i class="glyphicon glyphicon-chevron-left"></i> Return to coins list
     </a>
 </form>
+
+@section Scripts { 
+    <script>
+        $(function() {
+            CodeMirror.fromTextArea(document.getElementById("RewardCalculationJavaScript"),
+                {
+                    mode: "javascript"
+                });
+        })
+    </script>
+}

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.CoinInfoService.External;
 using Msv.AutoMiner.CoinInfoService.Logic.Monitors;
+using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common;
@@ -42,6 +43,7 @@ namespace Msv.AutoMiner.CoinInfoService
                     new MarketInfoProviderFactory(new LoggedWebClient()),
                     () => scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
                 using (new NetworkInfoMonitor(
+                    new JsBlockRewardCalculator(), 
                     new NetworkInfoProviderFactory(
                         new LoggedWebClient(),
                         new DDoSTriggerPreventingWebClient(false),

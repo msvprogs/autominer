@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
+using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
@@ -14,13 +15,18 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
 {
     public class NetworkInfoMonitor : MonitorBase
     {
+        private readonly IBlockRewardCalculator m_BlockRewardCalculator;
         private const int ProviderParallelismDegree = 3;
         private readonly INetworkInfoProviderFactory m_ProviderFactory;
         private readonly Func<INetworkInfoMonitorStorage> m_StorageGetter;
 
-        public NetworkInfoMonitor(INetworkInfoProviderFactory providerFactory, Func<INetworkInfoMonitorStorage> storageGetter) 
+        public NetworkInfoMonitor(
+            IBlockRewardCalculator blockRewardCalculator,
+            INetworkInfoProviderFactory providerFactory,
+            Func<INetworkInfoMonitorStorage> storageGetter) 
             : base(TimeSpan.FromMinutes(10))
         {
+            m_BlockRewardCalculator = blockRewardCalculator ?? throw new ArgumentNullException(nameof(blockRewardCalculator));
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
             m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
         }
@@ -84,7 +90,9 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     CoinId = x.coin.Id,
                     Created = now,
-                    BlockReward = x.coin.CanonicalBlockReward ?? x.result.BlockReward ?? 0,
+                    BlockReward = (!string.IsNullOrWhiteSpace(x.coin.RewardCalculationJavaScript)
+                        ? m_BlockRewardCalculator.Calculate(x.coin.RewardCalculationJavaScript, x.result.Height)
+                        : null) ?? x.result.BlockReward ?? 0,
                     BlockTimeSeconds = x.coin.CanonicalBlockTimeSeconds ?? x.result.BlockTimeSeconds ?? 0,
                     Difficulty = x.result.Difficulty,
                     Height = x.result.Height,

@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Coins
@@ -32,6 +31,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         [Required(ErrorMessage = "Algorithm isn't chosen")]
         public Guid? AlgorithmId { get; set; }
+
+        public string RewardCalculationJavaScript { get; set; }
 
         public AlgorithmModel[] AvailableAlgorithms { get; set; }
     }
