@@ -133,6 +133,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new BitCoinGoldInfoProvider(m_OrdinaryClient);
                 case "STAK":
                     return new StraksInfoProvider(m_OrdinaryClient);
+                case "ORB":
+                    return new OrbitCoinInfoProvider(m_OrdinaryClient);
                 default:
                     return new DummyInfoProvider();
             }

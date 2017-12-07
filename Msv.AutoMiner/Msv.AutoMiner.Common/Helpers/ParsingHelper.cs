@@ -15,16 +15,17 @@ namespace Msv.AutoMiner.Common.Helpers
         public static double ParseValueWithUnits(string str)
             => ParseDouble(str.Trim().Split()[0]);
 
+        public static long ParseLong(string str)
+        {
+            var normalizedValue = NormalizeNumber(str);
+            return normalizedValue != string.Empty 
+                ? long.Parse(normalizedValue) 
+                : 0;
+        }
+
         public static double ParseDouble(string str, bool commaIsDecimalPoint = false)
         {
-            if (str == null)
-                return 0;
-
-            var normalizedValue = str
-                .Replace(" ", string.Empty)
-                .Replace("'", string.Empty)
-                .Replace("%", string.Empty)
-                .Trim();
+            var normalizedValue = NormalizeNumber(str);
             if (normalizedValue == string.Empty)
                 return 0;
             if (commaIsDecimalPoint)
@@ -71,5 +72,12 @@ namespace Msv.AutoMiner.Common.Helpers
                 multiplier = 1;
             return (long) (ParseDouble(value) * multiplier);
         }
+
+        private static string NormalizeNumber(string str)
+            => str?.Replace("#", string.Empty)
+                .Replace(" ", string.Empty)
+                .Replace("'", string.Empty)
+                .Replace("%", string.Empty)
+                .Trim() ?? string.Empty;
     }
 }
