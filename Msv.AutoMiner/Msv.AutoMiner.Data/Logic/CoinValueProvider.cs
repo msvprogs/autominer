@@ -56,9 +56,9 @@ namespace Msv.AutoMiner.Data.Logic
     FROM ExchangeMarketPrices
     WHERE DateTime > @p0
     GROUP BY SourceCoinId, TargetCoinId, Exchange) as aggregated
-  ON source.SourceCoinId = grouped.SourceCoinId 
-        AND source.TargetCoinId = grouped.TargetCoinId 
-        AND source.Exchange = grouped.Exchange", minDateTime)
+  ON source.SourceCoinId = aggregated.SourceCoinId 
+        AND source.TargetCoinId = aggregated.TargetCoinId 
+        AND source.Exchange = aggregated.Exchange", minDateTime)
                 .Where(x => x.Exchange.Activity == ActivityState.Active)
                 .Where(x => x.TargetCoinId == btc.Id);
             query = activeOnly
