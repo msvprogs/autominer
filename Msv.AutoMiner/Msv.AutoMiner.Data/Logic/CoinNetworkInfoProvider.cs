@@ -15,6 +15,8 @@ namespace Msv.AutoMiner.Data.Logic
         public CoinNetworkInfo[] GetCurrentNetworkInfos(bool activeOnly)
         {
             var query = m_Context.CoinNetworkInfos
+                .Include(x => x.Coin)
+                .Include(x => x.Coin.Algorithm)
                 .AsNoTracking()
                 .FromSql(@"SELECT source.* FROM CoinNetworkInfos source
   JOIN (SELECT CoinId, MAX(Created) AS MaxCreated FROM CoinNetworkInfos
@@ -29,6 +31,8 @@ namespace Msv.AutoMiner.Data.Logic
         public CoinNetworkInfo[] GetAggregatedNetworkInfos(bool activeOnly, DateTime minDateTime)
         {
             var query = m_Context.CoinNetworkInfos
+                .Include(x => x.Coin)
+                .Include(x => x.Coin.Algorithm)
                 .AsNoTracking()
                 .FromSql(
                     @"SELECT source.CoinId, source.Created, aggregated.AvgBlockReward AS BlockReward, source.BlockTimeSeconds, aggregated.AvgDifficulty AS Difficulty, source.Height, source.NetHashRate
