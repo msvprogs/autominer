@@ -161,6 +161,7 @@
             @foreach (var item in Model.LastProfitabilityTable.OrderByDescending(x => x.UsdPerDay))
             {
                 var trClass = (Model.LastHeartbeat?.MiningStates
+                    .EmptyIfNull()
                     .Any(x => x.CoinId == item.CoinId && x.PoolId == item.PoolId)).GetValueOrDefault()
                     ? "now-mining success"
                     : "";

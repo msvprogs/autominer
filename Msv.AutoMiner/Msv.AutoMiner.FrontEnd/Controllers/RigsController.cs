@@ -126,11 +126,11 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .Where(x => x != null)
                 .ToArray();
 
-            var lastProfitabilityTime = await m_Context.CoinProfitabilities
+            var lastProfitability = await m_Context.CoinProfitabilities
                 .Where(x => x.RigId == id)
-                .Select(x => x.Requested)
-                .DefaultIfEmpty(default)
-                .MaxAsync();
+                .OrderByDescending(x => x.Requested)
+                .FirstOrDefaultAsync();
+            var lastProfitabilityTime = lastProfitability?.Requested ?? DateTime.MinValue;
             var profitabilityTable = await m_Context.CoinProfitabilities
                 .Include(x => x.Coin)
                 .Include(x => x.Pool)

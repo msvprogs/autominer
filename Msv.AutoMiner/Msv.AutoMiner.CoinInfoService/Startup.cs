@@ -35,6 +35,8 @@ namespace Msv.AutoMiner.CoinInfoService
 
             services.AddTransient<ICoinInfoControllerStorage, CoinInfoControllerStorage>();
             services.AddTransient<IValidateApiKeyFilterStorage, ValidateApiKeyFilterStorage>();
+            services.AddTransient<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
+            services.AddTransient<ICoinValueProvider, CoinValueProvider>();
 
             services.AddTransient<IFiatValueMonitorStorage, FiatValueMonitorStorage>();
             services.AddTransient<IMarketInfoMonitorStorage, MarketInfoMonitorStorage>();
