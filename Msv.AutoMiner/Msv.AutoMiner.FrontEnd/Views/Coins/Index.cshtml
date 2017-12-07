@@ -71,11 +71,11 @@
                 <div class="coin-price-table">
                     @foreach (var price in coin.ExchangePrices.OrderByDescending(x => x.Price))
                     {
-                        <div class="row">
+                        <div class="row highlight-on-hover" title="Ask: @ConversionHelper.ToCryptoCurrencyValue(price.Ask), Bid: @ConversionHelper.ToCryptoCurrencyValue(price.Bid)">
                             <div class="col-xs-7">
                                 <em>@price.Exchange</em>
                             </div>
-                            <div class="col-xs-5" title="$@ConversionHelper.ToFiatValue(price.UsdPrice)">
+                            <div class="col-xs-5">
                                 @ConversionHelper.ToCryptoCurrencyValue(price.Price)
                             </div>
                         </div>

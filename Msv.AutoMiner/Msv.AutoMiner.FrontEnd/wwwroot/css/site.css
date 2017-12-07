@@ -135,7 +135,6 @@ table.wallet-totals td {
 
 div.console {
     border: 1px solid black;
-    border-radius: 4px;
     background: black;
     font-family: Monaco, Consolas, "Lucida Console", "Courier New", monospace;
     font-size: 9pt;
@@ -149,4 +148,8 @@ div.console {
 
 div.console.error {
     color: #FF5C5C;
+}
+
+.highlight-on-hover:hover {
+    background: #F6FF4D;
 }

@@ -46,11 +46,14 @@ namespace Msv.AutoMiner.FrontEnd.Providers
                     CurrencyId = x.Key,
                     AverageBtcValue = x.Average(y => y.LastPrice),
                     ExchangePrices = x.GroupBy(y => y.ExchangeType)
+                        .Select(y => (exchange:y.Key, values: y.OrderByDescending(z => z.DateTime).First()))
                         .Select(y => new CoinExchangePrice
                         {
-                            Exchange = y.Key,
-                            Price = y.OrderByDescending(z => z.DateTime).First().LastPrice,
-                            Updated = y.OrderByDescending(z => z.DateTime).First().DateTime
+                            Exchange = y.exchange,
+                            Price = y.values.LastPrice,
+                            Bid = y.values.HighestBid,
+                            Ask = y.values.LowestAsk,
+                            Updated = y.values.DateTime
                         })
                         .ToArray()
                 })
