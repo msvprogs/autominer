@@ -32,7 +32,7 @@ namespace Msv.AutoMiner.Common.External
                     foreach (var header in headers)
                         webClient.Headers[header.Key] = header.Value;
                 M_Logger.Debug($"GET {url}...");
-                var response = webClient.DownloadString(url);
+                var response = webClient.DownloadStringFix(url);
                 M_Logger.Debug($"GET {url} response:{Environment.NewLine}{response}");
                 return response;
             }
@@ -49,7 +49,7 @@ namespace Msv.AutoMiner.Common.External
                 foreach (var header in headers)
                     webClient.Headers[header.Key] = header.Value;
                 M_Logger.Debug($"GET {url}...");
-                var response = webClient.DownloadString(url);
+                var response = webClient.DownloadStringFix(url);
                 M_Logger.Debug($"GET {url} response:{Environment.NewLine}{response}");
                 return response;
             }
@@ -63,7 +63,7 @@ namespace Msv.AutoMiner.Common.External
                 foreach (var header in headers)
                     webClient.Headers[header.Key] = header.Value;
                 M_Logger.Debug($"POST {url}{Environment.NewLine}{data}");
-                var response = webClient.UploadString(url, data);
+                var response = webClient.UploadStringFix(url, data);
                 M_Logger.Debug($"POST {url} response:{Environment.NewLine}{response}");
                 return response;
             }
@@ -84,7 +84,14 @@ namespace Msv.AutoMiner.Common.External
             public ExtendedWebClient(TimeSpan? timeout)
             {
                 m_Timeout = timeout.GetValueOrDefault(TimeSpan.FromSeconds(60));
+                Proxy = null;
             }
+
+            public string DownloadStringFix(string url)
+                => DownloadStringTaskAsync(url).GetAwaiter().GetResult();
+
+            public string UploadStringFix(string url, string data)
+                => UploadStringTaskAsync(url, data).GetAwaiter().GetResult();
 
             protected override WebRequest GetWebRequest(Uri address)
             {
