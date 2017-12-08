@@ -91,8 +91,9 @@ namespace Msv.AutoMiner.Common.External
                     return null;
                 if (SkipCertificateValidation)
                     request.ServerCertificateValidationCallback = delegate { return true; };
+                request.ServicePoint.Expect100Continue = false;
                 request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-                request.Timeout = (int)m_Timeout.TotalMilliseconds;
+                request.Timeout = request.ReadWriteTimeout = (int)m_Timeout.TotalMilliseconds;
                 return request;
             }
         }

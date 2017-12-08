@@ -102,7 +102,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                     Height = x.result.Height,
                     NetHashRate = x.result.NetHashRate
                 })
-                .ForEach(x => storage.StoreNetworkInfo(x));
+                .ForAll(x => storage.StoreNetworkInfo(x));
         }
 
         private void LogResults(Coin coin, CoinNetworkStatistics current, CoinNetworkInfo previous)

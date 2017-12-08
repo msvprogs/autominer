@@ -66,7 +66,7 @@ namespace Msv.AutoMiner.Common
                 })
                 {
                     IsBackground = true,
-                    Name = "Monitor Work Thread"
+                    Name = $"Monitor Started at {DateTime.Now.ToShortTimeString()}"
                 };
                 thread.Start();
                 if (thread.Join(M_WorkTimeout))
