@@ -113,8 +113,6 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new DecredInfoProvider(m_OrdinaryClient);
                 case "BTC":
                     return new BitCoinInfoProvider(m_OrdinaryClient);
-                case "KMD":
-                    return new KomodoInfoProvider(m_OrdinaryClient);
                 case "XPM":
                     return new PrimeCoinInfoProvider(m_OrdinaryClient);
                 case "PASC":
