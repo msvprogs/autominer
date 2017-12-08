@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using Msv.AutoMiner.Common.External.Contracts;
 using NLog;
 
@@ -85,13 +86,14 @@ namespace Msv.AutoMiner.Common.External
             {
                 m_Timeout = timeout.GetValueOrDefault(TimeSpan.FromSeconds(60));
                 Proxy = null;
+                CancelAsync();
             }
 
             public string DownloadStringFix(string url)
-                => DownloadStringTaskAsync(url).GetAwaiter().GetResult();
+                => DoTaskWithTimeout(DownloadStringTaskAsync(url));
 
             public string UploadStringFix(string url, string data)
-                => UploadStringTaskAsync(url, data).GetAwaiter().GetResult();
+                => DoTaskWithTimeout(UploadStringTaskAsync(url, data));
 
             protected override WebRequest GetWebRequest(Uri address)
             {
@@ -102,6 +104,17 @@ namespace Msv.AutoMiner.Common.External
                 request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
                 request.Timeout = request.ReadWriteTimeout = (int)m_Timeout.TotalMilliseconds;
                 return request;
+            }
+
+            private string DoTaskWithTimeout(Task<string> task)
+            {
+                var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
+                var resultIndex = Task.WaitAny(task, timeoutTask);
+                if (resultIndex == 0)
+                    return task.GetAwaiter().GetResult();
+                CancelAsync();
+                task.Dispose();
+                throw new TimeoutException("WebClient operation timed out. All default timeouts were ignored (probably a .NET Core implementation bug)");
             }
         }
     }
