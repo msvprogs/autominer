@@ -60,8 +60,11 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
             if (info == null)
                 throw new ArgumentNullException(nameof(info));
 
-            m_Context.CoinNetworkInfos.Add(info);
-            m_Context.SaveChanges();
+            lock (m_Context)
+            {
+                m_Context.CoinNetworkInfos.Add(info);
+                m_Context.SaveChanges();
+            }
         }
     }
 }
