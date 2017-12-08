@@ -108,10 +108,12 @@ namespace Msv.AutoMiner.Common.External
 
             private string DoTaskWithTimeout(Task<string> task)
             {
-                var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
-                var resultIndex = Task.WaitAny(task, timeoutTask);
-                if (resultIndex == 0)
-                    return task.GetAwaiter().GetResult();
+                using (var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2)))
+                {
+                    var resultIndex = Task.WaitAny(task, timeoutTask);
+                    if (resultIndex == 0)
+                        return task.GetAwaiter().GetResult();
+                }
                 CancelAsync();
                 task.Dispose();
                 throw new TimeoutException("WebClient operation timed out. All default timeouts were ignored (probably a .NET Core implementation bug)");
