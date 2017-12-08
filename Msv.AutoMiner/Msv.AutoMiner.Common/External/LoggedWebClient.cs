@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Msv.AutoMiner.Common.External.Contracts;
 using NLog;
@@ -108,14 +109,16 @@ namespace Msv.AutoMiner.Common.External
 
             private string DoTaskWithTimeout(Task<string> task)
             {
-                using (var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2)))
+                var timeoutCancelSource = new CancellationTokenSource();              
+                var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2), timeoutCancelSource.Token);
+                var resultIndex = Task.WaitAny(task, timeoutTask);
+
+                if (resultIndex == 0)
                 {
-                    var resultIndex = Task.WaitAny(task, timeoutTask);
-                    if (resultIndex == 0)
-                        return task.GetAwaiter().GetResult();
+                    timeoutCancelSource.Cancel();
+                    return task.GetAwaiter().GetResult();
                 }
                 CancelAsync();
-                task.Dispose();
                 throw new TimeoutException("WebClient operation timed out. All default timeouts were ignored (probably a .NET Core implementation bug)");
             }
         }
