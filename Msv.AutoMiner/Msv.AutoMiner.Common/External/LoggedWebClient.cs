@@ -17,6 +17,7 @@ namespace Msv.AutoMiner.Common.External
         static LoggedWebClient()
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.Expect100Continue = false;
         }
 
         public virtual string DownloadString(
@@ -91,7 +92,6 @@ namespace Msv.AutoMiner.Common.External
                     return null;
                 if (SkipCertificateValidation)
                     request.ServerCertificateValidationCallback = delegate { return true; };
-                request.ServicePoint.Expect100Continue = false;
                 request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
                 request.Timeout = request.ReadWriteTimeout = (int)m_Timeout.TotalMilliseconds;
                 return request;
