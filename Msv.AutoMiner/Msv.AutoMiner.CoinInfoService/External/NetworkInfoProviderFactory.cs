@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
@@ -28,12 +29,21 @@ namespace Msv.AutoMiner.CoinInfoService.External
             if (coins == null)
                 throw new ArgumentNullException(nameof(coins));
 
-            return new ComboMultiNetworkInfoProvider(
-                new YiimpMultiInfoProvider(
+            var providers = new List<IMultiNetworkInfoProvider>();
+            var zpoolCoins = coins.Where(x => x.NetworkInfoApiType == CoinNetworkInfoApiType.Zpool)
+                .Select(x => x.Symbol)
+                .Distinct()
+                .ToArray();
+            if (zpoolCoins.Any())
+                providers.Add(new YiimpMultiInfoProvider(
                     m_DdosProtectedClientWithDelay,
                     "https://www.zpool.ca",
                     TimeZoneInfo.CreateCustomTimeZone("GMT-4", TimeSpan.FromHours(-4), "GMT-4", "GMT-4"),
-                    coins.Select(x => x.Symbol).Distinct().ToArray()));
+                    zpoolCoins));
+            if (coins.Any(x => x.Symbol == "XVG"))
+                providers.Add(new VergeMultiNetworkInfoProvider(m_OrdinaryClient));
+
+            return new ComboMultiNetworkInfoProvider(providers.ToArray());
         }
 
         public INetworkInfoProvider Create(Coin coin)
