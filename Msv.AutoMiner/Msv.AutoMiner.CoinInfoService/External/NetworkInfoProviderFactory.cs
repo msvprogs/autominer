@@ -143,6 +143,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new StraksInfoProvider(m_OrdinaryClient);
                 case "ORB":
                     return new OrbitCoinInfoProvider(m_OrdinaryClient);
+                case "VLT":
+                    return new VeltorInfoProvider(m_OrdinaryClient);
                 default:
                     return new DummyInfoProvider();
             }
