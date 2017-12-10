@@ -9,7 +9,6 @@ using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
-using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
@@ -96,6 +95,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (coin == null)
                 return NotFound();
+            var lastNetworkInfo = await m_Context.CoinNetworkInfos
+                .Where(x => x.CoinId == coin.Id)
+                .OrderByDescending(x => x.Created)
+                .FirstOrDefaultAsync();
             var coinModel = new CoinEditModel
             {
                 Id = coin.Id,
@@ -114,7 +117,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 RewardCalculationJavaScript = coin.RewardCalculationJavaScript,
                 NodeUrl = coin.NodeHost != null
                     ? $"http://{coin.NodeHost}:{coin.NodePort}"
-                    : null
+                    : null,
+                LastHeight = lastNetworkInfo?.Height
             };
             return View(coinModel);
         }
