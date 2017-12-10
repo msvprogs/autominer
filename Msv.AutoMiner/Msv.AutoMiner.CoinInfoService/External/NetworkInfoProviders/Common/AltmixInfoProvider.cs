@@ -42,9 +42,11 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             return new CoinNetworkStatistics
             {
                 BlockReward = ParsingHelper.ParseDouble(blockRewardNode.InnerText),
-                BlockTimeSeconds = 60 * ParsingHelper.ParseValueWithUnits(infoNodes[1].InnerText),
+                BlockTimeSeconds = 60 * ParsingHelper.ParseValueWithUnits(infoNodes[2].InnerText),
+                NetHashRate = ParsingHelper.ParseHashRate(infoNodes[3].InnerText),
                 Difficulty = ParsingHelper.ParseDouble(lastBlockInfo.SelectSingleNode(".//td[3]").InnerText),
-                Height = long.Parse(lastBlockLink.InnerText)
+                Height = long.Parse(lastBlockLink.InnerText),
+                MoneySupply = ParsingHelper.ParseDouble(infoNodes[0].InnerText)
             };
         }
     }

@@ -46,7 +46,7 @@
 }
 
 .modal-middle {
-    width: 450px;
+    width: 550px;
 }
 
 .system-info-value {
@@ -157,4 +157,16 @@ div.console.error {
 .CodeMirror {
     border: 1px black solid;
     margin: 5px 1px;
+}
+
+.text-monospace {
+    font-family: Monaco, Consolas, "Lucida Console", "Courier New", monospace;
+}
+
+#alertDialogBody, #confirmDialogBody {
+    white-space: pre-wrap;
+}
+
+dd {
+    font-style: italic;
 }

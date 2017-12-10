@@ -72,7 +72,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                             return (coin: x, result: null);
                         if (!string.IsNullOrWhiteSpace(x.RewardCalculationJavaScript))
                         {
-                            var reward = m_RewardCalculator.Calculate(x.RewardCalculationJavaScript, result.Height);
+                            var reward = m_RewardCalculator.Calculate(
+                                x.RewardCalculationJavaScript, result.Height, result.MoneySupply, result.MasternodeCount);
                             if (reward != null)
                                 result.BlockReward = reward;
                         }

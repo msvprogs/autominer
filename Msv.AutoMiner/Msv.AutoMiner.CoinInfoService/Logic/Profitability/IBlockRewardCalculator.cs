@@ -2,6 +2,6 @@
 {
     public interface IBlockRewardCalculator
     {
-        double? Calculate(string code, long height);
+        double? Calculate(string code, long height, double? moneySupply, int? masternodeCount);
     }
 }
