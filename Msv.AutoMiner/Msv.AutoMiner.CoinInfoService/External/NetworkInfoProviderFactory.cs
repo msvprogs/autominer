@@ -107,8 +107,6 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new ZcashInfoProvider(m_OrdinaryClient);
                 case "ETC":
                     return new EthereumClassicInfoProvider(m_OrdinaryClient);
-                case "PXC":
-                    return new PhoenixCoinInfoProvider(m_OrdinaryClient);
                 case "DGB":
                     return new DigiByteInfoProvider(m_OrdinaryClient, coin.Algorithm.KnownValue.GetValueOrDefault());
                 case "LBC":
@@ -127,8 +125,6 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new PrimeCoinInfoProvider(m_OrdinaryClient);
                 case "PASC":
                     return new PascalCoinInfoProvider(m_OrdinaryClient);
-                case "DAXX":
-                    return new DaxxCoinInfoProvider(m_OrdinaryClient);
                 case "MAX":
                     return new MaxCoinInfoProvider(m_OrdinaryClient);
                 case "MNX":

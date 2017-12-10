@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
 {
@@ -26,14 +24,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
         {
             dynamic stats = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(new Uri(m_BaseUrl, "/ext/summary")));
-            dynamic transactions = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(m_BaseUrl, GetTransactionUrl())));
-            var blockStats = CalculateBlockStats(
-                ((JArray) transactions.data)
-                .Cast<dynamic>()
-                .Where(x => x.vin.Count > 0 && (string) x.vin[0].addresses == "coinbase" && ((JArray) x.vout).Count > 0)
-                .Select(x => new BlockInfo((long) x.timestamp, (long) x.blockindex, (double) x.vout[0].amount / 1e8))
-                .Distinct());
+
             return new CoinNetworkStatistics
             {
                 Difficulty = GetDifficulty(stats.data[0].difficulty),
@@ -41,14 +32,9 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
                     (string) stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
                     ? GetRealHashRate(hashRate)
                     : 0,
-                Height = (long) stats.data[0].blockcount,
-                BlockTimeSeconds = blockStats?.MeanBlockTime,
-                BlockReward = blockStats?.LastReward
+                Height = (long) stats.data[0].blockcount
             };
         }
-
-        protected virtual string GetTransactionUrl()
-            => "/ext/getlasttxs/0.00000001/50";
 
         protected virtual double GetDifficulty(dynamic difficultyValue)
             => (double)difficultyValue;

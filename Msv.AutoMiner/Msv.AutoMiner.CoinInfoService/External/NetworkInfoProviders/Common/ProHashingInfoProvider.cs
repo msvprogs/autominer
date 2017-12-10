@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
 {
@@ -28,18 +26,10 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
         {
             dynamic stats = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(new Uri(M_BaseUri, $"/explorerJson/getInfo?coin_name={m_CurrencyName}")));
-            var lastBlockHash = (string) stats.last_hash;
-            dynamic lastBlock = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, $"/explorerJson/getBlock?coin_id={stats.id}&hash={lastBlockHash}")));
-            var reward = ((JArray) lastBlock.tx)
-                .Cast<dynamic>()
-                .Where(x => (bool) x.coinbase)
-                .Sum(x => (double?) x.value);
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) stats.difficulty,
-                Height = (long) stats.blocks,
-                BlockReward = reward
+                Height = (long) stats.blocks
             };
         }
     }

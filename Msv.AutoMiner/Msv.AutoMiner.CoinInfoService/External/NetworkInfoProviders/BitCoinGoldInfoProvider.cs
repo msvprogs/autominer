@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
 {
@@ -21,19 +19,6 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
         {
             dynamic stats = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(new Uri(M_BaseUri, "/ext/summary")));
-            var lastBlocks = JsonConvert.DeserializeObject<JArray>(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, "/ext/getlastblocks")));
-            var blockStats = CalculateBlockStats(lastBlocks
-                .Cast<dynamic>()
-                .Where(x => x.transactions.vin.Count > 0
-                            && x.transactions.vin[0].coinbase != null
-                            && ((JArray) x.transactions.vout).Count > 0)
-                .Select(x =>
-                    new BlockInfo((long) x.time, (long) x.height, ((JArray) x.transactions.vout)
-                        .Cast<dynamic>()
-                        .Select(y => (double) y.value)
-                        .FirstOrDefault(y => y > 0)))
-                .Distinct());
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) stats.data[0].difficulty,
@@ -41,9 +26,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
                     (string) stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
                     ? hashRate * 1e6
                     : 0,
-                Height = (long) stats.data[0].blockcount,
-                BlockTimeSeconds = blockStats?.MeanBlockTime,
-                BlockReward = blockStats?.LastReward
+                Height = (long) stats.data[0].blockcount
             };
         }
     }

@@ -38,21 +38,11 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             };
         }
 
-        private double? GetBlockReward(dynamic miningInfo)
+        private static double? GetBlockReward(dynamic miningInfo)
         {
             if (miningInfo.data?.blockvalue != null)
                 return (double)miningInfo.data.blockvalue / 1e8;
-            var bestHashResponse = GetApiResponse("getbestblockhash");
-            if (bestHashResponse.data == null)
-                return null;
-            var blockResponse = GetApiResponse($"getblock&hash={(string)bestHashResponse.data}");
-            if (blockResponse.data?.tx == null)
-                return null;
-            var coinbaseTx = (string)blockResponse.data.tx[0];
-            var txResponse = GetApiResponse($"gettransaction&txid={coinbaseTx}");
-            if (txResponse.data?.vout == null)
-                return null;
-            return (double) txResponse.data.vout[0].value;
+            return null;
         }
 
         private dynamic GetApiResponse(string requestType)

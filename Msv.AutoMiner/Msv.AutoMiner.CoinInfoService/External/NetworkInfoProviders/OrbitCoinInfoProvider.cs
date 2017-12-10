@@ -22,7 +22,6 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
             return new CoinNetworkStatistics
             {
                 Difficulty = ParsingHelper.ParseDouble(infoBlockItems[2].InnerText),
-                BlockReward = 1, //fixed
                 Height = ParsingHelper.ParseLong(infoBlockItems[0].InnerText),
                 NetHashRate = ParsingHelper.ParseHashRate(infoBlockItems[1].InnerText)
             };

@@ -15,9 +15,6 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
             m_Algorithm = algorithm;
         }
 
-        protected override bool IsUsableBlock(dynamic blockInfo)
-            => (string)blockInfo.pow_algo == GetAlgorithmString();
-
         protected override double GetDifficulty(dynamic statsInfo)
         {
             switch (m_Algorithm)
@@ -28,19 +25,6 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
                     return (double)statsInfo.difficulty_skein;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(statsInfo));
-            }
-        }
-
-        private string GetAlgorithmString()
-        {
-            switch (m_Algorithm)
-            {
-                case KnownCoinAlgorithm.MyriadGroestl:
-                    return "groestl";
-                case KnownCoinAlgorithm.Skein:
-                    return "skein";
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using HtmlAgilityPack;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common.External.Contracts;
@@ -33,15 +32,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
                 .SelectSingleNode("//table[@class='table blocksTable']/tr[contains(.,'PoW')]");
             var lastBlockLink = lastBlockInfo.SelectSingleNode(".//td[1]/a");
 
-            var blockPage = new HtmlDocument();
-            blockPage.LoadHtml(m_WebClient.DownloadString(lastBlockLink.GetAttributeValue("href", null)));
-            var blockRewardNode = blockPage.DocumentNode
-                .SelectNodes("//div[@class='blockTx well'][1]//div[@class='col-md-6']//td[@class='number']")
-                .Last();
-
             return new CoinNetworkStatistics
             {
-                BlockReward = ParsingHelper.ParseDouble(blockRewardNode.InnerText),
                 BlockTimeSeconds = 60 * ParsingHelper.ParseValueWithUnits(infoNodes[2].InnerText),
                 NetHashRate = ParsingHelper.ParseHashRate(infoNodes[3].InnerText),
                 Difficulty = ParsingHelper.ParseDouble(lastBlockInfo.SelectSingleNode(".//td[3]").InnerText),
