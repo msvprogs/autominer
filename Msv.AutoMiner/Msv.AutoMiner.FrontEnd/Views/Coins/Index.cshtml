@@ -64,7 +64,7 @@
             <td>@coin.Name</td>
             <td>@coin.Algorithm.Name</td>
             <td>@coin.Height</td>
-            <td>@coin.Difficulty.ToString("0.###")</td>
+            <td>@(coin.Difficulty > 1e10 ? coin.Difficulty.ToString("E") : coin.Difficulty.ToString("0.###"))</td>
             <td>@(coin.NetHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(coin.NetHashRate, coin.Algorithm.KnownValue) : "unavailable")</td>
             <td class="text-right">@coin.BlockReward.ToString("N2")</td>
             <td>
