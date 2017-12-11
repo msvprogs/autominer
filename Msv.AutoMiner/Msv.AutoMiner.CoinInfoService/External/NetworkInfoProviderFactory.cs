@@ -42,6 +42,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     zpoolCoins));
             if (coins.Any(x => x.Symbol == "XVG"))
                 providers.Add(new VergeMultiNetworkInfoProvider(m_OrdinaryClient));
+            if (coins.Any(x => x.Symbol == "XSH"))
+                providers.Add(new ShieldMultiNetworkInfoProvider(m_OrdinaryClient));
 
             return new ComboMultiNetworkInfoProvider(providers.ToArray());
         }

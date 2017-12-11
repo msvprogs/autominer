@@ -6,9 +6,9 @@ using Msv.AutoMiner.Common.External.Contracts;
 
 namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
 {
-    public class VergeMultiNetworkInfoProvider : IquidusMultiAlgoNetworkInfoProvider
+    public class ShieldMultiNetworkInfoProvider : IquidusMultiAlgoNetworkInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://verge-blockchain.info");
+        private static readonly Uri M_BaseUri = new Uri("http://188.226.178.216:3001/");
 
         private static readonly Dictionary<int, KnownCoinAlgorithm?> M_AlgoIds =
             new Dictionary<int, KnownCoinAlgorithm?>
@@ -19,8 +19,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders
                 [4] = KnownCoinAlgorithm.MyriadGroestl
             };
 
-        public VergeMultiNetworkInfoProvider(IWebClient webClient)
-            : base(webClient, M_BaseUri, "XVG", M_AlgoIds)
+        public ShieldMultiNetworkInfoProvider(IWebClient webClient)
+            : base(webClient, M_BaseUri, "XSH", M_AlgoIds)
         { }
     }
 }
