@@ -116,8 +116,8 @@ namespace Msv.BrowserCheckBypassing
             var answer = (long) result.Execute("getAnswer();")
                 .GetCompletionValue()
                 .AsNumber();
-            // Limit timeout to 10 secs in case of some script error
-            Thread.Sleep(Math.Max(10000, (int) result.GetValue("timeout").AsNumber()));
+            // Limit timeout to 0.1..10 secs in case of some script error
+            Thread.Sleep(Math.Max(100, Math.Min(10000, (int) result.GetValue("timeout").AsNumber())));
             return answer;
         }
     }
