@@ -37,5 +37,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public AlgorithmModel[] AvailableAlgorithms { get; set; }
 
         public long? LastHeight { get; set; }
+
+        public double? LastDifficulty { get; set; }
     }
 }

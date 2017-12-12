@@ -118,7 +118,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 NodeUrl = coin.NodeHost != null
                     ? $"http://{coin.NodeHost}:{coin.NodePort}"
                     : null,
-                LastHeight = lastNetworkInfo?.Height
+                LastHeight = lastNetworkInfo?.Height,
+                LastDifficulty = lastNetworkInfo?.Difficulty
             };
             return View(coinModel);
         }

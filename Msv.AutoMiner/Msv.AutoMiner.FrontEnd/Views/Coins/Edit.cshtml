@@ -1,4 +1,5 @@
-﻿@using Msv.AutoMiner.Common.Helpers
+﻿@using System.Globalization
+@using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.Data
 @model Msv.AutoMiner.FrontEnd.Models.Coins.CoinEditModel
 
@@ -78,6 +79,8 @@
         <dl class="dl-horizontal">
             <dt><code>height</code></dt>
             <dd>current block height</dd>
+            <dt><code>difficulty</code></dt>
+            <dd>current network difficulty</dd>
             <dt><code>moneySupply</code></dt>
             <dd>current money supply</dd>
             <dt><code>masternodeCount</code></dt>
@@ -102,7 +105,15 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label" for="sampleHeightInput">Height:</label>
                     <div class="col-sm-8">
-                        <input type="number" class="form-control" id="sampleHeightInput" value="@Model.LastHeight" />
+                        <input type="number" class="form-control" id="sampleHeightInput" 
+                               value="@Model.LastHeight" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="sampleDifficultyInput">Difficulty:</label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" id="sampleDifficultyInput" 
+                               value="@(Model.LastDifficulty != null ? Model.LastDifficulty.Value.ToString(CultureInfo.InvariantCulture) : "")" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -149,9 +160,10 @@
 
             $("#executeTestButton").click(function() {
                 try {
-                    var rewardFunc = new Function("height,moneySupply,masternodeCount", editor.getValue());
+                    var rewardFunc = new Function("height,difficulty,moneySupply,masternodeCount", editor.getValue());
                     var result = rewardFunc(
                         Number($("#sampleHeightInput").val()),
+                        Number($("#sampleDifficultyInput").val()),
                         Number($("#sampleMoneySupplyInput").val()),
                         Number($("#sampleMasternodeCountInput").val()));
                     $("#rewardCodeResult").text(result.toFixed(3));

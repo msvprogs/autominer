@@ -9,7 +9,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Profitability
     {
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
-        public double? Calculate(string code, long height, double? moneySupply, int? masternodeCount)
+        public double? Calculate(string code, long height, double? difficulty, double? moneySupply, int? masternodeCount)
         {
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
@@ -22,12 +22,12 @@ function halve(value, times) {{
     return value / Math.pow(2, times ^ 0);
 }}
 
-function calc(height, moneySupply, masternodeCount) 
+function calc(height, difficulty, moneySupply, masternodeCount) 
 {{ 
 {code}
 }}
 
-calc({height}, {NullableToString(moneySupply)}, {NullableToString(masternodeCount)});")
+calc({height}, {NullableToString(difficulty)}, {NullableToString(moneySupply)}, {NullableToString(masternodeCount)});")
                     .GetCompletionValue()
                     .AsNumber();
             }
