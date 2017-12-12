@@ -29,14 +29,14 @@ namespace Msv.AutoMiner.Common.External
         }
 
         public override string DownloadString(
-            string url, Encoding encoding = null, TimeSpan? timeout = null, Dictionary<HttpRequestHeader, string> headers = null)
+            string url, Encoding encoding = null, Dictionary<HttpRequestHeader, string> headers = null)
         {
             //Do not allow simultaneous requests on the same host, and make some pauses between them.
             lock (m_SyncRoots.GetOrAdd(new Uri(url).Host, x => new object()))
             {
                 if (m_AddDelay)
                     Thread.Sleep(m_Random.Next(1000, 2000));
-                return base.DownloadString(url, encoding, timeout, headers ?? M_Headers);
+                return base.DownloadString(url, encoding, headers ?? M_Headers);
             }
         }
     }

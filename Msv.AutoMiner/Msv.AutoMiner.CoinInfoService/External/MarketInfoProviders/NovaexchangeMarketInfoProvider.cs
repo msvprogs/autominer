@@ -86,7 +86,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 {
                     try
                     {
-                        return m_WebClient.DownloadString(new Uri(x, relativeUrl), timeout: TimeSpan.FromSeconds(20));
+                        return m_WebClient.DownloadString(new Uri(x, relativeUrl));
                     }
                     catch (WebException ex)
                     {

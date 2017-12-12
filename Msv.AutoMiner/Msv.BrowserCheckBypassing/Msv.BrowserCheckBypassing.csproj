@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="cloudflare.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="cloudflare.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.6.7" />
+    <PackageReference Include="Jint" Version="2.11.58" />
+  </ItemGroup>
+
+</Project>

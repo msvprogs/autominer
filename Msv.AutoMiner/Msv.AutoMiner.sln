@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.Common", "Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj", "{797E8EA0-EAC0-416A-A5EB-74A79802C7DD}"
 EndProject
@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.ControlCenter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.Rig", "Msv.AutoMiner.Rig\Msv.AutoMiner.Rig.csproj", "{84DA405E-8947-4DFD-9E92-0CB5E7CFDFA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.FrontEnd", "Msv.AutoMiner.FrontEnd\Msv.AutoMiner.FrontEnd.csproj", "{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.FrontEnd", "Msv.AutoMiner.FrontEnd\Msv.AutoMiner.FrontEnd.csproj", "{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.BrowserCheckBypassing", "Msv.BrowserCheckBypassing\Msv.BrowserCheckBypassing.csproj", "{C6256F8B-5428-4F50-9255-163A367A63D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,14 @@ Global
 		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Release|x64.ActiveCfg = Release|Any CPU
 		{4C3BD955-EEA5-45B6-9B76-E8542C678AA4}.Release|x64.Build.0 = Release|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Debug|x64.Build.0 = Debug|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Release|x64.ActiveCfg = Release|Any CPU
+		{C6256F8B-5428-4F50-9255-163A367A63D1}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
