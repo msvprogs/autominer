@@ -49,10 +49,8 @@ namespace Msv.BrowserCheckBypassing
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
             {
-                var solver = m_BypasserFactory.Create(uri, (HttpWebResponse) wex.Response);
-                if (solver == null)
+                if (!TryToSolveChallenge(uri, wex.Response))
                     throw;
-                solver.Solve(uri, CookieContainer, (HttpWebResponse) wex.Response);
                 return await DownloadStringAsync(uri, headers);
             }
         }
@@ -71,10 +69,8 @@ namespace Msv.BrowserCheckBypassing
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
             {
-                var solver = m_BypasserFactory.Create(uri, (HttpWebResponse)wex.Response);
-                if (solver == null)
+                if (!TryToSolveChallenge(uri, wex.Response))
                     throw;
-                solver.Solve(uri, CookieContainer, (HttpWebResponse)wex.Response);
                 return await DownloadStringAsync(uri, headers);
             }
         }
@@ -93,10 +89,8 @@ namespace Msv.BrowserCheckBypassing
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
             {
-                var solver = m_BypasserFactory.Create(uri, (HttpWebResponse)wex.Response);
-                if (solver == null)
+                if (!TryToSolveChallenge(uri, wex.Response))
                     throw;
-                solver.Solve(uri, CookieContainer, (HttpWebResponse)wex.Response);
                 return await UploadStringAsync(uri, data, headers);
             }
         }
@@ -115,16 +109,30 @@ namespace Msv.BrowserCheckBypassing
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
             {
-                var solver = m_BypasserFactory.Create(uri, (HttpWebResponse)wex.Response);
-                if (solver == null)
+                if (!TryToSolveChallenge(uri, wex.Response))
                     throw;
-                solver.Solve(uri, CookieContainer, (HttpWebResponse)wex.Response);
                 return await UploadStringAsync(uri, data, headers);
             }
         }
 
         public void Dispose()
         { }
+
+        private bool TryToSolveChallenge(Uri uri, WebResponse response)
+        {
+            var solver = m_BypasserFactory.Create(uri, (HttpWebResponse)response);
+            if (solver == null)
+                return false;
+            try
+            {
+                solver.Solve(uri, CookieContainer, (HttpWebResponse) response);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         private void LoadCookies(Uri uri)
         {
