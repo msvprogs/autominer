@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
-using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.ControlCenterService.Storage
 {
@@ -33,41 +31,23 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             }
         }
 
-        public Dictionary<int, PoolAccountState> GetLastPoolAccountStates(int[] poolIds)
+        public Dictionary<int, string> GetRigNames(int[] ids)
         {
             using (var context = new AutoMinerDbContext(m_ConnectionString))
-            {
-                var maxDate = context.PoolAccountStates.Max(x => x.DateTime);
-                return context.PoolAccountStates
-                    .Include(x => x.Pool)
+                return context.Rigs
                     .AsNoTracking()
-                    .Where(x => poolIds.Contains(x.PoolId) && x.DateTime == maxDate)
-                    .ToDictionary(x => x.PoolId);
-            }
+                    .Where(x => ids.Contains(x.Id))
+                    .ToDictionary(x => x.Id, x => x.Name);
         }
 
-        public KeyValuePair<string, Heartbeat>[] GetLastHeartbeats(string[] rigNames)
+        public int[] GetRigIds(string[] names)
         {
             using (var context = new AutoMinerDbContext(m_ConnectionString))
-            {
-                var heartbeats = context.RigHeartbeats
-                    .GroupBy(x => x.RigId)
-                    .Select(x => new
-                    {
-                        x.Key,
-                        LastHeartbeat = x.OrderByDescending(y => y.Received).FirstOrDefault()
-                    })
-                    .ToDictionary(x => x.Key, x => x.LastHeartbeat);
-                IQueryable<Rig> rigs = context.Rigs;
-                if (rigNames != null)
-                    rigs = rigs.Where(x => rigNames.Contains(x.Name.ToLower()));
-                return rigs
-                    .Where(x => x.IsActive)
-                    .Join(heartbeats, x => x.Id, x => x.Key,
-                        (x, y) => new KeyValuePair<string, Heartbeat>(
-                            x.Name, JsonConvert.DeserializeObject<Heartbeat>(y.Value.ContentsJson)))
+                return context.Rigs
+                    .AsNoTracking()
+                    .Where(x => names.Contains(x.Name))
+                    .Select(x => x.Id)
                     .ToArray();
-            }
         }
 
         public Coin[] GetCoins()

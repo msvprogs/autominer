@@ -1,6 +1,4 @@
-﻿using Msv.AutoMiner.Data;
-
-namespace Msv.AutoMiner.FrontEnd.Providers
+﻿namespace Msv.AutoMiner.Data.Logic
 {
     public interface IPoolInfoProvider
     {

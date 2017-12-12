@@ -19,6 +19,8 @@ using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
+using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using NLog;
 using NLog.Targets;
 using Telegram.Bot;
@@ -57,6 +59,8 @@ namespace Msv.AutoMiner.ControlCenterService
                 using (new TelegramCommandInterface(
                     new TelegramBotClient(config.GetValue<string>("Notifications:Telegram:Token")),
                     new TelegramCommandInterfaceStorage(connectionString),
+                    new PoolInfoProvider(scope.ServiceProvider.GetRequiredService<AutoMinerDbContext>()),
+                    new RigHeartbeatProvider(scope.ServiceProvider.GetRequiredService<AutoMinerDbContext>()), 
                     config.GetSection("Notifications:Telegram:Subscribers")
                         .GetChildren()
                         .Select(y => y.Value)

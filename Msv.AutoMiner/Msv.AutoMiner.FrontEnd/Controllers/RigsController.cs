@@ -10,6 +10,7 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Rigs;
 using Msv.AutoMiner.FrontEnd.Models.Shared;
 using Msv.AutoMiner.FrontEnd.Providers;

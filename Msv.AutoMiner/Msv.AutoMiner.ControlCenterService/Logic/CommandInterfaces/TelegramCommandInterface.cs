@@ -11,6 +11,7 @@ using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using NLog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -21,19 +22,29 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
 {
     public class TelegramCommandInterface : IDisposable
     {
+        private static readonly TimeSpan M_OldestInfoPeriod = TimeSpan.FromDays(1);
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         private readonly ITelegramBotClient m_Client;
         private readonly ITelegramCommandInterfaceStorage m_Storage;
+        private readonly IPoolInfoProvider m_PoolInfoProvider;
+        private readonly IRigHeartbeatProvider m_RigHeartbeatProvider;
         private readonly string[] m_UserWhiteList;
         private readonly IDisposable m_Disposable;
         private readonly ConcurrentDictionary<int, TelegramInterpreterState> m_InterpreterStates =
             new ConcurrentDictionary<int, TelegramInterpreterState>();
 
-        public TelegramCommandInterface(ITelegramBotClient client, ITelegramCommandInterfaceStorage storage, string[] userWhiteList)
+        public TelegramCommandInterface(
+            ITelegramBotClient client,
+            ITelegramCommandInterfaceStorage storage,
+            IPoolInfoProvider poolInfoProvider,
+            IRigHeartbeatProvider rigHeartbeatProvider,
+            string[] userWhiteList)
         {
             m_Client = client ?? throw new ArgumentNullException(nameof(client));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
+            m_PoolInfoProvider = poolInfoProvider ?? throw new ArgumentNullException(nameof(poolInfoProvider));
+            m_RigHeartbeatProvider = rigHeartbeatProvider ?? throw new ArgumentNullException(nameof(rigHeartbeatProvider));
             m_UserWhiteList = userWhiteList ?? throw new ArgumentNullException(nameof(userWhiteList));
             m_Disposable = CreateRxDisposable(client);
         }
@@ -122,17 +133,18 @@ Last updated: <b>{8}</b>
 Pool shares: <b>{9}</b> valid, <b>{10}</b> invalid, <b>{11}</b>
 Pool balance: confirmed <b>{12:N6} {14}</b>, unconfirmed <b>{13:N6} {14}</b>";
 
-            var heartbeats = m_Storage.GetLastHeartbeats(rigNames);
-            var poolStates = m_Storage.GetLastPoolAccountStates(
-                heartbeats.Select(x => x.Value)
-                    .Where(x => x.MiningStates != null && x.MiningStates.Any())
-                    .SelectMany(x => x.MiningStates.Select(y => y.PoolId))
-                    .ToArray());
+            var heartbeats = m_RigHeartbeatProvider.GetLastHeartbeats(
+                m_Storage.GetRigIds(rigNames));
+            var poolStates = m_PoolInfoProvider.GetCurrentPoolInfos()
+                .Where(x => x.DateTime + M_OldestInfoPeriod > DateTime.UtcNow)
+                .ToDictionary(x => x.PoolId);
+            var rigIdNames = m_Storage.GetRigNames(heartbeats.Keys.ToArray());
 
             var heartbeatStrings = heartbeats
+                .Where(x => x.Value.DateTime + M_OldestInfoPeriod > DateTime.UtcNow)
                 .Select(x => new
                 {
-                    Name = x.Key,
+                    Name = rigIdNames[x.Key],
                     NowMining = x.Value.MiningStates.EmptyIfNull().FirstOrDefault() ?? new Heartbeat.MiningState(),
                     VideoCardStates = x.Value.VideoAdapterStates.EmptyIfNull(),
                     x.Value.ClientVersion,
@@ -140,6 +152,7 @@ Pool balance: confirmed <b>{12:N6} {14}</b>, unconfirmed <b>{13:N6} {14}</b>";
                     PoolState = x.Value.MiningStates?.Select(y => poolStates.TryGetValue(y.PoolId))
                         .FirstOrDefault(y => y != null) ?? new PoolAccountState()
                 })
+                .OrderBy(x => x.Name)
                 .Select(x => string.Format(rigInfoFormat,
                     x.Name, 
                     HtmlEntity.Entitize(coins[x.NowMining.CoinId].Name),

@@ -2,10 +2,9 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.AutoMiner.Data;
 using Newtonsoft.Json;
 
-namespace Msv.AutoMiner.FrontEnd.Providers
+namespace Msv.AutoMiner.Data.Logic
 {
     public class RigHeartbeatProvider : IRigHeartbeatProvider
     {
@@ -24,13 +23,16 @@ namespace Msv.AutoMiner.FrontEnd.Providers
                 : null;
         }
 
-        public Dictionary<int, Heartbeat> GetLastHeartbeats()
+        public Dictionary<int, Heartbeat> GetLastHeartbeats(int[] rigIds = null)
         {
-            return m_Context.RigHeartbeats
-                .FromSql(@"SELECT source.* FROM RigHeartbeats source
+            var sqlQuery = $@"SELECT source.* FROM RigHeartbeats source
   JOIN (SELECT RigId, MAX(Received) AS MaxReceived FROM RigHeartbeats
     GROUP BY RigId) as grouped
-  ON source.RigId = grouped.RigId AND source.Received = grouped.MaxReceived;")
+  ON source.RigId = grouped.RigId AND source.Received = grouped.MaxReceived
+  {(rigIds != null && rigIds.Any() ? "WHERE source.RigId IN (" + string.Join(",", rigIds) + ")" : "")} ;";
+
+            return m_Context.RigHeartbeats
+                .FromSql(sqlQuery)
                 .AsEnumerable()
                 .GroupBy(x => x.RigId)
                 .ToDictionary(
