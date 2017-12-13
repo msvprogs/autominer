@@ -82,7 +82,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 ConfirmedBalance = (double) workerJson.balance,
                 UnconfirmedBalance = ((double?) workerJson.unsold).GetValueOrDefault()
             };
-            var miner = workerJson.miners.Count > 0 ? workerJson.miners[0] : null;
+            var miner = workerJson.miners?.Count > 0 ? workerJson.miners[0] : null;
             if (miner == null)
                 return accountInfo;
             accountInfo.ValidShares = (int)(double)miner.accepted;
