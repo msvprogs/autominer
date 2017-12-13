@@ -23,6 +23,6 @@ namespace Msv.HttpTools
         }
 
         public T GetNext()
-            => m_Elements[Interlocked.Increment(ref m_Current) % m_Elements.Length];
+            => m_Elements[Math.Abs(Interlocked.Increment(ref m_Current) % m_Elements.Length)];
     }
 }
