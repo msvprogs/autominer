@@ -11,6 +11,7 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Data;
+using Msv.HttpTools;
 using NLog;
 using NLog.Targets;
 
@@ -46,8 +47,7 @@ namespace Msv.AutoMiner.CoinInfoService
                     new JsBlockRewardCalculator(), 
                     new NetworkInfoProviderFactory(
                         new LoggedWebClient(),
-                        new ProxiedLoggedWebClient(false),
-                        new ProxiedLoggedWebClient(true)),
+                        new ProxiedLoggedWebClient(new RoundRobinList<ProxyInfo>(ProxyList.Proxies))),
                     () => scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {
                     host.Run();

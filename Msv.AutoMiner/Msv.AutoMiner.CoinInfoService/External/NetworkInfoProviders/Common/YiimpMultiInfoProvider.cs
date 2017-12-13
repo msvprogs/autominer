@@ -15,13 +15,13 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
     {
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IWebClient m_WebClient;
+        private readonly IProxiedWebClient m_WebClient;
         private readonly string m_BaseUrl;
         private readonly TimeZoneInfo m_ServerTimeZone;
         private readonly string[] m_CurrencySymbols;
 
         public YiimpMultiInfoProvider(
-            IWebClient webClient,
+            IProxiedWebClient webClient,
             string baseUrl,
             TimeZoneInfo serverTimeZone, 
             string[] currencySymbols)
@@ -69,7 +69,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
             string c, IReadOnlyDictionary<string, HtmlNode> hashRateNodes)
         {
             var transactionPage = new HtmlDocument();
-            var transactionHtml = m_WebClient.DownloadString($"{m_BaseUrl}/explorer/{c}");
+            var transactionHtml = m_WebClient.DownloadStringProxied($"{m_BaseUrl}/explorer/{c}");
             transactionPage.LoadHtml(transactionHtml);
             var hasAlgorithm = transactionPage.DocumentNode.SelectSingleNode("//th[text()='Algo']") != null;
             var rows = transactionPage.DocumentNode.SelectNodes("//tr[@class='ssrow']")
@@ -87,7 +87,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
                 .ToArray();
             var lastHeight = rows.Max(x => x.Height);
             var blockPage = new HtmlDocument();
-            var blockHtml = m_WebClient.DownloadString(
+            var blockHtml = m_WebClient.DownloadStringProxied(
                 $"{m_BaseUrl}/explorer/{c}?height={lastHeight}");
             blockPage.LoadHtml(blockHtml);
 

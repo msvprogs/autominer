@@ -14,14 +14,12 @@ namespace Msv.AutoMiner.CoinInfoService.External
     public class NetworkInfoProviderFactory : INetworkInfoProviderFactory
     {
         private readonly IWebClient m_OrdinaryClient;
-        private readonly IWebClient m_DdosProtectedClient;
-        private readonly IWebClient m_DdosProtectedClientWithDelay;
+        private readonly IProxiedWebClient m_ProxiedClient;
 
-        public NetworkInfoProviderFactory(IWebClient ordinaryClient, IWebClient ddosProtectedClient, IWebClient ddosProtectedClientWithDelay)
+        public NetworkInfoProviderFactory(IWebClient ordinaryClient, IProxiedWebClient proxiedClient)
         {
             m_OrdinaryClient = ordinaryClient ?? throw new ArgumentNullException(nameof(ordinaryClient));
-            m_DdosProtectedClient = ddosProtectedClient ?? throw new ArgumentNullException(nameof(ddosProtectedClient));
-            m_DdosProtectedClientWithDelay = ddosProtectedClientWithDelay ?? throw new ArgumentNullException(nameof(ddosProtectedClientWithDelay));
+            m_ProxiedClient = proxiedClient ?? throw new ArgumentNullException(nameof(proxiedClient));
         }
 
         public IMultiNetworkInfoProvider CreateMulti(Coin[] coins)
@@ -36,7 +34,7 @@ namespace Msv.AutoMiner.CoinInfoService.External
                 .ToArray();
             if (zpoolCoins.Any())
                 providers.Add(new YiimpMultiInfoProvider(
-                    m_DdosProtectedClientWithDelay,
+                    m_ProxiedClient,
                     "https://www.zpool.ca",
                     TimeZoneInfo.CreateCustomTimeZone("GMT-4", TimeSpan.FromHours(-4), "GMT-4", "GMT-4"),
                     zpoolCoins));
@@ -71,7 +69,7 @@ namespace Msv.AutoMiner.CoinInfoService.External
                 case CoinNetworkInfoApiType.ChainRadar:
                     return new ChainRadarInfoProvider(m_OrdinaryClient, coin.Symbol);
                 case CoinNetworkInfoApiType.ChainzCryptoid:
-                    return new ChainzCryptoidInfoProvider(m_DdosProtectedClient, coin.Symbol);
+                    return new ChainzCryptoidInfoProvider(m_ProxiedClient, coin.Symbol);
                 case CoinNetworkInfoApiType.Insight:
                     return new InsightInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 case CoinNetworkInfoApiType.Iquidus:

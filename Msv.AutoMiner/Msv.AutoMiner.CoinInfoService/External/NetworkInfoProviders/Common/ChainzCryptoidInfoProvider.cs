@@ -13,11 +13,10 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
     {
         private static readonly Uri M_BaseUri = new Uri("https://chainz.cryptoid.info");
 
-        private readonly IWebClient m_WebClient;
+        private readonly IProxiedWebClient m_WebClient;
         private readonly string m_CurrencySymbol;
 
-        //Pass DDoSTriggerPreventingWebClient without delays
-        public ChainzCryptoidInfoProvider(IWebClient webClient, string currencySymbol)
+        public ChainzCryptoidInfoProvider(IProxiedWebClient webClient, string currencySymbol)
         {
             if (string.IsNullOrEmpty(currencySymbol))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(currencySymbol));
@@ -28,9 +27,10 @@ namespace Msv.AutoMiner.CoinInfoService.External.NetworkInfoProviders.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            var hashrate = m_WebClient.DownloadString(new Uri(M_BaseUri, $"/{m_CurrencySymbol}/api.dws?q=nethashps"));
-            dynamic blocksInfo = JsonConvert.DeserializeObject(m_WebClient.DownloadString(
-                new Uri(M_BaseUri, $"/explorer/index.data.dws?coin={m_CurrencySymbol}&n=20")));
+            var hashrate = m_WebClient.DownloadStringProxied(
+                new Uri(M_BaseUri, $"/{m_CurrencySymbol}/api.dws?q=nethashps").ToString());
+            dynamic blocksInfo = JsonConvert.DeserializeObject(m_WebClient.DownloadStringProxied(
+                new Uri(M_BaseUri, $"/explorer/index.data.dws?coin={m_CurrencySymbol}&n=20").ToString()));
 
             var blocks = ((JArray)blocksInfo.blocks)
                 .Cast<dynamic>()
