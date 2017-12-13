@@ -4,8 +4,8 @@ namespace Msv.HttpTools
 {
     public class ProxyInfo
     {
-        private const int MaxSequentialFails = 3;
-        private static readonly TimeSpan M_InactiveInterval = TimeSpan.FromHours(6);
+        private const int MaxSequentialFails = 4;
+        private static readonly TimeSpan M_InactiveInterval = TimeSpan.FromHours(3);
 
         public Uri Uri { get; }
 

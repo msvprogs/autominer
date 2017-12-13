@@ -15,7 +15,6 @@ namespace Msv.AutoMiner.Common.External
             new Dictionary<string, string>
             {
                 ["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                ["Accept-Encoding"] = "gzip, deflate",
                 ["Accept-Language"] = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3"
             };
 

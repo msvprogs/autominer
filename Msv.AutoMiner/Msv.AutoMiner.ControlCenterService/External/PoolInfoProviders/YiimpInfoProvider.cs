@@ -47,7 +47,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .Select(x => new
                 {
                     Pool = x.pool,
-                    AccountInfoString = m_WebClient.DownloadStringProxied($"{m_BaseUrl}/walletEx?address={x.wallet}")
+                    AccountInfoString = m_WebClient.DownloadStringProxied($"{m_BaseUrl}/wallet?address={x.wallet}") //was walletEx with share info
                 })
                 .Where(x => !string.IsNullOrWhiteSpace(x.AccountInfoString))
                 .ToLookup(x => x.Pool, x => ParsePoolAccountInfo(x.AccountInfoString));
