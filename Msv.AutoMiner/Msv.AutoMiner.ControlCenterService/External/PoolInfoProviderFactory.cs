@@ -12,9 +12,13 @@ namespace Msv.AutoMiner.ControlCenterService.External
     public class PoolInfoProviderFactory : IPoolInfoProviderFactory
     {
         private readonly IWebClient m_WebClient;
-        
-        public PoolInfoProviderFactory(IWebClient webClient) 
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        private readonly IProxiedWebClient m_ProxiedWebClient;
+
+        public PoolInfoProviderFactory(IWebClient webClient, IProxiedWebClient proxiedWebClient)
+        {
+            m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+            m_ProxiedWebClient = proxiedWebClient ?? throw new ArgumentNullException(nameof(proxiedWebClient));
+        }
 
         public IMultiPoolInfoProvider CreateMulti(PoolApiProtocol apiProtocol, string baseUrl, Pool[] pools)
         {
@@ -26,7 +30,7 @@ namespace Msv.AutoMiner.ControlCenterService.External
             switch (apiProtocol)
             {
                 case PoolApiProtocol.Yiimp:
-                    return new YiimpInfoProvider(m_WebClient, baseUrl, pools);
+                    return new YiimpInfoProvider(m_ProxiedWebClient, baseUrl, pools);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(apiProtocol), "This API protocol doesn't support multiprovider");
             }

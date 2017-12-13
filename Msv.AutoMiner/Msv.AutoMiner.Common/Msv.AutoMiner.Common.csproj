@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Msv.BrowserCheckBypassing\Msv.BrowserCheckBypassing.csproj" />
+    <ProjectReference Include="..\Msv.HttpTools\Msv.HttpTools.csproj" />
   </ItemGroup>
 
   <ItemGroup>

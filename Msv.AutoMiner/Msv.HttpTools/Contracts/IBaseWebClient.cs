@@ -4,7 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Msv.BrowserCheckBypassing.Contracts
+namespace Msv.HttpTools.Contracts
 {
     public interface IBaseWebClient : IDisposable
     {

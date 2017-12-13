@@ -4,7 +4,8 @@ using System.Net;
 using System.Text;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.BrowserCheckBypassing;
-using Msv.BrowserCheckBypassing.Contracts;
+using Msv.HttpTools;
+using Msv.HttpTools.Contracts;
 using NLog;
 
 namespace Msv.AutoMiner.Common.External
@@ -53,9 +54,9 @@ namespace Msv.AutoMiner.Common.External
             }
         }
 
-        private static IBaseWebClient CreateBaseWebClient()
+        protected virtual IBaseWebClient CreateBaseWebClient()
             => new BrowserCheckBypassingWebClient(
-                new CorrectWebClient(), 
+                new CorrectWebClient(),
                 new BrowserCheckBypasserFactory(MemoryClearanceCookieStorage.Instance),
                 MemoryClearanceCookieStorage.Instance);
      }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Msv.HttpTools;
 
 namespace Msv.BrowserCheckBypassing
 {

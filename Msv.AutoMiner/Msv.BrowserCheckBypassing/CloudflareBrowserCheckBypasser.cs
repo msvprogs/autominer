@@ -7,6 +7,7 @@ using System.Threading;
 using HtmlAgilityPack;
 using Jint;
 using Msv.BrowserCheckBypassing.Contracts;
+using Msv.HttpTools.Contracts;
 
 namespace Msv.BrowserCheckBypassing
 {

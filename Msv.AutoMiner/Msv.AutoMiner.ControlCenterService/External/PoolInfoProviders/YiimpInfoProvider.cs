@@ -12,11 +12,11 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 {
     public class YiimpInfoProvider : IMultiPoolInfoProvider
     {
-        private readonly IWebClient m_WebClient;
+        private readonly IProxiedWebClient m_WebClient;
         private readonly string m_BaseUrl;
         private readonly Pool[] m_Pools;
 
-        public YiimpInfoProvider(IWebClient webClient, string baseUrl, Pool[] pools)
+        public YiimpInfoProvider(IProxiedWebClient webClient, string baseUrl, Pool[] pools)
         {
             if (string.IsNullOrEmpty(baseUrl))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(baseUrl));
@@ -41,11 +41,13 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 });
 
             var poolAccountInfos = m_Pools
+                .AsParallel()
+                .WithDegreeOfParallelism(4)
                 .Select(x => (pool:x, wallet: x.IsAnonymous ? x.Coin.Wallets.First(y => y.IsMiningTarget).Address : x.WorkerLogin))
                 .Select(x => new
                 {
                     Pool = x.pool,
-                    AccountInfoString = m_WebClient.DownloadString($"{m_BaseUrl}/walletEx?address={x.wallet}")
+                    AccountInfoString = m_WebClient.DownloadStringProxied($"{m_BaseUrl}/walletEx?address={x.wallet}")
                 })
                 .Where(x => !string.IsNullOrWhiteSpace(x.AccountInfoString))
                 .ToLookup(x => x.Pool, x => ParsePoolAccountInfo(x.AccountInfoString));

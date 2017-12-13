@@ -46,8 +46,8 @@ namespace Msv.AutoMiner.CoinInfoService
                     new JsBlockRewardCalculator(), 
                     new NetworkInfoProviderFactory(
                         new LoggedWebClient(),
-                        new DDoSTriggerPreventingWebClient(false),
-                        new DDoSTriggerPreventingWebClient(true)),
+                        new ProxiedLoggedWebClient(false),
+                        new ProxiedLoggedWebClient(true)),
                     () => scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {
                     host.Run();

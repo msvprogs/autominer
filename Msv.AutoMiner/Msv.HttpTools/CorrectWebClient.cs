@@ -4,16 +4,17 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Msv.BrowserCheckBypassing.Contracts;
+using Msv.HttpTools.Contracts;
 
-namespace Msv.BrowserCheckBypassing
+namespace Msv.HttpTools
 {
     public class CorrectWebClient : WebClient, IBaseWebClient
     {
         private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0";
         private const string AcceptEncodings = "gzip, deflate";
 
-        private static readonly TimeSpan M_RequestTimeout =
+        private static readonly TimeSpan M_OrdinaryRequestTimeout = TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan M_MaxRequestTimeout =
 #if DEBUG
             TimeSpan.FromMinutes(20);
 #else
@@ -84,7 +85,7 @@ namespace Msv.BrowserCheckBypassing
                 return null;
             request.CookieContainer = CookieContainer;
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-            request.Timeout = request.ReadWriteTimeout = (int) TimeSpan.FromMinutes(1).TotalMilliseconds;
+            request.Timeout = request.ReadWriteTimeout = (int)M_OrdinaryRequestTimeout.TotalMilliseconds;
             return request;
         }
 
@@ -111,7 +112,7 @@ namespace Msv.BrowserCheckBypassing
         private async Task<string> DoTaskWithTimeoutAsync(Task<string> task)
         {
             var timeoutCancelSource = new CancellationTokenSource();
-            var timeoutTask = Task.Delay(M_RequestTimeout, timeoutCancelSource.Token);
+            var timeoutTask = Task.Delay(M_MaxRequestTimeout, timeoutCancelSource.Token);
 
             var resultTask = await Task.WhenAny(task, timeoutTask);
             if (resultTask == timeoutTask)

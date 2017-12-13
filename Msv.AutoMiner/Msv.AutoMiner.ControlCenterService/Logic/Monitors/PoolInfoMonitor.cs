@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
 {
     public class PoolInfoMonitor : MonitorBase
     {
-        private const int ParallelismDegree = 3;
+        private const int ParallelismDegree = 4;
         private static readonly PoolApiProtocol[] M_MultiPoolProtocols = {PoolApiProtocol.Yiimp};
         private static readonly TimeSpan M_LastOperationsPeriod = TimeSpan.FromDays(7);
 
@@ -39,6 +39,8 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     MultiKey = x.Key,
                     Provider = m_ProviderFactory.CreateMulti(x.Key.ApiProtocol, x.Key.ApiUrl, x.ToArray())
                 })
+                .AsParallel()
+                .WithDegreeOfParallelism(ParallelismDegree)
                 .SelectMany(x =>
                 {
                     try
@@ -56,7 +58,6 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Concat(pools.Where(x => x.ApiProtocol != PoolApiProtocol.None && !M_MultiPoolProtocols.Contains(x.ApiProtocol))
                     .Select(x => (pool:x, provider:m_ProviderFactory.Create(x)))
                     .AsParallel()
-                    .WithDegreeOfParallelism(ParallelismDegree)
                     .Select(x =>
                     {
                         try
@@ -70,6 +71,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         }
                     })
                     .Where(x => x.info != null))
+                .AsSequential()
                 .Do(x => Log.Info($"Pool {x.pool.Name}: Balance {x.info.AccountInfo.ConfirmedBalance:N6} {x.pool.Coin.Symbol}, "
                                   + $"Unconfirmed {x.info.AccountInfo.UnconfirmedBalance:N6} {x.pool.Coin.Symbol}, "
                                   + $"Hashrate {ConversionHelper.ToHashRateWithUnits(x.info.AccountInfo.HashRate, x.pool.Coin.Algorithm.KnownValue)},"
