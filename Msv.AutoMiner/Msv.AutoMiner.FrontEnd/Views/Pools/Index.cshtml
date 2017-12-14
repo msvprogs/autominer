@@ -28,6 +28,7 @@
         <th>Coin symbol</th>
         <th>Coin name</th>
         <th>Pool name</th>
+        <th>Fee</th>
         <th>Confirmed</th>
         <th>Unconfirmed</th>
         <th>Total hashrate</th>
@@ -71,17 +72,22 @@
         <tr class="@rowClass" title="@title">
             <td>@pool.Coin.Symbol</td>
             <td>
-                <a asp-controller="PoolPayments" asp-action="Index" asp-route-currencyId="@pool.Coin.Id"
-                   title="Show pool payments for this coin">
-                    @pool.Coin.Name
-                </a>
+                <small>
+                    <a asp-controller="PoolPayments" asp-action="Index" asp-route-currencyId="@pool.Coin.Id"
+                       title="Show pool payments for this coin">
+                        @pool.Coin.Name
+                    </a>
+                </small>
             </td>
             <td>
-                <a asp-controller="PoolPayments" asp-action="Index" asp-route-poolId="@pool.Id"
-                   title="Show payments for this pool">
-                    @pool.Name
-                </a>
+                <small>
+                    <a asp-controller="PoolPayments" asp-action="Index" asp-route-poolId="@pool.Id"
+                       title="Show payments for this pool">
+                        @pool.Name
+                    </a>
+                </small>
             </td>
+            <td>@pool.Fee.ToString("F2")%</td>
             <td msv-balance="@pool.ConfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
             <td msv-balance="@pool.UnconfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
             <td>@(pool.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(pool.PoolHashRate, pool.Coin.Algorithm.KnownValue) : "unavailable")</td>

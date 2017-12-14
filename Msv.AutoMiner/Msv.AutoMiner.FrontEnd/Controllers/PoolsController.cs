@@ -10,7 +10,6 @@ using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Pools;
-using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
@@ -62,6 +61,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     UnconfirmedBalance = x.state.UnconfirmedBalance,
                     PoolHashRate = x.state.PoolHashRate,
                     PoolWorkers = x.state.PoolWorkers,
+                    Fee = x.pool.FeeRatio,
                     Url = GetPoolUri(x.pool).ToString(),
                     LastUpdated = x.state.DateTime != default
                         ? x.state.DateTime

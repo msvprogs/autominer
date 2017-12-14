@@ -24,6 +24,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
 
         public int Priority { get; set; }
 
+        public double Fee { get; set; }
+
         public DateTime? LastUpdated { get; set; }
     }
 }
