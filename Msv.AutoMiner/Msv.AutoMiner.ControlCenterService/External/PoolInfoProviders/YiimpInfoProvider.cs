@@ -7,6 +7,7 @@ using Msv.AutoMiner.ControlCenterService.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Data;
 using Msv.AutoMiner.Data;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 {
@@ -28,28 +29,56 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         public IReadOnlyDictionary<Pool, PoolInfo> GetInfo(DateTime minPaymentDate)
         {
-            dynamic poolsJson = JsonConvert.DeserializeObject(m_WebClient.DownloadString($"{m_BaseUrl}/status"));
+            var poolsJson = JsonConvert.DeserializeObject<JObject>(m_WebClient.DownloadString($"{m_BaseUrl}/currencies"));
 
             var poolStates = m_Pools
-                .Where(x => x.ApiPoolName != null)
-                .Select(x => (pool:x, poolInfo: poolsJson[x.ApiPoolName]))
+                .Where(x => x.ApiPoolName != null && x.WorkerPassword != null)
+                .Select(x => new
+                {
+                    Pool = x,
+                    Currency = x.WorkerPassword != null 
+                        && x.WorkerPassword.StartsWith("c=") 
+                        && x.WorkerPassword.Length > 2 
+                        ? x.WorkerPassword.Substring(2).ToUpperInvariant()
+                        : x.Coin.Symbol
+                })
+                .Select(x =>(pool:x.Pool, poolInfo: x.Currency != null 
+                    ? poolsJson[x.Currency] 
+                    : poolsJson.Properties()
+                        .FirstOrDefault(y => y["algo"].Value<string>() == x.Pool.ApiPoolName && y.Name.Contains(x.Currency))
+                        ?.Value))
                 .Where(x => x.poolInfo != null)
                 .ToDictionary(x => x.pool, x => new PoolState
                 {
-                    TotalWorkers = (int) x.poolInfo.workers,
-                    TotalHashRate = (long) x.poolInfo.hashrate
+                    TotalWorkers = x.poolInfo["workers"].Value<int>(),
+                    TotalHashRate = x.poolInfo["hashrate"].Value<long>()
                 });
 
             var poolAccountInfos = m_Pools
                 .AsParallel()
                 .WithDegreeOfParallelism(4)
-                .Select(x => (pool:x, wallet: x.IsAnonymous ? x.Coin.Wallets.First(y => y.IsMiningTarget).Address : x.WorkerLogin))
-                .Select(x => new
+                .Select(x => (pool:x, wallet: x.IsAnonymous 
+                    ? x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget)?.Address 
+                    : x.WorkerLogin))
+                .Where(x => !string.IsNullOrWhiteSpace(x.wallet))
+                .Select(x =>
                 {
-                    Pool = x.pool,
-                    AccountInfoString = m_WebClient.DownloadStringProxied($"{m_BaseUrl}/wallet?address={x.wallet}") //was walletEx with share info
+                    try
+                    {
+                        return new
+                        {
+                            Pool = x.pool,
+                            AccountInfoString = m_WebClient.DownloadStringProxied(
+                                $"{m_BaseUrl}/wallet?address={x.wallet}") //was walletEx with share info
+                        };
+                    }
+                    catch
+                    {
+                        // Server returns empty result when request limit is reached or wallet not found
+                        return new {Pool = x.pool, AccountInfoString = (string)null};
+                    }
                 })
-                .Where(x => !string.IsNullOrWhiteSpace(x.AccountInfoString))
+                .Where(x => x.AccountInfoString != null)
                 .ToLookup(x => x.Pool, x => ParsePoolAccountInfo(x.AccountInfoString));
 
             return m_Pools

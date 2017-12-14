@@ -30,11 +30,7 @@ namespace Msv.HttpTools
                     Proxy = new WebProxy(currentProxy.Uri);
                     var result = await DownloadStringAsync(uri, headers ?? new Dictionary<string, string>());
                     if (string.IsNullOrWhiteSpace(result))
-                    {
-                        //empty result = request limit detected
-                        currentProxy.RecordFailure();
-                        continue;
-                    }
+                        throw new ProxyException("Server returned empty result");
                     currentProxy.RecordSuccess();
                     return result;
                 }
