@@ -30,7 +30,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 && stoppedTime + M_RecheckInterval > DateTime.Now)
             {
                 M_Logger.Warn($"Pool {pool.Name} is still unavailable");
-                return true;
+                return false;
             }
             var result = CheckServer(pool);
             if (result)
