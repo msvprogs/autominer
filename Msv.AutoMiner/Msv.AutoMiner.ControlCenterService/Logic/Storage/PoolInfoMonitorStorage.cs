@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Data;
@@ -50,6 +51,23 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             using (var context = new AutoMinerDbContext(m_ConnectionString))
             {
                 context.PoolPayments.AddRange(poolPayments);
+                context.SaveChanges();
+            }
+        }
+
+        public void SavePools(Pool[] pools)
+        {
+            if (pools == null)
+                throw new ArgumentNullException(nameof(pools));
+
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            {
+                var poolIds = pools.Select(x => x.Id).ToArray();
+                var existingPools = context.Pools
+                    .Where(x => poolIds.Contains(x.Id))
+                    .ToArray();
+                existingPools.Join(pools, x => x.Id, x => x.Id, (x, y) => (oldPool:x, newPool: y))
+                    .ForEach(x => x.oldPool.FeeRatio = x.newPool.FeeRatio);
                 context.SaveChanges();
             }
         }

@@ -62,13 +62,17 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
             dynamic stateJson = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(GetActionUri("public"), headers: M_Headers));
+            dynamic poolInfoJson = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(GetActionUri("getpoolinfo"), headers: M_Headers));
             var hashRate = stateJson.hashrate ?? stateJson.pool_hashrate;
             var workers = stateJson.workers ?? stateJson.pool_workers;
             var state = new PoolState
             {
                 TotalHashRate = NormalizeHashRate(hashRate),
-                TotalWorkers = (int) workers
+                TotalWorkers = (int) workers,
             };
+            if (poolInfoJson.getpoolinfo?.data?.fees != null)
+                state.PoolFee = (double) poolInfoJson.getpoolinfo.data.fees;
             if (stateJson.last_block != null)
                 state.LastBlock = (long) stateJson.last_block;
 

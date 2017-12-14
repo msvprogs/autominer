@@ -5,5 +5,6 @@
         public long TotalHashRate { get; set; }
         public int TotalWorkers { get; set; }
         public long? LastBlock { get; set; }
+        public double? PoolFee { get; set; }
     }
 }

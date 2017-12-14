@@ -29,7 +29,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         public IReadOnlyDictionary<Pool, PoolInfo> GetInfo(DateTime minPaymentDate)
         {
-            var poolsJson = JsonConvert.DeserializeObject<JObject>(m_WebClient.DownloadString($"{m_BaseUrl}/currencies"));
+            var currencies = JsonConvert.DeserializeObject<JObject>(m_WebClient.DownloadString($"{m_BaseUrl}/currencies"));
+            var statuses = JsonConvert.DeserializeObject<JObject>(m_WebClient.DownloadString($"{m_BaseUrl}/status"));
 
             var poolStates = m_Pools
                 .Where(x => x.ApiPoolName != null && x.WorkerPassword != null)
@@ -37,21 +38,18 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 {
                     Pool = x,
                     Currency = x.WorkerPassword != null 
-                        && x.WorkerPassword.StartsWith("c=") 
+                        && x.WorkerPassword.StartsWith("c=")
                         && x.WorkerPassword.Length > 2 
                         ? x.WorkerPassword.Substring(2).ToUpperInvariant()
                         : x.Coin.Symbol
                 })
-                .Select(x =>(pool:x.Pool, poolInfo: x.Currency != null 
-                    ? poolsJson[x.Currency] 
-                    : poolsJson.Properties()
-                        .FirstOrDefault(y => y["algo"].Value<string>() == x.Pool.ApiPoolName && y.Name.Contains(x.Currency))
-                        ?.Value))
+                .Select(x => (pool:x.Pool, poolInfo: currencies[x.Currency] ?? currencies[x.Pool.Coin.Symbol]))
                 .Where(x => x.poolInfo != null)
                 .ToDictionary(x => x.pool, x => new PoolState
                 {
                     TotalWorkers = x.poolInfo["workers"].Value<int>(),
-                    TotalHashRate = x.poolInfo["hashrate"].Value<long>()
+                    TotalHashRate = x.poolInfo["hashrate"].Value<long>(),
+                    PoolFee = statuses[x.pool.ApiPoolName]?["fees"].Value<double>()
                 });
 
             var poolAccountInfos = m_Pools

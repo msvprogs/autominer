@@ -9,6 +9,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts
         Pool[] GetActivePools();
         void StorePoolAccountStates(PoolAccountState[] poolAccountStates);
         void StorePoolPayments(PoolPayment[] poolPayments);
+        void SavePools(Pool[] pools);
         PoolPayment[] LoadExistingPayments(string[] externalIds, DateTime startDate);
         Dictionary<string, int> GetWalletIds(string[] addresses);
     }

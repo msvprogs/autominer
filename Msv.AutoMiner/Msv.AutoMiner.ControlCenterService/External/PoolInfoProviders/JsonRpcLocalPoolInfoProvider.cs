@@ -38,7 +38,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 {
                     LastBlock = (long?) info.blocks,
                     TotalWorkers = 1,
-                    TotalHashRate = (long)(((double?)miningInfo.netmhashps).GetValueOrDefault() * 1e6)
+                    TotalHashRate = (long)(((double?)miningInfo.netmhashps).GetValueOrDefault() * 1e6),
+                    PoolFee = 0
                 },
                 PaymentsData = transactions
                     .Select(x => new PoolPaymentData

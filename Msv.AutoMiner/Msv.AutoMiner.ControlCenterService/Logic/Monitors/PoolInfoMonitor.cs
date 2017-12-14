@@ -77,8 +77,16 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                                   + $"Hashrate {ConversionHelper.ToHashRateWithUnits(x.info.AccountInfo.HashRate, x.pool.Coin.Algorithm.KnownValue)},"
                                   + $" Shares V:{x.info.AccountInfo.ValidShares}, I:{x.info.AccountInfo.InvalidShares}, "
                                   + $"Total Workers {x.info.State.TotalWorkers}, "
-                                  + $"Total Hashrate {ConversionHelper.ToHashRateWithUnits(x.info.State.TotalHashRate, x.pool.Coin.Algorithm.KnownValue)}"))
+                                  + $"Total Hashrate {ConversionHelper.ToHashRateWithUnits(x.info.State.TotalHashRate, x.pool.Coin.Algorithm.KnownValue)}, "
+                                  + $"Fee {(x.info.State.PoolFee != null ? x.info.State.PoolFee.Value.ToString("F2") : "<unknown>")}%"))
                 .ToArray();
+
+            var updatedPools = poolInfos.Where(x => x.info.State.PoolFee != null)
+                .Where(x => Math.Abs(x.pool.FeeRatio - x.info.State.PoolFee.Value) > 0.01)
+                .Do(x => x.pool.FeeRatio = x.info.State.PoolFee.GetValueOrDefault())
+                .Select(x => x.pool)
+                .ToArray();
+            m_StorageGetter.Invoke().SavePools(updatedPools);
 
             m_StorageGetter.Invoke().StorePoolAccountStates(poolInfos
                 .Select(x => new PoolAccountState
