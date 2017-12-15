@@ -94,6 +94,7 @@ namespace Msv.AutoMiner.Rig
                     .Where(x => controller.CurrentState != null)
                     .Subscribe(x =>
                         M_Logger.Trace($"Mining {controller.CurrentState.ToString()}; uptime {DateTime.Now - started}")))
+                using (var videoAdapterMonitor = new VideoAdapterMonitor(videoStateProvider))
                 using (new AutomaticMinerChanger(
                     controller,
                     new MiningProfitabilityTableBuilder(
@@ -106,17 +107,19 @@ namespace Msv.AutoMiner.Rig
                         }),
                     new PoolStatusProvider(),
                     delayProvider,
+                    videoAdapterMonitor,
                     new MinerChangingOptions
                     {
                         Interval = Settings.Default.ProfitabilityQueryInterval,
                         Dispersion = Settings.Default.ProfitabilityQueryDispersion,
-                        ThresholdRatio = Settings.Default.CurrencyChangeThresholdRatio
+                        ThresholdRatio = Settings.Default.CurrencyChangeThresholdRatio,
+                        LowestAverageGpuUsage = Settings.Default.LowestAverageGpuUsage,
+                        LowestGpuUsageSwitchInterval = Settings.Default.LowestGpuUsageSwitchInterval
                     }))
-                using (var videoAdapterMonitor = new VideoAdapterMonitor(videoStateProvider))
                 using (new HeartbeatSender(
-                    new SystemStateProviderFactory().Create(), 
-                    videoAdapterMonitor, 
-                    controller, 
+                    new SystemStateProviderFactory().Create(),
+                    videoAdapterMonitor,
+                    controller,
                     controlCenterClient,
                     delayProvider,
                     new HeartbeatSenderStorage(),

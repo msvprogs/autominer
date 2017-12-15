@@ -20,6 +20,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly IMiningProfitabilityTableBuilder m_MiningProfitabilityTableBuilder;
         private readonly IPoolStatusProvider m_PoolStatusProvider;
         private readonly IPeriodicTaskDelayProvider m_DelayProvider;
+        private readonly IVideoAdapterMonitor m_VideoMonitor;
         private readonly MinerChangingOptions m_ChangingOptions;
 
         private readonly IDisposable m_Disposable;
@@ -31,12 +32,14 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             IMiningProfitabilityTableBuilder miningProfitabilityTableBuilder,
             IPoolStatusProvider poolStatusProvider,
             IPeriodicTaskDelayProvider delayProvider,
+            IVideoAdapterMonitor videoMonitor,
             MinerChangingOptions changingOptions)
         {
             m_ProcessController = processController ?? throw new ArgumentNullException(nameof(processController));
             m_MiningProfitabilityTableBuilder = miningProfitabilityTableBuilder ?? throw new ArgumentNullException(nameof(miningProfitabilityTableBuilder));
             m_PoolStatusProvider = poolStatusProvider ?? throw new ArgumentNullException(nameof(poolStatusProvider));
             m_DelayProvider = delayProvider ?? throw new ArgumentNullException(nameof(delayProvider));
+            m_VideoMonitor = videoMonitor ?? throw new ArgumentNullException(nameof(videoMonitor));
             m_ChangingOptions = changingOptions ?? throw new ArgumentNullException(nameof(changingOptions));
             m_Disposable = CreateSubscription();
         }
@@ -59,6 +62,12 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                          + TimeSpan.FromMilliseconds(random.Next(-intervalDispersionMsec, intervalDispersionMsec)),
                     TaskPoolScheduler.Default)
                 .StartWith(TaskPoolScheduler.Default, Unit.Default)
+                .Merge(Observable.Interval(m_ChangingOptions.LowestGpuUsageSwitchInterval)
+                    .Select(x => m_VideoMonitor.GetCurrentState())
+                    .Where(x => x?.AdapterStates != null && x.AdapterStates.Any())
+                    .Where(x => x.AdapterStates.Average(y => y.GpuUtilization) < m_ChangingOptions.LowestAverageGpuUsage)
+                    .Do(x => M_Logger.Warn("GPU adapters usage is too low, rerequesting profitability table..."))
+                    .Select(x => Unit.Default))
                 .Delay(delay)
                 .Merge(Observable.FromEventPattern(
                         x => m_ProcessController.ProcessExited += x,

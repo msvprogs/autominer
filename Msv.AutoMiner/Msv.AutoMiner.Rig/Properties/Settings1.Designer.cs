@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.Rig.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.3.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.5.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -70,15 +70,6 @@ namespace Msv.AutoMiner.Rig.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:00:30")]
-        public global::System.TimeSpan ProfitabilityQueryInterval {
-            get {
-                return ((global::System.TimeSpan)(this["ProfitabilityQueryInterval"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("00:03:00")]
         public global::System.TimeSpan ShareTimeout {
             get {
@@ -106,10 +97,37 @@ namespace Msv.AutoMiner.Rig.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:6283")]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:30:00")]
+        public global::System.TimeSpan ProfitabilityQueryInterval {
+            get {
+                return ((global::System.TimeSpan)(this["ProfitabilityQueryInterval"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:6284")]
         public string ControlCenterServiceUrl {
             get {
                 return ((string)(this["ControlCenterServiceUrl"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public double LowestAverageGpuUsage {
+            get {
+                return ((double)(this["LowestAverageGpuUsage"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:01:00")]
+        public global::System.TimeSpan LowestGpuUsageSwitchInterval {
+            get {
+                return ((global::System.TimeSpan)(this["LowestGpuUsageSwitchInterval"]));
             }
         }
     }
