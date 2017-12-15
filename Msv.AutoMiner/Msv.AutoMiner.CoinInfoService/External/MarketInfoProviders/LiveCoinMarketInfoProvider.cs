@@ -48,11 +48,11 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     SourceSymbol = x.PairSymbols[0],
                     TargetSymbol = x.PairSymbols[1],
                     LastPrice = (double) x.Data.last,
-                    HighestBid = (double) x.Data.max_bid,
+                    HighestBid = (double) x.Data.min_ask,
                     LastDayHigh = (double) x.Data.high,
                     LastDayLow = (double) x.Data.low,
                     LastDayVolume = (double) x.Data.volume,
-                    LowestAsk = (double) x.Data.min_ask,
+                    LowestAsk = (double) x.Data.max_bid
                 })
                 .ToArray();
 
