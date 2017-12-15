@@ -147,7 +147,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 new ProfitabilityRequestModel
                 {
                     AlgorithmDatas = request.AlgorithmDatas,
-                    DifficultyAggregationType = ValueAggregationType.Last,
+                    DifficultyAggregationType = ValueAggregationType.Last24Hours,
                     ElectricityCostUsd = request.ElectricityCostUsd,
                     PriceAggregationType = ValueAggregationType.Last3Days
                 });
