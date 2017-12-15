@@ -43,6 +43,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .Include(x => x.Coin)
                 .AsNoTracking()
                 .Where(x => x.ExchangeType == null || x.Exchange.Activity != ActivityState.Deleted)
+                .Where(x => x.Coin.Activity != ActivityState.Deleted)
                 .Where(x => x.Activity != ActivityState.Deleted)
                 .AsEnumerable()
                 .LeftOuterJoin(lastBalances, x => x.Id, x => x.WalletId,
@@ -139,7 +140,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             wallet.Address = walletModel.Address;
             wallet.ExchangeType = walletModel.ExchangeType;
 
-            if (m_Context.Wallets.Count(x => x.CoinId == wallet.CoinId) == 0)
+            if (m_Context.Wallets
+                .Where(x => x.Activity == ActivityState.Active)
+                .Count(x => x.CoinId == wallet.CoinId) == 0)
                 wallet.IsMiningTarget = true;
 
             await m_Context.SaveChangesAsync();
