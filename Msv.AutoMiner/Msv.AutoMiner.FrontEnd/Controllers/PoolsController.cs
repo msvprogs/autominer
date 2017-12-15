@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
@@ -19,12 +20,21 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IPoolInfoProvider m_PoolInfoProvider;
+        private readonly ICoinNetworkInfoProvider m_NetworkInfoProvider;
+        private readonly IProfitabilityCalculator m_ProfitabilityCalculator;
         private readonly AutoMinerDbContext m_Context;
 
-        public PoolsController(ICoinValueProvider coinValueProvider, IPoolInfoProvider poolInfoProvider, AutoMinerDbContext context)
+        public PoolsController(
+            ICoinValueProvider coinValueProvider,
+            IPoolInfoProvider poolInfoProvider,
+            ICoinNetworkInfoProvider networkInfoProvider,
+            IProfitabilityCalculator profitabilityCalculator,
+            AutoMinerDbContext context)
         {
             m_CoinValueProvider = coinValueProvider;
             m_PoolInfoProvider = poolInfoProvider;
+            m_NetworkInfoProvider = networkInfoProvider;
+            m_ProfitabilityCalculator = profitabilityCalculator;
             m_Context = context;
         }
 
@@ -32,6 +42,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         {
             var lastPoolInfos = m_PoolInfoProvider.GetCurrentPoolInfos();
             var coinPrices = m_CoinValueProvider.GetCurrentCoinValues(false);
+            var networkInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
 
             var pools = m_Context.Pools
                 .Include(x => x.Coin)
@@ -43,6 +54,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     (x, y) => (pool: x, state: y ?? new PoolAccountState()))
                 .LeftOuterJoin(coinPrices, x => x.pool.Coin.Id, x => x.CurrencyId,
                     (x, y) => (x.pool, x.state, price: y ?? new CoinValue()))
+                .LeftOuterJoin(networkInfos, x => x.pool.Coin.Id, x => x.CoinId,
+                    (x, y) => (x.pool, x.state, x.price, networkInfo: y ?? new CoinNetworkInfo()))
                 .Select(x => new PoolDisplayModel
                 {
                     Id = x.pool.Id,
@@ -57,12 +70,17 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     CoinBtcPrice = x.price.AverageBtcValue,
                     Activity = x.pool.Activity,
                     HasApi = x.pool.ApiProtocol != PoolApiProtocol.None,
+                    IsSolo = x.pool.Protocol == PoolProtocol.JsonRpc,
                     ConfirmedBalance = x.state.ConfirmedBalance,
                     UnconfirmedBalance = x.state.UnconfirmedBalance,
                     PoolHashRate = x.state.PoolHashRate,
-                    PoolWorkers = x.state.PoolWorkers,
+                    PoolWorkers = x.state.DateTime != default
+                        ? x.state.PoolWorkers
+                        : (int?)null,
                     Fee = x.pool.FeeRatio,
                     Url = GetPoolUri(x.pool).ToString(),
+                    TimeToFind = m_ProfitabilityCalculator.CalculateTimeToFind(
+                        x.networkInfo.Difficulty, x.pool.Coin.MaxTarget, x.state.PoolHashRate),
                     LastUpdated = x.state.DateTime != default
                         ? x.state.DateTime
                         : (DateTime?)null

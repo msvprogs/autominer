@@ -170,3 +170,7 @@ div.console.error {
 dd {
     font-style: italic;
 }
+
+.space-no-wrap {
+    white-space: nowrap
+}

@@ -3,7 +3,18 @@
 @using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Pools.PoolDisplayModel[]
 
-@{ ViewBag.Title = "Pools";}    
+@{ ViewBag.Title = "Pools";}
+
+
+@functions {
+
+    private const int MinWorkers = 3;
+
+    private static readonly TimeSpan M_MinTtf = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan M_MaxTtf = TimeSpan.FromHours(8);
+
+}
+
 
 @if (TempData[PoolsController.PoolsMessageKey] != null)
 {
@@ -33,13 +44,13 @@
         <th>Unconfirmed</th>
         <th>Total hashrate</th>
         <th>Total workers</th>
-        <th>Priority</th>
+        <th>Time to <abbr title="find">f***</abbr></th>
         <th>Last updated</th>
         <th>Actions</th>
     </tr>
     @foreach (var pool in Model.OrderBy(x => x.Coin.Symbol)
-        .ThenBy(x => x.Coin.Name)
-        .ThenByDescending(x => x.Priority))
+       .ThenBy(x => x.Coin.Name)
+       .ThenByDescending(x => x.Priority))
     {
         string rowClass;
         string title;
@@ -57,11 +68,6 @@
         {
             rowClass = "warning";
             title = "Pool data is unavailable or obsolete";
-        }
-        else if (pool.PoolWorkers == 0)
-        {
-            rowClass = "warning";
-            title = "There are no workers on this pool";
         }
         else
         {
@@ -86,13 +92,32 @@
                         @pool.Name
                     </a>
                 </small>
+                @if (pool.Activity == ActivityState.Active)
+                {
+                    if (pool.PoolWorkers == 0)
+                    {
+                        <span class="label label-danger">No workers</span>
+                    }
+                    else if (!pool.IsSolo && pool.PoolWorkers < MinWorkers)
+                    {
+                        <span class="label label-warning">Few workers</span>
+                    }
+                    if (pool.TimeToFind < M_MinTtf)
+                    {
+                        <span class="label label-warning">Strange TTF</span>
+                    }
+                    if (pool.TimeToFind > M_MaxTtf)
+                    {
+                        <span class="label label-danger">Long TTF</span>
+                    }
+                }
             </td>
             <td>@pool.Fee.ToString("F2")%</td>
             <td msv-balance="@pool.ConfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
             <td msv-balance="@pool.UnconfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
-            <td>@(pool.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(pool.PoolHashRate, pool.Coin.Algorithm.KnownValue) : "unavailable")</td>
+            <td class="space-no-wrap">@(pool.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(pool.PoolHashRate, pool.Coin.Algorithm.KnownValue) : "unavailable")</td>
             <td>@pool.PoolWorkers</td>
-            <td>@pool.Priority</td>
+            <td class="space-no-wrap">@TimeSpanHelper.ToShortString(pool.TimeToFind)</td>
             <td msv-absolute-date="@pool.LastUpdated"></td>
             <td>
                 <ul class="list-inline">
@@ -126,7 +151,7 @@
                         </form>
                     </li>
                     <li>
-                        <form asp-action="Delete" asp-route-id="@pool.Id" 
+                        <form asp-action="Delete" asp-route-id="@pool.Id"
                               method="post" title="Delete pool"
                               data-confirm-title="Delete pool @pool.Name?"
                               data-confirm-body="You are going to delete pool @pool.Name. Are you sure?">

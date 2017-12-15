@@ -2,15 +2,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
-using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService.Controllers
@@ -58,7 +57,8 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         {
             var networkInfos = request.DifficultyAggregationType == ValueAggregationType.Last
                 ? m_CoinNetworkInfoProvider.GetCurrentNetworkInfos(true)
-                : m_CoinNetworkInfoProvider.GetAggregatedNetworkInfos(true, GetMinDateTime(request.DifficultyAggregationType));
+                : m_CoinNetworkInfoProvider.GetAggregatedNetworkInfos(true,
+                    GetMinDateTime(request.DifficultyAggregationType));
 
             var marketPrices = request.PriceAggregationType == ValueAggregationType.Last
                 ? m_CoinValueProvider.GetCurrentCoinValues(true)
@@ -75,7 +75,8 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
                         AlgorithmInfo = x.algorithmInfo,
                         MarketPrices = y.ExchangePrices.EmptyIfNull(),
                         CoinsPerDay = Math.Round(m_Calculator.CalculateCoinsPerDay(
-                                x.networkInfo.Coin, x.networkInfo, x.algorithmInfo.NetHashRate),
+                                x.networkInfo.Difficulty, x.networkInfo.BlockReward,
+                                x.networkInfo.Coin.MaxTarget, x.algorithmInfo.NetHashRate),
                             CryptoCurrencyDecimalPlaces)
                     })
                 .Select(x => new SingleProfitabilityData
@@ -114,16 +115,9 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         {
             var btcUsdValue = m_FiatProvider.GetLastBtcUsdValue();
             var coinsPerDay = m_Calculator.CalculateCoinsPerDay(
-                new Coin
-                {
-                    Algorithm = new CoinAlgorithm {ProfitabilityFormulaType = ProfitabilityFormulaType.BitcoinLike},
-                    MaxTarget = request.MaxTarget
-                },
-                new CoinNetworkInfo
-                {
-                    BlockReward = request.BlockReward,
-                    Difficulty = request.Difficulty
-                },
+                request.Difficulty,
+                request.BlockReward,
+                request.MaxTarget,
                 request.ClientHashRate);
             var btcPerDay = coinsPerDay * request.BtcPrice;
             var electricityCostPerDay = GetElectricityCostPerDay(request.ClientPowerUsage, request.ElectricityCostUsd);

@@ -7,6 +7,7 @@ using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 

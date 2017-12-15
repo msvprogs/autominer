@@ -4,7 +4,9 @@
 @using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletIndexModel
 
-@{ ViewBag.Title = "Wallets"; }        
+@{
+    ViewBag.Title = "Wallets";
+}        
 
 @if (TempData[WalletsController.WalletsMessageKey] != null)
 {
@@ -91,7 +93,7 @@
                    title="Show all operations for @wallet.Coin.Name wallets">
                     @wallet.Coin.Name</a>
             </td>
-            <td>
+            <td class="space-no-wrap">
                 <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
                    title="Show all operations for this wallet" class="wallet-monospace">
                     @wallet.Address.Truncate(15)

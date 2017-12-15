@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
@@ -44,6 +45,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddTransient<IPoolInfoProvider, PoolInfoProvider>();
             services.AddTransient<IWalletBalanceProvider, WalletBalanceProvider>();
 
+            services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
