@@ -43,13 +43,19 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                         ? x.WorkerPassword.Substring(2).ToUpperInvariant()
                         : x.Coin.Symbol
                 })
-                .Select(x => (pool:x.Pool, poolInfo: currencies[x.Currency] ?? currencies[x.Pool.Coin.Symbol]))
-                .Where(x => x.poolInfo != null)
-                .ToDictionary(x => x.pool, x => new PoolState
+                .Select(x => new
                 {
-                    TotalWorkers = x.poolInfo["workers"].Value<int>(),
-                    TotalHashRate = x.poolInfo["hashrate"].Value<long>(),
-                    PoolFee = statuses[x.pool.ApiPoolName]?["fees"].Value<double>()
+                    x.Pool,
+                    PoolInfo = currencies[$"{x.Currency}-{x.Pool.ApiPoolName}"] 
+                        ?? currencies[x.Currency]
+                        ?? currencies[x.Pool.Coin.Symbol]
+                })
+                .Where(x => x.PoolInfo != null)
+                .ToDictionary(x => x.Pool, x => new PoolState
+                {
+                    TotalWorkers = x.PoolInfo["workers"].Value<int>(),
+                    TotalHashRate = x.PoolInfo["hashrate"].Value<long>(),
+                    PoolFee = statuses[x.Pool.ApiPoolName]?["fees"].Value<double>()
                 });
 
             var poolAccountInfos = m_Pools
