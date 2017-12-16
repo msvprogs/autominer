@@ -46,7 +46,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .Select(x => new
                 {
                     x.Pool,
-                    PoolInfo = currencies[$"{x.Currency}-{x.Pool.ApiPoolName}"] 
+                    PoolInfo = currencies[$"{x.Pool.Coin.Symbol}-{x.Pool.ApiPoolName}"] 
                         ?? currencies[x.Currency]
                         ?? currencies[x.Pool.Coin.Symbol]
                 })
