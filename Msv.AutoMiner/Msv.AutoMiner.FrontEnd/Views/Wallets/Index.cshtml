@@ -70,7 +70,7 @@
             rowClass = "text-muted";
             title = "Wallet is inactive";
         }
-        else if (wallet.LastUpdated == null || wallet.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(30))
+        else if (wallet.LastUpdated == null || wallet.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(50))
         {
             rowClass = "warning";
             title = "Wallet data is unavailable or obsolete";
@@ -98,7 +98,7 @@
                    title="Show all operations for this wallet" class="wallet-monospace">
                     @wallet.Address.Truncate(15)
                 </a>
-                <button class="btn btn-xs btn-default pull-right" title="Copy wallet address to clipboard"
+                <button class="btn btn-xs btn-default" title="Copy wallet address to clipboard"
                         data-wallet-address="@wallet.Address">
                     <i class="fa fa-clipboard" aria-hidden="true"></i>
                 </button>

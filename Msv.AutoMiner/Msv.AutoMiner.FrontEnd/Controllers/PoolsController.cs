@@ -157,6 +157,13 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
                 AvailableCoins = await GetAvailableCoins()
             };
+            if (pool.ApiProtocol == PoolApiProtocol.Yiimp)
+            {
+                var originalUrl = GetPoolUri(pool);
+                poolModel.Url = $"{originalUrl.Scheme}://{originalUrl.Host}:";
+                poolModel.WorkerPassword = "c=";
+                poolModel.ApiPoolName = null;
+            }
             return View("Edit", poolModel);
         }
 

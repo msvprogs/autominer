@@ -12,7 +12,7 @@
 
     private static readonly TimeSpan M_MinTtf = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan M_MaxTtf = TimeSpan.FromHours(8);
-
+    private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
 }
 
 
@@ -94,22 +94,28 @@
                 </small>
                 @if (pool.Activity == ActivityState.Active)
                 {
-                    if (pool.PoolWorkers == 0)
-                    {
-                        <span class="label label-danger">No workers</span>
-                    }
-                    else if (!pool.IsSolo && pool.PoolWorkers < MinWorkers)
-                    {
-                        <span class="label label-warning">Few workers</span>
-                    }
-                    if (pool.TimeToFind < M_MinTtf)
-                    {
-                        <span class="label label-warning">Strange TTF</span>
-                    }
-                    if (pool.TimeToFind > M_MaxTtf)
-                    {
-                        <span class="label label-danger">Long TTF</span>
-                    }
+                    <div>
+                        @if (pool.PoolWorkers == 0)
+                        {
+                            <span class="label label-danger">No workers</span>
+                        }
+                        else if (!pool.IsSolo && pool.PoolWorkers < MinWorkers)
+                        {
+                            <span class="label label-warning">Few workers</span>
+                        }
+                        @if (pool.TimeToFind < M_MinTtf)
+                        {
+                            <span class="label label-warning">Strange TTF</span>
+                        }
+                        @if (pool.TimeToFind > M_MaxTtf)
+                        {
+                            <span class="label label-danger">Long TTF</span>
+                        }
+                        else if (pool.TimeToFind > M_WarningTtf)
+                        {
+                            <span class="label label-warning">Longish TTF</span>
+                        }
+                    </div>
                 }
             </td>
             <td>@pool.Fee.ToString("F2")%</td>

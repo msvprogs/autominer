@@ -120,7 +120,16 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             var normalizedHashRate = m_CoinAlgorithm == KnownCoinAlgorithm.Equihash
                 ? hashRate / 1000
                 : hashRate * 1000;
-            return (long) normalizedHashRate;
+            switch (new Uri(m_BaseUrl).Host.ToLowerInvariant())
+            {
+                case "btcz.suprnova.cc":
+                    return (long) (normalizedHashRate * 1000);
+                case "mnx.suprnova.cc":
+                case "zero.suprnova.cc":
+                    return (long) (normalizedHashRate / 1000);
+                default:
+                    return (long) normalizedHashRate;
+            }
         }
 
         private string GetActionUri(string action)
