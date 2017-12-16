@@ -2,6 +2,7 @@
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
 @using Msv.AutoMiner.FrontEnd.Models.Coins
+@using Msv.AutoMiner.FrontEnd.Models.Shared
 @model CoinsIndexModel
 
 @{ ViewBag.Title = "Coins";}
@@ -28,12 +29,11 @@
 </div>
 <table class="table table-bordered table-striped">
     <tr>
-        <th>Symbol</th>
         <th>Name</th>
+        <th>Symbol</th>
         <th>Algorithm</th>
         <th>Height</th>
         <th>Difficulty</th>
-        <th>Net hashrate</th>
         <th>Block reward</th>
         <th>BTC price</th>
         <th>Last updated</th>
@@ -60,12 +60,13 @@
         }
 
         <tr class="@rowClass" title="@title">
+            <td class="space-no-wrap">
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(coin.Name, coin.Logo))
+            </td>
             <td>@coin.Symbol</td>
-            <td>@coin.Name</td>
             <td>@coin.Algorithm.Name</td>
             <td>@coin.Height</td>
             <td>@(coin.Difficulty > 1e10 ? coin.Difficulty.ToString("E") : coin.Difficulty.ToString("0.###"))</td>
-            <td>@(coin.NetHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(coin.NetHashRate, coin.Algorithm.KnownValue) : "unavailable")</td>
             <td class="text-right">@coin.BlockReward.ToString("N2")</td>
             <td>
                 <div class="coin-price-table">
@@ -110,7 +111,7 @@
                         </form>
                     </li>
                     <li>
-                        <form asp-action="Delete" asp-route-id="@coin.Id" 
+                        <form asp-action="Delete" asp-route-id="@coin.Id"
                               method="post" title="Delete coin"
                               data-confirm-title="Delete coin @coin.Name?"
                               data-confirm-body="You are going to delete coin @coin.Name. Are you sure?">

@@ -19,5 +19,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         [Required(ErrorMessage = "Coin symbol is required")]
         [MaxLength(16, ErrorMessage = "Coin symbol is too long. Max 16 characters")]
         public string Symbol { get; set; }
+
+        public byte[] Logo { get; set; }
     }
 }

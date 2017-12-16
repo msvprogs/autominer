@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.Common", "Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj", "{797E8EA0-EAC0-416A-A5EB-74A79802C7DD}"
 EndProject
@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.FrontEnd", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.BrowserCheckBypassing", "Msv.BrowserCheckBypassing\Msv.BrowserCheckBypassing.csproj", "{C6256F8B-5428-4F50-9255-163A367A63D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.HttpTools", "Msv.HttpTools\Msv.HttpTools.csproj", "{7CE2CC12-5953-44E1-8095-D18E1D6A0272}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.HttpTools", "Msv.HttpTools\Msv.HttpTools.csproj", "{7CE2CC12-5953-44E1-8095-D18E1D6A0272}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,7 @@
 ﻿@using System.Globalization
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.Data
+@using Msv.AutoMiner.FrontEnd.Models.Shared
 @model Msv.AutoMiner.FrontEnd.Models.Coins.CoinEditModel
 
 @{ ViewBag.Title = "Edit coin details";}    
@@ -20,6 +21,19 @@
     <div class="form-group">
         <label asp-for="Name">Name:</label>
         <input asp-for="Name" class="form-control" placeholder="For example, BitCoin"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="NewLogoUrl">Logo URL:</label>
+        @if (Model.Logo != null && Model.Logo.Any())
+        {
+            <div>
+                Current logo: @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(null, Model.Logo))
+                <label>
+                    <input asp-for="DeleteLogo" type="checkbox" /> Delete it
+                </label>
+            </div>
+        }
+        <input asp-for="NewLogoUrl" class="form-control" placeholder="Input logo URL or leave field blank to keep current one"/>
     </div>
     <div class="form-group">
         <label asp-for="AlgorithmId">Algorithm:</label>

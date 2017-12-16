@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,10 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
+using SixLabors.ImageSharp;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
@@ -19,17 +22,20 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         private readonly ICoinNetworkInfoProvider m_NetworkInfoProvider;
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IStoredFiatValueProvider m_FiatValueProvider;
+        private readonly IImageProcessor m_ImageProcessor;
         private readonly AutoMinerDbContext m_Context;
 
         public CoinsController(
             ICoinNetworkInfoProvider networkInfoProvider,
             ICoinValueProvider coinValueProvider,
-            IStoredFiatValueProvider fiatValueProvider, 
+            IStoredFiatValueProvider fiatValueProvider,
+            IImageProcessor imageProcessor,
             AutoMinerDbContext context)
         {
             m_NetworkInfoProvider = networkInfoProvider;
             m_CoinValueProvider = coinValueProvider;
             m_FiatValueProvider = fiatValueProvider;
+            m_ImageProcessor = imageProcessor;
             m_Context = context;
         }
 
@@ -67,6 +73,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Difficulty = x.network.Difficulty,
                     NetHashRate = x.network.NetHashRate,
                     Height = x.network.Height,
+                    Logo = x.coin.LogoImageBytes,
                     LastUpdated = x.network.Created != default
                         ? x.network.Created
                         : (DateTime?) null
@@ -104,6 +111,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 Id = coin.Id,
                 Name = coin.Name,
                 Symbol = coin.Symbol,
+                Logo = coin.LogoImageBytes,
                 AlgorithmId = coin.AlgorithmId,
                 AvailableAlgorithms = await GetAvailableAlgorithms(),
                 NetworkInfoApiType = coin.NetworkInfoApiType,
@@ -127,6 +135,21 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         [HttpPost]
         public async Task<IActionResult> Save(CoinEditModel coinModel)
         {
+            byte[] newLogoBytes = null;
+            if (coinModel.NewLogoUrl != null)
+                using (var httpClient = new HttpClient())
+                using (var response = await httpClient.GetAsync(coinModel.NewLogoUrl))
+                {
+                    if (!response.IsSuccessStatusCode)
+                        ModelState.AddModelError(nameof(coinModel.NewLogoUrl),
+                            $"Couldn't download logo image. Result: {response.StatusCode:D} {response.ReasonPhrase}");
+                    else if (!response.Content.Headers.ContentType.MediaType.StartsWith("image/"))
+                        ModelState.AddModelError(nameof(coinModel.NewLogoUrl),
+                            $"Couldn't download logo image. Server returned incorrect content type: {response.Content.Headers.ContentType.MediaType}");
+                    else
+                        newLogoBytes = await response.Content.ReadAsByteArrayAsync();
+                }
+
             if (!ModelState.IsValid)
             {
                 coinModel.AvailableAlgorithms = await GetAvailableAlgorithms();
@@ -155,6 +178,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.NodePassword = coinModel.NodePassword;
             coin.MaxTarget = coinModel.MaxTarget;
             coin.RewardCalculationJavaScript = coinModel.RewardCalculationJavaScript;
+            if (newLogoBytes != null)
+                coin.LogoImageBytes = m_ImageProcessor.Resize(newLogoBytes, 16, 16, ImageFormats.Png);
+            else if (coinModel.DeleteLogo)
+                coin.LogoImageBytes = null;
             await m_Context.SaveChangesAsync();
             TempData[CoinsMessageKey] = $"Coin {coin.Name} ({coin.Symbol}) has been successfully saved";
             return RedirectToAction("Index");

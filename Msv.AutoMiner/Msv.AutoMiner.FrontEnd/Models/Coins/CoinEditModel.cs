@@ -39,5 +39,10 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public long? LastHeight { get; set; }
 
         public double? LastDifficulty { get; set; }
+
+        [Url(ErrorMessage = "Invalid logo URL")]
+        public string NewLogoUrl { get; set; }
+
+        public bool DeleteLogo { get; set; }
     }
 }

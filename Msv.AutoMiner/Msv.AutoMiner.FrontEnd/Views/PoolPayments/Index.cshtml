@@ -25,7 +25,9 @@
             <td>@payment.PoolName</td>
             <td>@payment.Type</td>
             <td msv-absolute-date="@payment.DateTime"></td>
-            <td>@payment.CurrencyName</td>
+            <td class="space-no-wrap">
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(payment.CurrencyName, payment.CurrencyLogo))
+            </td>
             <td msv-amount="@payment.Amount" msv-currency="@payment.CurrencySymbol"></td>
             <td>
                 @if (payment.Transaction != null)

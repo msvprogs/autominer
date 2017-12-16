@@ -1,6 +1,7 @@
 ﻿@using Msv.AutoMiner.Common.Enums
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
+@using Msv.AutoMiner.FrontEnd.Models.Shared
 @model Msv.AutoMiner.FrontEnd.Models.Pools.PoolDisplayModel[]
 
 @{ ViewBag.Title = "Pools";}
@@ -36,7 +37,6 @@
 </div>
 <table class="table table-bordered table-striped">
     <tr>
-        <th>Coin symbol</th>
         <th>Coin name</th>
         <th>Pool name</th>
         <th>Fee</th>
@@ -76,12 +76,11 @@
         }
 
         <tr class="@rowClass" title="@title">
-            <td>@pool.Coin.Symbol</td>
-            <td>
+            <td class="space-no-wrap">
                 <small>
                     <a asp-controller="PoolPayments" asp-action="Index" asp-route-currencyId="@pool.Coin.Id"
                        title="Show pool payments for this coin">
-                        @pool.Coin.Name
+                        @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(pool.Coin.Name, pool.Coin.Logo))
                     </a>
                 </small>
             </td>

@@ -2,6 +2,7 @@
 @using Msv.AutoMiner.Common.Enums
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
+@using Msv.AutoMiner.FrontEnd.Models.Shared
 @model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletIndexModel
 
 @{
@@ -49,7 +50,6 @@
 
 <table class="table table-bordered table-striped">
     <tr>
-        <th>Coin symbol</th>
         <th>Coin name</th>
         <th>Address</th>
         <th>Exchange</th>
@@ -87,11 +87,11 @@
         }
 
         <tr class="@rowClass" title="@title">
-            <td>@wallet.Coin.Symbol</td>
             <td>
                 <a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
                    title="Show all operations for @wallet.Coin.Name wallets">
-                    @wallet.Coin.Name</a>
+                    @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Logo))
+                </a>
             </td>
             <td class="space-no-wrap">
                 <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"

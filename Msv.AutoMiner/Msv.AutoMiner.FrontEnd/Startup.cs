@@ -46,6 +46,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddTransient<IWalletBalanceProvider, WalletBalanceProvider>();
 
             services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
+            services.AddSingleton<IImageProcessor, ImageProcessor>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),

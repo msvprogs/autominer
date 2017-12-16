@@ -15,6 +15,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.PoolPayments
 
         public string CurrencySymbol { get; set; }
 
+        public byte[] CurrencyLogo { get; set; }
+
         public double Amount { get; set; }
 
         public string Transaction { get; set; }

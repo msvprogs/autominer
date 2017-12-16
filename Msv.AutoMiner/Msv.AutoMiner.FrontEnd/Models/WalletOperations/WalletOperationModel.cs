@@ -13,6 +13,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.WalletOperations
 
         public string CurrencyName { get; set; }
 
+        public byte[] CurrencyLogo { get; set; }
+
         public ExchangeType? Exchange { get; set; }
 
         public DateTime DateTime { get; set; }

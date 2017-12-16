@@ -174,3 +174,11 @@ dd {
 .space-no-wrap {
     white-space: nowrap
 }
+
+img.coin-logo {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}

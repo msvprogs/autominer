@@ -67,7 +67,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Amount = x.Amount,
                         Exchange = x.Wallet.ExchangeType,
                         TargetAddress = x.TargetAddress,
-                        Transaction = x.Transaction
+                        Transaction = x.Transaction,
+                        CurrencyLogo = x.Wallet.Coin.LogoImageBytes
                     })
                     .ToArrayAsync(),
                 CurrentPage = page,

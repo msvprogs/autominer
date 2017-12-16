@@ -22,7 +22,9 @@
         <tr>
             <td>@operation.Id</td>
             <td msv-absolute-date="@operation.DateTime"></td>
-            <td>@operation.CurrencyName</td>
+            <td class="space-no-wrap">
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(operation.CurrencyName, operation.CurrencyLogo))
+            </td>
             <td msv-amount="@operation.Amount" msv-currency="@operation.CurrencySymbol"></td>
             <td>@operation.Exchange</td>
             <td>

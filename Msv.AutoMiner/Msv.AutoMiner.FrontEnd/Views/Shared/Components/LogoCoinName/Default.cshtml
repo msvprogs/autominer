@@ -1,0 +1,13 @@
+﻿@model Msv.AutoMiner.FrontEnd.Models.Shared.LogoCoinNameModel
+
+@if (Model.Logo != null && Model.Logo.Length > 0)
+{
+    <img class="coin-logo" alt=" "
+         src="data:image/png;base64,@Convert.ToBase64String(Model.Logo)" />
+}
+else
+{
+    <img class="coin-logo" alt=" " src="~/images/question16.png" />
+}
+
+<span>@Model.Name</span>

@@ -60,7 +60,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Transaction = x.Transaction,
                         Address = x.CoinAddress,
                         BlockHash = x.BlockHash,
-                        Type = x.Type
+                        Type = x.Type,
+                        CurrencyLogo = x.Pool.Coin.LogoImageBytes
                     })
                     .ToArrayAsync(),
                 CurrentPage = page,

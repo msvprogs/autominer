@@ -44,6 +44,8 @@ namespace Msv.AutoMiner.Data
 
         public string RewardCalculationJavaScript { get; set; }
 
+        public byte[] LogoImageBytes { get; set; }
+
         public virtual ICollection<Wallet> Wallets { get; set; }
     }
 }

@@ -65,6 +65,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Id = x.pool.CoinId,
                         Name = x.pool.Coin.Name,
                         Symbol = x.pool.Coin.Symbol,
+                        Logo = x.pool.Coin.LogoImageBytes,
                         Algorithm = new AlgorithmModel { KnownValue = x.pool.Coin.Algorithm.KnownValue }
                     },
                     CoinBtcPrice = x.price.AverageBtcValue,

@@ -59,7 +59,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     {
                         Id = x.wallet.CoinId,
                         Name = x.wallet.Coin.Name,
-                        Symbol = x.wallet.Coin.Symbol
+                        Symbol = x.wallet.Coin.Symbol,
+                        Logo = x.wallet.Coin.LogoImageBytes
                     },
                     CoinBtcPrice = x.price.AverageBtcValue,
                     ExchangeType = x.wallet.ExchangeType,
