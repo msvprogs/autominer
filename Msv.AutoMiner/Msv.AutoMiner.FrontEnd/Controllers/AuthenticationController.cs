@@ -29,8 +29,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login() 
-            => View();
+        public IActionResult Login()
+        {
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index", "Home");
+            return View();
+        }
 
         [HttpPost]
         [AllowAnonymous]
