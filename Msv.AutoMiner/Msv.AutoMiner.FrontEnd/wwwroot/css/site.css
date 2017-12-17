@@ -187,3 +187,15 @@ a.hide-zero-button {
     margin: 3px;
     text-transform: uppercase;
 }
+
+.login-form {
+    width: 450px;
+    margin-top: 10px;
+}
+
+.user-panel {
+    width: 20%;
+    height: 50px;
+    vertical-align: central;
+    margin: 5px 0 20px 80%;
+}

@@ -1,0 +1,45 @@
+﻿@using Msv.AutoMiner.FrontEnd.Controllers
+@model Msv.AutoMiner.FrontEnd.Models.Authentication.LoginModel
+
+@{
+    ViewBag.Title = "Welcome to MSV's Autominer";
+}
+
+@if (TempData[AuthenticationController.MessageKey] != null)
+{
+    <h3 class="text-danger text-center">@TempData[AuthenticationController.MessageKey]</h3>
+    <br />
+}
+
+<h2 class="text-center">Welcome to Autominer!</h2>
+<h3 class="text-center">Please login</h3>
+
+<form asp-action="Login" method="post" class="form-horizontal login-form center-block">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <div class="col-xs-3 text-right">
+            <label asp-for="Login">Login:</label>
+        </div>
+        <div class="col-xs-9">
+            <input asp-for="Login" class="form-control"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-3 text-right">
+            <label asp-for="Password">Password:</label>
+        </div>
+        <div class="col-xs-9">
+            <input asp-for="Password" class="form-control"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-9">
+            <label asp-for="RememberMe">
+                <input asp-for="RememberMe"/> Remember me
+            </label>
+        </div>
+    </div>
+    <div class="text-center">
+        <input type="submit" class="btn btn-lg btn-primary" value="Login"/>
+    </div>
+</form>

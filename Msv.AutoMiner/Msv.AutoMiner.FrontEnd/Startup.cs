@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO.Compression;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -36,10 +39,28 @@ namespace Msv.AutoMiner.FrontEnd
                 x => x.UseMySql(connectionString, y => y.CommandTimeout(30)),
                 ServiceLifetime.Transient);
 
-            services.AddMvc()
+            services.AddAuthentication(x =>
+                {
+                    x.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    x.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    x.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddCookie(x =>
+                {
+                    x.LoginPath = "/Authentication/Login";
+                    x.LogoutPath = "/Authentication/Logout";
+                    x.AccessDeniedPath = "/Authentication/AccessDenied";
+                });
+
+            var requireAuthPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+            services.AddMvc(x => x.Filters.Add(new AuthorizeFilter(requireAuthPolicy)))
                 .AddMvcOptions(x => x.ModelBinderProviders.Insert(0, new TrimmingModelBinderProvider()));
+
             services.AddDistributedMemoryCache();
-            services.AddSession();
+            services.AddSession(x => x.IdleTimeout = TimeSpan.MaxValue);
 
             services.Configure<GzipCompressionProviderOptions>(x => x.Level = CompressionLevel.Optimal);
             services.AddResponseCompression();
@@ -51,6 +72,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddTransient<IPoolInfoProvider, PoolInfoProvider>();
             services.AddTransient<IWalletBalanceProvider, WalletBalanceProvider>();
 
+            services.AddSingleton<IPasswordHasher, Sha256PasswordHasher>();
             services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
             services.AddSingleton<IImageProcessor, ImageProcessor>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
@@ -77,6 +99,7 @@ namespace Msv.AutoMiner.FrontEnd
 
             app.UseStaticFiles();
 
+            app.UseAuthentication();
             app.UseSession();
             app.UseMvc(routes =>
             {

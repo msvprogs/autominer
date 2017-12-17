@@ -28,7 +28,7 @@
             <td class="space-no-wrap">
                 @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(payment.CurrencyName, payment.CurrencyLogo))
             </td>
-            <td msv-amount="@payment.Amount" msv-currency="@payment.CurrencySymbol"></td>
+            <td class="space-no-wrap" msv-amount="@payment.Amount" msv-currency="@payment.CurrencySymbol"></td>
             <td>
                 @if (payment.Transaction != null)
                 {

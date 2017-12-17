@@ -21,10 +21,10 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             output.Content.Clear();
             if (Balance == null)
                 return;
-         
+
+            output.Attributes.AddClasses("text-right");
             if (Balance > 0)
             {
-                output.Attributes.SetAttribute("class", "text-right");
                 var balanceContainer = new TagBuilder("div");
                 var strongTag = new TagBuilder("strong");
                 strongTag.InnerHtml.Append(ConversionHelper.ToCryptoCurrencyValue(Balance.Value));
@@ -42,7 +42,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             }
             else
             {
-                output.Attributes.SetAttribute("class", "text-right text-muted");
+                output.Attributes.AddClasses("text-muted");
                 output.Content.SetContent(ConversionHelper.ToCryptoCurrencyValue(Balance.Value));
             }
         }

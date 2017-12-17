@@ -17,7 +17,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            output.Attributes.SetAttribute("class", Amount >= 0 ? "positive-amount" : "negative-amount");
+            output.Attributes.AddClasses(Amount >= 0 ? "positive-amount" : "negative-amount");
             var amountString = ConversionHelper.ToCryptoCurrencyValue(Amount);
             output.Content.SetContent(Currency != null
                 ? $"{amountString} {Currency.ToUpperInvariant()}"

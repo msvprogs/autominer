@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {
@@ -47,6 +49,18 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 throw new ArgumentException("Value cannot be null or empty.", nameof(key));
 
             session.Set(key, BitConverter.GetBytes(value));
+        }
+
+        public static void AddClasses(this TagHelperAttributeList attributes, params string[] newClasses)
+        {
+            if (attributes == null)
+                throw new ArgumentNullException(nameof(attributes));
+
+            const string classAttributeKey = "class";
+            attributes.SetAttribute(classAttributeKey,
+                attributes.TryGetAttribute(classAttributeKey, out var oldClass)
+                    ? string.Join(" ", new[] {oldClass.Value}.Concat(newClasses))
+                    : string.Join(" ", newClasses));
         }
     }
 }
