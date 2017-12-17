@@ -40,7 +40,8 @@ private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
         <i class="glyphicon glyphicon-plus"></i> Add solo-mining pool...
     </a>
 </div>
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
     <tr>
         <th>Coin name</th>
         <th>Pool name</th>
@@ -53,9 +54,11 @@ private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
         <th>Last updated</th>
         <th>Actions</th>
     </tr>
+    </thead>
+    <tbody>
     @foreach (var pool in Model.OrderBy(x => x.Coin.Symbol)
-      .ThenBy(x => x.Coin.Name)
-      .ThenByDescending(x => x.Priority))
+        .ThenBy(x => x.Coin.Name)
+        .ThenByDescending(x => x.Priority))
     {
         string rowClass;
         string title;
@@ -174,4 +177,5 @@ private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
             </td>
         </tr>
     }
+    </tbody>
 </table>

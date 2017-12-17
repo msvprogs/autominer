@@ -7,6 +7,7 @@
     "jquery-validation-unobtrusive": "3.2.6",
     "font-awesome": "Font-Awesome#v4.7.0",
     "bootstrap": "v3.3.6",
-    "jquery-serialize-object": "2.5.0"
+    "jquery-serialize-object": "2.5.0",
+    "jquery.floatThead": "floatThead#v1.2.12"
   }
 }

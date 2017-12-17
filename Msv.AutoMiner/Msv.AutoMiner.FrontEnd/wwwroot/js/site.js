@@ -83,7 +83,10 @@ Clipboard.setText = function(text, callbackOk, callbackFail) {
 
 // --- End of Clipboard
 
-$(function() {
+// *** DOMContentLoaded handler
+
+$(function () {
+    // Enable confirmation dialogs on forms which require confirmation
     $("form[data-confirm-body]").submit(function(e) {
         var self = $(this);
         if (self.data("confirmed"))
@@ -99,7 +102,29 @@ $(function() {
             });
         e.preventDefault();
     });
+
+    // Enable sticky behavior of table headers
+    $("table.sticky-header").floatThead({
+        //useAbsolutePositioning: false,
+        scrollingTop: 48
+    });
+
+    // Enable throbber on AJAX requests
+    $(document).ajaxSend(function (ev, xhr, options) {
+        if (!options.disableThrobber)
+            $("#throbber").show();
+    });
+
+    $(document).ajaxComplete(function (ev, xhr, options) {
+        if (!options.disableThrobber)
+            $("#throbber").hide();
+    });
+
+    // Cancel clicks on the disabled list items
+    $("li.disabled, li.active").click(function (e) { e.preventDefault(); });
 });
+
+// *** End of DOMContentLoaded handler
 
 function showModal(srcHref, callback) {
     var dialogSection = $("<div>").prependTo("body");
@@ -135,17 +160,3 @@ function confirmAndPost(srcHref) {
             .submit();
     });
 }
-
-$(function () {
-    $(document).ajaxSend(function (ev, xhr, options) {
-        if (!options.disableThrobber)
-            $("#throbber").show();
-    });
-
-    $(document).ajaxComplete(function (ev, xhr, options) {
-        if (!options.disableThrobber)
-            $("#throbber").hide();
-    });
-
-    $("li.disabled, li.active").click(function(e) { e.preventDefault(); });
-})

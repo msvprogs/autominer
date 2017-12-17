@@ -19,13 +19,16 @@
     </a>
 </div>    
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
     <tr>
         <th>Name</th>
         <th>Certificate serial</th>
         <th>Last heartbeat</th>
         <th>Actions</th>
     </tr>
+    </thead>
+    <tbody>
     @foreach (var rig in Model.OrderBy(x => x.Name))
     {
         string rowClass;
@@ -84,7 +87,7 @@
                     <li>
                         @if (rig.CertificateSerial == null)
                         {
-                            <a class="btn btn-xs btn-info" 
+                            <a class="btn btn-xs btn-info"
                                asp-action="CreateRegistrationRequest" asp-route-id="@rig.Id" title="Register rig">
                                 <i class="fa fa-user-plus" aria-hidden="true"></i>
                             </a>
@@ -101,6 +104,7 @@
             </td>
         </tr>
     }
+    </tbody>
 </table>
 
 @section Scripts {

@@ -8,7 +8,8 @@
 
 @await Component.InvokeAsync("Pagination", Model)
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
     <tr>
         <th>ID</th>
         <th>Pool</th>
@@ -18,6 +19,8 @@
         <th>Amount</th>
         <th>Data</th>
     </tr>
+    </thead>
+    <tbody>
     @foreach (var payment in Model.CurrentPageItems)
     {
         <tr>
@@ -45,6 +48,7 @@
             </td>
         </tr>
     }
+    </tbody>
 </table>
 
 @await Component.InvokeAsync("Pagination", Model)

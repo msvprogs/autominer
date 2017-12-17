@@ -27,7 +27,8 @@
         <i class="glyphicon glyphicon-plus"></i> Add new coin...
     </a>
 </div>
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
     <tr>
         <th>Name</th>
         <th>Symbol</th>
@@ -39,6 +40,8 @@
         <th>Last updated</th>
         <th>Actions</th>
     </tr>
+    </thead>
+    <tbody>
     @foreach (var coin in Model.Coins.OrderBy(x => x.Symbol))
     {
         string rowClass;
@@ -124,4 +127,5 @@
             </td>
         </tr>
     }
+    </tbody>
 </table>

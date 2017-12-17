@@ -8,7 +8,8 @@
 
 @await Component.InvokeAsync("Pagination", Model)
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
     <tr>
         <th>ID</th>
         <th>Date</th>
@@ -17,6 +18,8 @@
         <th>Exchange</th>
         <th>Tx data</th>
     </tr>
+    </thead>
+    <tbody>
     @foreach (var operation in Model.CurrentPageItems)
     {
         <tr>
@@ -28,12 +31,12 @@
             <td class="space-no-wrap" msv-amount="@operation.Amount" msv-currency="@operation.CurrencySymbol"></td>
             <td>@operation.Exchange</td>
             <td>
-                <span class="wallet-small">@operation.TargetAddress</span>
-                <br />
-                <span class="transaction-small">@operation.Transaction</span>
+                <div class="wallet-small">@operation.TargetAddress</div>
+                <div class="transaction-small">@operation.Transaction</div>
             </td>
         </tr>
     }
+    </tbody>
 </table>
 
 @await Component.InvokeAsync("Pagination", Model)

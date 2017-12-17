@@ -58,7 +58,8 @@
     </a>
 </div>
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
     <tr>
         <th>Coin name</th>
         <th>Address</th>
@@ -69,6 +70,8 @@
         <th>Last updated</th>
         <th>Actions</th>
     </tr>
+    </thead>
+    <tbody>
     @foreach (var wallet in Model.Wallets.OrderBy(x => x.Coin.Symbol)
         .ThenBy(x => x.Coin.Name)
         .ThenByDescending(x => x.IsMiningTarget))
@@ -176,7 +179,7 @@
                         </li>
                     }
                     <li>
-                        <form asp-action="Delete" asp-route-id="@wallet.Id" 
+                        <form asp-action="Delete" asp-route-id="@wallet.Id"
                               method="post" title="Delete wallet"
                               data-confirm-title="Delete wallet @wallet.Address?"
                               data-confirm-body="You are going to delete wallet @wallet.Address. Are you sure?">
@@ -189,6 +192,7 @@
             </td>
         </tr>
     }
+    </tbody>
 </table>
 
 @section Scripts {

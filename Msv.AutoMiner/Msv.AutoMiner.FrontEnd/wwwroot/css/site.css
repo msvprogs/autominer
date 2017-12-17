@@ -199,3 +199,11 @@ a.hide-zero-button {
     vertical-align: central;
     margin: 5px 0 20px 80%;
 }
+
+/* ReSharper disable once DeclarationIsEmpty */
+/* Dummy style for sticky table header logic */
+table.sticky-header { }
+
+thead {
+    background-color: #F9F9F9;
+}
