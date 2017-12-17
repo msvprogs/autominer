@@ -72,7 +72,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     LastPrice = (double) x.Data.last,
                     LastDayLow = (double) x.Data.low24hr,
                     LastDayHigh = (double) x.Data.high24hr,
-                    LastDayVolume = ((JToken)x.Data["24htrade"]).Value<double>(),
+                    LastDayVolume = ((JToken)x.Data["24htrade"]).Value<double>() * (double)x.Data.last,
                     BuyFeePercent = ConversionFeePercent,
                     SellFeePercent = ConversionFeePercent,
                     IsActive = true
