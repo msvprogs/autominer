@@ -8,6 +8,7 @@ using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Pools;
@@ -17,6 +18,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     public class PoolsController : Controller
     {
         public const string PoolsMessageKey = "PoolsMessage";
+        public const string ShowZeroValuesKey = "PoolsShowZeroValues";
 
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IPoolInfoProvider m_PoolInfoProvider;
@@ -56,6 +58,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     (x, y) => (x.pool, x.state, price: y ?? new CoinValue()))
                 .LeftOuterJoin(networkInfos, x => x.pool.Coin.Id, x => x.CoinId,
                     (x, y) => (x.pool, x.state, x.price, networkInfo: y ?? new CoinNetworkInfo()))
+                .Where(x => HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true)
+                            || x.state.ConfirmedBalance > 0
+                            || x.state.UnconfirmedBalance > 0)
                 .Select(x => new PoolDisplayModel
                 {
                     Id = x.pool.Id,
@@ -235,6 +240,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             await m_Context.SaveChangesAsync();
 
             TempData[PoolsMessageKey] = $"Pool {pool.Name} has been successfully deleted";
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult ToggleShowZero()
+        {
+            HttpContext.Session.SetBool(ShowZeroValuesKey, !HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true));
             return RedirectToAction("Index");
         }
 

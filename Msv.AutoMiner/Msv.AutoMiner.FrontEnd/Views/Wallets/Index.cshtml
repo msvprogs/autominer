@@ -7,7 +7,14 @@
 
 @{
     ViewBag.Title = "Wallets";
-}        
+}
+
+@functions {
+
+    private const double MinWarningVolume = 0.1;
+    private const double MinVolume = 0.01;
+
+}
 
 @if (TempData[WalletsController.WalletsMessageKey] != null)
 {
@@ -24,28 +31,31 @@
         <table class="wallet-totals">
             <tr>
                 <td>Total BTC:</td>
-                <td><em>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalBtc) BTC,</em></td>
-                <td><em>$@ConversionHelper.ToFiatValue(Model.TotalUsd)</em></td>
+                <td><i>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalBtc) BTC,</i></td>
+                <td><i>$@ConversionHelper.ToFiatValue(Model.TotalUsd)</i></td>
             </tr>
             <tr>
                 <td>Total altcoins equivalent:</td>
-                <td><em>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalAltcoinBtc) BTC,</em></td>
-                <td><em>$@ConversionHelper.ToFiatValue(Model.TotalAltcoinUsd)</em></td>
+                <td><i>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalAltcoinBtc) BTC,</i></td>
+                <td><i>$@ConversionHelper.ToFiatValue(Model.TotalAltcoinUsd)</i></td>
             </tr>
             <tr>
                 <td>Grand total:</td>
-                <td><strong>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalBtc + Model.TotalAltcoinBtc) BTC,</strong></td>
-                <td><strong>$@ConversionHelper.ToFiatValue(Model.TotalUsd + Model.TotalAltcoinUsd)</strong></td>
+                <td><b>@ConversionHelper.ToCryptoCurrencyValue(Model.TotalBtc + Model.TotalAltcoinBtc) BTC,</b></td>
+                <td><b>$@ConversionHelper.ToFiatValue(Model.TotalUsd + Model.TotalAltcoinUsd)</b></td>
             </tr>
         </table>
     </div>
 </div>
-<div class="row">
-    <div class="pull-right div-table-actions">
-        <a class="btn btn-info" asp-action="Create">
-            <i class="glyphicon glyphicon-plus"></i> Add new wallet...
-        </a>
-    </div>
+
+<div class="pull-left">
+    @await Component.InvokeAsync("HideZeroButton", WalletsController.ShowZeroValuesKey)
+</div>
+
+<div class="pull-right div-table-actions">
+    <a class="btn btn-info" asp-action="Create">
+        <i class="glyphicon glyphicon-plus"></i> Add new wallet...
+    </a>
 </div>
 
 <table class="table table-bordered table-striped">
@@ -92,6 +102,16 @@
                    title="Show all operations for @wallet.Coin.Name wallets">
                     @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Logo))
                 </a>
+                <div>
+                    @if (wallet.LastDayVolume < MinVolume)
+                    {
+                        <span class="label label-danger">Low volume</span>
+                    }
+                    else if (wallet.LastDayVolume < MinWarningVolume)
+                    {
+                        <span class="label label-warning">Lowish volume</span>
+                    }
+                </div>
             </td>
             <td class="space-no-wrap">
                 <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
@@ -108,6 +128,12 @@
                    title="Show all operations for exchange @wallet.ExchangeType">
                     @(wallet.ExchangeType != null ? wallet.ExchangeType.ToString() : "<local>")
                 </a>
+                @if (wallet.LastDayVolume != null)
+                {
+                    <div class="secondary-info">
+                        24h vol: <b>@wallet.LastDayVolume.Value.ToString("N3") BTC</b>
+                    </div>
+                }
             </td>
             <td msv-balance="@wallet.Available" msv-btc-price="@wallet.CoinBtcPrice"></td>
             <td msv-balance="@wallet.Blocked" msv-btc-price="@wallet.CoinBtcPrice"></td>

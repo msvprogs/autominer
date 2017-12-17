@@ -82,6 +82,7 @@ namespace Msv.AutoMiner.Data.Logic
                             Price = y.values.LastPrice,
                             Bid = y.values.HighestBid,
                             Ask = y.values.LowestAsk,
+                            Volume = y.values.LastDayVolume,
                             Updated = y.values.DateTime
                         })
                         .ToArray()

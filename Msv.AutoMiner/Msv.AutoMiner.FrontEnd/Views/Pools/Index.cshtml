@@ -9,11 +9,11 @@
 
 @functions {
 
-    private const int MinWorkers = 3;
+private const int MinWorkers = 3;
 
-    private static readonly TimeSpan M_MinTtf = TimeSpan.FromSeconds(2);
-    private static readonly TimeSpan M_MaxTtf = TimeSpan.FromHours(8);
-    private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
+private static readonly TimeSpan M_MinTtf = TimeSpan.FromSeconds(2);
+private static readonly TimeSpan M_MaxTtf = TimeSpan.FromHours(8);
+private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
 }
 
 
@@ -27,6 +27,11 @@
 }
 
 <h2 class="text-center">Pools</h2>
+
+<div class="pull-left">
+    @await Component.InvokeAsync("HideZeroButton", PoolsController.ShowZeroValuesKey)
+</div>
+
 <div class="pull-right div-table-actions">
     <a class="btn btn-info" asp-action="CreateStratum">
         <i class="glyphicon glyphicon-plus"></i> Add Stratum pool...
@@ -49,8 +54,8 @@
         <th>Actions</th>
     </tr>
     @foreach (var pool in Model.OrderBy(x => x.Coin.Symbol)
-       .ThenBy(x => x.Coin.Name)
-       .ThenByDescending(x => x.Priority))
+      .ThenBy(x => x.Coin.Name)
+      .ThenByDescending(x => x.Priority))
     {
         string rowClass;
         string title;

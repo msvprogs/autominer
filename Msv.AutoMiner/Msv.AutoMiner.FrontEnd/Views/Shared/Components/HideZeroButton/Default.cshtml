@@ -1,0 +1,12 @@
+﻿@model Msv.AutoMiner.FrontEnd.Models.Shared.HideZeroButtonModel
+
+<a class="btn btn-xs btn-info hide-zero-button" href="@Model.ActionUri">
+    @if (Model.CurrentState)
+    {
+        <i class="fa fa-toggle-on" aria-hidden="true"></i>@: Hide zero values
+    }
+    else
+    {
+        <i class="fa fa-toggle-off" aria-hidden="true"></i>@: Show zero values
+    }
+</a>

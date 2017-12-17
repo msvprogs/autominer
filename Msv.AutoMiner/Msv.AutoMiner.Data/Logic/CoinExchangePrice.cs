@@ -10,6 +10,8 @@ namespace Msv.AutoMiner.Data.Logic
         public double UsdPrice { get; set; }
         public double Bid { get; set; }
         public double Ask { get; set; }
+        public double Volume { get; set; }
+        public double VolumeBtc => Volume * Price;
         public DateTime Updated { get; set; }
     }
 }

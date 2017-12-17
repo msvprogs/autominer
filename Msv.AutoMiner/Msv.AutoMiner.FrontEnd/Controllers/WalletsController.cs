@@ -7,6 +7,7 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using Msv.AutoMiner.FrontEnd.Models.Wallets;
 using Msv.AutoMiner.FrontEnd.Providers;
@@ -16,6 +17,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     public class WalletsController : Controller
     {
         public const string WalletsMessageKey = "WalletsMessage";
+        public const string ShowZeroValuesKey = "WalletsShowZeroValues";
 
         private readonly IStoredFiatValueProvider m_FiatValueProvider;
         private readonly ICoinValueProvider m_CoinValueProvider;
@@ -50,6 +52,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     (x, y) => (wallet: x, balances: y ?? new WalletBalance()))
                 .LeftOuterJoin(coinValues, x => x.wallet.CoinId, x => x.CurrencyId,
                     (x, y) => (x.wallet, x.balances, price: y ?? new CoinValue()))
+                .Where(x => HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true)
+                    || x.balances.Balance > 0
+                    || x.balances.BlockedBalance > 0 
+                    || x.balances.UnconfirmedBalance > 0)
                 .Select(x => new WalletDisplayModel
                 {
                     Id = x.wallet.Id,
@@ -63,6 +69,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Logo = x.wallet.Coin.LogoImageBytes
                     },
                     CoinBtcPrice = x.price.AverageBtcValue,
+                    LastDayVolume = x.price.ExchangePrices
+                        .EmptyIfNull()
+                        .FirstOrDefault(y => y.Exchange == x.wallet.ExchangeType)?.VolumeBtc,
                     ExchangeType = x.wallet.ExchangeType,
                     Available = x.balances.Balance,
                     Blocked = x.balances.BlockedBalance,
@@ -198,6 +207,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             await m_Context.SaveChangesAsync();
 
             TempData[WalletsMessageKey] = $"Wallet {wallet.Address} has been successfully deleted";
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult ToggleShowZero()
+        {
+            HttpContext.Session.SetBool(ShowZeroValuesKey, !HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true));
             return RedirectToAction("Index");
         }
 

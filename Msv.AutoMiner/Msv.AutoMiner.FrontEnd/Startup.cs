@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO.Compression;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +40,10 @@ namespace Msv.AutoMiner.FrontEnd
                 .AddMvcOptions(x => x.ModelBinderProviders.Insert(0, new TrimmingModelBinderProvider()));
             services.AddDistributedMemoryCache();
             services.AddSession();
+
+            services.Configure<GzipCompressionProviderOptions>(x => x.Level = CompressionLevel.Optimal);
+            services.AddResponseCompression();
+
             services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
             services.AddTransient<ICoinValueProvider, CoinValueProvider>();
             services.AddTransient<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
@@ -57,6 +63,8 @@ namespace Msv.AutoMiner.FrontEnd
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseResponseCompression();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

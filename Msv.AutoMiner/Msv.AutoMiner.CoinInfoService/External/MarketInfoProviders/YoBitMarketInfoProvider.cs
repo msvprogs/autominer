@@ -61,7 +61,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     LowestAsk = (double)x.Data.sell,
                     LastDayHigh = (double)x.Data.high,
                     LastDayLow = (double)x.Data.low,
-                    LastDayVolume = (double)x.Data.vol,
+                    //'vol' field is in BTC
+                    LastDayVolume = (double)x.Data.vol_cur,
                     LastPrice = (double)x.Data.last,
                     IsActive = true,
                     SellFeePercent = ConversionFeePercent,

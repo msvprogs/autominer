@@ -50,7 +50,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                         HighestBid = (double) x.Data.BidPrice,
                         LastDayLow = (double) x.Data.LowPrice,
                         LastDayHigh = (double) x.Data.HighPrice,
-                        LastDayVolume = (double) x.Data.Volume,
+                        // 'Volume' field returns the same BTC volume
+                        LastDayVolume = (double) x.Data.BTCVolume / (double) x.Data.LastPrice,
                         LastPrice = (double) x.Data.LastPrice,
                         IsActive = x.MarketInfo.IsActive
                     })

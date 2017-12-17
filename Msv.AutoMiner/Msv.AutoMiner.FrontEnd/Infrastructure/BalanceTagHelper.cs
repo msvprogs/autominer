@@ -31,7 +31,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 balanceContainer.InnerHtml.AppendHtml(strongTag);
                 var btcPriceContainer = new TagBuilder("div")
                 {
-                    Attributes = {{"class", "btc-equivalent"}}
+                    Attributes = {{"class", "secondary-info" } }
                 };
                 if (BtcUnitPrice != null)
                     btcPriceContainer.InnerHtml.AppendHtml(

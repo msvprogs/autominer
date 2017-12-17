@@ -14,6 +14,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Wallets
 
         public double CoinBtcPrice { get; set; }
 
+        public double? LastDayVolume { get; set; }
+
         public double Available { get; set; }
 
         public double Blocked { get; set; }

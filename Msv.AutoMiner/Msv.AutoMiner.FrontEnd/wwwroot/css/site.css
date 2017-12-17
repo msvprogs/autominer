@@ -99,7 +99,7 @@ ul.list-inline > li {
     padding-right: 1px !important;
 }
 
-.btc-equivalent {
+.secondary-info {
     font-size: 8pt;
     color: gray;
     margin-top: 4px;
@@ -181,4 +181,9 @@ img.coin-logo {
     margin-right: 5px;
     margin-top: 3px;
     margin-bottom: 3px;
+}
+
+a.hide-zero-button {
+    margin: 3px;
+    text-transform: uppercase;
 }
