@@ -25,15 +25,6 @@ namespace Msv.AutoMiner.Rig.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:00:02")]
-        public global::System.TimeSpan ProfitabilityQueryDispersion {
-            get {
-                return ((global::System.TimeSpan)(this["ProfitabilityQueryDispersion"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool UseWatchdog {
             get {
@@ -47,15 +38,6 @@ namespace Msv.AutoMiner.Rig.Properties {
         public string UnixCudaLibraryPath {
             get {
                 return ((string)(this["UnixCudaLibraryPath"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public double CurrencyChangeThresholdRatio {
-            get {
-                return ((double)(this["CurrencyChangeThresholdRatio"]));
             }
         }
         
@@ -128,6 +110,15 @@ namespace Msv.AutoMiner.Rig.Properties {
         public global::System.TimeSpan LowestGpuUsageSwitchInterval {
             get {
                 return ((global::System.TimeSpan)(this["LowestGpuUsageSwitchInterval"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:05:00")]
+        public global::System.TimeSpan ProfitabilityQueryDispersion {
+            get {
+                return ((global::System.TimeSpan)(this["ProfitabilityQueryDispersion"]));
             }
         }
     }

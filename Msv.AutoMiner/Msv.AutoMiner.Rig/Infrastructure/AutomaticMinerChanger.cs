@@ -114,12 +114,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 {
                     var diffRatio = ConversionHelper.GetDiffRatio(currentCoinInfo.PoolData.BtcPerDay, mostProfitable.PoolData.BtcPerDay);
                     M_Logger.Info($"{mostProfitable.ToFullNameString()} profitability is {diffRatio:F2}% better");
-                    if (diffRatio < m_ChangingOptions.ThresholdRatio)
-                    {
-                        M_Logger.Info(
-                            $"Difference is below threshold {m_ChangingOptions.ThresholdRatio:F1}%, continuing to mine the current coin");
-                        return;
-                    }
                 }
                 M_Logger.Info(
                     $"Starting to mine new coin: {mostProfitable.ToFullNameWithBtcString()}");

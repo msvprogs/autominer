@@ -112,7 +112,6 @@ namespace Msv.AutoMiner.Rig
                     {
                         Interval = Settings.Default.ProfitabilityQueryInterval,
                         Dispersion = Settings.Default.ProfitabilityQueryDispersion,
-                        ThresholdRatio = Settings.Default.CurrencyChangeThresholdRatio,
                         LowestAverageGpuUsage = Settings.Default.LowestAverageGpuUsage,
                         LowestGpuUsageSwitchInterval = Settings.Default.LowestGpuUsageSwitchInterval
                     }))
