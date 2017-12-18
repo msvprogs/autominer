@@ -1,5 +1,40 @@
 ﻿@using System.Reflection
 @using System.Security.Claims
+@using JetBrains.Annotations
+@using Microsoft.AspNetCore.Html
+
+@functions{
+
+    private IHtmlContent MakeNavBarItem(
+        string name, [AspMvcController] string controller, [AspMvcAction] string action, string iconClass)
+    {
+        var actionUrl = Url.Action(action, controller);
+        var aTag = new TagBuilder("a")
+        {
+            Attributes =
+        {
+            ["href"] = actionUrl
+        }
+        };
+        var iTag = new TagBuilder("i")
+        {
+            Attributes =
+        {
+            ["class"] = "fa " + iconClass,
+            ["aria-hidden"] = "true"
+        }
+        };
+        aTag.InnerHtml.AppendHtml(iTag)
+            .Append(" " + name);
+        var liTag = new TagBuilder("li");
+        if (actionUrl == Context.Request.Path)
+            liTag.AddCssClass("active");
+        liTag.InnerHtml.AppendHtml(aTag);
+        return liTag;
+    }
+}
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,18 +44,18 @@
     <link rel="shortcut icon" href="~/favicon.ico" />
 
     <environment include="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/>
-        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
         <link rel="stylesheet" href="~/lib/codemirror/lib/codemirror.css">
-        <link rel="stylesheet" href="~/css/site.css"/>
+        <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"/>
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
         <link rel="stylesheet" href="~/lib/codemirror/lib/codemirror.css">
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true"/>
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
 
 </head>
@@ -31,66 +66,66 @@
     @Html.Partial("_AlertPartial")
     @Html.Partial("_ConfirmPartial")
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a asp-controller="Home" asp-action="Index" class="navbar-brand">
-                <i class="glyphicon glyphicon-briefcase"></i> MSV Autominer
-            </a>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="navbar-brand">
+                    <i class="glyphicon glyphicon-briefcase"></i> MSV Autominer
+                </a>
+            </div>
+            <div class="navbar-collapse collapse">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <ul class="nav navbar-nav" id="topNavBar">
+                        @MakeNavBarItem("Home", "Home", "Index", "fa-home")
+                        @MakeNavBarItem("Coins", "Coins", "Index", "fa-btc")
+                        @MakeNavBarItem("Pools", "Pools", "Index", "fa-tasks")
+                        @MakeNavBarItem("Pool payments", "PoolPayments", "Index", "fa-handshake-o")
+                        @MakeNavBarItem("Wallets", "Wallets", "Index", "fa-money")
+                        @MakeNavBarItem("Wallet operations", "WalletOperations", "Index", "fa-handshake-o")
+                        @MakeNavBarItem("Exchanges", "Exchanges", "Index", "fa-exchange")
+                        @MakeNavBarItem("Rigs", "Rigs", "Index", "fa-desktop")
+                        @MakeNavBarItem("Tools", "Tools", "Index", "fa-wrench")
+                    </ul>
+                }
+            </div>
         </div>
-        <div class="navbar-collapse collapse">
-            @if (User.Identity.IsAuthenticated)
-            {
-                <ul class="nav navbar-nav">
-                    <li><a asp-controller="Home" asp-action="Index"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
-                    <li><a asp-controller="Coins" asp-action="Index"><i class="fa fa-btc" aria-hidden="true"></i> Coins</a></li>
-                    <li><a asp-controller="Pools" asp-action="Index"><i class="fa fa-tasks" aria-hidden="true"></i> Pools</a></li>
-                    <li><a asp-controller="PoolPayments" asp-action="Index"><i class="fa fa-handshake-o" aria-hidden="true"></i> Pool payments</a></li>
-                    <li><a asp-controller="Wallets" asp-action="Index"><i class="fa fa-money" aria-hidden="true"></i> Wallets</a></li>
-                    <li><a asp-controller="WalletOperations" asp-action="Index"><i class="fa fa-handshake-o" aria-hidden="true"></i> Wallet operations</a></li>
-                    <li><a asp-controller="Exchanges" asp-action="Index"><i class="fa fa-exchange" aria-hidden="true"></i> Exchanges</a></li>
-                    <li><a asp-controller="Rigs" asp-action="Index"><i class="fa fa-desktop" aria-hidden="true"></i> Rigs</a></li>
-                    <li><a asp-controller="Tools" asp-action="Index"><i class="fa fa-wrench" aria-hidden="true"></i> Tools</a></li>
-                </ul>
-            }
-        </div>
-    </div>
     </nav>
     @{
         var versionString = $"v{Assembly.GetExecutingAssembly().GetName().Version}";
     }
     <div class="container body-content">
-         @if (User.Identity.IsAuthenticated)
-          {
-              <div class="panel panel-default user-panel">
-                  <div class="panel-body row">
-                      <div class="col-xs-9">
-                          <span class="glyphicon glyphicon-user"></span> <b>@User.FindFirst(ClaimTypes.Name).Value</b>
-                      </div>
-                      <div class="col-xs-3">
-                          <a asp-controller="Authentication" asp-action="Logout"
-                             class="btn btn-xs btn-default" title="Logout">
-                              <span class="glyphicon glyphicon-log-out"></span>
-                          </a>
-                      </div>
-                  </div>
-              </div>
-          }
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="panel panel-default user-panel">
+                <div class="panel-body row">
+                    <div class="col-xs-9">
+                        <span class="glyphicon glyphicon-user"></span> <b>@User.FindFirst(ClaimTypes.Name).Value</b>
+                    </div>
+                    <div class="col-xs-3">
+                        <a asp-controller="Authentication" asp-action="Logout"
+                           class="btn btn-xs btn-default" title="Logout">
+                            <span class="glyphicon glyphicon-log-out"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
 
         @RenderBody()
-        <hr/>
+        <hr />
         <footer>
             <span class="pull-left">&copy; 2017 - MSV</span>
             <span class="pull-right">@versionString</span>
         </footer>
     </div>
-    
+
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
