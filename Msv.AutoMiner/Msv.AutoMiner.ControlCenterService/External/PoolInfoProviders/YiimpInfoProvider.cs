@@ -40,7 +40,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     Currency = x.WorkerPassword != null 
                         && x.WorkerPassword.StartsWith("c=")
                         && x.WorkerPassword.Length > 2 
-                        ? x.WorkerPassword.Substring(2).ToUpperInvariant()
+                        ? x.WorkerPassword.Substring(2)
                         : x.Coin.Symbol
                 })
                 .Select(x => new
