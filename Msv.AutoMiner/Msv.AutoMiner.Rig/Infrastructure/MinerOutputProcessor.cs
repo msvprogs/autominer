@@ -24,8 +24,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
         public long CurrentHashRate { get; private set; }
         public long CurrentSecondaryHashRate { get; private set; }
-        public int? AcceptedShares { get; private set; }
-        public int? RejectedShares { get; private set; }
+        public int AcceptedShares { get; private set; }
+        public int RejectedShares { get; private set; }
 
         public MinerOutputProcessor(
             string processName, Miner miner, string primaryCurrency, string secondaryCurrency, bool benchmarkMode)
@@ -46,7 +46,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 m_ValidShareRegex = new Regex(miner.ValidShareRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (!string.IsNullOrWhiteSpace(miner.InvalidShareRegex))
                 m_InvalidShareRegex = new Regex(miner.InvalidShareRegex, RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            AcceptedShares = RejectedShares = 0;
         }
 
         public void Write(string output)
