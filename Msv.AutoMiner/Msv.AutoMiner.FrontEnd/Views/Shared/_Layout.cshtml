@@ -12,22 +12,22 @@
         var aTag = new TagBuilder("a")
         {
             Attributes =
-        {
-            ["href"] = actionUrl
-        }
+            {
+                ["href"] = actionUrl
+            }
         };
         var iTag = new TagBuilder("i")
         {
             Attributes =
-        {
-            ["class"] = "fa " + iconClass,
-            ["aria-hidden"] = "true"
-        }
+            {
+                ["class"] = "fa " + iconClass,
+                ["aria-hidden"] = "true"
+            }
         };
         aTag.InnerHtml.AppendHtml(iTag)
             .Append(" " + name);
         var liTag = new TagBuilder("li");
-        if (actionUrl == Context.Request.Path)
+        if (Context.Request.Path.StartsWithSegments(actionUrl))
             liTag.AddCssClass("active");
         liTag.InnerHtml.AppendHtml(aTag);
         return liTag;
