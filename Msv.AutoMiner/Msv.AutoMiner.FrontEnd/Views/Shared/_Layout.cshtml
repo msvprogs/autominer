@@ -65,23 +65,23 @@
     @{
         var versionString = $"v{Assembly.GetExecutingAssembly().GetName().Version}";
     }
-    <div class="container body-content">   
-        @if (User.Identity.IsAuthenticated)
-        {
-            <div class="panel panel-default user-panel">
-                <div class="panel-body row">
-                    <div class="col-xs-9">
-                        <span class="glyphicon glyphicon-user"></span> <b>@User.FindFirst(ClaimTypes.Name).Value</b>
-                    </div>
-                    <div class="col-xs-3">
-                        <a asp-controller="Authentication" asp-action="Logout"
-                           class="btn btn-xs btn-default" title="Logout">
-                            <span class="glyphicon glyphicon-log-out"></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        }
+    <div class="container body-content">
+         @if (User.Identity.IsAuthenticated)
+          {
+              <div class="panel panel-default user-panel">
+                  <div class="panel-body row">
+                      <div class="col-xs-9">
+                          <span class="glyphicon glyphicon-user"></span> <b>@User.FindFirst(ClaimTypes.Name).Value</b>
+                      </div>
+                      <div class="col-xs-3">
+                          <a asp-controller="Authentication" asp-action="Logout"
+                             class="btn btn-xs btn-default" title="Logout">
+                              <span class="glyphicon glyphicon-log-out"></span>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+          }
 
         @RenderBody()
         <hr/>
@@ -91,7 +91,6 @@
         </footer>
     </div>
     
-
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>

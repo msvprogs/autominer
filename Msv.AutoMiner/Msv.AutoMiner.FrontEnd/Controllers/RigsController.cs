@@ -13,7 +13,6 @@ using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Models.Rigs;
 using Msv.AutoMiner.FrontEnd.Models.Shared;
-using Msv.AutoMiner.FrontEnd.Providers;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
@@ -140,9 +139,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 {
                     UsdPerDay = x.UsdPerDay - x.ElectricityCost,
                     BtcPerDay = x.BtcPerDay,
+                    CoinsPerDay = x.CoinsPerDay,
                     CoinId = x.CoinId,
                     CoinName = x.Coin.Name,
-                    CoinSymbol = x.Coin.Symbol,
+                    Logo = x.Coin.LogoImageBytes,
                     PoolName = x.Pool.Name,
                     PoolId = x.PoolId
                 })

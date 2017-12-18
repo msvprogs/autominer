@@ -207,3 +207,7 @@ table.sticky-header { }
 thead {
     background-color: #F9F9F9;
 }
+
+.text-small {
+    font-size: small
+}

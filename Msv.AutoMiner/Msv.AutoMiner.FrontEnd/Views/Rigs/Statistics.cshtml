@@ -1,5 +1,6 @@
 ﻿@using Msv.AutoMiner.Common
 @using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Models.Shared
 @model Msv.AutoMiner.FrontEnd.Models.Rigs.RigStatisticsModel
 
 @{ ViewBag.Title = Model.Name + " rig statistics";}    
@@ -150,25 +151,30 @@
         <div class="text-right">
             Requested: <span msv-absolute-date="@Model.ProfitabilityTableTime"></span>
         </div>
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped text-small">
             <tr>
-                <th>Coin symbol</th>
-                <th>Coin name</th>
+                <th>Coin</th>
                 <th>Pool name</th>
-                <th>BTC per day</th>
-                <th>USD per day</th>
+                <th>Coins/day</th>
+                <th>BTC/day</th>
+                <th>USD/day</th>
             </tr>
             @foreach (var item in Model.LastProfitabilityTable.OrderByDescending(x => x.UsdPerDay))
             {
-                var trClass = (Model.LastHeartbeat?.MiningStates
+                var isNowMining = (Model.LastHeartbeat?.MiningStates
                     .EmptyIfNull()
-                    .Any(x => x.CoinId == item.CoinId && x.PoolId == item.PoolId)).GetValueOrDefault()
-                    ? "now-mining success"
-                    : "";
+                    .Any(x => x.CoinId == item.CoinId && x.PoolId == item.PoolId)).GetValueOrDefault();
+                var trClass = isNowMining ? "now-mining success" : "";
                 <tr class="@trClass">
-                    <td>@item.CoinSymbol</td>
-                    <td>@item.CoinName</td>
+                    <td class="space-no-wrap">
+                        @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.CoinName, item.Logo))
+                        @if (isNowMining)
+                        {
+                            <img src="~/images/mining-animation.gif" alt="Mining" height="32" />
+                        }
+                    </td>
                     <td>@item.PoolName</td>
+                    <td>@ConversionHelper.ToCryptoCurrencyValue(item.CoinsPerDay)</td>
                     <td>@ConversionHelper.ToCryptoCurrencyValue(item.BtcPerDay)</td>
                     <td>@item.UsdPerDay.ToString("N2")</td>
                 </tr>

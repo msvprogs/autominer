@@ -24,9 +24,11 @@ namespace Msv.AutoMiner.FrontEnd.Models.Rigs
 
             public string CoinName { get; set; }
 
-            public string CoinSymbol { get; set; }
+            public byte[] Logo { get; set; }
 
             public string PoolName { get; set; }
+
+            public double CoinsPerDay { get; set; }
 
             public double BtcPerDay { get; set; }
 
