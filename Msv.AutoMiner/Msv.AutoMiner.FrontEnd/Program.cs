@@ -15,7 +15,7 @@ namespace Msv.AutoMiner.FrontEnd
             WebHost.CreateDefaultBuilder(args)
                 .UseKestrel(x =>
                 {
-                    // x.Listen(IPAddress.Any, 4500);
+                    x.Listen(IPAddress.Any, 4500);
                     x.Listen(IPAddress.Any, 4501, y => y.UseHttps("controlCenterEx1.pfx", "12345"));
                 })
                 .UseStartup<Startup>()
