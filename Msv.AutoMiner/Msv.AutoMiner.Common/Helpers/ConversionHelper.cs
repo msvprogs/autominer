@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.Common.Enums;
 
@@ -50,13 +51,16 @@ namespace Msv.AutoMiner.Common.Helpers
         public static string ToFiatValue(double? value)
             => value != null ? value.Value.ToString("N2") : string.Empty;
 
+        public static string ToPercent(double? value)
+            => value != null ? value.Value.ToString("N2") + "%" : string.Empty;
+
         public static double GetDiffRatio(decimal oldValue, decimal newValue)
             => GetDiffRatio((double) oldValue, (double) newValue);
 
-        public static double GetDiffRatio(double oldValue, double newValue)
-            => oldValue < newValue
-                ? (newValue / oldValue - 1) * 100
-                : -(oldValue / newValue - 1) * 100;
+        public static double GetDiffRatio(double oldValue, double newValue) 
+            => Math.Abs(oldValue) > double.Epsilon
+                ? (newValue - oldValue) / oldValue * 100
+                : 0;
 
         public static string GetDiffRatioString(double oldValue, double newValue)
         {

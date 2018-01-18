@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.Data.Logic
         public CoinNetworkInfoProvider(AutoMinerDbContext context)
             => m_Context = context;
 
-        public CoinNetworkInfo[] GetCurrentNetworkInfos(bool activeOnly)
+        public CoinNetworkInfo[] GetCurrentNetworkInfos(bool activeOnly, DateTime? dateTime = null)
         {
             var query = m_Context.CoinNetworkInfos
                 .Include(x => x.Coin)
@@ -20,8 +20,9 @@ namespace Msv.AutoMiner.Data.Logic
                 .AsNoTracking()
                 .FromSql(@"SELECT source.* FROM CoinNetworkInfos source
   JOIN (SELECT CoinId, MAX(Created) AS MaxCreated FROM CoinNetworkInfos
+  WHERE @p0 IS NULL OR Created < @p0
   GROUP BY CoinId) AS grouped
-  ON source.CoinId = grouped.CoinId AND source.Created = grouped.MaxCreated");
+  ON source.CoinId = grouped.CoinId AND source.Created = grouped.MaxCreated", dateTime);
             query = activeOnly 
                 ? query.Where(x => x.Coin.Activity == ActivityState.Active)
                 : query.Where(x => x.Coin.Activity != ActivityState.Deleted);
@@ -35,9 +36,9 @@ namespace Msv.AutoMiner.Data.Logic
                 .Include(x => x.Coin.Algorithm)
                 .AsNoTracking()
                 .FromSql(
-                    @"SELECT source.CoinId, source.Created, aggregated.AvgBlockReward AS BlockReward, source.BlockTimeSeconds, aggregated.AvgDifficulty AS Difficulty, source.Height, source.NetHashRate
+                    @"SELECT source.CoinId, source.Created, source.BlockReward, source.BlockTimeSeconds, aggregated.AvgDifficulty AS Difficulty, source.Height, source.NetHashRate
   FROM CoinNetworkInfos source
-  JOIN (SELECT CoinId, AVG(BlockReward) AS AvgBlockReward, AVG(Difficulty) AS AvgDifficulty FROM CoinNetworkInfos
+  JOIN (SELECT CoinId, AVG(Difficulty) AS AvgDifficulty FROM CoinNetworkInfos
     WHERE Created > @p0
     GROUP BY CoinId) AS aggregated
   ON source.CoinId = aggregated.CoinId

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
@@ -41,12 +42,17 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             m_Context = context;
         }
 
-        public IActionResult Index() 
-            => View(new CoinsIndexModel
+        public IActionResult Index()
+        {
+            var currentBtcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
+            var yesterdayBtcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue(DateTime.UtcNow.AddDays(-1)).Value;
+            return View(new CoinsIndexModel
             {
                 Coins = GetCoinDisplayModels(null),
-                BtcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value
+                BtcUsdRate = currentBtcUsdRate,
+                BtcUsdRateDelta = ConversionHelper.GetDiffRatio(yesterdayBtcUsdRate, currentBtcUsdRate)
             });
+        }
 
         public async Task<IActionResult> Create() 
             => View("Edit", new CoinEditModel
@@ -206,8 +212,11 @@ rpcallowip=127.0.0.1
 
         private CoinDisplayModel[] GetCoinDisplayModels(Guid[] ids)
         {
+            var yesterday = DateTime.UtcNow.AddDays(-1);
             var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
+            var yesterdayInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false, yesterday);
             var lastCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
+            var yesterdayCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false, yesterday);
             var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
 
             var coinQuery = m_Context.Coins
@@ -220,8 +229,12 @@ rpcallowip=127.0.0.1
                 .AsEnumerable()
                 .LeftOuterJoin(lastInfos, x => x.Id, x => x.CoinId,
                     (x, y) => (coin:x, network: y ?? new CoinNetworkInfo()))
+                .LeftOuterJoin(yesterdayInfos, x => x.coin.Id, x => x.CoinId,
+                    (x, y) => (x.coin, x.network, previousNetwork: y ?? new CoinNetworkInfo()))
                 .LeftOuterJoin(lastCoinValues, x => x.coin.Id, x => x.CurrencyId,
-                    (x, y) => (x.coin, x.network, value: y ?? new CoinValue()))
+                    (x, y) => (x.coin, x.network, x.previousNetwork, value: y ?? new CoinValue()))
+                .LeftOuterJoin(yesterdayCoinValues, x => x.coin.Id, x => x.CurrencyId,
+                    (x, y) => (x.coin, x.network, x.previousNetwork, x.value, previousValue: y ?? new CoinValue()))
                 .Select(x => new CoinDisplayModel
                 {
                     Id = x.coin.Id,
@@ -233,13 +246,18 @@ rpcallowip=127.0.0.1
                         KnownValue = x.coin.Algorithm.KnownValue,
                         Name = x.coin.Algorithm.Name
                     },
-                    ExchangePrices = x.value?.ExchangePrices
+                    ExchangePrices = x.value.ExchangePrices
                         .EmptyIfNull()
                         .Do(y => y.UsdPrice = y.Price * btcUsdRate)
+                        .LeftOuterJoin(x.previousValue.ExchangePrices.EmptyIfNull(), y => y.Exchange, y => y.Exchange, 
+                            (y,z) => (current: y, delta: ConversionHelper.GetDiffRatio(z?.Price ?? 0, y.Price)))
+                        .Do(y => y.current.PriceDelta = y.delta)
+                        .Select(y => y.current)
                         .ToArray(),
                     Activity = x.coin.Activity,
                     BlockReward = x.network.BlockReward,
                     Difficulty = x.network.Difficulty,
+                    DifficultyDelta = ConversionHelper.GetDiffRatio(x.previousNetwork.Difficulty, x.network.Difficulty),
                     NetHashRate = x.network.NetHashRate,
                     Height = x.network.Height,
                     Logo = x.coin.LogoImageBytes,

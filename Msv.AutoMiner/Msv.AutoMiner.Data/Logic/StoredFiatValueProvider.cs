@@ -14,23 +14,24 @@ namespace Msv.AutoMiner.Data.Logic
             m_Context = context;
         }
 
-        public TimestampedValue GetLastFiatValue(string currency, string fiatCurrency)
+        public TimestampedValue GetLastFiatValue(string currency, string fiatCurrency, DateTime? dateTime)
         {
             if (currency == null)
                 throw new ArgumentNullException(nameof(currency));
             if (fiatCurrency == null)
                 throw new ArgumentNullException(nameof(fiatCurrency));
 
-            var minDate = DateTime.UtcNow - TimeSpan.FromHours(6);
+            var minDate = DateTime.UtcNow - TimeSpan.FromDays(1.1);
             var values = m_Context.CoinFiatValues
                 .AsNoTracking()
                 .FromSql(@"SELECT source.* FROM CoinFiatValues source
   JOIN (SELECT CoinId, FiatCurrencyId, Source, MAX(DateTime) AS MaxDateTime FROM CoinFiatValues
+  WHERE @p0 IS NULL OR DateTime < @p0
   GROUP BY CoinId, FiatCurrencyId, Source) AS grouped
   ON source.CoinId = grouped.CoinId
   AND source.FiatCurrencyId = grouped.FiatCurrencyId
   AND source.Source = grouped.Source
-  AND source.DateTime = grouped.MaxDateTime")
+  AND source.DateTime = grouped.MaxDateTime", dateTime)
                 .Where(x => x.Coin.Symbol == currency && x.FiatCurrency.Symbol == fiatCurrency)
                 .Where(x => x.DateTime > minDate)
                 .AsEnumerable()
@@ -43,8 +44,8 @@ namespace Msv.AutoMiner.Data.Logic
             };
         }
 
-        public TimestampedValue GetLastBtcUsdValue()
-            => GetLastFiatValue("BTC", "USD");
+        public TimestampedValue GetLastBtcUsdValue(DateTime? dateTime = null)
+            => GetLastFiatValue("BTC", "USD", dateTime);
     }
 }
 

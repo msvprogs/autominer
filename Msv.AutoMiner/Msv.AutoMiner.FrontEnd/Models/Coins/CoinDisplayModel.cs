@@ -10,6 +10,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         public double Difficulty { get; set; }
 
+        public double DifficultyDelta { get; set; }
+
         public double NetHashRate { get; set; }
 
         public double BlockReward { get; set; }

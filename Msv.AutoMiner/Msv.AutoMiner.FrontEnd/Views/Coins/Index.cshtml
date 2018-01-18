@@ -17,7 +17,31 @@
 <h2 class="text-center">Coins</h2>
 <div class="panel panel-default">
     <div class="panel-body">
-        Current BTC rate: 1 BTC = <strong>$@ConversionHelper.ToFiatValue(Model.BtcUsdRate)</strong>
+        Current BTC rate: 1 BTC = <b>
+            $@ConversionHelper.ToFiatValue(Model.BtcUsdRate)
+            &nbsp;&nbsp;
+            @if (Model.BtcUsdRateDelta > 0)
+            {
+                <span class="positive-amount">
+                    <i class="fa fa-caret-up" aria-hidden="true"></i>
+                    @ConversionHelper.ToPercent(Model.BtcUsdRateDelta)
+                </span>
+            }
+            else if (Model.BtcUsdRateDelta < 0)
+            {
+                <span class="negative-amount">
+                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                    @ConversionHelper.ToPercent(-Model.BtcUsdRateDelta)
+                </span>
+            }
+            else
+            {
+                <span class="text-muted">
+                    <i class="fa fa-window-minimize" aria-hidden="true"></i>
+                    @ConversionHelper.ToPercent(0)
+                </span>
+            }
+        </b>
     </div>
 </div>
 <div class="pull-right div-table-actions">

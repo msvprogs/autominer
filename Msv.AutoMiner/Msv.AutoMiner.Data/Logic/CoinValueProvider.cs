@@ -13,7 +13,7 @@ namespace Msv.AutoMiner.Data.Logic
         public CoinValueProvider(AutoMinerDbContext context) 
             => m_Context = context;
 
-        public CoinValue[] GetCurrentCoinValues(bool activeOnly)
+        public CoinValue[] GetCurrentCoinValues(bool activeOnly, DateTime? dateTime = null)
         {
             var btc = m_Context.Coins.First(x => x.Symbol == "BTC");
 
@@ -21,11 +21,13 @@ namespace Msv.AutoMiner.Data.Logic
                 .AsNoTracking()
                 .FromSql(@"SELECT source.* FROM ExchangeMarketPrices source
   JOIN (SELECT SourceCoinId, TargetCoinId, Exchange, MAX(DateTime) AS MaxDateTime FROM ExchangeMarketPrices
+    WHERE @p0 IS NULL OR DateTime < @p0
     GROUP BY SourceCoinId, TargetCoinId, Exchange) as grouped
   ON source.SourceCoinId = grouped.SourceCoinId 
         AND source.TargetCoinId = grouped.TargetCoinId 
         AND source.Exchange = grouped.Exchange 
-        AND source.DateTime = grouped.MaxDateTime")
+        AND source.DateTime = grouped.MaxDateTime",
+                    dateTime)
                 .Where(x => x.Exchange.Activity == ActivityState.Active)
                 .Where(x => x.TargetCoinId == btc.Id);
             query = activeOnly

@@ -7,6 +7,7 @@ namespace Msv.AutoMiner.Data.Logic
     {
         public ExchangeType Exchange { get; set; }
         public double Price { get; set; }
+        public double PriceDelta { get; set; }
         public double UsdPrice { get; set; }
         public double Bid { get; set; }
         public double Ask { get; set; }

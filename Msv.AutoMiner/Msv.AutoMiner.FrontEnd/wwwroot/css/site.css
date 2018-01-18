@@ -81,7 +81,7 @@ tr.now-mining {
     font-weight: bold;
 }
 
-i.fa, i.glyphicon {
+li i.fa, li i.glyphicon {
     width: 1em;
     margin-left: 2px;
     margin-right: 2px;

@@ -30,18 +30,61 @@
     <td>@Model.Symbol</td>
     <td>@Model.Algorithm.Name</td>
     <td>@Model.Height</td>
-    <td>@(Model.Difficulty > 1e10 ? Model.Difficulty.ToString("E") : Model.Difficulty.ToString("0.###"))</td>
+    <td>
+        @(Model.Difficulty > 1e10 ? Model.Difficulty.ToString("E") : Model.Difficulty.ToString("0.###"))
+        <div class="small space-no-wrap">
+            @if (Model.DifficultyDelta > 0)
+            {
+                <span class="positive-amount">
+                    <i class="fa fa-caret-up" aria-hidden="true"></i>
+                    @ConversionHelper.ToPercent(Model.DifficultyDelta)
+                </span>
+            }
+            else if (Model.DifficultyDelta < 0)
+            {
+                <span class="negative-amount">
+                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                    @ConversionHelper.ToPercent(-Model.DifficultyDelta)
+                </span>
+            }
+            else
+            {
+                <span class="text-muted">
+                    <i class="fa fa-window-minimize" aria-hidden="true"></i>
+                    @ConversionHelper.ToPercent(0)
+                </span>
+            }
+        </div>
+    </td>
     <td class="text-right">@Model.BlockReward.ToString("N2")</td>
     <td>
         <div class="coin-price-table">
             @foreach (var price in Model.ExchangePrices.OrderByDescending(x => x.Price))
             {
                 <div class="row highlight-on-hover" title="Ask: @ConversionHelper.ToCryptoCurrencyValue(price.Ask), Bid: @ConversionHelper.ToCryptoCurrencyValue(price.Bid)">
-                    <div class="col-xs-7">
+                    <div class="col-xs-5">
                         <em>@price.Exchange</em>
                     </div>
-                    <div class="col-xs-5">
+                    <div class="col-xs-7 space-no-wrap">
                         @ConversionHelper.ToCryptoCurrencyValue(price.Price)
+                        @if (price.PriceDelta > 0)
+                        {
+                            <span class="positive-amount">
+                                (+@ConversionHelper.ToPercent(price.PriceDelta))
+                            </span>
+                        }
+                        else if (Model.DifficultyDelta < 0)
+                        {
+                            <span class="negative-amount">
+                                (@ConversionHelper.ToPercent(price.PriceDelta))
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                (@ConversionHelper.ToPercent(0))
+                            </span>
+                        }
                     </div>
                 </div>
             }
