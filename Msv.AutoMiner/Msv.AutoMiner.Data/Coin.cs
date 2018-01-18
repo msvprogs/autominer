@@ -47,5 +47,9 @@ namespace Msv.AutoMiner.Data
         public byte[] LogoImageBytes { get; set; }
 
         public virtual ICollection<Wallet> Wallets { get; set; }
+
+        public AddressFormat AddressFormat { get; set; }
+
+        public string AddressPrefixes { get; set; }
     }
 }

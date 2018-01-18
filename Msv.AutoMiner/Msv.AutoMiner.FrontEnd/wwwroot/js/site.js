@@ -309,6 +309,35 @@ $(function () {
     });
     $("select#NetworkInfoApiType").change();
 
+    $("select#AddressFormat").change(function() {
+        var prefixesField = $("input#AddressPrefixes");
+        var addressSampleField = $("#addressSample");
+
+        addressSampleField.empty();
+        if (this.selectedIndex < 0)
+            return;
+
+        var prefixesEnabled = false;
+        var addressSample = null;
+        switch (this.options[this.selectedIndex].value) {
+            case "Base58Check":
+                prefixesEnabled = true;
+                addressSample = "BP7Ci6v1S1PDw4i2HFLMv2v9wyBa7mQAgS";
+                break;
+            case "EthereumHex":
+                addressSample = "0x00EB5678228c31e0AC08381d26A00d1eDc9e49b6 (pay attention to letters' case, it serves as a checksum)";
+                break;
+            case "Special":
+                break;
+            default:
+                break;
+        }
+
+        prefixesField.prop("disabled", !prefixesEnabled);
+        addressSampleField.text(addressSample);
+    });
+    $("select#AddressFormat").change();
+
 });
 
 // *** End of DOMContentLoaded handler

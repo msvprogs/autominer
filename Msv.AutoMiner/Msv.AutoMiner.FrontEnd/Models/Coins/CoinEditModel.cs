@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
@@ -44,5 +45,9 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public string NewLogoUrl { get; set; }
 
         public bool DeleteLogo { get; set; }
+
+        public AddressFormat AddressFormat { get; set; }
+
+        public string AddressPrefixes { get; set; }
     }
 }

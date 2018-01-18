@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using Msv.AutoMiner.Common.Enums
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.Data
 @using Msv.AutoMiner.FrontEnd.Models.Shared
@@ -16,11 +17,11 @@
     <h3>Basic info</h3>
     <div class="form-group">
         <label asp-for="Symbol">Symbol (ticker):</label>
-        <input asp-for="Symbol" class="form-control" placeholder="For example, BTC"/>
+        <input asp-for="Symbol" class="form-control" placeholder="For example, BTC" />
     </div>
     <div class="form-group">
         <label asp-for="Name">Name:</label>
-        <input asp-for="Name" class="form-control" placeholder="For example, BitCoin"/>
+        <input asp-for="Name" class="form-control" placeholder="For example, BitCoin" />
     </div>
     <div class="form-group">
         <label asp-for="NewLogoUrl">Logo URL:</label>
@@ -33,7 +34,7 @@
                 </label>
             </div>
         }
-        <input asp-for="NewLogoUrl" class="form-control" placeholder="Input logo URL or leave field blank to keep current one"/>
+        <input asp-for="NewLogoUrl" class="form-control" placeholder="Input logo URL or leave field blank to keep current one" />
     </div>
     <div class="form-group">
         <label asp-for="AlgorithmId">Algorithm:</label>
@@ -46,6 +47,33 @@
         </select>
     </div>
 
+    <h3>Wallet address parameters</h3>
+    <div class="form-group">
+        <label asp-for="AddressFormat">Address format:</label>
+        <select asp-for="AddressFormat" class="form-control">
+            @foreach (var format in EnumHelper.GetCaptions<AddressFormat>())
+            {
+                <option value="@format.Key">@format.Value</option>
+            }
+        </select>
+    </div>
+    <p class="small">
+        Sample: <span id="addressSample" class="text-monospace"></span>
+    </p>
+    <div class="form-group">
+        <label asp-for="AddressPrefixes">Allowed address prefixes (comma-delimited):</label>
+        <p class="small">
+            For example, BitCoin allows prefixes 1,3 and some other.
+            Addresses with the specified prefixes (for example, <span class="text-monospace">1KERj2towSwzRYFLrGp4Lwk7RXCY6B8rtn</span> with prefix 1) and correct checksum will be considered valid.
+            You can enter either Base58 symbolic representation of prefix or its numeric (hex) value (in this case put '0x' before it).
+        </p>
+        <p class="small">
+            All acceptable prefixes in numeric form can be found in the <code>chainparams.cpp</code> file, mainnet chain parameters section
+            (<a href="https://github.com/bitcoin/bitcoin/blob/5961b23898ee7c0af2626c46d5d70e80136578d3/src/chainparams.cpp#L135">sample</a> for BitCoin).
+        </p>
+        <input asp-for="AddressPrefixes" class="form-control" placeholder="For example, 1,3 or 0x00,0x05" />
+    </div>
+
     <h3>Additional algorithm parameters</h3>
     <div class="form-group">
         <label asp-for="MaxTarget">Max hash target (Bitcoin-like by default):</label>
@@ -55,8 +83,8 @@
             <br />Difficulty is usually defined as <var>maxTarget / currentTarget</var>, so you can easily find <code>maxTarget</code> from this equation.
             <br />You can enter max target value either in full form or in compact one (like nBits).
         </p>
-        <input asp-for="MaxTarget" class="form-control text-monospace" 
-               placeholder="For example, 0x1d00ffff or 0x00000000ffff0000000000000000000000000000000000000000000000000000"/>
+        <input asp-for="MaxTarget" class="form-control text-monospace"
+               placeholder="For example, 0x1d00ffff or 0x00000000ffff0000000000000000000000000000000000000000000000000000" />
     </div>
 
     <h3>Local node parameters</h3>
@@ -68,7 +96,7 @@
     <div class="form-group">
         <label asp-for="NodeUrl">Node URL:</label>
         <p class="small">The port of this URL corresponds to <code>rpcport</code> field of the config</p>
-        <input asp-for="NodeUrl" class="form-control" placeholder="For example, http://localhost:12345"/>
+        <input asp-for="NodeUrl" class="form-control" placeholder="For example, http://localhost:12345" />
     </div>
     <div class="form-group">
         <label asp-for="NodeLogin">RPC username:</label>
@@ -94,17 +122,17 @@
     <div class="form-group">
         <label asp-for="NetworkApiUrl">API URL:</label>
         <p class="small" id="apiUrlDescription"></p>
-        <input asp-for="NetworkApiUrl" class="form-control"/>
+        <input asp-for="NetworkApiUrl" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="NetworkApiName">API coin name:</label>
         <p class="small" id="apiCoinNameDescription"></p>
         <input asp-for="NetworkApiName" class="form-control" />
     </div>
-    
+
     <h3>Block reward calculation function</h3>
     <p>
-        Here you can write JavaScript code to calculate the coin block reward. <br/>
+        Here you can write JavaScript code to calculate the coin block reward. <br />
         You can use the following variables:
         <dl class="dl-horizontal">
             <dt><code>height</code></dt>
@@ -122,10 +150,10 @@
             <dd>divide <code>value</code> by 2 <code>times</code> times (decimal part truncated)</dd>
         </dl>
         Calculated value should be returned by using the <code>return</code> operator.
-        <p class="small">
-            You can leave this textbox empty, in this case reward info will be retreived from the network info provider.
-            <em>Remember that most of them don't provide this data, so you can end with zero reward and, consequently, with zero calculated profitability.</em>
-        </p>
+    <p class="small">
+        You can leave this textbox empty, in this case reward info will be retreived from the network info provider.
+        <em>Remember that most of them don't provide this data, so you can end with zero reward and, consequently, with zero calculated profitability.</em>
+    </p>
     </p>
 
     <div class="row">
@@ -139,14 +167,14 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label" for="sampleHeightInput">Height:</label>
                     <div class="col-sm-8">
-                        <input type="number" class="form-control" id="sampleHeightInput" 
+                        <input type="number" class="form-control" id="sampleHeightInput"
                                value="@Model.LastHeight" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label" for="sampleDifficultyInput">Difficulty:</label>
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" id="sampleDifficultyInput" 
+                        <input type="text" class="form-control" id="sampleDifficultyInput"
                                value="@(Model.LastDifficulty != null ? Model.LastDifficulty.Value.ToString(CultureInfo.InvariantCulture) : "")" />
                     </div>
                 </div>
@@ -161,11 +189,11 @@
                     <div class="col-sm-8">
                         <input type="number" class="form-control" id="sampleMasternodeCountInput" />
                     </div>
-                </div>            
+                </div>
                 <div class="text-center">
                     <button type="button" id="executeTestButton" class="btn btn-lg btn-success">Execute</button>
                 </div>
-                <p>Result: <span id="rewardCodeResult" class="text-success"></span></p>              
+                <p>Result: <span id="rewardCodeResult" class="text-success"></span></p>
             </div>
         </div>
     </div>

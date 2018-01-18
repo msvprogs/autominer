@@ -90,7 +90,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     ? $"http://{coin.NodeHost}:{coin.NodePort}"
                     : null,
                 LastHeight = lastNetworkInfo?.Height,
-                LastDifficulty = lastNetworkInfo?.Difficulty
+                LastDifficulty = lastNetworkInfo?.Difficulty,
+                AddressFormat = coin.AddressFormat,
+                AddressPrefixes = coin.AddressPrefixes
             };
             return View(coinModel);
         }
@@ -144,6 +146,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.NodePassword = coinModel.NodePassword;
             coin.MaxTarget = coinModel.MaxTarget;
             coin.RewardCalculationJavaScript = coinModel.RewardCalculationJavaScript;
+            coin.AddressFormat = coinModel.AddressFormat;
+            coin.AddressPrefixes = coinModel.AddressPrefixes;
             if (newLogoBytes != null)
                 coin.LogoImageBytes = m_ImageProcessor.Resize(newLogoBytes, 16, 16, ImageFormats.Png);
             else if (coinModel.DeleteLogo)
