@@ -7,8 +7,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
     {
         private const int SecondsInDay = 60 * 60 * 24;
         private static readonly double M_32ByteHashesCount = Math.Pow(256, 32);
-        private static readonly double M_BtcMaxTarget =
-            (double) HexHelper.HexToBigInteger("0x00000000FFFF0000000000000000000000000000000000000000000000000000");
+        private static readonly double M_BtcMaxTarget = (double) CompactHelper.FromCompact(0x1d00ffff);
 
         public double CalculateCoinsPerDay(double difficulty, double blockReward, string maxTarget, double yourHashRate)
         {
@@ -29,8 +28,13 @@ namespace Msv.AutoMiner.Common.Infrastructure
         }
 
         private static double ParseMaxTarget(string maxTarget)
-            => string.IsNullOrEmpty(maxTarget)
-                ? M_BtcMaxTarget
-                : (double)HexHelper.HexToBigInteger(maxTarget);
+        {
+            if (string.IsNullOrEmpty(maxTarget))
+                return M_BtcMaxTarget;
+            var parsedTarget = HexHelper.HexToBigInteger(maxTarget);
+            return CompactHelper.IsCompact(parsedTarget)
+                ? (double)CompactHelper.FromCompact((uint) parsedTarget)
+                : (double)parsedTarget;
+        }
     }
 }

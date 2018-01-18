@@ -4,7 +4,7 @@
 @using Msv.AutoMiner.FrontEnd.Models.Shared
 @model Msv.AutoMiner.FrontEnd.Models.Coins.CoinEditModel
 
-@{ ViewBag.Title = "Edit coin details";}    
+@{ ViewBag.Title = "Edit coin details"; }    
 
 <h2 class="text-center">Edit coin details</h2>
 
@@ -15,7 +15,7 @@
 
     <h3>Basic info</h3>
     <div class="form-group">
-        <label asp-for="Symbol">Symbol:</label>
+        <label asp-for="Symbol">Symbol (ticker):</label>
         <input asp-for="Symbol" class="form-control" placeholder="For example, BTC"/>
     </div>
     <div class="form-group">
@@ -49,46 +49,62 @@
     <h3>Additional algorithm parameters</h3>
     <div class="form-group">
         <label asp-for="MaxTarget">Max hash target (Bitcoin-like by default):</label>
+        <p class="small">
+            Reference <code>GetDifficulty()</code> or similar method in the <code>rpc/blockchain.cpp</code> or <code>rpcblockchain.cpp</code> file
+            (<a href="https://github.com/bitcoin/bitcoin/blob/17180fa608100ce1aab3df74c9db17c342c0380d/src/rpc/blockchain.cpp#L53">sample</a> for BitCoin).
+            <br />Difficulty is usually defined as <var>maxTarget / currentTarget</var>, so you can easily find <code>maxTarget</code> from this equation.
+            <br />You can enter max target value either in full form or in compact one (like nBits).
+        </p>
         <input asp-for="MaxTarget" class="form-control text-monospace" 
-               placeholder="For example, 0x00000000FFFF0000000000000000000000000000000000000000000000000000"/>
+               placeholder="For example, 0x1d00ffff or 0x00000000ffff0000000000000000000000000000000000000000000000000000"/>
     </div>
 
     <h3>Local node parameters</h3>
+    <p class="small">
+        If you have the running local node for this coin, specify its URL and credentials. It will be used to query the latest network info.
+        In case of unavailability the API provider from the next section will be used.
+        <br /><i>You will be able to create configuration file for the local wallet based on this data</i>
+    </p>
     <div class="form-group">
         <label asp-for="NodeUrl">Node URL:</label>
+        <p class="small">The port of this URL corresponds to <code>rpcport</code> field of the config</p>
         <input asp-for="NodeUrl" class="form-control" placeholder="For example, http://localhost:12345"/>
     </div>
     <div class="form-group">
         <label asp-for="NodeLogin">RPC username:</label>
-        <input asp-for="NodeLogin" class="form-control"/>
+        <p class="small">This value corresponds to <code>rpcuser</code> field of the config</p>
+        <input asp-for="NodeLogin" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="NodePassword">RPC password:</label>
-        <input asp-for="NodePassword" class="form-control"/>
+        <p class="small">This value corresponds to <code>rpcpassword</code> field of the config</p>
+        <input asp-for="NodePassword" class="form-control" />
     </div>
 
     <h3>Remote network info provider parameters</h3>
     <div class="form-group">
         <label asp-for="NetworkInfoApiType">Remote API type:</label>
         <select asp-for="NetworkInfoApiType" class="form-control">
-            @foreach (var apiType in EnumHelper.GetValues<CoinNetworkInfoApiType>().OrderBy(x => x.ToString()))
+            @foreach (var apiType in EnumHelper.GetCaptions<CoinNetworkInfoApiType>().OrderBy(x => x.Value))
             {
-                <option value="@apiType">@apiType</option>
+                <option value="@apiType.Key">@apiType.Value</option>
             }
         </select>
     </div>
     <div class="form-group">
         <label asp-for="NetworkApiUrl">API URL:</label>
+        <p class="small" id="apiUrlDescription"></p>
         <input asp-for="NetworkApiUrl" class="form-control"/>
     </div>
     <div class="form-group">
         <label asp-for="NetworkApiName">API coin name:</label>
-        <input asp-for="NetworkApiName" class="form-control"/>
+        <p class="small" id="apiCoinNameDescription"></p>
+        <input asp-for="NetworkApiName" class="form-control" />
     </div>
     
     <h3>Block reward calculation function</h3>
     <p>
-        Here you can write JS code to calculate the coin block reward. <br />
+        Here you can write JavaScript code to calculate the coin block reward. <br/>
         You can use the following variables:
         <dl class="dl-horizontal">
             <dt><code>height</code></dt>
@@ -106,6 +122,10 @@
             <dd>divide <code>value</code> by 2 <code>times</code> times (decimal part truncated)</dd>
         </dl>
         Calculated value should be returned by using the <code>return</code> operator.
+        <p class="small">
+            You can leave this textbox empty, in this case reward info will be retreived from the network info provider.
+            <em>Remember that most of them don't provide this data, so you can end with zero reward and, consequently, with zero calculated profitability.</em>
+        </p>
     </p>
 
     <div class="row">
@@ -172,30 +192,45 @@
                     lineNumbers: true
                 });
 
-            $("#executeTestButton").click(function() {
+            var testFunction = function(success, error) {
                 try {
-                    var rewardFunc = new Function("height,difficulty,moneySupply,masternodeCount", editor.getValue());
+                    var code = editor.getValue();
+                    if ($.trim(code) === "")
+                        return;
+                    var rewardFunc = new Function(
+                        "height,difficulty,moneySupply,masternodeCount",
+                        code);
                     var result = rewardFunc(
                         Number($("#sampleHeightInput").val()),
                         Number($("#sampleDifficultyInput").val()),
                         Number($("#sampleMoneySupplyInput").val()),
                         Number($("#sampleMasternodeCountInput").val()));
-                    $("#rewardCodeResult").text(result.toFixed(3));
+                    success(result);
                 } catch (e) {
                     $("#rewardCodeResult").text("");
-                    MessageBox.alert("Error!",
+                    MessageBox.alert("Error in reward calculation!",
                         "warning",
-                        "Error happened:\n" +
-                        e.name +
-                        " - " +
-                        e.message +
-                        "\n\nLine " +
-                        (e.lineNumber - 2) +
-                        ", column " +
-                        e.columnNumber +
-                        "\n\nStack trace:\n" +
-                        e.stack);
+                        format("Error detected in the reward calculation function:\n{0} - {1}\n\nLine {2}, column {3}\n\nStack trace:\n{4}",
+                            e.name,
+                            e.message,
+                            (e.lineNumber - 2),
+                            e.columnNumber,
+                            e.stack));
+                    error();
                 }
+            }
+
+            $("#executeTestButton").click(function() {
+                testFunction(function(result) {
+                        $("#rewardCodeResult").text(result.toFixed(3));
+                    },
+                    function() {});
+            });
+            $("form").submit(function(e) {
+                testFunction(function() {},
+                    function() {
+                        e.preventDefault();
+                    });
             });
         });
     </script>

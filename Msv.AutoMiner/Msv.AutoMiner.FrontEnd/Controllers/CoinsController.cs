@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,53 +41,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             m_Context = context;
         }
 
-        public IActionResult Index()
-        {
-            var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
-            var lastCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
-            var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
-            var coins = m_Context.Coins
-                .Include(x => x.Algorithm)
-                .AsNoTracking()
-                .Where(x => x.Activity != ActivityState.Deleted)
-                .AsEnumerable()
-                .LeftOuterJoin(lastInfos, x => x.Id, x => x.CoinId,
-                    (x, y) => (coin:x, network: y ?? new CoinNetworkInfo()))
-                .LeftOuterJoin(lastCoinValues, x => x.coin.Id, x => x.CurrencyId,
-                    (x, y) => (x.coin, x.network, value: y ?? new CoinValue()))
-                .Select(x => new CoinDisplayModel
-                {
-                    Id = x.coin.Id,
-                    Name = x.coin.Name,
-                    Symbol = x.coin.Symbol,
-                    Algorithm = new AlgorithmModel
-                    {
-                        Id = x.coin.AlgorithmId,
-                        KnownValue = x.coin.Algorithm.KnownValue,
-                        Name = x.coin.Algorithm.Name
-                    },
-                    ExchangePrices = x.value?.ExchangePrices
-                        .EmptyIfNull()
-                        .Do(y => y.UsdPrice = y.Price * btcUsdRate)
-                        .ToArray(),
-                    Activity = x.coin.Activity,
-                    BlockReward = x.network.BlockReward,
-                    Difficulty = x.network.Difficulty,
-                    NetHashRate = x.network.NetHashRate,
-                    Height = x.network.Height,
-                    Logo = x.coin.LogoImageBytes,
-                    LastUpdated = x.network.Created != default
-                        ? x.network.Created
-                        : (DateTime?) null
-                })
-                .ToArray();
-
-            return View(new CoinsIndexModel
+        public IActionResult Index() 
+            => View(new CoinsIndexModel
             {
-                Coins = coins,
-                BtcUsdRate = (decimal)btcUsdRate
+                Coins = GetCoinDisplayModels(null),
+                BtcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value
             });
-        }
 
         public async Task<IActionResult> Create() 
             => View("Edit", new CoinEditModel
@@ -102,6 +63,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (coin == null)
                 return NotFound();
+            if (coin.Symbol == "BTC")
+                return Forbid();
             var lastNetworkInfo = await m_Context.CoinNetworkInfos
                 .Where(x => x.CoinId == coin.Id)
                 .OrderByDescending(x => x.Created)
@@ -149,20 +112,23 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     else
                         newLogoBytes = await response.Content.ReadAsByteArrayAsync();
                 }
+            var nodeUrl = coinModel.NodeUrl != null
+                ? new Uri(coinModel.NodeUrl)
+                : null;
+            var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == coinModel.Id)
+                       ?? m_Context.Coins.Add(new Coin
+                       {
+                           Activity = ActivityState.Active
+                       }).Entity;
+            if (coin.Symbol == "BTC" || coinModel.Symbol.ToUpperInvariant() == "BTC")
+                ModelState.AddModelError(nameof(coinModel.Symbol), "Can't edit BitCoin data or create new coin with BTC ticker");
 
             if (!ModelState.IsValid)
             {
                 coinModel.AvailableAlgorithms = await GetAvailableAlgorithms();
                 return View("Edit", coinModel);
             }
-            var nodeUrl = coinModel.NodeUrl != null
-                ? new Uri(coinModel.NodeUrl)
-                : null;
-            var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == coinModel.Id)
-                ?? m_Context.Coins.Add(new Coin
-                       {
-                           Activity = ActivityState.Active
-                       }).Entity;
+
             coin.Name = coinModel.Name;
             coin.AlgorithmId = coinModel.AlgorithmId.GetValueOrDefault();
             coin.Symbol = coinModel.Symbol.ToUpperInvariant();
@@ -193,16 +159,15 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
             if (coin == null)
                 return NotFound();
+            if (coin.Symbol == "BTC")
+                return Forbid();
             if (coin.Activity == ActivityState.Active)
                 coin.Activity = ActivityState.Inactive;
             else if (coin.Activity == ActivityState.Inactive)
                 coin.Activity = ActivityState.Active;
-
             await m_Context.SaveChangesAsync();
 
-            TempData[CoinsMessageKey] =
-                $"Coin {coin.Name} ({coin.Symbol}) has been successfully {(coin.Activity == ActivityState.Active ? "activated" : "deactivated")}";
-            return RedirectToAction("Index");
+            return PartialView("_CoinRowPartial", GetCoinDisplayModels(new[] {id}).FirstOrDefault());
         }
 
         [HttpPost]
@@ -211,12 +176,75 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
             if (coin == null)
                 return NotFound();
+            if (coin.Symbol == "BTC")
+                return Forbid();
             coin.Activity = ActivityState.Deleted;
             await m_Context.SaveChangesAsync();
+            return Content("");
+        }
 
-            TempData[CoinsMessageKey] =
-                $"Coin {coin.Name} ({coin.Symbol}) has been successfully deleted";
-            return RedirectToAction("Index");
+        public async Task<IActionResult> CreateConfigFile(Guid id)
+        {            
+            var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
+            if (coin == null)
+                return NotFound();
+            var configContents = $@"daemon=1
+rpcuser={coin.NodeLogin}
+rpcpassword={coin.NodePassword}
+rpcport={coin.NodePort}
+rpcconnect=127.0.0.1
+rpcallowip=127.0.0.1
+";
+            return File(Encoding.ASCII.GetBytes(configContents), 
+                "application/octet-stream",
+                $"{string.Concat(coin.Name.ToLowerInvariant().Split(Path.GetInvalidFileNameChars())).Replace(" ", "-")}.conf");
+        }
+
+        private CoinDisplayModel[] GetCoinDisplayModels(Guid[] ids)
+        {
+            var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
+            var lastCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
+            var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
+
+            var coinQuery = m_Context.Coins
+                .Include(x => x.Algorithm)
+                .AsNoTracking()
+                .Where(x => x.Activity != ActivityState.Deleted);
+            if (!ids.IsNullOrEmpty())
+                coinQuery = coinQuery.Where(x => ids.Contains(x.Id));
+            return coinQuery
+                .AsEnumerable()
+                .LeftOuterJoin(lastInfos, x => x.Id, x => x.CoinId,
+                    (x, y) => (coin:x, network: y ?? new CoinNetworkInfo()))
+                .LeftOuterJoin(lastCoinValues, x => x.coin.Id, x => x.CurrencyId,
+                    (x, y) => (x.coin, x.network, value: y ?? new CoinValue()))
+                .Select(x => new CoinDisplayModel
+                {
+                    Id = x.coin.Id,
+                    Name = x.coin.Name,
+                    Symbol = x.coin.Symbol,
+                    Algorithm = new AlgorithmModel
+                    {
+                        Id = x.coin.AlgorithmId,
+                        KnownValue = x.coin.Algorithm.KnownValue,
+                        Name = x.coin.Algorithm.Name
+                    },
+                    ExchangePrices = x.value?.ExchangePrices
+                        .EmptyIfNull()
+                        .Do(y => y.UsdPrice = y.Price * btcUsdRate)
+                        .ToArray(),
+                    Activity = x.coin.Activity,
+                    BlockReward = x.network.BlockReward,
+                    Difficulty = x.network.Difficulty,
+                    NetHashRate = x.network.NetHashRate,
+                    Height = x.network.Height,
+                    Logo = x.coin.LogoImageBytes,
+                    HasLocalNode = !string.IsNullOrEmpty(x.coin.NodeHost),
+                    LastUpdated = x.network.Created != default
+                        ? x.network.Created
+                        : (DateTime?) null
+                })
+                .ToArray();
         }
 
         private Task<AlgorithmModel[]> GetAvailableAlgorithms()

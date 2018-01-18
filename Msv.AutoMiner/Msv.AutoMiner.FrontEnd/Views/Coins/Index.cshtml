@@ -1,11 +1,9 @@
-﻿@using Msv.AutoMiner.Common.Enums
-@using Msv.AutoMiner.Common.Helpers
+﻿@using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
 @using Msv.AutoMiner.FrontEnd.Models.Coins
-@using Msv.AutoMiner.FrontEnd.Models.Shared
 @model CoinsIndexModel
 
-@{ ViewBag.Title = "Coins";}
+@{ ViewBag.Title = "Coins"; }
 
 @if (TempData[CoinsController.CoinsMessageKey] != null)
 {
@@ -19,7 +17,7 @@
 <h2 class="text-center">Coins</h2>
 <div class="panel panel-default">
     <div class="panel-body">
-        Current BTC rate: 1 BTC = <strong>$@Model.BtcUsdRate.ToString("N2")</strong>
+        Current BTC rate: 1 BTC = <strong>$@ConversionHelper.ToFiatValue(Model.BtcUsdRate)</strong>
     </div>
 </div>
 <div class="pull-right div-table-actions">
@@ -41,91 +39,10 @@
         <th>Actions</th>
     </tr>
     </thead>
-    <tbody>
-    @foreach (var coin in Model.Coins.OrderBy(x => x.Symbol))
+    <tbody id="coins-table">
+    @foreach (var coin in Model.Coins.OrderBy(x => x.Name))
     {
-        string rowClass;
-        string title;
-        if (coin.Activity == ActivityState.Inactive)
-        {
-            rowClass = "text-muted";
-            title = "Coin is inactive";
-        }
-        else if (coin.LastUpdated == null || coin.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(30))
-        {
-            rowClass = "warning";
-            title = "Coin network data is unavailable or obsolete";
-        }
-        else
-        {
-            rowClass = null;
-            title = null;
-        }
-
-        <tr class="@rowClass" title="@title">
-            <td class="space-no-wrap">
-                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(coin.Name, coin.Logo))
-            </td>
-            <td>@coin.Symbol</td>
-            <td>@coin.Algorithm.Name</td>
-            <td>@coin.Height</td>
-            <td>@(coin.Difficulty > 1e10 ? coin.Difficulty.ToString("E") : coin.Difficulty.ToString("0.###"))</td>
-            <td class="text-right">@coin.BlockReward.ToString("N2")</td>
-            <td>
-                <div class="coin-price-table">
-                    @foreach (var price in coin.ExchangePrices.OrderByDescending(x => x.Price))
-                    {
-                        <div class="row highlight-on-hover" title="Ask: @ConversionHelper.ToCryptoCurrencyValue(price.Ask), Bid: @ConversionHelper.ToCryptoCurrencyValue(price.Bid)">
-                            <div class="col-xs-7">
-                                <em>@price.Exchange</em>
-                            </div>
-                            <div class="col-xs-5">
-                                @ConversionHelper.ToCryptoCurrencyValue(price.Price)
-                            </div>
-                        </div>
-                    }
-                </div>
-            </td>
-            <td msv-absolute-date="@coin.LastUpdated"></td>
-            <td>
-                <ul class="list-inline">
-                    <li>
-                        <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@coin.Id" title="Edit coin">
-                            <i class="glyphicon glyphicon-edit"></i>
-                        </a>
-                    </li>
-                    <li>
-                        @{
-                            var activationButtonTitle = coin.Activity == ActivityState.Active
-                                ? "Disable coin"
-                                : "Enable coin";
-                        }
-                        <form asp-action="ToggleActive" asp-route-id="@coin.Id" method="post" title="@activationButtonTitle">
-                            <button class="btn btn-xs btn-info">
-                                @if (coin.Activity == ActivityState.Active)
-                                {
-                                    <i class="glyphicon glyphicon-remove"></i>
-                                }
-                                else if (coin.Activity == ActivityState.Inactive)
-                                {
-                                    <i class="glyphicon glyphicon-flash"></i>
-                                }
-                            </button>
-                        </form>
-                    </li>
-                    <li>
-                        <form asp-action="Delete" asp-route-id="@coin.Id"
-                              method="post" title="Delete coin"
-                              data-confirm-title="Delete coin @coin.Name?"
-                              data-confirm-body="You are going to delete coin @coin.Name. Are you sure?">
-                            <button class="btn btn-xs btn-danger">
-                                <i class="glyphicon glyphicon-trash"></i>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </td>
-        </tr>
+        @Html.Partial("_CoinRowPartial", coin)
     }
     </tbody>
 </table>

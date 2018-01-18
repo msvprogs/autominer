@@ -3,7 +3,7 @@
 @using JetBrains.Annotations
 @using Microsoft.AspNetCore.Html
 
-@functions{
+@functions {
 
     private IHtmlContent MakeNavBarItem(
         string name, [AspMvcController] string controller, [AspMvcAction] string action, string iconClass)
@@ -47,6 +47,7 @@
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
         <link rel="stylesheet" href="~/lib/codemirror/lib/codemirror.css">
+        <link rel="stylesheet" href="~/css/animate.css">
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment exclude="Development">
@@ -55,6 +56,7 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
         <link rel="stylesheet" href="~/lib/codemirror/lib/codemirror.css">
+        <link rel="stylesheet" href="~/css/animate.min.css">
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
 
@@ -121,14 +123,21 @@
         @RenderBody()
         <hr />
         <footer>
-            <span class="pull-left">&copy; 2017 - MSV</span>
+            <span class="pull-left">&copy; 2017-@DateTime.Today.Year - MSV</span>
             <span class="pull-right">@versionString</span>
         </footer>
     </div>
 
     <environment include="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+        <script src="~/lib/remarkable-bootstrap-notify/dist/bootstrap-notify.min.js"></script>
         <script src="~/lib/jquery-serialize-object/jquery.serialize-object.js"></script>
         <script src="~/lib/codemirror/lib/codemirror.js"></script>
         <script src="~/lib/codemirror/mode/javascript/javascript.js"></script>
@@ -152,6 +161,7 @@
         <script src="~/lib/codemirror/lib/codemirror.js"></script>
         <script src="~/lib/codemirror/mode/javascript/javascript.js"></script>
         <script src="~/lib/jquery.floatThead/dist/jquery.floatThead.min.js"></script>
+        <script src="~/lib/remarkable-bootstrap-notify/bootstrap-notify.js"></script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
 

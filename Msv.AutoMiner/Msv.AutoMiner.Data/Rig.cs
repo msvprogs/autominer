@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
 {
@@ -21,5 +22,9 @@ namespace Msv.AutoMiner.Data
         public byte[] ClientCertificateSerial { get; set; }
 
         public byte[] ClientCertificateThumbprint { get; set; }
+
+        public ValueAggregationType DifficultyAggregationType { get; set; }
+
+        public ValueAggregationType PriceAggregationType { get; set; }
     }
 }

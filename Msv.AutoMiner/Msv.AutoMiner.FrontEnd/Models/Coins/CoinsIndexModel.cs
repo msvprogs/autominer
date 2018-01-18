@@ -2,7 +2,7 @@
 {
     public class CoinsIndexModel
     {
-        public decimal BtcUsdRate { get; set; }
+        public double BtcUsdRate { get; set; }
         public CoinDisplayModel[] Coins { get; set; }
     }
 }

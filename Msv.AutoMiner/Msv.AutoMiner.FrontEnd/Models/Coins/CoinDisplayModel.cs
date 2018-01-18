@@ -19,5 +19,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public long Height { get; set; }
 
         public DateTime? LastUpdated { get; set; }
+
+        public bool HasLocalNode { get; set; }
     }
 }
