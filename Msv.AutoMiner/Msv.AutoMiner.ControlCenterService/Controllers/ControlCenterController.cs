@@ -208,6 +208,9 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             if (miningTarget == null)
                 return null;
 
+            var market = SelectAppropriateMarket(
+                profitability.MarketPrices,
+                currentPool.UseBtcWallet ? null : miningTarget.ExchangeType);
             return new PoolDataModel
             {
                 Id = currentPool.Id,
@@ -215,8 +218,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 Protocol = currentPool.Protocol,
                 CoinsPerDay = CalculateValueWithPoolFee(profitability.CoinsPerDay, currentPool.FeeRatio),
                 ElectricityCost = profitability.ElectricityCostPerDay,
-                BtcPerDay = CalculateValueWithPoolFee(SelectAppropriateMarket(profitability.MarketPrices)?.BtcPerDay, currentPool.FeeRatio),
-                UsdPerDay = CalculateValueWithPoolFee(SelectAppropriateMarket(profitability.MarketPrices)?.UsdPerDay, currentPool.FeeRatio),
+                BtcPerDay = CalculateValueWithPoolFee(market?.BtcPerDay, currentPool.FeeRatio),
+                UsdPerDay = CalculateValueWithPoolFee(market?.UsdPerDay, currentPool.FeeRatio),
                 Priority = currentPool.Priority,
                 Login = currentPool.GetLogin(miningTarget),
                 Password = string.IsNullOrEmpty(currentPool.WorkerPassword) ? "x" : currentPool.WorkerPassword,
@@ -226,8 +229,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             double CalculateValueWithPoolFee(double? value, double poolFee)
                 => value.GetValueOrDefault() * (1 - poolFee / 100);
 
-            MarketPriceData SelectAppropriateMarket(MarketPriceData[] markets)
-                => markets.Where(z => miningTarget.ExchangeType == null || z.Exchange == miningTarget.ExchangeType)
+            MarketPriceData SelectAppropriateMarket(MarketPriceData[] markets, ExchangeType? exchangeType)
+                => markets.Where(z => exchangeType == null || z.Exchange == exchangeType)
                     .OrderByDescending(z => z.BtcPerDay)
                     .FirstOrDefault();
         }
