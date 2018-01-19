@@ -117,15 +117,20 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         private string DownloadDirectlyOrViaProxy(string url)
         {
+            string result;
             try
             {
-                return m_WebClient.DownloadString(url);
+                result = m_WebClient.DownloadString(url).Trim();
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
                                            && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Forbidden)
             {
                 return m_WebClient.DownloadStringProxied(url);
             }
+            // check if request limit has been reached - in this case try through proxy
+            if (result == "" || result.Equals("limit", StringComparison.InvariantCultureIgnoreCase))
+                return m_WebClient.DownloadStringProxied(url);
+            return result;
         }
 
         private static PoolAccountInfo ParsePoolAccountInfo(string accountInfoString)

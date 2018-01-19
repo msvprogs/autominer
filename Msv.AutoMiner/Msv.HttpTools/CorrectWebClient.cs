@@ -13,12 +13,12 @@ namespace Msv.HttpTools
         private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0";
         private const string AcceptEncodings = "gzip, deflate";
 
-        private static readonly TimeSpan M_OrdinaryRequestTimeout = TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan M_OrdinaryRequestTimeout = TimeSpan.FromSeconds(40);
         private static readonly TimeSpan M_MaxRequestTimeout =
 #if DEBUG
             TimeSpan.FromMinutes(20);
 #else
-            TimeSpan.FromMinutes(2);
+            TimeSpan.FromSeconds(70);
 #endif
 
 

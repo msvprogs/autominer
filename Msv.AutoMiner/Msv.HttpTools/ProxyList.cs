@@ -24,7 +24,7 @@ namespace Msv.HttpTools
                     if (proxyAddressPort.Length < 2 || !int.TryParse(proxyAddressPort[1], out _))
                         continue;
                     proxies.Add(new ProxyInfo(new Uri($"http://{proxyAddressPort[0]}:{proxyAddressPort[1]}")));
-                } 
+                }
             var random = new Random();
             return proxies
                 .OrderBy(x => random.NextDouble())
