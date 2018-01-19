@@ -36,10 +36,12 @@ namespace Msv.AutoMiner.ControlCenterService.External
             }
         }
 
-        public IPoolInfoProvider Create(Pool pool)
+        public IPoolInfoProvider Create(Pool pool, Wallet btcMiningTarget)
         {
             if (pool == null)
                 throw new ArgumentNullException(nameof(pool));
+            if (btcMiningTarget == null) 
+                throw new ArgumentNullException(nameof(btcMiningTarget));
 
             var miningWallet = pool.Coin.Wallets
                 .FirstOrDefault(x => x.IsMiningTarget);
@@ -65,6 +67,8 @@ namespace Msv.AutoMiner.ControlCenterService.External
 
             string GetMiningWalletAddress()
             {
+                if (pool.UseBtcWallet)
+                    return btcMiningTarget.Address;
                 if (miningWallet == null)
                     throw new InvalidOperationException($"Mining wallet for pool {pool.Name} isn't defined");
                 return miningWallet.Address;

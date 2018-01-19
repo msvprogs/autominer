@@ -12,5 +12,6 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts
         void SavePools(Pool[] pools);
         PoolPayment[] LoadExistingPayments(string[] externalIds, DateTime startDate);
         Dictionary<string, int> GetWalletIds(string[] addresses);
+        Wallet GetBitCoinMiningTarget();
     }
 }

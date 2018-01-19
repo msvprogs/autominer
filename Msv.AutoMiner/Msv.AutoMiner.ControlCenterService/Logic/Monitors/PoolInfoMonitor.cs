@@ -29,6 +29,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
         protected override void DoWork()
         {
             var pools = m_StorageGetter.Invoke().GetActivePools();
+            var btcMiningTarget = m_StorageGetter.Invoke().GetBitCoinMiningTarget();
 
             var now = DateTime.UtcNow;
             var startDate = now - M_LastOperationsPeriod;
@@ -56,7 +57,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 })
                 .Select(x => (pool:x.Key, info:x.Value))
                 .Concat(pools.Where(x => x.ApiProtocol != PoolApiProtocol.None && !M_MultiPoolProtocols.Contains(x.ApiProtocol))
-                    .Select(x => (pool:x, provider:m_ProviderFactory.Create(x)))
+                    .Select(x => (pool:x, provider:m_ProviderFactory.Create(x, btcMiningTarget)))
                     .AsParallel()
                     .Select(x =>
                     {

@@ -102,5 +102,11 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                     .ToDictionary(x => x.Key, x => x.First().Id);
             }
         }
+
+        public Wallet GetBitCoinMiningTarget()
+        {
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+                return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
+        }
     }
 }

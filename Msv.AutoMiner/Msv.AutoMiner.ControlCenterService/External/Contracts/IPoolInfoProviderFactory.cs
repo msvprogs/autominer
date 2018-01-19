@@ -5,6 +5,6 @@ namespace Msv.AutoMiner.ControlCenterService.External.Contracts
     public interface IPoolInfoProviderFactory
     {
         IMultiPoolInfoProvider CreateMulti(PoolApiProtocol apiProtocol, string baseUrl, Pool[] pools);
-        IPoolInfoProvider Create(Pool pool);
+        IPoolInfoProvider Create(Pool pool, Wallet btcMiningTarget);
     }
 }
