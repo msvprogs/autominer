@@ -58,9 +58,7 @@
         }
         <small>
             <a asp-controller="PoolPayments" asp-action="Index" asp-route-poolId="@Model.Id"
-               title="Show payments for this pool">
-                @Model.Name
-            </a>
+               title="Show payments for this pool">@Model.Name</a>
         </small>
         @if (Model.Activity == ActivityState.Active)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
@@ -29,8 +30,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         public IReadOnlyDictionary<Pool, PoolInfo> GetInfo(DateTime minPaymentDate)
         {
-            var currencies = JsonConvert.DeserializeObject<JObject>(m_WebClient.DownloadString($"{m_BaseUrl}/currencies"));
-            var statuses = JsonConvert.DeserializeObject<JObject>(m_WebClient.DownloadString($"{m_BaseUrl}/status"));
+            var currencies = JsonConvert.DeserializeObject<JObject>(DownloadDirectlyOrViaProxy($"{m_BaseUrl}/currencies"));
+            var statuses = JsonConvert.DeserializeObject<JObject>(DownloadDirectlyOrViaProxy($"{m_BaseUrl}/status"));
 
             var poolStates = m_Pools
                 .Where(x => x.ApiPoolName != null && x.WorkerPassword != null)
@@ -105,6 +106,19 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     State = x.poolState,
                     AccountInfo = x.accountInfo
                 });
+        }
+
+        private string DownloadDirectlyOrViaProxy(string url)
+        {
+            try
+            {
+                return m_WebClient.DownloadString(url);
+            }
+            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
+                                           && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Forbidden)
+            {
+                return m_WebClient.DownloadStringProxied(url);
+            }
         }
 
         private static PoolAccountInfo ParsePoolAccountInfo(string accountInfoString)
