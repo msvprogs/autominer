@@ -54,7 +54,7 @@ namespace Msv.AutoMiner.ControlCenterService
                     new PoolInfoProviderFactory(
                         new LoggedWebClient(),
                         new ProxiedLoggedWebClient(
-                            new RoundRobinList<ProxyInfo>(ProxyList.Proxies))),
+                            new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
                     () => scope.ServiceProvider.GetRequiredService<IPoolInfoMonitorStorage>()))
                 using (new WalletInfoMonitor(
                     new WalletInfoProviderFactory(

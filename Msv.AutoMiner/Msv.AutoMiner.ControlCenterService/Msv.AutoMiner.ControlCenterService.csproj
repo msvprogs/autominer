@@ -54,6 +54,9 @@
     <None Update="controlService.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="proxies.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="rootCa.cer">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

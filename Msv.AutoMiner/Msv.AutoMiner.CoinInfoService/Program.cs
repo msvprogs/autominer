@@ -47,7 +47,7 @@ namespace Msv.AutoMiner.CoinInfoService
                     new JsBlockRewardCalculator(), 
                     new NetworkInfoProviderFactory(
                         new LoggedWebClient(),
-                        new ProxiedLoggedWebClient(new RoundRobinList<ProxyInfo>(ProxyList.Proxies))),
+                        new ProxiedLoggedWebClient(new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
                     () => scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {
                     host.Run();
