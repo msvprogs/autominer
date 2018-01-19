@@ -11,6 +11,9 @@ namespace Msv.HttpTools
 
         public static ProxyInfo[] LoadFromFile(string path)
         {
+            if (!File.Exists(path))
+                return new ProxyInfo[0];
+
             var proxies = new List<ProxyInfo>();
             using (var reader = new StreamReader(path))
                 while (!reader.EndOfStream)
