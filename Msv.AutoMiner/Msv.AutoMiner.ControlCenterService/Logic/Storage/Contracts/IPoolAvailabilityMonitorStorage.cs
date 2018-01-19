@@ -8,5 +8,6 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts
     {
         Pool[] GetActivePools();
         void SavePoolResponseStoppedDates(Dictionary<int, DateTime?> dates);
+        Wallet GetBitCoinMiningTarget();
     }
 }

@@ -1,4 +1,5 @@
-﻿@using Msv.AutoMiner.Data
+﻿@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.Data
 @model Msv.AutoMiner.FrontEnd.Models.Pools.PoolEditModel
 
 @{ ViewBag.Title = "Edit pool details";}    
@@ -15,9 +16,9 @@
         <label asp-for="CoinId">Coin:</label>
         <select asp-for="CoinId" class="form-control">
             <option value="" disabled="disabled" selected="@(Model.CoinId == null ? "selected" : "")">Select...</option>
-            @foreach (var coin in Model.AvailableCoins.OrderBy(x => x.Symbol))
+            @foreach (var coin in Model.AvailableCoins.OrderBy(x => x.Name))
             {
-                <option value="@coin.Id">@coin.Symbol - @coin.Name</option>
+                <option value="@coin.Id">@coin.Name (@coin.Symbol)</option>
             }
         </select>
     </div>
@@ -31,15 +32,39 @@
     </div>
     <div class="form-group">
         <label asp-for="IsAnonymous">
-            <input type="checkbox" asp-for="IsAnonymous" /> Is anonymous (coin wallet address will be used as login, worker login will become the rig ID)
+            <input type="checkbox" asp-for="IsAnonymous" /> Is anonymous
         </label>
+        <p class="small">
+            If this option is checked, address of the wallet specified as mining target will be used as login.
+        </p>
+    </div>
+    <div class="form-group">
+        <label asp-for="UseBtcWallet">
+            <input type="checkbox" asp-for="UseBtcWallet" /> Mine to BitCoin wallet
+        </label>
+        <p class="small">
+            Check this option to use BitCoin wallet for mining. 
+            Required for pools that automatically convert earnings to BTC. For example, zpool.ca does so.
+            <br />
+            For anonymous pools, BitCoin mining target address will be used.
+        </p>
     </div>
     <div class="form-group">
         <label asp-for="WorkerLogin">Login:</label>
+        <p class="small">
+            For anonymous pools: leave empty or specify rig ID if required. Login with rig ID looks like <span class="text-monospace">walletAddress.rigId</span>
+            (example: <span class="text-monospace">iCg9NSKMfYvSTQ55TAypFQaTBz28wExacw.myRig</span>)
+            <br />For pools with registration: specify your worker login.
+        </p>
         <input asp-for="WorkerLogin" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="WorkerPassword">Password:</label>
+        <p class="small">
+            For anonymous pools: just leave empty or specify pool-specific parameters. 
+            For Yiimp-based pools you should always set target currency in the following format: <span class="text-monospace">c=BTC</span>
+            <br />For pools with registration: specify your worker password.
+        </p>
         <input asp-for="WorkerPassword" class="form-control" />
     </div>
     <div class="form-group">
@@ -48,37 +73,48 @@
     </div>
     <div class="form-group">
         <label asp-for="FeeRatio">Pool fee (in %):</label>
+        <p class="small">
+            Most of the pools return this value in API response, so it will be updated automatically.
+        </p>
         <input asp-for="FeeRatio" class="form-control" />
     </div>
 
     <h3>Pool info provider parameters</h3>
     <div class="form-group">
-        <label asp-for="ApiProtocol">API type:</label>
-        <select asp-for="ApiProtocol" class="form-control">
-            @foreach (PoolApiProtocol apiType in Enum.GetValues(typeof(PoolApiProtocol)))
-        {
-                <option value="@apiType">@apiType</option>
+        <label asp-for="PoolApiProtocol">API type:</label>
+        <select asp-for="PoolApiProtocol" class="form-control">
+            @foreach (var apiType in EnumHelper.GetCaptions<PoolApiProtocol>().OrderBy(x => x.Value))
+            {
+                <option value="@apiType.Key">@apiType.Value</option>
             }
         </select>
     </div>
     <div class="form-group">
         <label asp-for="ApiUrl">API URL:</label>
+        <p id="poolApiUrlDescription" class="small"></p>
         <input asp-for="ApiUrl" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="ApiKey">API key:</label>
+        <p id="poolApiKeyDescription" class="small"></p>
         <input asp-for="ApiKey" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="ApiPoolName">API pool name:</label>
+        <p id="poolApiPoolNameDescription" class="small"></p>
         <input asp-for="ApiPoolName" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="ApiPoolUserId">API pool user ID:</label>
+        <p id="poolApiUserIdDescription" class="small"></p>
         <input asp-for="ApiPoolUserId" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="TimeZoneCorrectionHours">Timezone offset from UTC in hours (may be fractional):</label>
+        <p class="small">
+            Some pools use non-standard timezones instead of UTC when returning account operations list. 
+            You can correct operation timestamps by specifying the UTC offset of the pool timezone.
+        </p>
         <input asp-for="TimeZoneCorrectionHours" class="form-control" placeholder="1 means UTC+1, -5 means UTC-5" />
     </div>
 

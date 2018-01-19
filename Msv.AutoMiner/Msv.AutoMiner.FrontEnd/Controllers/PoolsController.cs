@@ -46,7 +46,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public async Task<IActionResult> CreateStratum()
             => View("Edit", new PoolEditModel
             {
-                ApiProtocol = PoolApiProtocol.None,
+                PoolApiProtocol = PoolApiProtocol.None,
                 Url = "stratum+tcp://",
                 AvailableCoins = await GetAvailableCoins()
             });
@@ -54,7 +54,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public async Task<IActionResult> CreateSolo()
             => View("Edit", new PoolEditModel
             {
-                ApiProtocol = PoolApiProtocol.JsonRpcWallet,
+                PoolApiProtocol = PoolApiProtocol.JsonRpcWallet,
                 Url = "http://localhost:",
                 AvailableCoins = await GetAvailableCoins()
             });
@@ -72,17 +72,18 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 CoinId = pool.CoinId,
                 Name = pool.Name,
                 Priority = pool.Priority,
-                Url = GetPoolUri(pool).ToString(),
+                Url = pool.GetUrl().ToString(),
                 ApiKey = pool.ApiKey,
                 ApiPoolName = pool.ApiPoolName,
                 ApiPoolUserId = pool.PoolUserId,
-                ApiProtocol = pool.ApiProtocol,
+                PoolApiProtocol = pool.ApiProtocol,
                 ApiUrl = pool.ApiUrl,
                 FeeRatio = pool.FeeRatio,
                 IsAnonymous = pool.IsAnonymous,
                 WorkerLogin = pool.WorkerLogin,
                 WorkerPassword = pool.WorkerPassword,
                 TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
+                UseBtcWallet = pool.UseBtcWallet,
                 AvailableCoins = await GetAvailableCoins()
             };
             return View(poolModel);
@@ -97,24 +98,27 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 return NotFound();
             var poolModel = new PoolEditModel
             {
-                Url = GetPoolUri(pool).Scheme + "://",
+                Url = pool.GetUrl().Scheme + "://",
                 ApiKey = pool.ApiKey,
                 ApiPoolName = pool.ApiPoolName,
                 ApiPoolUserId = pool.PoolUserId,
-                ApiProtocol = pool.ApiProtocol,
+                PoolApiProtocol = pool.ApiProtocol,
                 ApiUrl = pool.ApiUrl,
                 FeeRatio = pool.FeeRatio,
                 IsAnonymous = pool.IsAnonymous,
                 WorkerLogin = pool.WorkerLogin,
                 WorkerPassword = pool.WorkerPassword,
                 TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
+                UseBtcWallet = pool.UseBtcWallet,
                 AvailableCoins = await GetAvailableCoins()
             };
             if (pool.ApiProtocol == PoolApiProtocol.Yiimp)
             {
-                var originalUrl = GetPoolUri(pool);
+                var originalUrl = pool.GetUrl();
                 poolModel.Url = $"{originalUrl.Scheme}://{originalUrl.Host}:";
-                poolModel.WorkerPassword = "c=";
+                poolModel.WorkerPassword = pool.UseBtcWallet
+                    ? "c=BTC"
+                    : "c=";
                 poolModel.ApiPoolName = null;
             }
             return View("Edit", poolModel);
@@ -134,7 +138,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                            Activity = ActivityState.Active
                        }).Entity;
             pool.CoinId = poolModel.CoinId.GetValueOrDefault();
-            pool.ApiProtocol = poolModel.ApiProtocol;
+            pool.ApiProtocol = poolModel.PoolApiProtocol;
             pool.ApiKey = poolModel.ApiKey;
             pool.ApiUrl = poolModel.ApiUrl;
             pool.ApiPoolName = poolModel.ApiPoolName;
@@ -146,6 +150,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             pool.Priority = poolModel.Priority;
             pool.Name = poolModel.Name;
             pool.TimeZoneCorrectionHours = poolModel.TimeZoneCorrectionHours;
+            pool.UseBtcWallet = poolModel.UseBtcWallet;
 
             var poolUrl = new Uri(poolModel.Url);
             pool.Host = poolUrl.Host;
@@ -240,35 +245,16 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         ? x.state.PoolWorkers
                         : (int?)null,
                     Fee = x.pool.FeeRatio,
-                    Url = GetPoolUri(x.pool).ToString(),
+                    Url = x.pool.GetUrl().ToString(),
                     TimeToFind = m_ProfitabilityCalculator.CalculateTimeToFind(
                         x.networkInfo.Difficulty, x.pool.Coin.MaxTarget, x.state.PoolHashRate),
                     LastUpdated = x.state.DateTime != default
                         ? x.state.DateTime
                         : (DateTime?)null,
-                    ResponsesStoppedDate = x.pool.ResponsesStoppedDate
+                    ResponsesStoppedDate = x.pool.ResponsesStoppedDate,
+                    UseBtcWallet = x.pool.UseBtcWallet
                 })
                 .ToArray();
-        }
-
-        private static Uri GetPoolUri(Pool pool)
-        {
-            string scheme;
-            switch (pool.Protocol)
-            {
-                case PoolProtocol.JsonRpc:
-                    scheme = Uri.UriSchemeHttp;
-                    break;
-                case PoolProtocol.Stratum:
-                    scheme = "stratum+tcp";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(pool.Protocol));
-            }
-            var host = Uri.IsWellFormedUriString(pool.Host, UriKind.Absolute)
-                ? new Uri(pool.Host).Host
-                : pool.Host;
-            return new UriBuilder {Scheme = scheme, Host = host, Port = pool.Port}.Uri;
         }
 
         private Task<CoinBaseModel[]> GetAvailableCoins()

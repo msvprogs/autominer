@@ -27,19 +27,22 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
         protected override void DoWork()
         {
             var now = DateTime.UtcNow;
+            var btcMiningTarget = m_StorageGetter.Invoke().GetBitCoinMiningTarget();
             var results = m_StorageGetter.Invoke().GetActivePools()
                 .AsParallel()
                 .WithDegreeOfParallelism(ParallelismDegree)
+                .Select(x => (pool:x, login: x.GetLogin(x.UseBtcWallet ? btcMiningTarget : x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget))))
+                .Where(x => x.login != null)
                 .Select(x => new
                 {
-                    Pool = x,
+                    Pool = x.pool,
                     IsAvailable = m_PoolAvailabilityChecker.Check(new PoolDataModel
                     {
-                        Login = x.GetLogin(x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget)),
-                        Password = x.WorkerPassword,
-                        Name = x.Name,
-                        Protocol = x.Protocol,
-                        Url = x.GetUrl()
+                        Login = x.login,
+                        Password = x.pool.WorkerPassword,
+                        Name = x.pool.Name,
+                        Protocol = x.pool.Protocol,
+                        Url = x.pool.GetUrl()
                     })
                 })
                 .Where(x => x.Pool.ResponsesStoppedDate == null ^ x.IsAvailable)

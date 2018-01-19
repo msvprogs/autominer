@@ -80,5 +80,8 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             await m_Context.CoinProfitabilities.AddRangeAsync(profitabilities);
             await m_Context.SaveChangesAsync();
         }
+
+        public Task<Wallet> GetBitCoinMiningTarget() 
+            => m_Context.Wallets.FirstOrDefaultAsync(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
     }
 }

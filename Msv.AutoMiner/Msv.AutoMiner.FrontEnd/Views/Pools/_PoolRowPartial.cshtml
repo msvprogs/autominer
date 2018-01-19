@@ -87,8 +87,8 @@
         }
     </td>
     <td>@Model.Fee.ToString("F2")%</td>
-    <td msv-balance="@Model.ConfirmedBalance" msv-btc-price="@Model.CoinBtcPrice"></td>
-    <td msv-balance="@Model.UnconfirmedBalance" msv-btc-price="@Model.CoinBtcPrice"></td>
+    <td msv-balance="@Model.ConfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
+    <td msv-balance="@Model.UnconfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
     <td class="space-no-wrap">@(Model.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(Model.PoolHashRate, Model.Coin.Algorithm.KnownValue) : "N/A")</td>
     <td>@Model.PoolWorkers</td>
     <td class="space-no-wrap">@TimeSpanHelper.ToShortString(Model.TimeToFind)</td>

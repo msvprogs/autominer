@@ -14,5 +14,6 @@ namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
         Task MarkCommandAsSent(int commandId);
         Task<Pool[]> GetActivePools(Guid[] coinIds);
         Task SaveProfitabilities(CoinProfitability[] profitabilities);
+        Task<Wallet> GetBitCoinMiningTarget();
     }
 }

@@ -310,6 +310,82 @@ $(function () {
     // ** Pools Index
     bindDisableButton($("tbody#pools-table"), "pool-name", "pool");
     bindDeleteButton($("tbody#pools-table"), "pool-name", "pool");
+
+    // ** Pools Edit
+    $("select#PoolApiProtocol").change(function() {
+        var apiUrlField = $("input#ApiUrl");
+        var urlDescription = $("#poolApiUrlDescription");
+        var apiKeyField = $("input#ApiKey");
+        var apiKeyDescription = $("#poolApiKeyDescription");
+        var apiPoolNameField = $("input#ApiPoolName");
+        var apiPoolNameDescription = $("#poolApiPoolNameDescription");
+        var apiUserIdField = $("input#ApiPoolUserId");
+        var apiUserIdDescription = $("#poolApiUserIdDescription");
+
+        urlDescription.empty();
+        apiKeyDescription.empty();
+        apiPoolNameDescription.empty();
+        apiUserIdDescription.empty();
+        if (this.selectedIndex < 0)
+            return;
+
+        var apiUrlEnabled = false, apiKeyEnabled = false, apiPoolNameEnabled = false, apiUserIdEnabled = false;
+        var urlDescriptionText = null, apiKeyDescriptionText = null, apiPoolNameDescriptionText = null, apiUserIdDescriptionText = null;
+        switch (this.options[this.selectedIndex].value) {
+            case "None":
+                break;
+            case "Qwak":
+                apiUrlEnabled = apiKeyEnabled = apiUserIdEnabled = true;
+                urlDescriptionText =
+                    "Navigate to <i>My Account -> Edit Account</i> and find there a hyperlink with API key. " +
+                    "<br />Example: <i>https://oc.suprnova.cc/index.php?page=api&action=getuserstatus&api_key=some-long-number&id=513350</i>" +
+                    "<br />This is an API URL (without query string, e.g. only this part: <b>https://oc.suprnova.cc/index.php</b>)";
+                apiKeyDescriptionText = "The value of <var>api_key</var> parameter of the API hyperlink URL";
+                apiUserIdDescriptionText =
+                    "The value of <var>id</var> parameter of the API hyperlink URL. May be empty if there is no such parameter.";
+                break;
+            case "Tbf":
+                apiUrlEnabled = apiKeyEnabled = true;
+                urlDescriptionText =
+                    "Navigate to <i>My Account -> Account Details</i> and find there a hyperlink with API key. " +
+                    "<br />Example: <i>https://orb.theblocksfactory.com/api.php?api_key=some-big-number</i>" +
+                    "<br />This is an API URL (without query string, e.g. only this part: <b>https://orb.theblocksfactory.com/api.php</b>)";
+                apiKeyDescriptionText = "The value of <var>api_key</var> parameter of the API hyperlink URL";
+                break;
+            case "OpenEthereum":
+                apiUrlEnabled = true;
+                urlDescriptionText = ""; //TODO: find how to determine API URL
+                break;
+            case "Bitfly":
+                apiUrlEnabled = true;
+                urlDescriptionText = "API URL can be found in the API documentation of the pool";
+                break;
+            case "NodeOpenMiningPortal":
+                apiUrlEnabled = apiPoolNameEnabled = true;
+                urlDescriptionText = "URL of the 'API' button or menu item";
+                apiPoolNameDescriptionText = "Open 'Tab Stats' page and reference 'Pool Name' column";
+                break;
+            case "JsonRpcWallet":
+                urlDescriptionText = "Local node URL and credentials will be taken from coin options";
+                break;
+            case "Yiimp":
+                apiUrlEnabled = apiPoolNameEnabled = true;
+                urlDescriptionText = "Reference the API documentation of the pool (Links section). Example for yiimp.eu pool: <i>http://api.yiimp.eu/api</i>";
+                apiPoolNameDescriptionText = "Coin algorithm name. Reference 'Algo' column on the main page. Example: <i>skein</i>";
+            default:
+                break;
+        }
+
+        apiUrlField.prop("disabled", !apiUrlEnabled);
+        urlDescription.html(urlDescriptionText);
+        apiKeyField.prop("disabled", !apiKeyEnabled);
+        apiKeyDescription.html(apiKeyDescriptionText);
+        apiPoolNameField.prop("disabled", !apiPoolNameEnabled);
+        apiPoolNameDescription.html(apiPoolNameDescriptionText);
+        apiUserIdField.prop("disabled", !apiUserIdEnabled);
+        apiUserIdDescription.html(apiUserIdDescriptionText);
+    });
+    $("select#PoolApiProtocol").change();
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

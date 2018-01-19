@@ -7,7 +7,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
 {
     public class PoolEditModel : PoolBaseModel
     {
-        public PoolApiProtocol ApiProtocol { get; set; }
+        public PoolApiProtocol PoolApiProtocol { get; set; }
 
         [Url(ErrorMessage = "Invalid API URL")]
         public string ApiUrl { get; set; }

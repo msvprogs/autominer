@@ -47,5 +47,11 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                 context.SaveChanges();
             }
         }
+
+        public Wallet GetBitCoinMiningTarget()
+        {
+            using (var context = new AutoMinerDbContext(m_ConnectionString))
+                return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
+        }
     }
 }

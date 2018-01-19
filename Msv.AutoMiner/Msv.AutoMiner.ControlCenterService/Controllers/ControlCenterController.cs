@@ -157,19 +157,23 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 .Where(x => DateTime.UtcNow - M_MaxInactivityInterval < x.LastUpdatedUtc)
                 .Select(x => x.CoinId)
                 .ToArray();
+            var btcMiningTarget = await m_Storage.GetBitCoinMiningTarget();
             var works = (await m_Storage.GetActivePools(coinIds))
                 .GroupBy(x => x.Coin)
                 .Join(coinStatistics.Profitabilities.EmptyIfNull(), x => x.Key.Id, x => x.CoinId,
                     (x, y) => (profitability:y, pools:x, miningTarget: x.Key.Wallets.FirstOrDefault(a => a.IsMiningTarget)))
-                .Where(x => x.miningTarget != null)
                 .Select(x => new MiningWorkModel
                 {
                     CoinId = x.pools.Key.Id,
                     CoinName = x.pools.Key.Name,
                     CoinSymbol = x.pools.Key.Symbol,
                     CoinAlgorithmId = x.pools.Key.AlgorithmId,
-                    Pools = x.pools.Select(y => CreatePoolDataModel(y, x)).ToArray()
+                    Pools = x.pools.Select(y => CreatePoolDataModel(
+                        y, x.profitability, y.UseBtcWallet ? btcMiningTarget : x.miningTarget))
+                        .Where(y => y != null)
+                        .ToArray()
                 })
+                .Where(x => x.Pools.Any())
                 .ToArray();
             if (request.TestMode)
                 return works;
@@ -199,22 +203,22 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 Full = MemoryBufferTarget.GetBuffer("FullLogBuffer")
             });
 
-        private static PoolDataModel CreatePoolDataModel(
-            Pool currentPool, (SingleProfitabilityData profitability, IGrouping<Coin, Pool> pools, Wallet miningTarget) miningData)
+        private static PoolDataModel CreatePoolDataModel(Pool currentPool, SingleProfitabilityData profitability, Wallet miningTarget)
         {
+            if (miningTarget == null)
+                return null;
+
             return new PoolDataModel
             {
                 Id = currentPool.Id,
                 Name = currentPool.Name,
                 Protocol = currentPool.Protocol,
-                CoinsPerDay = CalculateValueWithPoolFee(miningData.profitability.CoinsPerDay, currentPool.FeeRatio),
-                ElectricityCost = miningData.profitability.ElectricityCostPerDay,
-                BtcPerDay = CalculateValueWithPoolFee(SelectAppropriateMarket(
-                    miningData.profitability.MarketPrices, miningData.miningTarget)?.BtcPerDay, currentPool.FeeRatio),
-                UsdPerDay = CalculateValueWithPoolFee(SelectAppropriateMarket(
-                    miningData.profitability.MarketPrices, miningData.miningTarget)?.UsdPerDay, currentPool.FeeRatio),
+                CoinsPerDay = CalculateValueWithPoolFee(profitability.CoinsPerDay, currentPool.FeeRatio),
+                ElectricityCost = profitability.ElectricityCostPerDay,
+                BtcPerDay = CalculateValueWithPoolFee(SelectAppropriateMarket(profitability.MarketPrices)?.BtcPerDay, currentPool.FeeRatio),
+                UsdPerDay = CalculateValueWithPoolFee(SelectAppropriateMarket(profitability.MarketPrices)?.UsdPerDay, currentPool.FeeRatio),
                 Priority = currentPool.Priority,
-                Login = currentPool.GetLogin(miningData.miningTarget),
+                Login = currentPool.GetLogin(miningTarget),
                 Password = string.IsNullOrEmpty(currentPool.WorkerPassword) ? "x" : currentPool.WorkerPassword,
                 Url = currentPool.GetUrl()
             };
@@ -222,8 +226,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             double CalculateValueWithPoolFee(double? value, double poolFee)
                 => value.GetValueOrDefault() * (1 - poolFee / 100);
 
-            MarketPriceData SelectAppropriateMarket(MarketPriceData[] markets, Wallet miningTarget)
-                => markets.Where(z => miningTarget?.ExchangeType == null || z.Exchange == miningTarget.ExchangeType)
+            MarketPriceData SelectAppropriateMarket(MarketPriceData[] markets)
+                => markets.Where(z => miningTarget.ExchangeType == null || z.Exchange == miningTarget.ExchangeType)
                     .OrderByDescending(z => z.BtcPerDay)
                     .FirstOrDefault();
         }

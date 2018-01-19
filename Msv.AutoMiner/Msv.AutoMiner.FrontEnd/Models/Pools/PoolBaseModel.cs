@@ -15,5 +15,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
         [PoolUrl(ErrorMessage = "Pool URL is invalid")]
         [Required(ErrorMessage = "Pool URL is required")]
         public string Url { get; set; }
+     
+        public bool UseBtcWallet { get; set; }
     }
 }

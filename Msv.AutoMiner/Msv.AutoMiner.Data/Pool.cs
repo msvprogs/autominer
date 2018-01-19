@@ -50,5 +50,7 @@ namespace Msv.AutoMiner.Data
         public double TimeZoneCorrectionHours { get; set; }
 
         public DateTime? ResponsesStoppedDate { get; set; }
+
+        public bool UseBtcWallet { get; set; }
     }
 }
