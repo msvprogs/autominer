@@ -36,8 +36,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             var storage = m_StorageGetter.Invoke();
             var coins = storage.GetCoins();
             var multiProviderCoins = coins
-                .Where(x => x.NetworkInfoApiType == CoinNetworkInfoApiType.Zpool
-                    || x.NetworkInfoApiType == CoinNetworkInfoApiType.SpecialMulti)
+                .Where(x => x.NetworkInfoApiType == CoinNetworkInfoApiType.SpecialMulti)
                 .ToArray();
 
             var previousInfos = storage.GetLastNetworkInfos()

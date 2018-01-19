@@ -28,16 +28,6 @@ namespace Msv.AutoMiner.CoinInfoService.External
                 throw new ArgumentNullException(nameof(coins));
 
             var providers = new List<IMultiNetworkInfoProvider>();
-            var zpoolCoins = coins.Where(x => x.NetworkInfoApiType == CoinNetworkInfoApiType.Zpool)
-                .Select(x => x.Symbol)
-                .Distinct()
-                .ToArray();
-            if (zpoolCoins.Any())
-                providers.Add(new YiimpMultiInfoProvider(
-                    m_ProxiedClient,
-                    "https://www.zpool.ca",
-                    TimeZoneInfo.CreateCustomTimeZone("GMT-4", TimeSpan.FromHours(-4), "GMT-4", "GMT-4"),
-                    zpoolCoins));
             if (coins.Any(x => x.Symbol == "XVG"))
                 providers.Add(new VergeMultiNetworkInfoProvider(m_OrdinaryClient));
             if (coins.Any(x => x.Symbol == "XSH"))
