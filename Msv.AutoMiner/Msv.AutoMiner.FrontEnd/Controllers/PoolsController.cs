@@ -41,60 +41,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         public IActionResult Index()
-        {
-            var lastPoolInfos = m_PoolInfoProvider.GetCurrentPoolInfos();
-            var coinPrices = m_CoinValueProvider.GetCurrentCoinValues(false);
-            var networkInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
-
-            var pools = m_Context.Pools
-                .Include(x => x.Coin)
-                .Include(x => x.Coin.Algorithm)
-                .AsNoTracking()
-                .Where(x => x.Activity != ActivityState.Deleted && x.Coin.Activity != ActivityState.Deleted)
-                .AsEnumerable()
-                .LeftOuterJoin(lastPoolInfos, x => x.Id, x => x.PoolId,
-                    (x, y) => (pool: x, state: y ?? new PoolAccountState()))
-                .LeftOuterJoin(coinPrices, x => x.pool.Coin.Id, x => x.CurrencyId,
-                    (x, y) => (x.pool, x.state, price: y ?? new CoinValue()))
-                .LeftOuterJoin(networkInfos, x => x.pool.Coin.Id, x => x.CoinId,
-                    (x, y) => (x.pool, x.state, x.price, networkInfo: y ?? new CoinNetworkInfo()))
-                .Where(x => HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true)
-                            || x.state.ConfirmedBalance > 0
-                            || x.state.UnconfirmedBalance > 0)
-                .Select(x => new PoolDisplayModel
-                {
-                    Id = x.pool.Id,
-                    Name = x.pool.Name,
-                    Coin = new CoinBaseModel
-                    {
-                        Id = x.pool.CoinId,
-                        Name = x.pool.Coin.Name,
-                        Symbol = x.pool.Coin.Symbol,
-                        Logo = x.pool.Coin.LogoImageBytes,
-                        Algorithm = new AlgorithmModel { KnownValue = x.pool.Coin.Algorithm.KnownValue }
-                    },
-                    CoinBtcPrice = x.price.AverageBtcValue,
-                    Activity = x.pool.Activity,
-                    HasApi = x.pool.ApiProtocol != PoolApiProtocol.None,
-                    IsSolo = x.pool.Protocol == PoolProtocol.JsonRpc,
-                    ConfirmedBalance = x.state.ConfirmedBalance,
-                    UnconfirmedBalance = x.state.UnconfirmedBalance,
-                    PoolHashRate = x.state.PoolHashRate,
-                    PoolWorkers = x.state.DateTime != default
-                        ? x.state.PoolWorkers
-                        : (int?)null,
-                    Fee = x.pool.FeeRatio,
-                    Url = GetPoolUri(x.pool).ToString(),
-                    TimeToFind = m_ProfitabilityCalculator.CalculateTimeToFind(
-                        x.networkInfo.Difficulty, x.pool.Coin.MaxTarget, x.state.PoolHashRate),
-                    LastUpdated = x.state.DateTime != default
-                        ? x.state.DateTime
-                        : (DateTime?)null
-                })
-                .ToArray();
-
-            return View(pools);
-        }
+            => View(GetPoolDisplayModels(null));
 
         public async Task<IActionResult> CreateStratum()
             => View("Edit", new PoolEditModel
@@ -224,10 +171,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 pool.Activity = ActivityState.Active;
 
             await m_Context.SaveChangesAsync();
-
-            TempData[PoolsMessageKey] =
-                $"Pool {pool.Name} has been successfully {(pool.Activity == ActivityState.Active ? "activated" : "deactivated")}";
-            return RedirectToAction("Index");
+            return PartialView("_PoolRowPartial", GetPoolDisplayModels(new[] {id}).FirstOrDefault());
         }
 
         [HttpPost]
@@ -237,16 +181,74 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             if (pool == null)
                 return NotFound();
             pool.Activity = ActivityState.Deleted;
-            await m_Context.SaveChangesAsync();
 
-            TempData[PoolsMessageKey] = $"Pool {pool.Name} has been successfully deleted";
-            return RedirectToAction("Index");
+            await m_Context.SaveChangesAsync();
+            return Content("");
         }
 
         public IActionResult ToggleShowZero()
         {
             HttpContext.Session.SetBool(ShowZeroValuesKey, !HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true));
             return RedirectToAction("Index");
+        }
+
+        private PoolDisplayModel[] GetPoolDisplayModels(int[] ids)
+        {
+            var lastPoolInfos = m_PoolInfoProvider.GetCurrentPoolInfos();
+            var coinPrices = m_CoinValueProvider.GetCurrentCoinValues(false);
+            var networkInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);
+
+            var poolQuery = m_Context.Pools
+                .Include(x => x.Coin)
+                .Include(x => x.Coin.Algorithm)
+                .AsNoTracking()
+                .Where(x => x.Activity != ActivityState.Deleted && x.Coin.Activity != ActivityState.Deleted);
+            if (!ids.IsNullOrEmpty())
+                poolQuery = poolQuery.Where(x => ids.Contains(x.Id));
+
+            return poolQuery
+                .AsEnumerable()
+                .LeftOuterJoin(lastPoolInfos, x => x.Id, x => x.PoolId,
+                    (x, y) => (pool: x, state: y ?? new PoolAccountState()))
+                .LeftOuterJoin(coinPrices, x => x.pool.Coin.Id, x => x.CurrencyId,
+                    (x, y) => (x.pool, x.state, price: y ?? new CoinValue()))
+                .LeftOuterJoin(networkInfos, x => x.pool.Coin.Id, x => x.CoinId,
+                    (x, y) => (x.pool, x.state, x.price, networkInfo: y ?? new CoinNetworkInfo()))
+                .Where(x => HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true)
+                            || x.state.ConfirmedBalance > 0
+                            || x.state.UnconfirmedBalance > 0)
+                .Select(x => new PoolDisplayModel
+                {
+                    Id = x.pool.Id,
+                    Name = x.pool.Name,
+                    Coin = new CoinBaseModel
+                    {
+                        Id = x.pool.CoinId,
+                        Name = x.pool.Coin.Name,
+                        Symbol = x.pool.Coin.Symbol,
+                        Logo = x.pool.Coin.LogoImageBytes,
+                        Algorithm = new AlgorithmModel { KnownValue = x.pool.Coin.Algorithm.KnownValue }
+                    },
+                    CoinBtcPrice = x.price.AverageBtcValue,
+                    Activity = x.pool.Activity,
+                    HasApi = x.pool.ApiProtocol != PoolApiProtocol.None,
+                    IsSolo = x.pool.Protocol == PoolProtocol.JsonRpc,
+                    ConfirmedBalance = x.state.ConfirmedBalance,
+                    UnconfirmedBalance = x.state.UnconfirmedBalance,
+                    PoolHashRate = x.state.PoolHashRate,
+                    PoolWorkers = x.state.DateTime != default
+                        ? x.state.PoolWorkers
+                        : (int?)null,
+                    Fee = x.pool.FeeRatio,
+                    Url = GetPoolUri(x.pool).ToString(),
+                    TimeToFind = m_ProfitabilityCalculator.CalculateTimeToFind(
+                        x.networkInfo.Difficulty, x.pool.Coin.MaxTarget, x.state.PoolHashRate),
+                    LastUpdated = x.state.DateTime != default
+                        ? x.state.DateTime
+                        : (DateTime?)null,
+                    ResponsesStoppedDate = x.pool.ResponsesStoppedDate
+                })
+                .ToArray();
         }
 
         private static Uri GetPoolUri(Pool pool)

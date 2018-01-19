@@ -132,7 +132,7 @@ Video card usages: <b>{6}</b>
 Client version: <b>{7}</b>
 Last updated: <b>{8}</b>
 Pool shares: <b>{9}</b> valid, <b>{10}</b> invalid, <b>{11}</b>
-Pool balance: confirmed <b>{12:N6} {14}</b>, unconfirmed <b>{13:N6} {14}</b>";
+Pool balance: confirmed <b>{12} {14}</b>, unconfirmed <b>{13} {14}</b>";
 
             var heartbeats = m_RigHeartbeatProvider.GetLastHeartbeats(
                 m_Storage.GetRigIds(rigNames));
@@ -167,8 +167,8 @@ Pool balance: confirmed <b>{12:N6} {14}</b>, unconfirmed <b>{13:N6} {14}</b>";
                     x.PoolState.ValidShares,
                     x.PoolState.InvalidShares,
                     HtmlEntity.Entitize(ConversionHelper.ToHashRateWithUnits(x.PoolState.HashRate, coins[x.NowMining.CoinId].Algorithm.KnownValue)),
-                    x.PoolState.ConfirmedBalance,
-                    x.PoolState.UnconfirmedBalance,
+                    ConversionHelper.ToCryptoCurrencyValue(x.PoolState.ConfirmedBalance),
+                    ConversionHelper.ToCryptoCurrencyValue(x.PoolState.UnconfirmedBalance),
                     HtmlEntity.Entitize(coins[x.NowMining.CoinId].Symbol)))
                 .ToArray();
             if (heartbeatStrings.Any())

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -8,46 +7,32 @@ using System.Text;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Newtonsoft.Json;
 using NLog;
 
-namespace Msv.AutoMiner.Rig.Infrastructure
+namespace Msv.AutoMiner.Common.Infrastructure
 {
-    public class PoolStatusProvider : IPoolStatusProvider
+    public class PoolAvailabilityChecker : IPoolAvailabilityChecker
     {
-        private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
-        private static readonly TimeSpan M_RecheckInterval = TimeSpan.FromMinutes(30);
         private static readonly TimeSpan M_SocketTimeout = TimeSpan.FromSeconds(25);
         private static readonly Encoding M_StratumEncoding = Encoding.ASCII;
 
-        private readonly ConcurrentDictionary<int, DateTime> m_ResponsesStoppedTimes =
-            new ConcurrentDictionary<int, DateTime>();
+        protected static ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-        public bool CheckAvailability(PoolDataModel pool)
+        public virtual bool Check(PoolDataModel pool)
         {
-            if (m_ResponsesStoppedTimes.TryGetValue(pool.Id, out var stoppedTime)
-                && stoppedTime + M_RecheckInterval > DateTime.Now)
-            {
-                M_Logger.Warn($"Pool {pool.Name} is still unavailable");
-                return false;
-            }
             var result = CheckServer(pool);
-            if (result)
-            {
-                M_Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded");
-                m_ResponsesStoppedTimes.TryRemove(pool.Id, out _);
-            }
-            else
-                m_ResponsesStoppedTimes.AddOrUpdate(pool.Id, x => DateTime.Now, (x, y) => y);
-            return result;
+            if (!result) 
+                return false;
+            Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded");
+            return true;
         }
 
         private static bool CheckServer(PoolDataModel pool)
         {
             try
             {
-                M_Logger.Info($"Pool {pool.Name} ({pool.Url}): connecting...");
+                Logger.Info($"Pool {pool.Name} ({pool.Url}): checking availability...");
                 switch (pool.Protocol)
                 {
                     case PoolProtocol.Stratum:
@@ -60,7 +45,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             }
             catch (Exception ex)
             {
-                M_Logger.Error($"Pool {pool.Name} ({pool.Url}) didn't respond. {ex.Message}");
+                Logger.Error($"Pool {pool.Name} ({pool.Url}) didn't respond. {ex.Message}");
                 return false;
             }
         }
@@ -72,7 +57,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 var poolString = $"Pool {pool.Name} ({pool.Url})";
                 client.ReceiveTimeout = client.SendTimeout = (int)M_SocketTimeout.TotalMilliseconds;
                 client.Connect(pool.Url.Host, pool.Url.Port);
-                M_Logger.Info($"{poolString}: connection succeeded");
+                Logger.Info($"{poolString}: connection succeeded");
                 if (pool.Login == null)
                     return false;
                 const int requestId = 2;
@@ -84,15 +69,16 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 });
                 using (var stream = client.GetStream())
                 {
-                    M_Logger.Info($"{poolString}: sending Stratum request {authRequest}");
+                    Logger.Info($"{poolString}: sending Stratum request {authRequest}");
                     var bytes = M_StratumEncoding.GetBytes(authRequest + "\n");
                     stream.Write(bytes, 0, bytes.Length);
                     stream.Flush();
                     var responseStr = ReadStratumLine(stream);
-                    M_Logger.Info($"{poolString}: received Stratum response {responseStr}");
+                    Logger.Info($"{poolString}: received Stratum response {responseStr}");
                     var response = (dynamic)JsonConvert.DeserializeObject(responseStr);
                     return (string)response.method == "mining.set_difficulty"
                         || (string)response.method == "mining.notify"
+                        || (string)response.method == "client.show_message" //well, it could be message like "I'm not working now"...
                         || (int?)response.id == requestId 
                         && (bool?)response.result == true;
                 }

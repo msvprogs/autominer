@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.ControlCenterService.External;
@@ -60,6 +61,9 @@ namespace Msv.AutoMiner.ControlCenterService
                         new LoggedWebClient(),
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     () => scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
+                using (new PoolAvailabilityMonitor(
+                    new PoolAvailabilityChecker(), 
+                    () => scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
                 using (new TelegramCommandInterface(
                     new TelegramBotClient(config.GetValue<string>("Notifications:Telegram:Token")),
                     new TelegramCommandInterfaceStorage(connectionString),

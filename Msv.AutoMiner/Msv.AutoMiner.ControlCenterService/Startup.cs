@@ -45,14 +45,12 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddTransient<IControlCenterControllerStorage, ControlCenterControllerStorage>();
             services.AddTransient<IWalletInfoProviderFactoryStorage, WalletInfoProviderFactoryStorage>();
 
-            services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
+            services.AddSingleton<ITelegramBotClient>(
                 x => new TelegramBotClient(Configuration.GetValue<string>("Notifications:Telegram:Token")));
-            services.AddSingleton<IPoolInfoMonitorStorage, PoolInfoMonitorStorage>(
-                x => new PoolInfoMonitorStorage(connectionString));
-            services.AddSingleton<IWalletInfoMonitorStorage, WalletInfoMonitorStorage>(
-                x => new WalletInfoMonitorStorage(connectionString));
-            services.AddSingleton<IRigStatusNotifierStorage, RigStatusNotifierStorage>(
-                x => new RigStatusNotifierStorage(connectionString));
+            services.AddSingleton<IPoolInfoMonitorStorage>(x => new PoolInfoMonitorStorage(connectionString));
+            services.AddSingleton<IWalletInfoMonitorStorage>(x => new WalletInfoMonitorStorage(connectionString));
+            services.AddSingleton<IRigStatusNotifierStorage>(x => new RigStatusNotifierStorage(connectionString));
+            services.AddSingleton<IPoolAvailabilityMonitorStorage>(x => new PoolAvailabilityMonitorStorage(connectionString));
             services.AddSingleton(x => new HeartbeatAnalyzerParams
             {
                 SamplesCount = Configuration.GetValue<int>("NormalRigStateCriteria:SamplesCount"),
@@ -62,7 +60,7 @@ namespace Msv.AutoMiner.ControlCenterService
                 MaxVideoTemperature = Configuration.GetValue<int>("NormalRigStateCriteria:MaxVideoTemperature")
             });
             //@autominer_test
-            services.AddSingleton<IRigStatusNotifier, TelegramRigStatusNotifier>(
+            services.AddSingleton<IRigStatusNotifier>(
                 x => new TelegramRigStatusNotifier(
                     x.GetRequiredService<ITelegramBotClient>(),
                     x.GetRequiredService<IRigStatusNotifierStorage>(),

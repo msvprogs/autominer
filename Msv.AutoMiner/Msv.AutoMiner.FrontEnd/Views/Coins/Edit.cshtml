@@ -149,11 +149,24 @@
             <dt><code>halve(value, times)</code></dt>
             <dd>divide <code>value</code> by 2 <code>times</code> times (decimal part truncated)</dd>
         </dl>
-        Calculated value should be returned by using the <code>return</code> operator.
-    <p class="small">
-        You can leave this textbox empty, in this case reward info will be retreived from the network info provider.
-        <em>Remember that most of them don't provide this data, so you can end with zero reward and, consequently, with zero calculated profitability.</em>
-    </p>
+        <p>
+            Calculated value should be returned by using the <code>return</code> operator.
+        </p>
+        <p class="small">
+            Reference the wallet source code to find block reward calculation logic. It is usually located in files
+            <code>main.cpp</code>, <code>validation.cpp</code>, some constant values are in <code>chainparams.cpp</code>.
+            <br />
+            Example: <a href="https://github.com/bitcoin/bitcoin/blob/9a97f39afaa890caa7987c6bc001b9a66e3e74e8/src/validation.cpp#L1132">this</a> is the block reward calculation function for BitCoin,
+            which references <code>nSubsidyHalvingInterval</code> constant from <a href="https://github.com/bitcoin/bitcoin/blob/9a97f39afaa890caa7987c6bc001b9a66e3e74e8/src/chainparams.cpp#L77">here</a>.
+            <br />
+            <em>Remember that modern altcoins often use complicated block reward calculation algorithms, which aren't limited just to initial reward halving.
+                PoS logic, masternode rewards, team reserves, etc. can influence the block reward, so always check your calculated value against 
+                existing block explorers or network info from local node. There is a test box to check calculations for arbitrary network parameters.</em>
+        </p>
+        <p class="small">
+            You can leave this textbox empty, in this case reward info will be retreived from the network info provider.
+            <em>Remember that most of them don't provide this data, so you can end with zero reward and, consequently, with zero calculated profitability.</em>
+        </p>
     </p>
 
     <div class="row">

@@ -117,7 +117,6 @@
     <Compile Include="Infrastructure\Contracts\IMinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerProcessController.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerTester.cs" />
-    <Compile Include="Infrastructure\Contracts\IPoolStatusProvider.cs" />
     <Compile Include="Infrastructure\Contracts\IProcessWrapper.cs" />
     <Compile Include="Infrastructure\Contracts\IMiningProfitabilityTableBuilder.cs" />
     <Compile Include="Infrastructure\Contracts\IVideoAdapterMonitor.cs" />
@@ -130,7 +129,7 @@
     <Compile Include="Infrastructure\MinerProcessController.cs" />
     <Compile Include="Infrastructure\MinerTester.cs" />
     <Compile Include="Infrastructure\PeriodicTaskDelayProvider.cs" />
-    <Compile Include="Infrastructure\PoolStatusProvider.cs" />
+    <Compile Include="Infrastructure\CachedPoolAvailabilityChecker.cs" />
     <Compile Include="Infrastructure\ProcessWrapper.cs" />
     <Compile Include="Infrastructure\MiningProfitabilityTableBuilder.cs" />
     <Compile Include="Infrastructure\VideoAdapterMonitor.cs" />

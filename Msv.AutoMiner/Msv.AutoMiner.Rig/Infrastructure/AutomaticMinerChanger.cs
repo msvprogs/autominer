@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using NLog;
@@ -18,7 +19,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
         private readonly IMinerProcessController m_ProcessController;
         private readonly IMiningProfitabilityTableBuilder m_MiningProfitabilityTableBuilder;
-        private readonly IPoolStatusProvider m_PoolStatusProvider;
+        private readonly IPoolAvailabilityChecker m_PoolAvailabilityChecker;
         private readonly IPeriodicTaskDelayProvider m_DelayProvider;
         private readonly IVideoAdapterMonitor m_VideoMonitor;
         private readonly MinerChangingOptions m_ChangingOptions;
@@ -30,14 +31,14 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         public AutomaticMinerChanger(
             IMinerProcessController processController,
             IMiningProfitabilityTableBuilder miningProfitabilityTableBuilder,
-            IPoolStatusProvider poolStatusProvider,
+            IPoolAvailabilityChecker poolAvailabilityChecker,
             IPeriodicTaskDelayProvider delayProvider,
             IVideoAdapterMonitor videoMonitor,
             MinerChangingOptions changingOptions)
         {
             m_ProcessController = processController ?? throw new ArgumentNullException(nameof(processController));
             m_MiningProfitabilityTableBuilder = miningProfitabilityTableBuilder ?? throw new ArgumentNullException(nameof(miningProfitabilityTableBuilder));
-            m_PoolStatusProvider = poolStatusProvider ?? throw new ArgumentNullException(nameof(poolStatusProvider));
+            m_PoolAvailabilityChecker = poolAvailabilityChecker ?? throw new ArgumentNullException(nameof(poolAvailabilityChecker));
             m_DelayProvider = delayProvider ?? throw new ArgumentNullException(nameof(delayProvider));
             m_VideoMonitor = videoMonitor ?? throw new ArgumentNullException(nameof(videoMonitor));
             m_ChangingOptions = changingOptions ?? throw new ArgumentNullException(nameof(changingOptions));
@@ -49,13 +50,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private IDisposable CreateSubscription()
         {
             var random = new Random();
-            TimeSpan delay;
-#if !DEBUG
-            delay = m_DelayProvider.GetDelay<AutomaticMinerChanger>();
+            var delay = m_DelayProvider.GetDelay<AutomaticMinerChanger>();
             M_Logger.Info($"Adding server load balancing delay {(int)delay.TotalSeconds} seconds");
-#else
-            delay = TimeSpan.FromSeconds(3);
-#endif
             var intervalDispersionMsec = (int) m_ChangingOptions.Dispersion.TotalMilliseconds;
             return Observable.Generate(Unit.Default, x => true, x => x, x => x,
                     x => m_ChangingOptions.Interval
@@ -96,7 +92,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
             var mostProfitable = profitabilityTable
                 .Where(x => x.PoolData.BtcPerDay >= 0)
-                .Where(x => m_PoolStatusProvider.CheckAvailability(x.PoolData))
+                .Where(x => m_PoolAvailabilityChecker.Check(x.PoolData))
                 .FirstOrDefault();
             if (mostProfitable == null)
             {

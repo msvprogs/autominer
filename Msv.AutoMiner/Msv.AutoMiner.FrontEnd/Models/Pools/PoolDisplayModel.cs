@@ -31,5 +31,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
         public double Fee { get; set; }
 
         public DateTime? LastUpdated { get; set; }
+
+        public DateTime? ResponsesStoppedDate { get; set; }
     }
 }

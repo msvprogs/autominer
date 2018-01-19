@@ -1,20 +1,7 @@
-﻿@using Msv.AutoMiner.Common.Enums
-@using Msv.AutoMiner.Common.Helpers
-@using Msv.AutoMiner.FrontEnd.Controllers
-@using Msv.AutoMiner.FrontEnd.Models.Shared
+﻿@using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Pools.PoolDisplayModel[]
 
 @{ ViewBag.Title = "Pools";}
-
-
-@functions {
-
-private const int MinWorkers = 3;
-
-private static readonly TimeSpan M_MinTtf = TimeSpan.FromSeconds(2);
-private static readonly TimeSpan M_MaxTtf = TimeSpan.FromHours(8);
-private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
-}
 
 
 @if (TempData[PoolsController.PoolsMessageKey] != null)
@@ -55,127 +42,10 @@ private static readonly TimeSpan M_WarningTtf = TimeSpan.FromHours(2);
         <th>Actions</th>
     </tr>
     </thead>
-    <tbody>
-    @foreach (var pool in Model.OrderBy(x => x.Coin.Symbol)
-        .ThenBy(x => x.Coin.Name)
-        .ThenByDescending(x => x.Priority))
+    <tbody id="pools-table">
+    @foreach (var pool in Model.OrderBy(x => x.Coin.Name).ThenByDescending(x => x.Priority))
     {
-        string rowClass;
-        string title;
-        if (pool.Activity == ActivityState.Inactive)
-        {
-            rowClass = "text-muted";
-            title = "Pool is inactive";
-        }
-        else if (!pool.HasApi)
-        {
-            rowClass = "danger";
-            title = "There is no API providing state information for this pool";
-        }
-        else if (pool.LastUpdated == null || pool.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(40))
-        {
-            rowClass = "warning";
-            title = "Pool data is unavailable or obsolete";
-        }
-        else
-        {
-            rowClass = null;
-            title = null;
-        }
-
-        <tr class="@rowClass" title="@title">
-            <td class="space-no-wrap">
-                <small>
-                    <a asp-controller="PoolPayments" asp-action="Index" asp-route-currencyId="@pool.Coin.Id"
-                       title="Show pool payments for this coin">
-                        @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(pool.Coin.Name, pool.Coin.Logo))
-                    </a>
-                </small>
-            </td>
-            <td>
-                <small>
-                    <a asp-controller="PoolPayments" asp-action="Index" asp-route-poolId="@pool.Id"
-                       title="Show payments for this pool">
-                        @pool.Name
-                    </a>
-                </small>
-                @if (pool.Activity == ActivityState.Active)
-                {
-                    <div>
-                        @if (pool.PoolWorkers == 0)
-                        {
-                            <span class="label label-danger">No workers</span>
-                        }
-                        else if (!pool.IsSolo && pool.PoolWorkers < MinWorkers)
-                        {
-                            <span class="label label-warning">Few workers</span>
-                        }
-                        @if (pool.TimeToFind < M_MinTtf)
-                        {
-                            <span class="label label-warning">Strange TTF</span>
-                        }
-                        @if (pool.TimeToFind > M_MaxTtf)
-                        {
-                            <span class="label label-danger">Long TTF</span>
-                        }
-                        else if (pool.TimeToFind > M_WarningTtf)
-                        {
-                            <span class="label label-warning">Longish TTF</span>
-                        }
-                    </div>
-                }
-            </td>
-            <td>@pool.Fee.ToString("F2")%</td>
-            <td msv-balance="@pool.ConfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
-            <td msv-balance="@pool.UnconfirmedBalance" msv-btc-price="@pool.CoinBtcPrice"></td>
-            <td class="space-no-wrap">@(pool.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(pool.PoolHashRate, pool.Coin.Algorithm.KnownValue) : "unavailable")</td>
-            <td>@pool.PoolWorkers</td>
-            <td class="space-no-wrap">@TimeSpanHelper.ToShortString(pool.TimeToFind)</td>
-            <td msv-absolute-date="@pool.LastUpdated"></td>
-            <td>
-                <ul class="list-inline">
-                    <li>
-                        <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@pool.Id" title="Edit pool">
-                            <i class="glyphicon glyphicon-edit"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="btn btn-xs btn-info" asp-action="Clone" asp-route-originalId="@pool.Id" title="Clone pool">
-                            <i class="fa fa-files-o" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li>
-                        @{
-                            var activationButtonTitle = pool.Activity == ActivityState.Active
-                                ? "Disable pool"
-                                : "Enable pool";
-                        }
-                        <form asp-action="ToggleActive" asp-route-id="@pool.Id" method="post" title="@activationButtonTitle">
-                            <button class="btn btn-xs btn-info">
-                                @if (pool.Activity == ActivityState.Active)
-                                {
-                                    <i class="glyphicon glyphicon-remove"></i>
-                                }
-                                else if (pool.Activity == ActivityState.Inactive)
-                                {
-                                    <i class="glyphicon glyphicon-flash"></i>
-                                }
-                            </button>
-                        </form>
-                    </li>
-                    <li>
-                        <form asp-action="Delete" asp-route-id="@pool.Id"
-                              method="post" title="Delete pool"
-                              data-confirm-title="Delete pool @pool.Name?"
-                              data-confirm-body="You are going to delete pool @pool.Name. Are you sure?">
-                            <button class="btn btn-xs btn-danger">
-                                <i class="glyphicon glyphicon-trash"></i>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </td>
-        </tr>
+        @Html.Partial("_PoolRowPartial", pool)
     }
     </tbody>
 </table>

@@ -16,6 +16,7 @@ using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Newtonsoft.Json;
 using NLog;
 
@@ -213,9 +214,9 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 UsdPerDay = CalculateValueWithPoolFee(SelectAppropriateMarket(
                     miningData.profitability.MarketPrices, miningData.miningTarget)?.UsdPerDay, currentPool.FeeRatio),
                 Priority = currentPool.Priority,
-                Login = GetLogin(currentPool, miningData.miningTarget),
+                Login = currentPool.GetLogin(miningData.miningTarget),
                 Password = string.IsNullOrEmpty(currentPool.WorkerPassword) ? "x" : currentPool.WorkerPassword,
-                Url = GetPoolUrl(currentPool)
+                Url = currentPool.GetUrl()
             };
 
             double CalculateValueWithPoolFee(double? value, double poolFee)
@@ -225,37 +226,6 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 => markets.Where(z => miningTarget?.ExchangeType == null || z.Exchange == miningTarget.ExchangeType)
                     .OrderByDescending(z => z.BtcPerDay)
                     .FirstOrDefault();
-
-            string GetLogin(Pool pool, Wallet miningTarget)
-            {
-                if (!pool.IsAnonymous)
-                    return pool.WorkerLogin;
-                if (miningTarget == null)
-                    return null;
-                return string.IsNullOrEmpty(pool.WorkerLogin)
-                    ? miningTarget.Address
-                    : $"{miningTarget.Address}.{pool.WorkerLogin}";
-            }
-
-            Uri GetPoolUrl(Pool pool)
-            {
-                string scheme;
-                switch (pool.Protocol)
-                {
-                    case PoolProtocol.JsonRpc:
-                        scheme = Uri.UriSchemeHttp;
-                        break;
-                    case PoolProtocol.Stratum:
-                        scheme = "stratum+tcp";
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(pool), "Unknown protocol");
-                }
-                var host = Uri.IsWellFormedUriString(pool.Host, UriKind.Absolute)
-                    ? new Uri(pool.Host, UriKind.Absolute).Host
-                    : pool.Host;
-                return new UriBuilder { Scheme = scheme, Host = host, Port = pool.Port }.Uri;
-            }
         }
     }
 }

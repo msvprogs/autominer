@@ -209,39 +209,8 @@ $(function () {
     // Page-specific event handlers
 
     // ** Coins Index
-    bindButtonPostAction($("tbody#coins-table"),
-        "disable-url",
-        function(button, data) {
-            var row = button.closest("tr");
-            new Notification(format("Activity of coin {0} has been updated", row.data("coin-name")))
-                .success();
-            row.replaceWith(data);
-        },
-        function(button, error) {
-            new Notification("Error while changing coin status: " + error).danger();
-        });
-
-    bindButtonPostAction($("tbody#coins-table"),
-        "delete-url",
-        function(button) {
-            var row = button.closest("tr");
-            new Notification(format("Coin {0} has been deleted", row.data("coin-name")))
-                .success();
-            row.remove();
-        },
-        function(button, error) {
-            new Notification("Error while changing coin status: " + error).danger();
-        },
-        function(button, callback) {
-            var row = button.closest("tr");
-            MessageBox.confirm(
-                format("Delete coin {0}?", row.data("coin-name")),
-                format("You are going to delete coin {0}. Are you sure?", row.data("coin-name")),
-                function(result) {
-                    if (result)
-                        callback();
-                });
-        });
+    bindDisableButton($("tbody#coins-table"), "coin-name", "coin");
+    bindDeleteButton($("tbody#coins-table"), "coin-name", "coin");
 
     // ** Coins Edit
     $("select#NetworkInfoApiType").change(function() {
@@ -338,7 +307,49 @@ $(function () {
     });
     $("select#AddressFormat").change();
 
+    // ** Pools Index
+    bindDisableButton($("tbody#pools-table"), "pool-name", "pool");
+    bindDeleteButton($("tbody#pools-table"), "pool-name", "pool");
 });
+
+function bindDisableButton(table, rowNameKey, entityName) {
+    bindButtonPostAction(table,
+        "disable-url",
+        function(button, data) {
+            var row = button.closest("tr");
+            new Notification(format("Activity of {0} {1} has been updated", entityName, row.data(rowNameKey)))
+                .success();
+            row.replaceWith(data);
+        },
+        function(button, error) {
+            new Notification(format("Error while changing {0} status: {1}", entityName, error)).danger();
+        });
+}
+
+function bindDeleteButton(table, rowNameKey, entityName) {
+    var capitalizedEntity = entityName.substr(0, 1).toUpperCase() + entityName.substr(1);
+    bindButtonPostAction(table,
+        "delete-url",
+        function(button) {
+            var row = button.closest("tr");
+            new Notification(format("{0} {1} has been deleted", capitalizedEntity, row.data(rowNameKey)))
+                .success();
+            row.remove();
+        },
+        function(button, error) {
+            new Notification(format("Error while deleting {0}: {1}", entityName, error)).danger();
+        },
+        function(button, callback) {
+            var row = button.closest("tr");
+            MessageBox.confirm(
+                format("Delete {0} {1}?", entityName, row.data(rowNameKey)),
+                format("You are going to delete {0} {1}. Are you sure?", entityName, row.data(rowNameKey)),
+                function(result) {
+                    if (result)
+                        callback();
+                });
+        });
+}
 
 // *** End of DOMContentLoaded handler
 
