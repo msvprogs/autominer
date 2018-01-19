@@ -20,17 +20,19 @@ namespace Msv.AutoMiner.ControlCenterService.External
             m_ProxiedWebClient = proxiedWebClient ?? throw new ArgumentNullException(nameof(proxiedWebClient));
         }
 
-        public IMultiPoolInfoProvider CreateMulti(PoolApiProtocol apiProtocol, string baseUrl, Pool[] pools)
+        public IMultiPoolInfoProvider CreateMulti(PoolApiProtocol apiProtocol, string baseUrl, Pool[] pools, Wallet btcMiningTarget)
         {
             if (pools == null)
                 throw new ArgumentNullException(nameof(pools));
             if (string.IsNullOrEmpty(baseUrl))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(baseUrl));
+            if (btcMiningTarget == null) 
+                throw new ArgumentNullException(nameof(btcMiningTarget));
 
             switch (apiProtocol)
             {
                 case PoolApiProtocol.Yiimp:
-                    return new YiimpInfoProvider(m_ProxiedWebClient, baseUrl, pools);
+                    return new YiimpInfoProvider(m_ProxiedWebClient, baseUrl, pools, btcMiningTarget);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(apiProtocol), "This API protocol doesn't support multiprovider");
             }

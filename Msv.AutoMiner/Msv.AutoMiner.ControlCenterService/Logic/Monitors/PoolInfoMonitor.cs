@@ -38,7 +38,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Select(x => new
                 {
                     MultiKey = x.Key,
-                    Provider = m_ProviderFactory.CreateMulti(x.Key.ApiProtocol, x.Key.ApiUrl, x.ToArray())
+                    Provider = m_ProviderFactory.CreateMulti(x.Key.ApiProtocol, x.Key.ApiUrl, x.ToArray(), btcMiningTarget)
                 })
                 .AsParallel()
                 .WithDegreeOfParallelism(ParallelismDegree)

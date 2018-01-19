@@ -18,8 +18,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
         private readonly IProxiedWebClient m_WebClient;
         private readonly string m_BaseUrl;
         private readonly Pool[] m_Pools;
+        private readonly Wallet m_BtcMiningTarget;
 
-        public YiimpInfoProvider(IProxiedWebClient webClient, string baseUrl, Pool[] pools)
+        public YiimpInfoProvider(IProxiedWebClient webClient, string baseUrl, Pool[] pools, Wallet btcMiningTarget)
         {
             if (string.IsNullOrEmpty(baseUrl))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(baseUrl));
@@ -27,6 +28,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
             m_BaseUrl = baseUrl;
             m_Pools = pools ?? throw new ArgumentNullException(nameof(pools));
+            m_BtcMiningTarget = btcMiningTarget ?? throw new ArgumentNullException(nameof(btcMiningTarget));
         }
 
         public IReadOnlyDictionary<Pool, PoolInfo> GetInfo(DateTime minPaymentDate)
@@ -70,7 +72,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .AsParallel()
                 .WithDegreeOfParallelism(4)
                 .Select(x => (pool:x, wallet: x.IsAnonymous 
-                    ? x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget)?.Address 
+                    ? x.UseBtcWallet 
+                        ? m_BtcMiningTarget.Address 
+                        : x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget)?.Address 
                     : x.WorkerLogin))
                 .Where(x => !string.IsNullOrWhiteSpace(x.wallet))
                 .Select(x =>
