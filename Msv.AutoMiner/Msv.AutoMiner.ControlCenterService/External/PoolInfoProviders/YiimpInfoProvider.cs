@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Data;
@@ -30,8 +31,14 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         public IReadOnlyDictionary<Pool, PoolInfo> GetInfo(DateTime minPaymentDate)
         {
-            var currencies = JsonConvert.DeserializeObject<JObject>(DownloadDirectlyOrViaProxy($"{m_BaseUrl}/currencies"));
-            var statuses = JsonConvert.DeserializeObject<JObject>(DownloadDirectlyOrViaProxy($"{m_BaseUrl}/status"));
+            var currenciesJson = DownloadDirectlyOrViaProxy($"{m_BaseUrl}/currencies");
+            if (string.IsNullOrWhiteSpace(currenciesJson))
+                throw new ExternalDataUnavailableException("Currencies method returned an empty result");
+            var currencies = JsonConvert.DeserializeObject<JObject>(currenciesJson);
+            var statusesJson = DownloadDirectlyOrViaProxy($"{m_BaseUrl}/status");
+            var statuses = string.IsNullOrWhiteSpace(statusesJson)
+                ? new JObject()
+                : JsonConvert.DeserializeObject<JObject>(statusesJson);
 
             var poolStates = m_Pools
                 .Where(x => x.ApiPoolName != null && x.WorkerPassword != null)
