@@ -303,14 +303,6 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                 },
                 new Coin
                 {
-                    Id = new Guid("842F9400-E2C6-494F-87C1-5551C5EC6A9C"),
-                    Name = "OrbitCoin",
-                    Symbol = "ORB",
-                    AlgorithmId = algorithms[KnownCoinAlgorithm.NeoScrypt],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
-                },
-                new Coin
-                {
                     Id = new Guid("C2BB696F-C118-4EB8-9D17-2A28CAE3266C"),
                     Name = "BitCore",
                     Symbol = "BTX",
@@ -349,7 +341,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "Veltor",
                     Symbol = "VLT",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.ThorsRiddle],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
@@ -357,7 +349,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "ChainCoin",
                     Symbol = "CHC",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.C11],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
@@ -417,7 +409,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "Doubloon",
                     Symbol = "BOAT",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Hmq1725],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
@@ -425,7 +417,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "Verge-x17",
                     Symbol = "XVG",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.X17],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
@@ -433,7 +425,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "Verge-Blake2S",
                     Symbol = "XVG",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Blake2S],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
@@ -441,7 +433,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "Verge-MyrGr",
                     Symbol = "XVG",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.MyriadGroestl],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
@@ -449,7 +441,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "Verge-LyraV2",
                     Symbol = "XVG",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.Lyra2Rev2],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
@@ -466,7 +458,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "RevolverCoin",
                     Symbol = "XRE",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.X11Evo],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Zpool
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {
