@@ -50,6 +50,12 @@
         </small>
     </td>
     <td>
+        @if (Model.UseBtcWallet)
+        {
+            <img src="~/images/bitcoin-exchange.png" 
+                 alt="BitCoin" width="16" height="16"
+                 title="Pool with automatic conversion to BitCoin" />
+        }
         <small>
             <a asp-controller="PoolPayments" asp-action="Index" asp-route-poolId="@Model.Id"
                title="Show payments for this pool">
