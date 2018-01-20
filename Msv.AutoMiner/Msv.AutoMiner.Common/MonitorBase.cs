@@ -8,7 +8,7 @@ namespace Msv.AutoMiner.Common
 {
     public abstract class MonitorBase : IDisposable
     {
-        private static readonly TimeSpan M_WorkTimeout = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan M_WorkTimeout = TimeSpan.FromMinutes(20);
 
         public TimeSpan Period { get; }
 

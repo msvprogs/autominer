@@ -194,7 +194,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         public async Task<IActionResult> CreateConfigFile(Guid id)
-        {            
+        {
             var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
             if (coin == null)
                 return NotFound();
@@ -209,9 +209,10 @@ rpcpassword={coin.NodePassword}
 rpcport={coin.NodePort}
 rpcallowip={allowIpMask}
 ";
-            return File(Encoding.ASCII.GetBytes(configContents), 
-                "application/octet-stream",
-                $"{string.Concat(coin.Name.ToLowerInvariant().Split(Path.GetInvalidFileNameChars())).Replace(" ", "-")}.conf");
+            var configFileName = string.Concat(coin.Name.ToLowerInvariant().Split(Path.GetInvalidFileNameChars()))
+                .Replace(" ", "-");
+
+            return File(Encoding.ASCII.GetBytes(configContents), "application/octet-stream", $"{configFileName}.conf");
         }
 
         private CoinDisplayModel[] GetCoinDisplayModels(Guid[] ids)

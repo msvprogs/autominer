@@ -10,7 +10,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
 {
     public class PoolAvailabilityMonitor : MonitorBase
     {        
-        private const int ParallelismDegree = 4;
+        private const int ParallelismDegree = 6;
 
         private readonly IPoolAvailabilityChecker m_PoolAvailabilityChecker;
         private readonly Func<IPoolAvailabilityMonitorStorage> m_StorageGetter;

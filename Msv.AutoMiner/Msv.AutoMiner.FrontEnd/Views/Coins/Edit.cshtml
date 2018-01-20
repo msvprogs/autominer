@@ -99,17 +99,20 @@
     </p>
     <div class="form-group">
         <label asp-for="NodeUrl">Node URL:</label>
-        <p class="small">The port of this URL corresponds to <code>rpcport</code> field of the config</p>
+        <p class="small">
+            The port of this URL corresponds to <var>rpcport</var> field of the config.
+            <br /><var>rpcallowip</var> field will be set to <span class="text-monospace">127.0.0.1</span> if localhost is specified; otherwise, it will be set to <span class="text-monospace">*</span> .
+        </p>
         <input asp-for="NodeUrl" class="form-control" placeholder="For example, http://localhost:12345" />
     </div>
     <div class="form-group">
         <label asp-for="NodeLogin">RPC username:</label>
-        <p class="small">This value corresponds to <code>rpcuser</code> field of the config</p>
+        <p class="small">This value corresponds to <var>rpcuser</var> field of the config</p>
         <input asp-for="NodeLogin" class="form-control" />
     </div>
     <div class="form-group">
         <label asp-for="NodePassword">RPC password:</label>
-        <p class="small">This value corresponds to <code>rpcpassword</code> field of the config</p>
+        <p class="small">This value corresponds to <var>rpcpassword</var> field of the config</p>
         <input asp-for="NodePassword" class="form-control" />
     </div>
 

@@ -16,7 +16,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
     public class NetworkInfoMonitor : MonitorBase
     {
         private readonly IBlockRewardCalculator m_RewardCalculator;
-        private const int ProviderParallelismDegree = 3;
+        private const int ProviderParallelismDegree = 6;
         private readonly INetworkInfoProviderFactory m_ProviderFactory;
         private readonly Func<INetworkInfoMonitorStorage> m_StorageGetter;
 

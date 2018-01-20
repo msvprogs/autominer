@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
 {
     public class PoolInfoMonitor : MonitorBase
     {
-        private const int ParallelismDegree = 4;
+        private const int ParallelismDegree = 6;
         private static readonly PoolApiProtocol[] M_MultiPoolProtocols = {PoolApiProtocol.Yiimp};
         private static readonly TimeSpan M_LastOperationsPeriod = TimeSpan.FromDays(7);
 
@@ -20,7 +20,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
         private readonly Func<IPoolInfoMonitorStorage> m_StorageGetter;
 
         public PoolInfoMonitor(IPoolInfoProviderFactory providerFactory, Func<IPoolInfoMonitorStorage> storageGetter) 
-            : base(TimeSpan.FromMinutes(10))
+            : base(TimeSpan.FromMinutes(15))
         {
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
             m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
