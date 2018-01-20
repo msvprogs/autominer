@@ -117,7 +117,7 @@ namespace Msv.BrowserCheckBypassing
         }
 
         public void Dispose()
-        { }
+            => m_BaseWebClient.Dispose();
 
         private bool TryToSolveChallenge(Uri uri, WebResponse response)
         {
