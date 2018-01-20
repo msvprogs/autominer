@@ -198,12 +198,16 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
             if (coin == null)
                 return NotFound();
-            var configContents = $@"daemon=1
+            var allowIpMask = coin.NodeHost.Equals("localhost", StringComparison.InvariantCultureIgnoreCase)
+                              || coin.NodeHost.Equals("127.0.0.1", StringComparison.InvariantCultureIgnoreCase)
+                ? "127.0.0.1"
+                : "*";
+            var configContents = $@"server=1
+daemon=1
 rpcuser={coin.NodeLogin}
 rpcpassword={coin.NodePassword}
 rpcport={coin.NodePort}
-rpcconnect=127.0.0.1
-rpcallowip=127.0.0.1
+rpcallowip={allowIpMask}
 ";
             return File(Encoding.ASCII.GetBytes(configContents), 
                 "application/octet-stream",
