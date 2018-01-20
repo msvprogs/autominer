@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
@@ -68,9 +69,11 @@ namespace Msv.AutoMiner.Common
                     IsBackground = true,
                     Name = $"Monitor Started at {DateTime.Now.ToShortTimeString()}"
                 };
+
+                var workStopwatch = Stopwatch.StartNew();
                 thread.Start();
                 if (thread.Join(M_WorkTimeout))
-                    Log.Info("Work completed");
+                    Log.Info($"Work completed (elapsed: {workStopwatch.Elapsed:hh\\:mm\\:ss})");
                 else
                 {
                     Log.Warn("Work aborted - timeout exceeded");
