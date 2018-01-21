@@ -72,7 +72,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 return new RegisterRigResponseModel();
             }
             M_Logger.Info($"Creating certificate for rig {request.Name}...");
-            var certificate = await m_CertificateService.CreateCertificate(
+            var certificate = m_CertificateService.CreateCertificate(
                 rig, SiteCertificates.PortCertificates[HttpContext.Connection.LocalPort], request.X509CertificateRequest);
             if (certificate == null)
             {

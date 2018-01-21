@@ -61,11 +61,11 @@ namespace Msv.AutoMiner.Data
             modelBuilder.Entity<PoolAccountState>()
                 .HasKey(x => new {x.PoolId, x.DateTime});
             modelBuilder.Entity<PoolPayment>()
-                .HasKey(x => new { x.PoolId, x.ExternalId });
+                .HasKey(x => new {x.PoolId, x.ExternalId});
             modelBuilder.Entity<WalletBalance>()
-                .HasKey(x => new { x.WalletId, x.DateTime });
+                .HasKey(x => new {x.WalletId, x.DateTime});
             modelBuilder.Entity<WalletOperation>()
-                .HasKey(x => new { x.WalletId, x.ExternalId });
+                .HasKey(x => new {x.WalletId, x.ExternalId});
         }
     }
 }

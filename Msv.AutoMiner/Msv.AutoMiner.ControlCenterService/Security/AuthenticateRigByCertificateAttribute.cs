@@ -41,7 +41,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 //    context.Result = new ForbidResult();
                 //    return;
                 //}
-                var rig = await m_CertificateService.AuthenticateRig(
+                var rig = m_CertificateService.AuthenticateRig(
                     SiteCertificates.PortCertificates[context.HttpContext.Connection.LocalPort], clientCertificate);
                 if (rig == null)
                 {

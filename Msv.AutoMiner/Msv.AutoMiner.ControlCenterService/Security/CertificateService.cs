@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
@@ -22,12 +21,10 @@ namespace Msv.AutoMiner.ControlCenterService.Security
 
         private readonly ICertificateServiceStorage m_Storage;
 
-        public CertificateService(ICertificateServiceStorage storage)
-        {
-            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
-        }
+        public CertificateService(ICertificateServiceStorage storage) 
+            => m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
-        public Task<X509Certificate2> CreateCertificate(Rig rig, X509Certificate2 serverCertificate, byte[] certificateRequest)
+        public X509Certificate2 CreateCertificate(Rig rig, X509Certificate2 serverCertificate, byte[] certificateRequest)
         {
             if (rig == null)
                 throw new ArgumentNullException(nameof(rig));
@@ -61,10 +58,10 @@ namespace Msv.AutoMiner.ControlCenterService.Security
             var caKeyPair = DotNetUtilities.GetKeyPair(serverCertificate.PrivateKey);
             var bouncyCert = generator.Generate(
                 new Asn1SignatureFactory(request.SignatureAlgorithm.Algorithm.Id, caKeyPair.Private));
-            return Task.FromResult(new X509Certificate2(DotNetUtilities.ToX509Certificate(bouncyCert)));
+            return new X509Certificate2(DotNetUtilities.ToX509Certificate(bouncyCert));
         }
 
-        public async Task<Rig> AuthenticateRig(X509Certificate2 serverCertificate, X509Certificate2 clientCertificate)
+        public Rig AuthenticateRig(X509Certificate2 serverCertificate, X509Certificate2 clientCertificate)
         {
             if (serverCertificate == null)
                 throw new ArgumentNullException(nameof(serverCertificate));
@@ -74,7 +71,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
             if (clientCertificate.IssuerName.Name != serverCertificate.SubjectName.Name)
                 return null;
 
-            var rig = await m_Storage.GetRigByName(clientCertificate.GetNameInfo(X509NameType.SimpleName, false));
+            var rig = m_Storage.GetRigByName(clientCertificate.GetNameInfo(X509NameType.SimpleName, false));
             if (rig?.ClientCertificateSerial == null
                 || !rig.ClientCertificateSerial.SequenceEqual(clientCertificate.GetSerialNumber()))
                 return null;
