@@ -252,6 +252,10 @@ $(function () {
                 //do nothing - we already have all required info
                 break;
             case "Insight":
+                apiUrlEnabled = true;
+                urlDescriptionText =
+                    "Load the main page of block explorer and find through Fiddler or browser instruments the URL ending with <i>status?q=getInfo</i>";
+                break;
             case "Iquidus":
             case "IquidusWithPos":
                 apiUrlEnabled = true;
