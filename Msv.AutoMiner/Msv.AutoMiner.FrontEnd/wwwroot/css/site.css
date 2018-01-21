@@ -73,7 +73,15 @@ tr.now-mining {
 .transaction-details {
     color: gray;
     font-size: 9pt;
-    margin: 2px 0;
+}
+
+.transaction-details th {
+    text-align: right;
+    width: 40px;
+}
+
+.transaction-details td {
+    padding: 2px 4px;
 }
 
 .wallet-small {
