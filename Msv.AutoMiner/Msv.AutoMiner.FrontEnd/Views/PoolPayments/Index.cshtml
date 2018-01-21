@@ -1,8 +1,14 @@
-﻿@using Msv.AutoMiner.FrontEnd.Models.PoolPayments
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Models.PoolPayments
 @using Msv.AutoMiner.FrontEnd.Models.Shared
 @model PaginationModel<PoolPaymentModel>
 
-@{ ViewBag.Title = "Pool payments";}    
+@{
+    ViewBag.Title = "Pool payments";
+
+    var paymentTypes = EnumHelper.GetCaptions<PoolPaymentType>();
+}    
 
 <h2 class="text-center">@Model.Title</h2>
 
@@ -12,10 +18,10 @@
     <thead>
     <tr>
         <th>ID</th>
+        <th>Currency</th>
         <th>Pool</th>
         <th>Type</th>
         <th>Date</th>
-        <th>Currency</th>
         <th>Amount</th>
         <th>Data</th>
     </tr>
@@ -25,25 +31,31 @@
     {
         <tr>
             <td>@payment.Id</td>
-            <td>@payment.PoolName</td>
-            <td>@payment.Type</td>
-            <td msv-absolute-date="@payment.DateTime"></td>
             <td class="space-no-wrap">
                 @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(payment.CurrencyName, payment.CurrencyLogo))
             </td>
+            <td>@payment.PoolName</td>
+            <td>@paymentTypes[payment.Type]</td>
+            <td msv-absolute-date="@payment.DateTime"></td>
             <td class="space-no-wrap" msv-amount="@payment.Amount" msv-currency="@payment.CurrencySymbol"></td>
             <td>
                 @if (payment.Transaction != null)
                 {
-                    <div class="transaction-small">Tx: @payment.Transaction</div>
+                    <div class="transaction-details">
+                        Tx: @await Component.InvokeAsync("LongId", new LongIdModel(payment.Transaction))
+                    </div>
                 }
                 @if (payment.BlockHash != null)
                 {
-                    <div class="transaction-small">Block: @payment.BlockHash</div>
+                    <div class="transaction-details">
+                        Block: @await Component.InvokeAsync("LongId", new LongIdModel(payment.BlockHash))
+                    </div>
                 }
                 @if (payment.Address != null)
                 {
-                    <div class="transaction-small">Wallet: @payment.Address</div>
+                    <div class="transaction-details">
+                        Wallet: @await Component.InvokeAsync("LongId", new LongIdModel(payment.Address))
+                    </div>
                 }
             </td>
         </tr>

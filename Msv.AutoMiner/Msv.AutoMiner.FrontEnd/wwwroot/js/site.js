@@ -205,6 +205,19 @@ $(function () {
     // Cancel clicks on the disabled list items
     $("li.disabled, li.active").click(function (e) { e.preventDefault(); });
 
+    // Enable copy to clipboard button behavior
+    $("button[data-long-id]").click(function() {
+        var self = $(this);
+        Clipboard.setText(self.data("long-id"),
+            function() {
+                self.addClass("btn-success");
+                setTimeout(function() { self.removeClass("btn-success"); }, 1200);
+            },
+            function() {
+                self.addClass("btn-danger");
+                setTimeout(function() { self.removeClass("btn-danger"); }, 1200);
+            });
+    });
 
     // Page-specific event handlers
 

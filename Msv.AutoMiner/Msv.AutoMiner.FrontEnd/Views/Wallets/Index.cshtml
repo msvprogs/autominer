@@ -116,15 +116,13 @@
                     }
                 </div>
             </td>
-            <td class="space-no-wrap">
-                <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
-                   title="Show all operations for this wallet" class="wallet-monospace">
-                    @wallet.Address.Truncate(15)
-                </a>
-                <button class="btn btn-xs btn-default" title="Copy wallet address to clipboard"
-                        data-wallet-address="@wallet.Address">
-                    <i class="fa fa-clipboard" aria-hidden="true"></i>
-                </button>
+            <td>
+                @await Component.InvokeAsync("LongId", new LongIdModel
+                   {
+                       Id = wallet.Address,
+                       Title = "Show all operations for this wallet",
+                       Url = Url.Action("Index", "WalletOperations", new { walletId = wallet.Id })
+                   })
             </td>
             <td>
                 <a asp-controller="WalletOperations" asp-action="Index" asp-route-exchange="@wallet.ExchangeType"
@@ -194,22 +192,3 @@
     }
     </tbody>
 </table>
-
-@section Scripts {
-    <script>
-        $(function() {
-            $("button[data-wallet-address]").click(function() {
-                var self = $(this);
-                Clipboard.setText(self.data("wallet-address"),
-                    function() {
-                        self.addClass("btn-success");
-                        setTimeout(function() { self.removeClass("btn-success"); }, 2000);
-                    },
-                    function() {
-                        self.addClass("btn-danger");
-                        setTimeout(function() { self.removeClass("btn-danger"); }, 2000);
-                    });
-            });
-        });
-    </script>
-}

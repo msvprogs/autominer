@@ -1,0 +1,26 @@
+﻿@using Msv.AutoMiner.Common
+@using Msv.AutoMiner.FrontEnd.Models.Shared
+@model LongIdModel
+
+@{
+    const int truncateSize = 15;
+}
+<span class="space-no-wrap">
+    @if (Model.Url != null)
+    {
+        <a class="long-id" href="@Model.Url" title="@(Model.Title ?? Model.Id)">
+            @Model.Id.Truncate(truncateSize)
+        </a>
+    }
+    else
+    {
+        <span class="long-id" title="@(Model.Title ?? Model.Id)">
+            @Model.Id.Truncate(truncateSize)
+        </span>
+    }
+    &nbsp;
+    <button class="btn btn-xs btn-default" title="Copy to clipboard"
+            data-long-id="@Model.Id">
+        <i class="fa fa-clipboard" aria-hidden="true"></i>
+    </button>
+</span>
