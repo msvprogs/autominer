@@ -24,7 +24,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         public override CoinNetworkStatistics GetNetworkStats()
         {
             var mainPage = new HtmlDocument();
-            mainPage.LoadHtml(m_WebClient.DownloadString(CreateCurrencyBaseUrl()));
+            mainPage.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, $"/coins/{m_CurrencyName}")));
             var infoNodes = mainPage.DocumentNode
                 .SelectNodes("//tr[contains(.,'Blocks last 24h')]/following-sibling::tr/td");
             var lastBlockInfo = mainPage.DocumentNode
