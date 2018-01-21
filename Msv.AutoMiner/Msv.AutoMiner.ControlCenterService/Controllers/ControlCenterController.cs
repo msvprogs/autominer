@@ -47,7 +47,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
         }
 
         [HttpPost("registerRig")]
-        public async Task<RegisterRigResponseModel> RegisterRig([FromBody] RegisterRigRequestModel request)
+        public RegisterRigResponseModel RegisterRig([FromBody] RegisterRigRequestModel request)
         {
             M_Logger.Info($"Received registration request for rig {request.Name}");
             if (request.Name == null || request.Password == null || request.X509CertificateRequest.IsNullOrEmpty())
@@ -55,7 +55,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 M_Logger.Warn($"Invalid registration request for {request.Name}");
                 return new RegisterRigResponseModel();
             }
-            var rig = await m_Storage.GetRigByName(request.Name);
+            var rig = m_Storage.GetRigByName(request.Name);
             if (rig == null)
             {
                 M_Logger.Warn($"Rig {request.Name} not found");
@@ -82,7 +82,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             rig.RegistrationPassword = null;
             rig.ClientCertificateSerial = certificate.GetSerialNumber();
             rig.ClientCertificateThumbprint = HexHelper.FromHex(certificate.Thumbprint);
-            await m_Storage.SaveRig(rig);
+            m_Storage.SaveRig(rig);
             return new RegisterRigResponseModel
             {
                 IsSuccess = true,
@@ -98,21 +98,21 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
 
         [HttpPost("sendHeartbeat")]
         [AuthenticateRigByCertificate]
-        public async Task<SendHeartbeatResponseModel> SendHeartbeat([FromBody] Heartbeat heartbeat)
+        public SendHeartbeatResponseModel SendHeartbeat([FromBody] Heartbeat heartbeat)
         {
             if (heartbeat == null)
                 throw new ArgumentNullException(nameof(heartbeat));
 
             var rigId = (int)ControllerContext.RouteData.Values["rigId"];
             M_Logger.Info($"Got heartbeat from rig {rigId}");
-            await m_Storage.SaveHeartbeat(new RigHeartbeat
+            m_Storage.SaveHeartbeat(new RigHeartbeat
             {
                 Received = DateTime.UtcNow,
                 RigId = rigId,
                 ContentsJson = JsonConvert.SerializeObject(heartbeat)
             });
             var now = DateTime.UtcNow;
-            await m_Storage.SaveMiningStates(heartbeat.MiningStates
+            m_Storage.SaveMiningStates(heartbeat.MiningStates
                 .EmptyIfNull()
                 .Where(x => x != null)
                 .Select(x => new RigMiningState
@@ -126,11 +126,11 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 })
                 .ToArray());
             m_HeartbeatAnalyzer.Analyze(rigId, heartbeat);
-            var command = await m_Storage.GetNextCommand(rigId);
+            var command = m_Storage.GetNextCommand(rigId);
             if (command == null)
                 return new SendHeartbeatResponseModel();
             M_Logger.Info($"Sending command {command.Type} to rig {rigId}");
-            await m_Storage.MarkCommandAsSent(command.Id);
+            m_Storage.MarkCommandAsSent(command.Id);
             return new SendHeartbeatResponseModel
             {
                 PendingCommand = command.Type
@@ -157,8 +157,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 .Where(x => DateTime.UtcNow - M_MaxInactivityInterval < x.LastUpdatedUtc)
                 .Select(x => x.CoinId)
                 .ToArray();
-            var btcMiningTarget = await m_Storage.GetBitCoinMiningTarget();
-            var works = (await m_Storage.GetActivePools(coinIds))
+            var btcMiningTarget = m_Storage.GetBitCoinMiningTarget();
+            var works = m_Storage.GetActivePools(coinIds)
                 .GroupBy(x => x.Coin)
                 .Join(coinStatistics.Profitabilities.EmptyIfNull(), x => x.Key.Id, x => x.CoinId,
                     (x, y) => (profitability:y, pools:x, miningTarget: x.Key.Wallets.FirstOrDefault(a => a.IsMiningTarget)))
@@ -178,7 +178,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             if (request.TestMode)
                 return works;
             var now = DateTime.UtcNow;
-            await m_Storage.SaveProfitabilities(works
+            m_Storage.SaveProfitabilities(works
                 .SelectMany(x => x.Pools.Select(y => new CoinProfitability
                 {
                     CoinId = x.CoinId,

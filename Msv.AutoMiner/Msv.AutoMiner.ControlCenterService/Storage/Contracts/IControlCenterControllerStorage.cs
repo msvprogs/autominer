@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
 {
     public interface IControlCenterControllerStorage
     {
-        Task<Rig> GetRigByName(string name);
-        Task SaveRig(Rig rig);
-        Task SaveHeartbeat(RigHeartbeat heartbeat);
-        Task SaveMiningStates(RigMiningState[] miningStates);
-        Task<RigCommand> GetNextCommand(int rigId);
-        Task MarkCommandAsSent(int commandId);
-        Task<Pool[]> GetActivePools(Guid[] coinIds);
-        Task SaveProfitabilities(CoinProfitability[] profitabilities);
-        Task<Wallet> GetBitCoinMiningTarget();
+        Rig GetRigByName(string name);
+        void SaveRig(Rig rig);
+        void SaveHeartbeat(RigHeartbeat heartbeat);
+        void SaveMiningStates(RigMiningState[] miningStates);
+        RigCommand GetNextCommand(int rigId);
+        void MarkCommandAsSent(int commandId);
+        Pool[] GetActivePools(Guid[] coinIds);
+        void SaveProfitabilities(CoinProfitability[] profitabilities);
+        Wallet GetBitCoinMiningTarget();
     }
 }

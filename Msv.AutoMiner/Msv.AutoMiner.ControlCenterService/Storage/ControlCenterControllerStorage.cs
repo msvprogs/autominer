@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
@@ -16,13 +15,13 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
         public ControlCenterControllerStorage(IAutoMinerDbContextFactory factory)
             => m_Factory = factory;
 
-        public Task<Rig> GetRigByName(string name)
+        public Rig GetRigByName(string name)
         {
             using (var context = m_Factory.Create())
-                return context.Rigs.FirstOrDefaultAsync(x => x.Name == name);
+                return context.Rigs.FirstOrDefault(x => x.Name == name);
         }
 
-        public async Task SaveRig(Rig rig)
+        public void SaveRig(Rig rig)
         {
             if (rig == null)
                 throw new ArgumentNullException(nameof(rig));
@@ -30,88 +29,88 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             using (var context = m_Factory.Create())
             {
                 context.Attach(rig);
-                await context.SaveChangesAsync();
+                context.SaveChanges();
             }
         }
 
-        public async Task SaveHeartbeat(RigHeartbeat heartbeat)
+        public void SaveHeartbeat(RigHeartbeat heartbeat)
         {
             if (heartbeat == null)
                 throw new ArgumentNullException(nameof(heartbeat));
 
             using (var context = m_Factory.Create())
             {
-                await context.RigHeartbeats.AddAsync(heartbeat);
-                await context.SaveChangesAsync();
+                context.RigHeartbeats.Add(heartbeat);
+                context.SaveChanges();
             }
         }
 
-        public async Task SaveMiningStates(RigMiningState[] miningStates)
+        public void SaveMiningStates(RigMiningState[] miningStates)
         {
             if (miningStates == null)
                 throw new ArgumentNullException(nameof(miningStates));
 
             using (var context = m_Factory.Create())
             {
-                await context.RigMiningStates.AddRangeAsync(miningStates);
-                await context.SaveChangesAsync();
+                context.RigMiningStates.AddRange(miningStates);
+                context.SaveChanges();
             }
         }
 
-        public async Task<RigCommand> GetNextCommand(int rigId)
+        public RigCommand GetNextCommand(int rigId)
         {
             using (var context = m_Factory.Create())
             {
-                return await context.RigCommands
+                return context.RigCommands
                     .AsNoTracking()
                     .Where(x => x.RigId == rigId && x.Sent == null)
                     .OrderBy(x => x.Created)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefault();
             }
         }
 
-        public async Task MarkCommandAsSent(int commandId)
+        public void MarkCommandAsSent(int commandId)
         {
             using (var context = m_Factory.Create())
             {
-                var command = await context.RigCommands.FirstAsync(x => x.Id == commandId);
+                var command = context.RigCommands.First(x => x.Id == commandId);
                 command.Sent = DateTime.UtcNow;
-                await context.SaveChangesAsync();
+                context.SaveChanges();
             }
         }
 
-        public async Task<Pool[]> GetActivePools(Guid[] coinIds)
+        public Pool[] GetActivePools(Guid[] coinIds)
         {
             if (coinIds == null)
                 throw new ArgumentNullException(nameof(coinIds));
 
             using (var context = m_Factory.Create())
             {
-                return await context.Pools
+                return context.Pools
                     .Include(x => x.Coin)
                     .Include(x => x.Coin.Wallets)
                     .AsNoTracking()
                     .Where(x => coinIds.Contains(x.CoinId) && x.Activity == ActivityState.Active)
-                    .ToArrayAsync();
+                    .ToArray();
             }
         }
 
-        public async Task SaveProfitabilities(CoinProfitability[] profitabilities)
+        public void SaveProfitabilities(CoinProfitability[] profitabilities)
         {
             if (profitabilities == null)
                 throw new ArgumentNullException(nameof(profitabilities));
 
             using (var context = m_Factory.Create())
             {
-                await context.CoinProfitabilities.AddRangeAsync(profitabilities);
-                await context.SaveChangesAsync();
+                context.CoinProfitabilities.AddRange(profitabilities);
+                context.SaveChanges();
             }
         }
 
-        public Task<Wallet> GetBitCoinMiningTarget()
+        public Wallet GetBitCoinMiningTarget()
         {
             using (var context = m_Factory.Create())
-                return context.Wallets.FirstOrDefaultAsync(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
+                return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
         }
     }
 }
