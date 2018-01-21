@@ -4,24 +4,23 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.ControlCenterService.Storage
 {
     public class TelegramCommandInterfaceStorage : ITelegramCommandInterfaceStorage
     {
-        private readonly string m_ConnectionString;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public TelegramCommandInterfaceStorage(string connectionString)
-        {
-            m_ConnectionString = connectionString;
-        }
+        public TelegramCommandInterfaceStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
 
         public void StoreTelegramUser(TelegramUser user)
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
 
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
             {
                 var existing = context.TelegramUsers.FirstOrDefault(x => x.UserName == user.UserName);
                 if (existing != null)
@@ -33,7 +32,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public Dictionary<int, string> GetRigNames(int[] ids)
         {
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
                 return context.Rigs
                     .AsNoTracking()
                     .Where(x => ids.Contains(x.Id))
@@ -42,7 +41,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public int[] GetRigIds(string[] names)
         {
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
                 return context.Rigs
                     .AsNoTracking()
                     .Where(x => names.Contains(x.Name))
@@ -52,7 +51,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public Coin[] GetCoins()
         {
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
                 return context.Coins
                     .Include(x => x.Algorithm)
                     .ToArray();

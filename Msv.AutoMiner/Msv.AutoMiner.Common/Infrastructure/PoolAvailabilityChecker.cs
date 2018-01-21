@@ -26,7 +26,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
             var result = CheckServer(pool);
             if (!result) 
                 return false;
-            Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded (response time: {watch.ElapsedMilliseconds} msec");
+            Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded (response time: {watch.ElapsedMilliseconds} msec)");
             return true;
         }
 

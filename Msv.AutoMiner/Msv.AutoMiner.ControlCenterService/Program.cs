@@ -20,7 +20,6 @@ using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
-using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.HttpTools;
 using NLog;
@@ -49,7 +48,6 @@ namespace Msv.AutoMiner.ControlCenterService
             using (var scope = host.Services.CreateScope())
             {
                 var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                var connectionString = config.GetConnectionString("AutoMinerDb");
                 using (new PoolInfoMonitor(
                     new PoolInfoProviderFactory(
                         new LoggedWebClient(),
@@ -66,7 +64,7 @@ namespace Msv.AutoMiner.ControlCenterService
                     scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
                 using (new TelegramCommandInterface(
                     new TelegramBotClient(config.GetValue<string>("Notifications:Telegram:Token")),
-                    new TelegramCommandInterfaceStorage(connectionString),
+                    new TelegramCommandInterfaceStorage(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()),
                     new PoolInfoProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()),
                     new RigHeartbeatProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()), 
                     config.GetSection("Notifications:Telegram:Subscribers")
