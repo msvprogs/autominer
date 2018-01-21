@@ -21,6 +21,10 @@ namespace Msv.AutoMiner.FrontEnd.Models.WalletOperations
 
         public string Transaction { get; set; }
 
+        public Uri TransactionUrl { get; set; }
+
         public string TargetAddress { get; set; }
+
+        public Uri TargetAddressUrl { get; set; }
     }
 }

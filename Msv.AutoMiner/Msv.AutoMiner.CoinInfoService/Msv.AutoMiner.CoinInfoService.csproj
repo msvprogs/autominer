@@ -38,6 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.Data\Msv.AutoMiner.Data.csproj" />
+    <ProjectReference Include="..\Msv.AutoMiner.NetworkInfo\Msv.AutoMiner.NetworkInfo.csproj" />
   </ItemGroup>
 
   <ItemGroup>

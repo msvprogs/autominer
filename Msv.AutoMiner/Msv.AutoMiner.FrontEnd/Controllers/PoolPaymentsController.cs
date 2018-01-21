@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.PoolPayments;
 using Msv.AutoMiner.FrontEnd.Models.Shared;
 
@@ -13,10 +14,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 {
     public class PoolPaymentsController : PaginationController
     {
+        private readonly IBlockExplorerUrlProviderFactory m_BlockExplorerFactory;
         private readonly AutoMinerDbContext m_Context;
 
-        public PoolPaymentsController(AutoMinerDbContext context)
+        public PoolPaymentsController(IBlockExplorerUrlProviderFactory blockExplorerFactory, AutoMinerDbContext context)
         {
+            m_BlockExplorerFactory = blockExplorerFactory;
             m_Context = context;
         }
 
@@ -26,7 +29,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var title = "Pool payments ";
             if (poolId != null)
             {
-                pools = new[] { poolId.Value };
+                pools = new[] {poolId.Value};
                 title += $"for pool {(await m_Context.Pools.FirstOrDefaultAsync(x => x.Id == poolId))?.Name}";
             }
             else if (currencyId != null)
@@ -48,22 +51,30 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             return View(new PaginationModel<PoolPaymentModel>
             {
-                CurrentPageItems = await GetCurrentPageItems(payments, page)
+                CurrentPageItems = GetCurrentPageItems(payments, page)
+                    .AsEnumerable()
+                    .Select(x => (item: x, blockExplorer: m_BlockExplorerFactory.Create(x.Pool.Coin)))
                     .Select(x => new PoolPaymentModel
                     {
-                        Amount = x.Amount * (x.Type == PoolPaymentType.Reward || x.Type == PoolPaymentType.Unknown ? 1 : -1),
-                        CurrencySymbol = x.Pool.Coin.Symbol,
-                        CurrencyName = x.Pool.Coin.Name,
-                        DateTime = x.DateTime,
-                        Id = x.ExternalId,
-                        PoolName = x.Pool.Name,
-                        Transaction = x.Transaction,
-                        Address = x.CoinAddress,
-                        BlockHash = x.BlockHash,
-                        Type = x.Type,
-                        CurrencyLogo = x.Pool.Coin.LogoImageBytes
+                        Amount = x.item.Amount
+                                 * (x.item.Type == PoolPaymentType.Reward || x.item.Type == PoolPaymentType.Unknown
+                                     ? 1
+                                     : -1),
+                        CurrencySymbol = x.item.Pool.Coin.Symbol,
+                        CurrencyName = x.item.Pool.Coin.Name,
+                        DateTime = x.item.DateTime,
+                        Id = x.item.ExternalId,
+                        PoolName = x.item.Pool.Name,
+                        Transaction = x.item.Transaction,
+                        TransactionUrl = x.blockExplorer.CreateTransactionUrl(x.item.Transaction),
+                        Address = x.item.CoinAddress,
+                        AddressUrl = x.blockExplorer.CreateAddressUrl(x.item.CoinAddress),
+                        BlockHash = x.item.BlockHash,
+                        BlockUrl = x.blockExplorer.CreateBlockUrl(x.item.BlockHash),
+                        Type = x.item.Type,
+                        CurrencyLogo = x.item.Pool.Coin.LogoImageBytes
                     })
-                    .ToArrayAsync(),
+                    .ToArray(),
                 CurrentPage = page,
                 TotalPages = await CountTotalPages(payments),
                 Title = title

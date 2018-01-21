@@ -44,21 +44,30 @@
                     {
                         <tr>
                             <th>Tx:</th>
-                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(payment.Transaction))</td>
+                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(payment.Transaction)
+                                {
+                                    Url = payment.TransactionUrl?.ToString()
+                                })</td>
                         </tr>
                     }
                     @if (payment.BlockHash != null)
                     {
                         <tr>
                             <th>Block:</th>
-                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(payment.BlockHash))</td>
+                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(payment.BlockHash)
+                               {
+                                   Url = payment.BlockUrl?.ToString()
+                               })</td>
                         </tr>
                     }
                     @if (payment.Address != null)
                     {
                         <tr>
                             <th>Wallet:</th>
-                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(payment.Address))</td>
+                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(payment.Address)
+                                {
+                                    Url = payment.AddressUrl?.ToString()
+                                })</td>
                         </tr>
                     }  
                 </table>

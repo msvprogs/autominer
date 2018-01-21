@@ -11,6 +11,7 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.NetworkInfo;
 using Msv.HttpTools;
 using NLog;
 using NLog.Targets;

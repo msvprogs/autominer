@@ -1,0 +1,50 @@
+﻿using System;
+using Msv.AutoMiner.Common.External.Contracts;
+using Newtonsoft.Json;
+
+namespace Msv.AutoMiner.NetworkInfo.Common
+{
+    //MinerGate API: https://github.com/MinerGate/minergate-api
+    public class MinerGateInfoProvider : INetworkInfoProvider
+    {
+        private static readonly Uri M_ApiBaseUri = new Uri("https://api.minergate.com");
+        private static readonly Uri M_ExplorerBaseUri = new Uri("https://minergate.com/blockchain/");
+
+        private readonly IWebClient m_WebClient;
+        private readonly string m_CurrencySymbol;
+
+        public MinerGateInfoProvider(IWebClient webClient, string currencySymbol)
+        {
+            if (string.IsNullOrEmpty(currencySymbol))
+                throw new ArgumentException("Value cannot be null or empty.", nameof(currencySymbol));
+
+            m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+            m_CurrencySymbol = currencySymbol.ToLowerInvariant();
+        }
+
+        public CoinNetworkStatistics GetNetworkStats()
+        {
+            dynamic json = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_ApiBaseUri, $"/1.0/{m_CurrencySymbol}/status")));
+            return new CoinNetworkStatistics
+            {
+                BlockReward = (double) json.reward,
+                Difficulty = (double) json.difficulty,
+                NetHashRate = (long) json.instantHashrate,
+                Height = (long) json.height
+            };
+        }
+
+        public Uri CreateTransactionUrl(string hash)
+            => new Uri(CreateCurrencyBaseUrl(), $"transaction/{hash}");
+
+        public Uri CreateAddressUrl(string address)
+            => null;
+
+        public Uri CreateBlockUrl(string blockHash)
+            => new Uri(CreateCurrencyBaseUrl(), $"block/{blockHash}");
+
+        private Uri CreateCurrencyBaseUrl()
+            => new Uri(M_ExplorerBaseUri, $"{m_CurrencySymbol}/");
+    }
+}

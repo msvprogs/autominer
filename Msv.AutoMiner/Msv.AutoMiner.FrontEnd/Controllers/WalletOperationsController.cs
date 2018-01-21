@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Shared;
 using Msv.AutoMiner.FrontEnd.Models.WalletOperations;
 
@@ -13,10 +14,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 {
     public class WalletOperationsController : PaginationController
     {
+        private readonly IBlockExplorerUrlProviderFactory m_BlockExplorerFactory;
         private readonly AutoMinerDbContext m_Context;
 
-        public WalletOperationsController(AutoMinerDbContext context)
+        public WalletOperationsController(IBlockExplorerUrlProviderFactory blockExplorerFactory, AutoMinerDbContext context)
         {
+            m_BlockExplorerFactory = blockExplorerFactory;
             m_Context = context;
         }
 
@@ -57,20 +60,24 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             return View(new PaginationModel<WalletOperationModel>
             {
-                CurrentPageItems = await GetCurrentPageItems(operations, page)
+                CurrentPageItems = GetCurrentPageItems(operations, page)
+                    .AsEnumerable()
+                    .Select(x => (item: x, blockExplorer: m_BlockExplorerFactory.Create(x.Wallet.Coin)))
                     .Select(x => new WalletOperationModel
                     {
-                        DateTime = x.DateTime,
-                        Id = x.ExternalId,
-                        CurrencySymbol = x.Wallet.Coin.Symbol,
-                        CurrencyName = x.Wallet.Coin.Name,
-                        Amount = x.Amount,
-                        Exchange = x.Wallet.ExchangeType,
-                        TargetAddress = x.TargetAddress,
-                        Transaction = x.Transaction,
-                        CurrencyLogo = x.Wallet.Coin.LogoImageBytes
+                        DateTime = x.item.DateTime,
+                        Id = x.item.ExternalId,
+                        CurrencySymbol = x.item.Wallet.Coin.Symbol,
+                        CurrencyName = x.item.Wallet.Coin.Name,
+                        Amount = x.item.Amount,
+                        Exchange = x.item.Wallet.ExchangeType,
+                        TargetAddress = x.item.TargetAddress,
+                        TargetAddressUrl = x.blockExplorer.CreateAddressUrl(x.item.TargetAddress),
+                        Transaction = x.item.Transaction,
+                        TransactionUrl = x.blockExplorer.CreateTransactionUrl(x.item.Transaction),
+                        CurrencyLogo = x.item.Wallet.Coin.LogoImageBytes
                     })
-                    .ToArrayAsync(),
+                    .ToArray(),
                 CurrentPage = page,
                 TotalPages = await CountTotalPages(operations),
                 Title = title

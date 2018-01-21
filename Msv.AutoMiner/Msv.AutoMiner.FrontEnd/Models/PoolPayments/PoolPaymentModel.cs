@@ -21,9 +21,15 @@ namespace Msv.AutoMiner.FrontEnd.Models.PoolPayments
 
         public string Transaction { get; set; }
 
+        public Uri TransactionUrl { get; set; }
+
         public string BlockHash { get; set; }
 
+        public Uri BlockUrl { get; set; }
+
         public string Address { get; set; }
+   
+        public Uri AddressUrl { get; set; }
 
         public PoolPaymentType Type { get; set; }
     }

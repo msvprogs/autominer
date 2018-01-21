@@ -36,14 +36,20 @@
                     {
                         <tr>
                             <th>Tx:</th>
-                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(operation.Transaction))</td>
+                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(operation.Transaction)
+                                {
+                                    Url = operation.TransactionUrl?.ToString()
+                                })</td>
                         </tr>
                     }
                     @if (operation.TargetAddress != null)
                     {
                         <tr>
                             <th>Wallet:</th>
-                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(operation.TargetAddress))</td>
+                            <td>@await Component.InvokeAsync("LongId", new LongIdModel(operation.TargetAddress)
+                                {
+                                    Url = operation.TargetAddressUrl?.ToString()
+                                })</td>
                         </tr>
                     }  
                 </table>
