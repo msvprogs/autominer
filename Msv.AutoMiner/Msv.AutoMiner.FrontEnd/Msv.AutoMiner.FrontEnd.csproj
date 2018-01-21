@@ -27,10 +27,4 @@
     <ProjectReference Include="..\Msv.AutoMiner.Data\Msv.AutoMiner.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
