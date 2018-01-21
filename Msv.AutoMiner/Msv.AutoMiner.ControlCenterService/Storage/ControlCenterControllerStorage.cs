@@ -5,26 +5,33 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.ControlCenterService.Storage
 {
     public class ControlCenterControllerStorage : IControlCenterControllerStorage
     {
-        private readonly AutoMinerDbContext m_Context;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public ControlCenterControllerStorage(AutoMinerDbContext context) 
-            => m_Context = context;
+        public ControlCenterControllerStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
 
         public Task<Rig> GetRigByName(string name)
-            => m_Context.Rigs.FirstOrDefaultAsync(x => x.Name == name);
+        {
+            using (var context = m_Factory.Create())
+                return context.Rigs.FirstOrDefaultAsync(x => x.Name == name);
+        }
 
         public async Task SaveRig(Rig rig)
         {
             if (rig == null)
                 throw new ArgumentNullException(nameof(rig));
 
-            m_Context.Attach(rig);
-            await m_Context.SaveChangesAsync();
+            using (var context = m_Factory.Create())
+            {
+                context.Attach(rig);
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task SaveHeartbeat(RigHeartbeat heartbeat)
@@ -32,8 +39,11 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             if (heartbeat == null)
                 throw new ArgumentNullException(nameof(heartbeat));
 
-            await m_Context.RigHeartbeats.AddAsync(heartbeat);
-            await m_Context.SaveChangesAsync();
+            using (var context = m_Factory.Create())
+            {
+                await context.RigHeartbeats.AddAsync(heartbeat);
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task SaveMiningStates(RigMiningState[] miningStates)
@@ -41,22 +51,33 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             if (miningStates == null)
                 throw new ArgumentNullException(nameof(miningStates));
 
-            await m_Context.RigMiningStates.AddRangeAsync(miningStates);
-            await m_Context.SaveChangesAsync();
+            using (var context = m_Factory.Create())
+            {
+                await context.RigMiningStates.AddRangeAsync(miningStates);
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<RigCommand> GetNextCommand(int rigId)
-            => await m_Context.RigCommands
-                .AsNoTracking()
-                .Where(x => x.RigId == rigId && x.Sent == null)
-                .OrderBy(x => x.Created)
-                .FirstOrDefaultAsync();
+        {
+            using (var context = m_Factory.Create())
+            {
+                return await context.RigCommands
+                    .AsNoTracking()
+                    .Where(x => x.RigId == rigId && x.Sent == null)
+                    .OrderBy(x => x.Created)
+                    .FirstOrDefaultAsync();
+            }
+        }
 
         public async Task MarkCommandAsSent(int commandId)
         {
-            var command = await m_Context.RigCommands.FirstAsync(x => x.Id == commandId);
-            command.Sent = DateTime.UtcNow;
-            await m_Context.SaveChangesAsync();
+            using (var context = m_Factory.Create())
+            {
+                var command = await context.RigCommands.FirstAsync(x => x.Id == commandId);
+                command.Sent = DateTime.UtcNow;
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<Pool[]> GetActivePools(Guid[] coinIds)
@@ -64,12 +85,15 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             if (coinIds == null)
                 throw new ArgumentNullException(nameof(coinIds));
 
-            return await m_Context.Pools
-                .Include(x => x.Coin)
-                .Include(x => x.Coin.Wallets)
-                .AsNoTracking()
-                .Where(x => coinIds.Contains(x.CoinId) && x.Activity == ActivityState.Active)
-                .ToArrayAsync();
+            using (var context = m_Factory.Create())
+            {
+                return await context.Pools
+                    .Include(x => x.Coin)
+                    .Include(x => x.Coin.Wallets)
+                    .AsNoTracking()
+                    .Where(x => coinIds.Contains(x.CoinId) && x.Activity == ActivityState.Active)
+                    .ToArrayAsync();
+            }
         }
 
         public async Task SaveProfitabilities(CoinProfitability[] profitabilities)
@@ -77,11 +101,17 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             if (profitabilities == null)
                 throw new ArgumentNullException(nameof(profitabilities));
 
-            await m_Context.CoinProfitabilities.AddRangeAsync(profitabilities);
-            await m_Context.SaveChangesAsync();
+            using (var context = m_Factory.Create())
+            {
+                await context.CoinProfitabilities.AddRangeAsync(profitabilities);
+                await context.SaveChangesAsync();
+            }
         }
 
-        public Task<Wallet> GetBitCoinMiningTarget() 
-            => m_Context.Wallets.FirstOrDefaultAsync(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
+        public Task<Wallet> GetBitCoinMiningTarget()
+        {
+            using (var context = m_Factory.Create())
+                return context.Wallets.FirstOrDefaultAsync(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
+        }
     }
 }

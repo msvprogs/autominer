@@ -2,17 +2,21 @@
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.ControlCenterService.Storage
 {
     public class CertificateServiceStorage : ICertificateServiceStorage
     {
-        private readonly AutoMinerDbContext m_Context;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public CertificateServiceStorage(AutoMinerDbContext context)
-            => m_Context = context;
+        public CertificateServiceStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
 
         public Task<Rig> GetRigByName(string name)
-            => m_Context.Rigs.FirstOrDefaultAsync(x => x.Name == name);
+        {
+            using (var context = m_Factory.Create())
+                return context.Rigs.FirstOrDefaultAsync(x => x.Name == name);
+        }
     }
 }

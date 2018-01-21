@@ -12,7 +12,8 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
     //API: http://coinexchangeio.github.io/slate
     public class CoinExchangeMarketInfoProvider : IMarketInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://www.coinexchange.io");
+        //private static readonly Uri M_BaseUri = new Uri("https://www.coinexchange.io");
+        private static readonly Uri M_BaseUri = new Uri("https://www.coinexchange2.com/");
 
         public bool HasMarketsCountLimit => false;
 

@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common.External;
@@ -15,7 +14,7 @@ using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
-using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Telegram.Bot;
 
 namespace Msv.AutoMiner.ControlCenterService
@@ -33,24 +32,22 @@ namespace Msv.AutoMiner.ControlCenterService
         {
             services.AddEntityFrameworkMySql();
 
-            var connectionString = Configuration.GetConnectionString("AutoMinerDb");
-            services.AddDbContext<AutoMinerDbContext>(
-                x => x.UseMySql(connectionString, y => y.CommandTimeout(30)),
-                ServiceLifetime.Transient);
+            services.AddSingleton<IAutoMinerDbContextFactory>(
+                x => new AutoMinerDbContextFactory(Configuration.GetConnectionString("AutoMinerDb")));
 
             services.AddMvc();
 
             services.AddSingleton(x => Configuration);
-            services.AddTransient<ICertificateServiceStorage, CertificateServiceStorage>();
-            services.AddTransient<IControlCenterControllerStorage, ControlCenterControllerStorage>();
-            services.AddTransient<IWalletInfoProviderFactoryStorage, WalletInfoProviderFactoryStorage>();
+            services.AddSingleton<ICertificateServiceStorage, CertificateServiceStorage>();
+            services.AddSingleton<IControlCenterControllerStorage, ControlCenterControllerStorage>();
+            services.AddSingleton<IWalletInfoProviderFactoryStorage, WalletInfoProviderFactoryStorage>();
+            services.AddSingleton<IPoolInfoMonitorStorage, PoolInfoMonitorStorage>();
+            services.AddSingleton<IWalletInfoMonitorStorage, WalletInfoMonitorStorage>();
+            services.AddSingleton<IRigStatusNotifierStorage, RigStatusNotifierStorage>();
+            services.AddSingleton<IPoolAvailabilityMonitorStorage, PoolAvailabilityMonitorStorage>();
 
             services.AddSingleton<ITelegramBotClient>(
                 x => new TelegramBotClient(Configuration.GetValue<string>("Notifications:Telegram:Token")));
-            services.AddSingleton<IPoolInfoMonitorStorage>(x => new PoolInfoMonitorStorage(connectionString));
-            services.AddSingleton<IWalletInfoMonitorStorage>(x => new WalletInfoMonitorStorage(connectionString));
-            services.AddSingleton<IRigStatusNotifierStorage>(x => new RigStatusNotifierStorage(connectionString));
-            services.AddSingleton<IPoolAvailabilityMonitorStorage>(x => new PoolAvailabilityMonitorStorage(connectionString));
             services.AddSingleton(x => new HeartbeatAnalyzerParams
             {
                 SamplesCount = Configuration.GetValue<int>("NormalRigStateCriteria:SamplesCount"),
@@ -70,7 +67,7 @@ namespace Msv.AutoMiner.ControlCenterService
                         .ToArray()));
             services.AddSingleton<IHeartbeatAnalyzer, HeartbeatAnalyzer>();
 
-            services.AddTransient<ICertificateService, CertificateService>();
+            services.AddSingleton<ICertificateService, CertificateService>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
                 Configuration["Services:CoinInfo:ApiKey"]));

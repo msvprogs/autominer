@@ -13,22 +13,22 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
         private const int ParallelismDegree = 6;
 
         private readonly IPoolAvailabilityChecker m_PoolAvailabilityChecker;
-        private readonly Func<IPoolAvailabilityMonitorStorage> m_StorageGetter;
+        private readonly IPoolAvailabilityMonitorStorage m_Storage;
 
         public PoolAvailabilityMonitor(
             IPoolAvailabilityChecker poolAvailabilityChecker, 
-            Func<IPoolAvailabilityMonitorStorage> storageGetter)
+            IPoolAvailabilityMonitorStorage storage)
             : base(TimeSpan.FromMinutes(30))
         {
             m_PoolAvailabilityChecker = poolAvailabilityChecker ?? throw new ArgumentNullException(nameof(poolAvailabilityChecker));
-            m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         protected override void DoWork()
         {
             var now = DateTime.UtcNow;
-            var btcMiningTarget = m_StorageGetter.Invoke().GetBitCoinMiningTarget();
-            var results = m_StorageGetter.Invoke().GetActivePools()
+            var btcMiningTarget = m_Storage.GetBitCoinMiningTarget();
+            var results = m_Storage.GetActivePools()
                 .AsParallel()
                 .WithDegreeOfParallelism(ParallelismDegree)
                 .Select(x => (pool:x, login: x.GetLogin(x.UseBtcWallet ? btcMiningTarget : x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget))))
@@ -47,7 +47,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 })
                 .Where(x => x.Pool.ResponsesStoppedDate == null ^ x.IsAvailable)
                 .ToDictionary(x => x.Pool.Id, x => x.IsAvailable ? (DateTime?) null : now);
-            m_StorageGetter.Invoke().SavePoolResponseStoppedDates(results);
+            m_Storage.SavePoolResponseStoppedDates(results);
         }
     }
 }

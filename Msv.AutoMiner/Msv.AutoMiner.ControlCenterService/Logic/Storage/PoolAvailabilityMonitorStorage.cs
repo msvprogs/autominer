@@ -6,21 +6,20 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 {
     public class PoolAvailabilityMonitorStorage : IPoolAvailabilityMonitorStorage
     {
-        private readonly string m_ConnectionString;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public PoolAvailabilityMonitorStorage(string connectionString)
-        {
-            m_ConnectionString = connectionString;
-        }
+        public PoolAvailabilityMonitorStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
 
         public Pool[] GetActivePools()
         {
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
                 return context.Pools
                     .Include(x => x.Coin)
                     .Include(x => x.Coin.Algorithm)
@@ -36,7 +35,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (dates == null)
                 throw new ArgumentNullException(nameof(dates));
 
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
             {
                 var poolIds = dates.Keys.ToArray();
                 context.Pools
@@ -50,7 +49,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 
         public Wallet GetBitCoinMiningTarget()
         {
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
                 return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
         }
     }

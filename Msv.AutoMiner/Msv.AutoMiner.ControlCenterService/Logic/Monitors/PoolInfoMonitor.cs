@@ -17,19 +17,19 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
         private static readonly TimeSpan M_LastOperationsPeriod = TimeSpan.FromDays(7);
 
         private readonly IPoolInfoProviderFactory m_ProviderFactory;
-        private readonly Func<IPoolInfoMonitorStorage> m_StorageGetter;
+        private readonly IPoolInfoMonitorStorage m_Storage;
 
-        public PoolInfoMonitor(IPoolInfoProviderFactory providerFactory, Func<IPoolInfoMonitorStorage> storageGetter) 
+        public PoolInfoMonitor(IPoolInfoProviderFactory providerFactory, IPoolInfoMonitorStorage storage) 
             : base(TimeSpan.FromMinutes(15))
         {
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
-            m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         protected override void DoWork()
         {
-            var pools = m_StorageGetter.Invoke().GetActivePools();
-            var btcMiningTarget = m_StorageGetter.Invoke().GetBitCoinMiningTarget();
+            var pools = m_Storage.GetActivePools();
+            var btcMiningTarget = m_Storage.GetBitCoinMiningTarget();
 
             var now = DateTime.UtcNow;
             var startDate = now - M_LastOperationsPeriod;
@@ -87,9 +87,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Do(x => x.pool.FeeRatio = x.info.State.PoolFee.GetValueOrDefault())
                 .Select(x => x.pool)
                 .ToArray();
-            m_StorageGetter.Invoke().SavePools(updatedPools);
+            m_Storage.SavePools(updatedPools);
 
-            m_StorageGetter.Invoke().StorePoolAccountStates(poolInfos
+            m_Storage.StorePoolAccountStates(poolInfos
                 .Select(x => new PoolAccountState
                 {
                     DateTime = now,
@@ -105,7 +105,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 })
                 .ToArray());
 
-            var wallets = m_StorageGetter.Invoke().GetWalletIds(poolInfos
+            var wallets = m_Storage.GetWalletIds(poolInfos
                 .SelectMany(x => x.info.PaymentsData.EmptyIfNull().Select(y => y.Address))
                 .Where(x => x != null).ToArray());
             var newPayments = poolInfos
@@ -127,9 +127,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     })
                     .Where(y => y.DateTime >= startDate))
                 .ToArray();
-            var existingPayments = m_StorageGetter.Invoke().LoadExistingPayments(
+            var existingPayments = m_Storage.LoadExistingPayments(
                 newPayments.Select(x => x.ExternalId).ToArray(), startDate);
-            m_StorageGetter.Invoke().StorePoolPayments(newPayments
+            m_Storage.StorePoolPayments(newPayments
                 .Except(existingPayments, new PoolPaymentEqualityComparer())
                 .ToArray());
         }

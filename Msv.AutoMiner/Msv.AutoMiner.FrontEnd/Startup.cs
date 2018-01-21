@@ -39,6 +39,8 @@ namespace Msv.AutoMiner.FrontEnd
                 x => x.UseMySql(connectionString, y => y.CommandTimeout(30)),
                 ServiceLifetime.Transient);
 
+            services.AddSingleton<IAutoMinerDbContextFactory>(x => new AutoMinerDbContextFactory(connectionString));
+
             services.AddAuthentication(x =>
                 {
                     x.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;

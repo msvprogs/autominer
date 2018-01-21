@@ -14,19 +14,18 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
         private static readonly TimeSpan M_LastOperationsPeriod = TimeSpan.FromDays(7);
 
         private readonly IWalletInfoProviderFactory m_ProviderFactory;
-        private readonly Func<IWalletInfoMonitorStorage> m_StorageGetter;
+        private readonly IWalletInfoMonitorStorage m_Storage;
 
-        public WalletInfoMonitor(IWalletInfoProviderFactory providerFactory, Func<IWalletInfoMonitorStorage> storageGetter) 
+        public WalletInfoMonitor(IWalletInfoProviderFactory providerFactory, IWalletInfoMonitorStorage storage) 
             : base(TimeSpan.FromMinutes(30))
         {
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
-            m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         protected override void DoWork()
         {
-            var wallets = m_StorageGetter.Invoke().GetActiveWallets();
-
+            var wallets = m_Storage.GetActiveWallets();
             var now = DateTime.UtcNow;
             var startDate = now - M_LastOperationsPeriod;
 
@@ -103,7 +102,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     UnconfirmedBalance = x.result.Unconfirmed
                 })
                 .ToArray();
-            m_StorageGetter.Invoke().StoreWalletBalances(balances);
+            m_Storage.StoreWalletBalances(balances);
 
             var newOperations = exchangeResults
                 .SelectMany(x => x.WalletCandidates.Join(
@@ -121,9 +120,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 })
                 .ToArray();
             var operationIds = newOperations.Select(x => x.ExternalId).ToArray();
-            var existingOperations = m_StorageGetter.Invoke().LoadExistingOperations(operationIds, startDate);
+            var existingOperations = m_Storage.LoadExistingOperations(operationIds, startDate);
 
-            m_StorageGetter.Invoke().StoreWalletOperations(newOperations
+            m_Storage.StoreWalletOperations(newOperations
                 .Except(existingOperations, new WalletOperationEqualityComparer())
                 .ToArray());
         }

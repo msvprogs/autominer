@@ -6,21 +6,20 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 {
     public class PoolInfoMonitorStorage : IPoolInfoMonitorStorage
     {
-        private readonly string m_ConnectionString;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public PoolInfoMonitorStorage(string connectionString)
-        {
-            m_ConnectionString = connectionString;
-        }
+        public PoolInfoMonitorStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
 
         public Pool[] GetActivePools()
         {
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
                 return context.Pools
                     .Include(x => x.Coin)
                     .Include(x => x.Coin.Algorithm)
@@ -36,7 +35,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (poolAccountStates == null)
                 throw new ArgumentNullException(nameof(poolAccountStates));
 
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
             {
                 context.PoolAccountStates.AddRange(poolAccountStates);
                 context.SaveChanges();
@@ -48,7 +47,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (poolPayments == null)
                 throw new ArgumentNullException(nameof(poolPayments));
 
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
             {
                 context.PoolPayments.AddRange(poolPayments);
                 context.SaveChanges();
@@ -60,7 +59,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (pools == null)
                 throw new ArgumentNullException(nameof(pools));
 
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
             {
                 var poolIds = pools.Select(x => x.Id).ToArray();
                 var existingPools = context.Pools
@@ -77,7 +76,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (externalIds == null)
                 throw new ArgumentNullException(nameof(externalIds));
 
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
             {
                 return context.PoolPayments
                     .AsNoTracking()
@@ -91,7 +90,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (addresses == null)
                 throw new ArgumentNullException(nameof(addresses));
 
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
             {
                 return context.Wallets
                     .AsNoTracking()
@@ -105,7 +104,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 
         public Wallet GetBitCoinMiningTarget()
         {
-            using (var context = new AutoMinerDbContext(m_ConnectionString))
+            using (var context = m_Factory.Create())
                 return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
         }
     }

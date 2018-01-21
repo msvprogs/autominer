@@ -55,20 +55,20 @@ namespace Msv.AutoMiner.ControlCenterService
                         new LoggedWebClient(),
                         new ProxiedLoggedWebClient(
                             new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
-                    () => scope.ServiceProvider.GetRequiredService<IPoolInfoMonitorStorage>()))
+                    scope.ServiceProvider.GetRequiredService<IPoolInfoMonitorStorage>()))
                 using (new WalletInfoMonitor(
                     new WalletInfoProviderFactory(
                         new LoggedWebClient(),
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
-                    () => scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
+                    scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 using (new PoolAvailabilityMonitor(
                     new PoolAvailabilityChecker(), 
-                    () => scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
+                    scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
                 using (new TelegramCommandInterface(
                     new TelegramBotClient(config.GetValue<string>("Notifications:Telegram:Token")),
                     new TelegramCommandInterfaceStorage(connectionString),
-                    new PoolInfoProvider(scope.ServiceProvider.GetRequiredService<AutoMinerDbContext>()),
-                    new RigHeartbeatProvider(scope.ServiceProvider.GetRequiredService<AutoMinerDbContext>()), 
+                    new PoolInfoProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()),
+                    new RigHeartbeatProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()), 
                     config.GetSection("Notifications:Telegram:Subscribers")
                         .GetChildren()
                         .Select(y => y.Value)
