@@ -399,6 +399,25 @@ $(function () {
         apiUserIdDescription.html(apiUserIdDescriptionText);
     });
     $("select#PoolApiProtocol").change();
+
+    // ** Wallet Index
+    bindDisableButton($("tbody#wallets-table"), "wallet-name", "wallet");
+    bindDeleteButton($("tbody#wallets-table"), "wallet-name", "wallet");
+    //bind 'Set as mining target' button
+    bindButtonPostAction($("tbody#wallets-table"),
+        "set-as-target-url",
+        function(button, data) {
+            var row = button.closest("tr");
+            new Notification(format("Wallet {0} has been set as mining target for {1}", row.data("wallet-name"), row.data("coin-name")))
+                .success();
+            $(format("tr[data-coin-id='{0}']", row.data("coin-id")))
+                .not(row)
+                .remove();
+            row.replaceWith(data);
+        },
+        function(button, error) {
+            new Notification(format("Error while setting the new mining target: {0}", error)).danger();
+        });
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

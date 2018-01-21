@@ -30,9 +30,7 @@ namespace Msv.AutoMiner.Common.Helpers
             if (string.IsNullOrWhiteSpace(str))
                 return new byte[0];
 
-            str = str.Trim();
-            if (str.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
-                str = str.Substring(2);
+            str = CutPrefix(str.Trim());
             str = str.Replace("-", "").Replace(" ", "");
             if (str.Length % 2 != 0)
                 str = "0" + str;
@@ -55,5 +53,14 @@ namespace Msv.AutoMiner.Common.Helpers
 
         public static bool IsHex(string str)
             => M_HexRegex.IsMatch(str.Trim());
+
+        public static bool IsHexWithPrefix(string str)
+            => IsHex(str) && HasPrefix(str);
+
+        public static string CutPrefix(string str)
+            => HasPrefix(str) ? str.Substring(2) : str;
+
+        private static bool HasPrefix(string str)
+            => str.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase);
     }
 }

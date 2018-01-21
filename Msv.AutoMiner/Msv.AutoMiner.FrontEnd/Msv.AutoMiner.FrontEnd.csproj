@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0.1" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
   </ItemGroup>
 
@@ -24,6 +25,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.Data\Msv.AutoMiner.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto">
+      <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

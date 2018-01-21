@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.FrontEnd.Infrastructure;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Authentication;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers

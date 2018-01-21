@@ -10,5 +10,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Wallets
         public Guid? CoinId { get; set; }
 
         public CoinBaseModel[] AvailableCoins { get; set; }
+
+        public bool SetAsMiningTarget { get; set; }
     }
 }

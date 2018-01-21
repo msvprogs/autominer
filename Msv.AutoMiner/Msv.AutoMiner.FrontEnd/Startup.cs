@@ -17,6 +17,7 @@ using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd
@@ -78,6 +79,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
             services.AddSingleton<IImageProcessor, ImageProcessor>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddSingleton<IWalletAddressValidatorFactory, WalletAddressValidatorFactory>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
                 Configuration["Services:CoinInfo:ApiKey"]));

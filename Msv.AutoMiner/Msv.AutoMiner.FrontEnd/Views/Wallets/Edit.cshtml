@@ -1,4 +1,5 @@
 ﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
 @model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletEditModel
 
 @{ ViewBag.Title = "Edit wallet details"; }    
@@ -14,28 +15,35 @@
         <label asp-for="CoinId">Coin:</label>
         <select asp-for="CoinId" class="form-control">
             <option value="" disabled="disabled" selected="@(Model.CoinId == null ? "selected" : "")">Select...</option>
-            @foreach (var coin in Model.AvailableCoins.OrderBy(x => x.Symbol))
+            @foreach (var coin in Model.AvailableCoins.OrderBy(x => x.Name))
             {
-                <option value="@coin.Id">@coin.Symbol - @coin.Name</option>
+                <option value="@coin.Id">@coin.Name (@coin.Symbol)</option>
             }
         </select>
     </div>
     <div class="form-group">
         <label asp-for="Address">Address:</label>
-        <input asp-for="Address" class="form-control" />
+        <p class="small">
+            This address will be validated in accordance to the format, prefix and checksum validation rules for the selected coin. 
+        </p>
+        <input asp-for="Address" class="form-control text-monospace" />
     </div>
     <div class="form-group">
         <label asp-for="ExchangeType">Exchange:</label>
         <select asp-for="ExchangeType" class="form-control">
-            <option value="">&lt;Local&gt;</option>
-            @foreach (ExchangeType exchangeType in Enum.GetValues(typeof(ExchangeType)))
+            <option value="">&lt;Local node&gt;</option>
+            @foreach (var exchangeType in EnumHelper.GetCaptions<ExchangeType>()
+                .Where(x => x.Key != ExchangeType.Unknown)
+                .OrderBy(x => x.Value))
             {
-                if (exchangeType != ExchangeType.Unknown)
-                {
-                    <option value="@exchangeType">@exchangeType</option>
-                }
+                <option value="@exchangeType.Key">@exchangeType.Value</option>
             }
         </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="SetAsMiningTarget">
+            <input type="checkbox" asp-for="SetAsMiningTarget" /> Set as mining target
+        </label>
     </div>
 
     <button type="submit" class="btn btn-success">

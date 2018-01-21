@@ -1,0 +1,122 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.FrontEnd.Models.Shared
+@model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletDisplayModel[]
+
+@{   
+    const double minWarningVolume = 0.1;
+    const double minVolume = 0.01;
+}
+
+@foreach (var wallet in Model.OrderBy(x => x.Coin.Name).ThenByDescending(x => x.IsMiningTarget))
+{
+    string rowClass;
+    string title;
+    if (wallet.Activity == ActivityState.Inactive)
+    {
+        rowClass = "text-muted";
+        title = "Wallet is inactive";
+    }
+    else if (wallet.LastUpdated == null || wallet.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(50))
+    {
+        rowClass = "warning";
+        title = "Wallet data is unavailable or obsolete";
+    }
+    else if (wallet.IsMiningTarget)
+    {
+        rowClass = "success";
+        title = "This wallet is mining target for its coin";
+    }
+    else
+    {
+        rowClass = null;
+        title = null;
+    }
+
+    <tr class="@rowClass" title="@title" data-wallet-name="@wallet.Address" data-coin-name="@wallet.Coin.Name" data-coin-id="@wallet.Coin.Id">
+        <td>
+            <a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
+               title="Show all operations for @wallet.Coin.Name wallets">
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Logo))
+            </a>
+            <div>
+                @if (wallet.LastDayVolume < minWarningVolume)
+                {
+                    <span class="label label-danger">Low volume</span>
+                }
+                else if (wallet.LastDayVolume < minVolume)
+                {
+                    <span class="label label-warning">Lowish volume</span>
+                }
+            </div>
+        </td>
+        <td>
+            @await Component.InvokeAsync("LongId", new LongIdModel
+            {
+                Id = wallet.Address,
+                Title = "Show all operations for this wallet",
+                Url = Url.Action("Index", "WalletOperations", new { walletId = wallet.Id })
+            })
+        </td>
+        <td>
+            <a asp-controller="WalletOperations" asp-action="Index" asp-route-exchange="@wallet.ExchangeType"
+               title="Show all operations for exchange @wallet.ExchangeType">
+                @(wallet.ExchangeType != null ? wallet.ExchangeType.ToString() : "<local>")
+            </a>
+            @if (wallet.LastDayVolume != null)
+            {
+                <div class="secondary-info">
+                    24h vol: <b>@wallet.LastDayVolume.Value.ToString("N3") BTC</b>
+                </div>
+            }
+        </td>
+        <td msv-balance="@wallet.Available" msv-btc-price="@wallet.CoinBtcPrice"></td>
+        <td msv-balance="@wallet.Blocked" msv-btc-price="@wallet.CoinBtcPrice"></td>
+        <td msv-balance="@wallet.Unconfirmed" msv-btc-price="@wallet.CoinBtcPrice"></td>
+        <td msv-absolute-date="@wallet.LastUpdated"></td>
+        <td>
+            <ul class="list-inline">
+                <li>
+                    <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@wallet.Id" title="Edit wallet">
+                        <i class="glyphicon glyphicon-edit"></i>
+                    </a>
+                </li>
+                <li>
+                    @{
+                        var activationButtonTitle = wallet.Activity == ActivityState.Active
+                            ? "Disable wallet"
+                            : "Enable wallet";
+                    }
+                    <button class="btn btn-xs btn-info"
+                            title="@activationButtonTitle"
+                            data-disable-url="@Url.Action("ToggleActive", new {id = wallet.Id})">
+                        @if (wallet.Activity == ActivityState.Active)
+                        {
+                            <i class="glyphicon glyphicon-remove"></i>
+                        }
+                        else if (wallet.Activity == ActivityState.Inactive)
+                        {
+                            <i class="glyphicon glyphicon-flash"></i>
+                        }
+                    </button>
+                </li>
+                @if (!wallet.IsMiningTarget)
+                {
+                    <li>
+                        <button class="btn btn-xs btn-info"
+                                title="Set as mining target"
+                                data-set-as-target-url="@Url.Action("SetAsMiningTarget", new {id = wallet.Id})">
+                            <i class="glyphicon glyphicon-flag"></i>
+                        </button>
+                    </li>
+                }
+                <li>
+                    <button class="btn btn-xs btn-danger"
+                            title="Delete wallet"
+                            data-delete-url="@Url.Action("Delete", new {id = wallet.Id})">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                </li>
+            </ul>
+        </td>
+    </tr>
+}

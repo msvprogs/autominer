@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 

@@ -11,7 +11,7 @@ using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
-using Msv.AutoMiner.FrontEnd.Infrastructure;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 using SixLabors.ImageSharp;

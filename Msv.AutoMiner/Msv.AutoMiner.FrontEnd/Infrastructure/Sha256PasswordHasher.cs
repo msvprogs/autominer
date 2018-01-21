@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {

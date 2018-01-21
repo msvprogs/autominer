@@ -1,6 +1,6 @@
 ﻿using SixLabors.ImageSharp.Formats;
 
-namespace Msv.AutoMiner.FrontEnd.Infrastructure
+namespace Msv.AutoMiner.FrontEnd.Infrastructure.Contracts
 {
     public interface IImageProcessor
     {
