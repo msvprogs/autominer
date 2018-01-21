@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -21,10 +22,11 @@ namespace Msv.AutoMiner.Common.Infrastructure
 
         public virtual bool Check(PoolDataModel pool)
         {
+            var watch = Stopwatch.StartNew();
             var result = CheckServer(pool);
             if (!result) 
                 return false;
-            Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded");
+            Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded (response time: {watch.ElapsedMilliseconds} msec");
             return true;
         }
 
