@@ -28,7 +28,10 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
             using (var context = m_Factory.Create())
             {
-                context.Attach(rig);
+                var existingRig = context.Rigs.First(x => x.Id == rig.Id);
+                existingRig.ClientCertificateSerial = rig.ClientCertificateSerial;
+                existingRig.ClientCertificateThumbprint = rig.ClientCertificateThumbprint;
+                existingRig.RegistrationPassword = rig.RegistrationPassword;
                 context.SaveChanges();
             }
         }
