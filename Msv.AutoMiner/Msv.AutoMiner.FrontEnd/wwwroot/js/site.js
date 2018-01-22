@@ -219,6 +219,13 @@ $(function () {
             });
     });
 
+    // Set client local time for all timestamp elements
+    $("[data-timestamp]")
+        .each(function(index, element) {
+            var date = new Date(parseInt($(element).data("timestamp")));
+            $(element).attr("title", format("{0} {1}", date.toLocaleDateString(), date.toLocaleTimeString()));
+        });
+
     // Page-specific event handlers
 
     // ** Coins Index

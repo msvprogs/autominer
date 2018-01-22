@@ -20,7 +20,10 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 output.Content.SetContent("N/A");
                 return;
             }
-            output.Attributes.SetAttribute("title", $"{AbsoluteDate.Value:yyyy-MM-dd HH:mm:ss} GMT");
+            output.Attributes.SetAttribute(
+                "title", $"{AbsoluteDate.Value:yyyy-MM-dd HH:mm:ss} GMT");
+            output.Attributes.SetAttribute(
+                "data-timestamp", DateTimeHelper.ToTimestampMsec(AbsoluteDate.Value, TimeZoneInfo.Utc));
             output.Content.SetContent(DateTimeHelper.ToRelativeTime(AbsoluteDate.Value));
         }
     }
