@@ -52,7 +52,7 @@ namespace Msv.AutoMiner.Common.Helpers
             => value != null ? value.Value.ToString("N2") : string.Empty;
 
         public static string ToPercent(double? value)
-            => value != null ? value.Value.ToString("N2") + "%" : string.Empty;
+            => value != null ? value.Value.ToString("F2") + "%" : string.Empty;
 
         public static double GetDiffRatio(decimal oldValue, decimal newValue)
             => GetDiffRatio((double) oldValue, (double) newValue);
@@ -63,11 +63,6 @@ namespace Msv.AutoMiner.Common.Helpers
                 : 0;
 
         public static string GetDiffRatioString(double oldValue, double newValue)
-        {
-            var result = GetDiffRatio(oldValue, newValue);
-            if (double.IsNaN(result) || double.IsInfinity(result))
-                return "<unknown>";
-            return $"{result:F2}%";
-        }
+            => ToPercent(GetDiffRatio(oldValue, newValue));
     }
 }

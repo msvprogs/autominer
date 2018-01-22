@@ -58,14 +58,13 @@
     </td>
     <td class="text-right">@Model.BlockReward.ToString("N2")</td>
     <td>
-        <div class="coin-price-table">
+        <table class="coin-price-table">
             @foreach (var price in Model.ExchangePrices.OrderByDescending(x => x.Price))
             {
-                <div class="row highlight-on-hover" title="Ask: @ConversionHelper.ToCryptoCurrencyValue(price.Ask), Bid: @ConversionHelper.ToCryptoCurrencyValue(price.Bid)">
-                    <div class="col-xs-5">
-                        <em>@price.Exchange</em>
-                    </div>
-                    <div class="col-xs-7 space-no-wrap">
+                <tr class="highlight-on-hover"
+                    title="Ask: @ConversionHelper.ToCryptoCurrencyValue(price.Ask), Bid: @ConversionHelper.ToCryptoCurrencyValue(price.Bid)">
+                    <th>@price.Exchange:</th>
+                    <td class="space-no-wrap">
                         @ConversionHelper.ToCryptoCurrencyValue(price.Price)
                         @if (price.PriceDelta > 0)
                         {
@@ -73,7 +72,7 @@
                                 (+@ConversionHelper.ToPercent(price.PriceDelta))
                             </span>
                         }
-                        else if (Model.DifficultyDelta < 0)
+                        else if (price.PriceDelta < 0)
                         {
                             <span class="negative-amount">
                                 (@ConversionHelper.ToPercent(price.PriceDelta))
@@ -85,10 +84,10 @@
                                 (@ConversionHelper.ToPercent(0))
                             </span>
                         }
-                    </div>
-                </div>
+                    </td>
+                </tr>
             }
-        </div>
+        </table>
     </td>
     <td msv-absolute-date="@Model.LastUpdated"></td>
     <td>

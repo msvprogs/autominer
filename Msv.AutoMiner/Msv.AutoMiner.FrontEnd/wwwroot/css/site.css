@@ -121,12 +121,22 @@ div.padded {
 .coin-price-table {
     font-size: 8pt;
     color: darkslategray;
-    margin-left: 2px;
-    margin-right: 2px;
 }
 
-.coin-price-table div {
-    padding: 0 4px !important;
+.text-muted .coin-price-table {
+    color: inherit;
+}
+
+.coin-price-table th {
+    font-weight: normal;
+    font-style: italic;
+    padding: 0px 2px;
+    width: 90px;
+    text-align: right;
+}
+
+.coin-price-table td {
+    padding: 0px 2px;
 }
 
 table.wallet-totals {
