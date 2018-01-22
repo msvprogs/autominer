@@ -210,7 +210,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .LeftOuterJoin(lastBalances, x => x.Id, x => x.WalletId,
                     (x, y) => (wallet: x, balances: y ?? new WalletBalance()))
                 .LeftOuterJoin(coinValues, x => x.wallet.CoinId, x => x.CurrencyId,
-                    (x, y) => (x.wallet, x.balances, price: y ?? new CoinValue()))
+                    (x, y) => (x.wallet, x.balances, price: y ?? new CoinValue(), miningMarket: y?.ExchangePrices
+                        .EmptyIfNull()
+                        .FirstOrDefault(z => z.Exchange == x.wallet.ExchangeType)))
                 .Where(x => HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true)
                     || x.balances.Balance > 0
                     || x.balances.BlockedBalance > 0 
@@ -228,9 +230,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Logo = x.wallet.Coin.LogoImageBytes
                     },
                     CoinBtcPrice = x.price.AverageBtcValue,
-                    LastDayVolume = x.price.ExchangePrices
-                        .EmptyIfNull()
-                        .FirstOrDefault(y => y.Exchange == x.wallet.ExchangeType)?.VolumeBtc,
+                    LastDayVolume = x.miningMarket?.VolumeBtc,
+                    IsInactive = x.miningMarket != null && !x.miningMarket.IsActive,
                     ExchangeType = x.wallet.ExchangeType,
                     Available = x.balances.Balance,
                     Blocked = x.balances.BlockedBalance,

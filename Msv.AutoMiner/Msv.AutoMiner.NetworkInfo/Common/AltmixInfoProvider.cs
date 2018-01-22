@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {
@@ -30,14 +31,16 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var lastBlockInfo = mainPage.DocumentNode
                 .SelectSingleNode("//table[@class='table blocksTable']/tr[contains(.,'PoW')]");
             var lastBlockLink = lastBlockInfo.SelectSingleNode(".//td[1]/a");
-
+            
             return new CoinNetworkStatistics
             {
                 BlockTimeSeconds = 60 * ParsingHelper.ParseValueWithUnits(infoNodes[2].InnerText),
                 NetHashRate = ParsingHelper.ParseHashRate(infoNodes[3].InnerText),
                 Difficulty = ParsingHelper.ParseDouble(lastBlockInfo.SelectSingleNode(".//td[3]").InnerText),
                 Height = long.Parse(lastBlockLink.InnerText),
-                MoneySupply = ParsingHelper.ParseDouble(infoNodes[0].InnerText)
+                MoneySupply = ParsingHelper.ParseDouble(infoNodes[0].InnerText),
+                LastBlockTime = DateTimeHelper.FromIso8601(
+                    lastBlockInfo.SelectSingleNode(".//td[2]/span")?.GetAttributeValue("title", null))
             };
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.NetworkInfo.Data;
 using NLog;
 
 namespace Msv.AutoMiner.NetworkInfo

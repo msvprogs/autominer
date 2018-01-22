@@ -3,6 +3,7 @@ using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
@@ -19,6 +20,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         {
             var html = new HtmlDocument();
             html.LoadHtml(m_WebClient.DownloadString(M_BaseUri));
+            var lastBlockLink = html.DocumentNode.SelectSingleNode(
+                "//div[@id='blocks']//a[starts-with(@href, '/block/')]");
             return new CoinNetworkStatistics
             {
                 BlockReward = 9.5, //constant
@@ -26,9 +29,10 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                     html.DocumentNode.SelectSingleNode("//p[@id='hashrate']").InnerText),
                 Difficulty = ParsingHelper.ParseDouble(
                     html.DocumentNode.SelectSingleNode("//p[@id='difficulty']").InnerText),
-                Height = (long) ParsingHelper.ParseDouble(
-                    html.DocumentNode.SelectSingleNode(
-                        "//div[@id='blocks']//a[starts-with(@href, '/block/')]").InnerText)
+                Height = (long) ParsingHelper.ParseDouble(lastBlockLink.InnerText),
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc(
+                    long.Parse(lastBlockLink.SelectSingleNode(".//ancestor::div/following-sibling::div")
+                    .GetAttributeValue("data-time", null)))
             };
         }
 

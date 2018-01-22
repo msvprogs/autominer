@@ -3,6 +3,8 @@ using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
+using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
@@ -20,13 +22,18 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
             var html = new HtmlDocument();
             html.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, "?page=stats")));
 
+            var bestBlockHash = m_WebClient.DownloadString(new Uri(M_BaseUri, "?q=getlasthash"));
+            dynamic bestBlockInfo = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_BaseUri, "?q=blockinfo&arg1=" + bestBlockHash)));
+
             return new CoinNetworkStatistics
             {
                 BlockReward = ParsingHelper.ParseDouble(GetNumericValue(html, "Block Reward")),
                 Difficulty = ParsingHelper.ParseDouble(GetNumericValue(html, "Difficulty")),
                 Height = long.Parse(GetNumericValue(html, "Block Count")),
                 BlockTimeSeconds = 60 * ParsingHelper.ParseDouble(GetNumericValue(html, "Avg. Block Time")),
-                NetHashRate = ParsingHelper.ParseHashRate(GetNumericValue(html, "Hash Rate", true))
+                NetHashRate = ParsingHelper.ParseHashRate(GetNumericValue(html, "Hash Rate", true)),
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)bestBlockInfo.time)
             };
         }
 

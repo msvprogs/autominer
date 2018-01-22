@@ -1,6 +1,8 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json.Linq;
 using NLog;
 
@@ -46,6 +48,9 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         private CoinNetworkStatistics GetRpcNetworkStats()
         {
             var info = m_RpcClient.Execute<dynamic>("getmininginfo");
+            var bestBlockInfo = m_RpcClient.Execute<dynamic>(
+                "getblock", m_RpcClient.Execute<string>("getbestblockhash"));
+
             return new CoinNetworkStatistics
             {
                 Height = (long?) info.blocks ?? 0,
@@ -57,7 +62,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                              ?? 0,
                 NetHashRate = (long?) ((double?) info.netmhashps * 1e6)
                     ?? (long?) info.networkhashps
-                    ?? 0
+                    ?? 0,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)bestBlockInfo.time)
             };
         }
     }

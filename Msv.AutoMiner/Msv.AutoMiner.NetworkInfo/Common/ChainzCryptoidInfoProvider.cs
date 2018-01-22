@@ -2,6 +2,7 @@
 using System.Linq;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -43,11 +44,13 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .ToArray();
             var height = blocks.Max(x => x.Height);
 
+            var bestBlock = blocks.First(x => x.Height == height);
             return new CoinNetworkStatistics
             {
-                Difficulty = blocks.First().Difficulty,
+                Difficulty = bestBlock.Difficulty,
                 NetHashRate = ParsingHelper.ParseHashRate(hashrate),
-                Height = height
+                Height = height,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc(bestBlock.Timestamp)
             };
         }
 

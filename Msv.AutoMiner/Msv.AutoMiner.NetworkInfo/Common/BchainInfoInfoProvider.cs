@@ -51,7 +51,11 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             {
                 Difficulty = difficulty,
                 BlockTimeSeconds = CalculateBlockStats(blocks)?.MeanBlockTime,
-                Height = height
+                Height = height,
+                LastBlockTime = blocks.OrderByDescending(x => x.Height)
+                    .Select(x => (DateTime?)DateTimeHelper.ToDateTimeUtc(x.Timestamp))
+                    .DefaultIfEmpty(null)
+                    .First()
             };
         }
 

@@ -39,7 +39,11 @@
                 @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Logo))
             </a>
             <div>
-                @if (wallet.LastDayVolume < minWarningVolume)
+                @if (wallet.IsInactive)
+                {
+                    <span class="label label-danger">Wallet maintenance</span>
+                }
+                else if (wallet.LastDayVolume < minWarningVolume)
                 {
                     <span class="label label-danger">Low volume</span>
                 }

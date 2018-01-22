@@ -1,4 +1,6 @@
-﻿namespace Msv.AutoMiner.NetworkInfo
+﻿using Msv.AutoMiner.NetworkInfo.Data;
+
+namespace Msv.AutoMiner.NetworkInfo
 {
     public interface INetworkInfoProvider : IBlockExplorerUrlProvider
     {

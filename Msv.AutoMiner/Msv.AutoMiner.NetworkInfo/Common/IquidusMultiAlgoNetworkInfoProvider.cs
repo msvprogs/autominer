@@ -4,6 +4,8 @@ using System.Linq;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -41,15 +43,22 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .Select(JsonConvert.DeserializeObject)
                 .Cast<dynamic>()
                 .Where(x => ((string)x.flags).Contains("proof-of-work"))
-                .Select(x => (algo: m_AlgoMappings.TryGetValue((int)x.algo_id), difficulty: (double)x.difficulty))
+                .Select(x => (
+                    algo: m_AlgoMappings.TryGetValue((int)x.algo_id),
+                    difficulty: (double)x.difficulty,
+                    time: (long)x.time))
                 .Where(x => x.algo != null)
                 .Distinct(new AlgoTupleEqualityComparer())
                 .Take(m_AlgoMappings.Count)
                 .ToDictionary(x => x.algo.Value, x => new CoinNetworkStatistics
                 {
                     Height = height,
-                    Difficulty = x.difficulty
+                    Difficulty = x.difficulty,
+                    LastBlockTime = DateTimeHelper.ToDateTimeUtc(x.time)
                 });
+
+            var maxBlockTime = difficulties.Max(x => x.Value.LastBlockTime);
+            difficulties.ForEach(x => x.Value.LastBlockTime = maxBlockTime);
             return new Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>>
             {
                 [m_CurrencySymbol] = difficulties
@@ -65,14 +74,14 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         public Uri CreateBlockUrl(string blockHash)
             => new Uri(m_BaseUrl, $"block/{blockHash}");
 
-        private class AlgoTupleEqualityComparer : EqualityComparer<(KnownCoinAlgorithm? algo, double difficulty)>
+        private class AlgoTupleEqualityComparer : EqualityComparer<(KnownCoinAlgorithm? algo, double difficulty, long time)>
         {
             public override bool Equals(
-                (KnownCoinAlgorithm? algo, double difficulty) x,
-                (KnownCoinAlgorithm? algo, double difficulty) y)
+                (KnownCoinAlgorithm? algo, double difficulty, long time) x,
+                (KnownCoinAlgorithm? algo, double difficulty, long time) y)
                 => x.algo == y.algo;
 
-            public override int GetHashCode((KnownCoinAlgorithm? algo, double difficulty) obj)
+            public override int GetHashCode((KnownCoinAlgorithm? algo, double difficulty, long time) obj)
                 => obj.algo.GetHashCode();
         }
     }

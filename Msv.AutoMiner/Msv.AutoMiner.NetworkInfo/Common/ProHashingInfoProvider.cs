@@ -1,5 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -27,7 +29,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) stats.difficulty,
-                Height = (long) stats.blocks
+                Height = (long) stats.blocks,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtcMsec((long)stats.last_indexed_block_time)
             };
         }
 

@@ -102,7 +102,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                         NetHashRate = ParsingHelper.ParseHashRate(
                             hashRateNodes[c].GetAttributeValue("data", hashRateNodes[c].InnerText)),
                         BlockTimeSeconds = CalculateBlockStats(a.Select(x => new BlockInfo(
-                            DateTimeHelper.TimestampFromIso8601DateTime(x.DateTime, m_ServerTimeZone),
+                            DateTimeHelper.TimestampFromIso8601(x.DateTime, m_ServerTimeZone),
                             x.Height)))?.MeanBlockTime,
                         BlockReward = ParsingHelper.ParseDouble(rewardElement.InnerText)
                     }));

@@ -1,6 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific

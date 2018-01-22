@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {

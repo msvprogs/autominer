@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -20,10 +22,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         {
             var mainPage = new HtmlDocument();
             mainPage.LoadHtml(m_WebClient.DownloadString(M_BaseUri));
-            var lastBlockLink = mainPage.DocumentNode.SelectSingleNode(
-                "//table[@class='table main-table']//td[1]/a");
 
-            var height = long.Parse(lastBlockLink.InnerText);
+            var lastBlockRow = mainPage.DocumentNode.SelectSingleNode("//table[@class='table main-table']//tr[2]");
             var hashrate = JsonConvert.DeserializeObject<JArray>(
                     m_WebClient.DownloadString(new Uri(M_BaseUri, "hashrate.json")))
                 .Last();
@@ -33,9 +33,13 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 
             return new CoinNetworkStatistics
             {
-                Height = height,
+                Height = long.Parse(lastBlockRow.SelectSingleNode("./td[1]/a").InnerText),
                 Difficulty = ((JArray) difficulty).Last.Value<double>(),
-                NetHashRate = ((JArray) hashrate).Last.Value<double>()
+                NetHashRate = ((JArray) hashrate).Last.Value<double>(),
+                LastBlockTime = DateTime.ParseExact(
+                    lastBlockRow.SelectSingleNode("./td[2]").InnerText,
+                    "dd.MM.yy HH:mm:ss",
+                    CultureInfo.InvariantCulture)
             };
         }
 

@@ -389,6 +389,7 @@ $(function () {
                 apiUrlEnabled = apiPoolNameEnabled = true;
                 urlDescriptionText = "Reference the API documentation of the pool (Links section). Example for yiimp.eu pool: <i>http://api.yiimp.eu/api</i>";
                 apiPoolNameDescriptionText = "Coin algorithm name. Reference 'Algo' column on the main page. Example: <i>skein</i>";
+                break;
             default:
                 break;
         }

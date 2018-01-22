@@ -5,6 +5,7 @@ using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Msv.AutoMiner.NetworkInfo.Specific;
 
 namespace Msv.AutoMiner.NetworkInfo

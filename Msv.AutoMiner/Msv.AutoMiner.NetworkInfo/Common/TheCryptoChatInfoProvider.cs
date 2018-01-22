@@ -1,5 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -22,6 +24,9 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         public override CoinNetworkStatistics GetNetworkStats()
         {
             var miningInfo = GetApiResponse("getmininginfo");
+            var bestBlockHash = GetApiResponse("getbestblockhash");
+            var bestBlockInfo = GetApiResponse("getblock&hash=" + (string)bestBlockHash.data);
+
             return new CoinNetworkStatistics
             {
                 BlockReward = GetBlockReward(miningInfo),
@@ -33,7 +38,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                     : miningInfo.data.networkhashps != null
                         ? (double) miningInfo.data.networkhashps
                         : 0),
-                Height = (long) miningInfo.data.blocks
+                Height = (long) miningInfo.data.blocks,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)bestBlockInfo.data.time)
             };
         }
 

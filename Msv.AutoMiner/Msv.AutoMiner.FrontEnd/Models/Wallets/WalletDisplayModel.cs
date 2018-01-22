@@ -16,6 +16,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Wallets
 
         public double? LastDayVolume { get; set; }
 
+        public bool IsInactive { get; set; }
+
         public double Available { get; set; }
 
         public double Blocked { get; set; }

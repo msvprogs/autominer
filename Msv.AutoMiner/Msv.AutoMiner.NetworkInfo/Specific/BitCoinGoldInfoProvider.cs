@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
@@ -19,6 +21,13 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         {
             dynamic stats = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(new Uri(M_BaseUri, "/ext/summary")));
+
+            var height = (long) stats.data[0].blockcount;
+            var lastBlockHash = m_WebClient.DownloadString(
+                new Uri(M_BaseUri, "/api/getblockhash?index=" + height));
+            dynamic lastBlockInfo = JsonConvert.DeserializeObject(m_WebClient.DownloadString(
+                new Uri(M_BaseUri, "/api/getblock?hash=" + lastBlockHash)));
+
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) stats.data[0].difficulty,
@@ -26,7 +35,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                     (string) stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
                     ? hashRate * 1e6
                     : 0,
-                Height = (long) stats.data[0].blockcount
+                Height = height,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)lastBlockInfo.time)
             };
         }
 

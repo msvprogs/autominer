@@ -1,6 +1,8 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
@@ -28,7 +30,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 BlockReward = double.Parse(blockRewardString) / 1e8,
                 BlockTimeSeconds = (double)statsJson.minutes_between_blocks * 60,
                 NetHashRate = (double)statsJson.hash_rate * 1e9,
-                Height = (long)statsJson.n_blocks_total
+                Height = (long)statsJson.n_blocks_total,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtcMsec((long)statsJson.timestamp)
             };
         }
 

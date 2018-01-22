@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
@@ -30,14 +31,21 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                     {
                         [HttpRequestHeader.Referer] = M_BaseUri.ToString()
                     }));
+
             var height = (long) mainInfo.block_number;
+            var bestBlockHash = m_WebClient.DownloadString(new Uri(M_BaseUri, "/api/getblockhash/" + height))
+                .Trim('"');
+            dynamic bestBlockInfo = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_BaseUri, "/api/getblock/" + bestBlockHash)));
+
             return new CoinNetworkStatistics
             {
                 Height = height,
                 BlockReward = GetBlockReward(height + 1),
                 Difficulty = (double) mainInfo.difficulty["proof-of-work"],
                 NetHashRate = ParsingHelper.ParseHashRate(
-                    string.Join(" ", (string) mainInfo.rate, (string) mainInfo.rate_unit))
+                    string.Join(" ", (string) mainInfo.rate, (string) mainInfo.rate_unit)),
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)bestBlockInfo.time)
             };
         }
 

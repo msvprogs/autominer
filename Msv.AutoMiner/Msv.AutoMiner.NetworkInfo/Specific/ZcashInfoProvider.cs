@@ -1,5 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
@@ -19,12 +21,15 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         {
             dynamic networkInfo = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(new Uri(M_BaseUri, "/v2/mainnet/network")));
+            dynamic lastBlockInfo = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_BaseUri, "/v2/mainnet/blocks/" + (string) networkInfo.blockHash)));
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) networkInfo.difficulty,
                 NetHashRate = (long) networkInfo.hashrate,
                 BlockTimeSeconds = (double) networkInfo.meanBlockTime,
-                Height = (long) networkInfo.blockNumber
+                Height = (long) networkInfo.blockNumber,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)lastBlockInfo.timestamp)
             };
         }
         

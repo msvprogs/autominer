@@ -1,5 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -31,7 +33,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 BlockReward = (double) json.reward,
                 Difficulty = (double) json.difficulty,
                 NetHashRate = (long) json.instantHashrate,
-                Height = (long) json.height
+                Height = (long) json.height,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long) json.timestamp)
             };
         }
 

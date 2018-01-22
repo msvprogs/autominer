@@ -1,4 +1,6 @@
-﻿namespace Msv.AutoMiner.NetworkInfo
+﻿using System;
+
+namespace Msv.AutoMiner.NetworkInfo.Data
 {
     public class CoinNetworkStatistics
     {
@@ -9,5 +11,6 @@
         public double? BlockReward { get; set; }
         public double? MoneySupply { get; set; }
         public int? MasternodeCount { get; set; }
+        public DateTime? LastBlockTime { get; set; }
     }
 }

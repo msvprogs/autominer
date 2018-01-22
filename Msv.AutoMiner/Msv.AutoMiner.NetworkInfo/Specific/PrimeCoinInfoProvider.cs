@@ -1,5 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
@@ -20,7 +22,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
             {
                 Difficulty = difficulty,
                 BlockReward = Math.Floor(99900 / (difficulty * difficulty)) / 100,
-                Height = (long) json.height
+                Height = (long) json.height,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)json.time)
             };
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
@@ -22,6 +23,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 NetHashRate = (long) json.hash_rate,
                 BlockReward = (double) json.block_reward,
                 Height = (long) json.block_height
+                // TODO: last block time
             };
         }
 

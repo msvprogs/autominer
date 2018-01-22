@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.NetworkInfo.Data;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
@@ -34,6 +36,12 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
             lastBlockDocument.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, $"/block/{height}")));
             var reward = lastBlockDocument.DocumentNode.SelectSingleNode(
                 ".//dt[text()='Miner Reward']/following-sibling::dd").InnerText.Trim();
+            var lastBlockTime = DateTimeHelper.FromIso8601(string.Join(" ", lastBlockDocument.DocumentNode
+                .SelectSingleNode(".//dd[@class='timestamp']/span")
+                .GetAttributeValue("data-original-title", "")
+                .Trim()
+                .Split()
+                .Take(2)));
 
             return new CoinNetworkStatistics
             {
@@ -41,7 +49,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 NetHashRate = ParsingHelper.ParseHashRate(hashrate),
                 Height = height,
                 BlockTimeSeconds = ParsingHelper.ParseValueWithUnits(blockTime),
-                BlockReward = ParsingHelper.ParseValueWithUnits(reward)
+                BlockReward = ParsingHelper.ParseValueWithUnits(reward),
+                LastBlockTime = lastBlockTime
             };
         }
 

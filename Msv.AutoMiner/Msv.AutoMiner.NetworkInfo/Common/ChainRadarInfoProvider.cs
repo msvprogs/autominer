@@ -37,7 +37,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 blocksPage.DocumentNode.SelectNodes("//tbody[@id='blocks-tbody']/tr");
             var blocks = blocksSection
                 .Select(x => new BlockInfo(
-                    DateTimeHelper.TimestampFromIso8601DateTime(
+                    DateTimeHelper.TimestampFromIso8601(
                         x.SelectSingleNode(".//td[2]").InnerText),
                     long.Parse(x.SelectSingleNode(".//td[1]/a").InnerText)))
                 .ToArray();
@@ -46,7 +46,11 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 BlockTimeSeconds = CalculateBlockStats(blocks)?.MeanBlockTime,
                 Height = blocks.Max(x => x.Height),
                 Difficulty = ParsingHelper.ParseDouble(difficultySection.InnerText),
-                NetHashRate = ParsingHelper.ParseHashRate(hashrateSection.InnerText)
+                NetHashRate = ParsingHelper.ParseHashRate(hashrateSection.InnerText),
+                LastBlockTime = blocks.OrderByDescending(x => x.Height)
+                    .Select(x => (DateTime?)DateTimeHelper.ToDateTimeUtc(x.Timestamp))
+                    .DefaultIfEmpty(null)
+                    .First()
             };
         }
 

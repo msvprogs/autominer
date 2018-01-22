@@ -6,16 +6,21 @@ using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.NetworkInfo;
+using Msv.AutoMiner.NetworkInfo.Data;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
 {
     public class NetworkInfoMonitor : MonitorBase
     {       
         private const int ProviderParallelismDegree = 6;
+
+        private static readonly TimeSpan M_MaxLastBlockPastDifference = TimeSpan.FromHours(3);
+        private static readonly TimeSpan M_MaxLastBlockFutureDifference = TimeSpan.FromMinutes(15);
 
         private readonly IBlockRewardCalculator m_RewardCalculator;
         private readonly ICoinNetworkInfoProvider m_StoredInfoProvider;
@@ -73,6 +78,11 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                                 result.BlockReward = reward;
                         }
                         LogResults(x, result, previousInfos.TryGetValue(x.Id, new CoinNetworkInfo()));
+                        if (result.LastBlockTime.HasValue
+                            && (DateTime.UtcNow - result.LastBlockTime.Value > M_MaxLastBlockPastDifference
+                            || result.LastBlockTime.Value - DateTime.UtcNow > M_MaxLastBlockFutureDifference))
+                            throw new ExternalDataUnavailableException(
+                                $"Provider blockchain is possibly out of sync: last block time is {result.LastBlockTime:R}, current time is {DateTime.UtcNow:R}");
                         return (coin: x, result);
                     }
                     catch (Exception ex)
@@ -108,6 +118,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             if (current.BlockReward != null)
                 networkInfoBuilder.Append($", Current Block Reward: {current.BlockReward:F4}");
             networkInfoBuilder.Append($", Current Blockchain Height: {current.Height}");
+            if (current.LastBlockTime != null)
+                networkInfoBuilder.Append($", Last Block Time: {current.LastBlockTime.Value:R}");
             Log.Info(networkInfoBuilder.ToString());
         }
 

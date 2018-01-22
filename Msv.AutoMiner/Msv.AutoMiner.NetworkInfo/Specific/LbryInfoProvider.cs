@@ -3,6 +3,7 @@ using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
 // ReSharper disable ArgumentsStyleLiteral
@@ -22,10 +23,13 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic stats = JsonConvert.DeserializeObject(m_WebClient.DownloadString(
-                new Uri(M_BaseUri, "/api/v1/status")));
+            dynamic stats = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_BaseUri, "/api/v1/status")));
             if (!(bool) stats.success)
                 throw new ExternalDataUnavailableException();
+
+            dynamic recentBlocks = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_BaseUri, "/api/v1/recentblocks")));
 
             var height = (long) stats.status.height;
             return new CoinNetworkStatistics
@@ -33,7 +37,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 Difficulty = ParsingHelper.ParseDouble((string)stats.status.difficulty),
                 Height = height,
                 BlockReward = CalculateBlockReward(height),
-                NetHashRate = ParsingHelper.ParseHashRate((string)stats.status.hashrate)
+                NetHashRate = ParsingHelper.ParseHashRate((string)stats.status.hashrate),
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)recentBlocks.blocks[0].BlockTime)
             };
         }
 

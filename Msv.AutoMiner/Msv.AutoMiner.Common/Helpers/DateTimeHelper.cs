@@ -37,8 +37,16 @@ namespace Msv.AutoMiner.Common.Helpers
         public static DateTime Normalize(DateTime dateTime)
             => new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second);
 
-        public static long TimestampFromIso8601DateTime(string dateTimeStr, TimeZoneInfo timeZone = null)
-            => TimestampFromKnownStringFormat(dateTimeStr, "yyyy-MM-dd HH:mm:ss", timeZone);
+        public static long TimestampFromIso8601(string dateTimeStr, TimeZoneInfo timeZone = null)
+            => ToTimestamp(FromIso8601(dateTimeStr), timeZone);
+
+        /// <summary>
+        /// Converts datetime in the ISO 8601 format (yyyy-MM-dd HH:mm:ss) to DateTime value.
+        /// </summary>
+        /// <param name="dateTimeStr">Datetime string in the ISO 8601 format (yyyy-MM-dd HH:mm:ss)</param>
+        /// <returns>Converted DateTime value</returns>
+        public static DateTime FromIso8601(string dateTimeStr)
+            => FromKnownStringFormat(dateTimeStr, "yyyy-MM-dd HH:mm:ss");
 
         public static long TimestampFromRussianDateTime(string dateTimeStr, TimeZoneInfo timeZone = null)
             => TimestampFromKnownStringFormat(dateTimeStr, "dd.MM.yyyy HH:mm:ss", timeZone);
@@ -74,8 +82,10 @@ namespace Msv.AutoMiner.Common.Helpers
             return $"{relativeTimeString} {postfix}";
         }
 
+        private static DateTime FromKnownStringFormat(string dateTimeStr, string format)
+            => DateTime.ParseExact(dateTimeStr, format, CultureInfo.InvariantCulture);
+
         private static long TimestampFromKnownStringFormat(string dateTimeStr, string format, TimeZoneInfo timeZone = null)
-            => ToTimestamp(DateTime.ParseExact(dateTimeStr, format, CultureInfo.InvariantCulture),
-                timeZone ?? TimeZoneInfo.Utc);
+            => ToTimestamp(FromKnownStringFormat(dateTimeStr, format), timeZone ?? TimeZoneInfo.Utc);
     }
 }
