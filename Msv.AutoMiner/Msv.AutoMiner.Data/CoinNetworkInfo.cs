@@ -19,5 +19,7 @@ namespace Msv.AutoMiner.Data
         public double BlockTimeSeconds { get; set; }
 
         public long Height { get; set; }
+
+        public DateTime? LastBlockTime { get; set; }
     }
 }

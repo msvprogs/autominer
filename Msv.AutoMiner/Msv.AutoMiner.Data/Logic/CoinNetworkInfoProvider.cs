@@ -39,7 +39,7 @@ namespace Msv.AutoMiner.Data.Logic
                     .Include(x => x.Coin)
                     .Include(x => x.Coin.Algorithm)
                     .FromSql(@"
-SELECT source.CoinId, source.Created, source.BlockReward, source.BlockTimeSeconds, aggregated.AvgDifficulty AS Difficulty, source.Height, source.NetHashRate
+SELECT source.CoinId, source.Created, source.BlockReward, source.BlockTimeSeconds, aggregated.AvgDifficulty AS Difficulty, source.Height, source.NetHashRate, source.LastBlockTime
   FROM CoinNetworkInfos source
   JOIN (SELECT CoinId, AVG(Difficulty) AS AvgDifficulty FROM CoinNetworkInfos
     WHERE Created > @p0

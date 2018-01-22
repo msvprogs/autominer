@@ -12,6 +12,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
     public class MinexCoinInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_BaseUri = new Uri("https://minexexplorer.com");
+        private static readonly TimeZoneInfo M_ServerTimeZone =
+            TimeZoneInfo.CreateCustomTimeZone("GMT+2", TimeSpan.FromHours(2), "GMT+2", "GMT+2");
 
         private readonly IWebClient m_WebClient;
 
@@ -36,10 +38,12 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 Height = long.Parse(lastBlockRow.SelectSingleNode("./td[1]/a").InnerText),
                 Difficulty = ((JArray) difficulty).Last.Value<double>(),
                 NetHashRate = ((JArray) hashrate).Last.Value<double>(),
-                LastBlockTime = DateTime.ParseExact(
-                    lastBlockRow.SelectSingleNode("./td[2]").InnerText,
-                    "dd.MM.yy HH:mm:ss",
-                    CultureInfo.InvariantCulture)
+                LastBlockTime = TimeZoneInfo.ConvertTimeToUtc(
+                    DateTime.ParseExact(
+                        lastBlockRow.SelectSingleNode("./td[2]").InnerText,
+                        "dd.MM.yy HH:mm:ss",
+                        CultureInfo.InvariantCulture),
+                    M_ServerTimeZone)
             };
         }
 

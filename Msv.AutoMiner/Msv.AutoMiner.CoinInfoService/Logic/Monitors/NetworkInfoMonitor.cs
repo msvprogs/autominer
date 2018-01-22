@@ -102,7 +102,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                                        ?? 0,
                     Difficulty = x.result.Difficulty.ZeroIfNaN(),
                     Height = x.result.Height,
-                    NetHashRate = x.result.NetHashRate.ZeroIfNaN()
+                    NetHashRate = x.result.NetHashRate.ZeroIfNaN(),
+                    LastBlockTime = x.result.LastBlockTime
                 })
                 .ForAll(x => m_Storage.StoreNetworkInfo(x));
         }

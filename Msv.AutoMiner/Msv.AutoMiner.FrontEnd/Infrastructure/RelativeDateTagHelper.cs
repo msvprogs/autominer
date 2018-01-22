@@ -17,7 +17,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             output.Content.Clear();
             if (AbsoluteDate == null)
             {
-                output.Content.SetContent("unavailable");
+                output.Content.SetContent("N/A");
                 return;
             }
             output.Attributes.SetAttribute("title", $"{AbsoluteDate.Value:yyyy-MM-dd HH:mm:ss} GMT");

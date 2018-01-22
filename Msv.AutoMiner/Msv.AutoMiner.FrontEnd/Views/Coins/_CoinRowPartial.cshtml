@@ -29,7 +29,13 @@
     </td>
     <td>@Model.Symbol</td>
     <td>@Model.Algorithm.Name</td>
-    <td>@Model.Height</td>
+    <td>
+        @Model.Height
+        @if (Model.LastBlockTime != null)
+        {
+            <div class="secondary-info">Last block: <span msv-absolute-date="@Model.LastBlockTime"></span></div>
+        }
+    </td>
     <td>
         @(Model.Difficulty > 1e10 ? Model.Difficulty.ToString("E") : Model.Difficulty.ToString("0.###"))
         <div class="small space-no-wrap">

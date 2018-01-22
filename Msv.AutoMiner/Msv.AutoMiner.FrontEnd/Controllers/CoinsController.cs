@@ -275,6 +275,7 @@ rpcallowip={allowIpMask}
                     DifficultyDelta = ConversionHelper.GetDiffRatio(x.previousNetwork.Difficulty, x.network.Difficulty),
                     NetHashRate = x.network.NetHashRate,
                     Height = x.network.Height,
+                    LastBlockTime = x.network.LastBlockTime,
                     Logo = x.coin.LogoImageBytes,
                     HasLocalNode = !string.IsNullOrEmpty(x.coin.NodeHost),
                     LastUpdated = x.network.Created != default
