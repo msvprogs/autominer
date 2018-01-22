@@ -61,8 +61,19 @@
         <table class="coin-price-table">
             @foreach (var price in Model.ExchangePrices.OrderByDescending(x => x.Price))
             {
-                <tr class="highlight-on-hover"
-                    title="Ask: @ConversionHelper.ToCryptoCurrencyValue(price.Ask), Bid: @ConversionHelper.ToCryptoCurrencyValue(price.Bid)">
+                var priceRowClass = "highlight-on-hover";
+                if (!price.IsActive)
+                {
+                    priceRowClass += " market-inactive";
+                }
+                if (price.Exchange == Model.MiningTargetExchange)
+                {
+                    priceRowClass += " mining-target-exchange";
+                }
+                var priceRowTitle = price.IsActive
+                    ? $"Ask: {ConversionHelper.ToCryptoCurrencyValue(price.Ask)}, Bid: {ConversionHelper.ToCryptoCurrencyValue(price.Bid)}"
+                    : "Market is inactive";
+                <tr class="@priceRowClass" title="@priceRowTitle">
                     <th>@price.Exchange:</th>
                     <td class="space-no-wrap">
                         @ConversionHelper.ToCryptoCurrencyValue(price.Price)

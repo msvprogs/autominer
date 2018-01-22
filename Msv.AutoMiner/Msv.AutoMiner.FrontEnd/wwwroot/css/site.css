@@ -173,6 +173,14 @@ div.console.error {
     background: #F6FF4D;
 }
 
+.mining-target-exchange {
+    background: #D9FCDA;
+}
+
+.market-inactive {
+    text-decoration: line-through;
+}
+
 .CodeMirror {
     border: 1px black solid;
     margin: 5px 1px;

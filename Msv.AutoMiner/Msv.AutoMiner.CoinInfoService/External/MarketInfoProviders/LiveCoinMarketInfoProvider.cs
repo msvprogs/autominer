@@ -2,6 +2,7 @@
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
@@ -42,17 +43,19 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     PairSymbols = ((string) x.symbol).Split('/'),
                     Data = x
                 })
+                .LeftOuterJoin(currencyInfos, x => x.PairSymbols[0], x => x.Symbol, 
+                    (x, y) => (values: x, currency: y))
                 .Select(x => new CurrencyMarketInfo
                 {
-                    IsActive = true,
-                    SourceSymbol = x.PairSymbols[0],
-                    TargetSymbol = x.PairSymbols[1],
-                    LastPrice = (double) x.Data.last,
-                    HighestBid = (double) x.Data.min_ask,
-                    LastDayHigh = (double) x.Data.high,
-                    LastDayLow = (double) x.Data.low,
-                    LastDayVolume = (double) x.Data.volume,
-                    LowestAsk = (double) x.Data.max_bid
+                    IsActive = x.currency == null || x.currency.IsActive,
+                    SourceSymbol = x.values.PairSymbols[0],
+                    TargetSymbol = x.values.PairSymbols[1],
+                    LastPrice = (double) x.values.Data.last,
+                    HighestBid = (double) x.values.Data.min_ask,
+                    LastDayHigh = (double) x.values.Data.high,
+                    LastDayLow = (double) x.values.Data.low,
+                    LastDayVolume = (double) x.values.Data.volume,
+                    LowestAsk = (double) x.values.Data.max_bid
                 })
                 .ToArray();
 

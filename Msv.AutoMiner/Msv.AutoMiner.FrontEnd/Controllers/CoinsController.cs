@@ -224,6 +224,13 @@ rpcallowip={allowIpMask}
             var yesterdayCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false, yesterday);
             var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
 
+            var miningExchanges = m_Context.Wallets
+                .AsNoTracking()
+                .Where(x => x.IsMiningTarget && x.Activity == ActivityState.Active)
+                .Where(x => x.ExchangeType != null)
+                .Select(x => new {x.CoinId, x.ExchangeType})
+                .ToArray();
+
             var coinQuery = m_Context.Coins
                 .Include(x => x.Algorithm)
                 .AsNoTracking()
@@ -240,6 +247,8 @@ rpcallowip={allowIpMask}
                     (x, y) => (x.coin, x.network, x.previousNetwork, value: y ?? new CoinValue()))
                 .LeftOuterJoin(yesterdayCoinValues, x => x.coin.Id, x => x.CurrencyId,
                     (x, y) => (x.coin, x.network, x.previousNetwork, x.value, previousValue: y ?? new CoinValue()))
+                .LeftOuterJoin(miningExchanges, x => x.coin.Id, x => x.CoinId,
+                    (x, y) => (x.coin, x.network, x.previousNetwork, x.value, x.previousValue, miningExchange: y))
                 .Select(x => new CoinDisplayModel
                 {
                     Id = x.coin.Id,
@@ -259,6 +268,7 @@ rpcallowip={allowIpMask}
                         .Do(y => y.current.PriceDelta = y.delta)
                         .Select(y => y.current)
                         .ToArray(),
+                    MiningTargetExchange = x.miningExchange?.ExchangeType,
                     Activity = x.coin.Activity,
                     BlockReward = x.network.BlockReward,
                     Difficulty = x.network.Difficulty,

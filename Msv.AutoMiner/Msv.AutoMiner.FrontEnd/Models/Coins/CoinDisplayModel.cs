@@ -23,5 +23,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public DateTime? LastUpdated { get; set; }
 
         public bool HasLocalNode { get; set; }
+
+        public ExchangeType? MiningTargetExchange { get; set; }
     }
 }

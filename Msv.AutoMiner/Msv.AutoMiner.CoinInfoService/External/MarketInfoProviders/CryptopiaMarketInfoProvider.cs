@@ -2,6 +2,7 @@
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
@@ -48,19 +49,22 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                         TradePairData = y
                     })
                 .Where(x => x.PairSymbols.Length > 1)
+                .LeftOuterJoin(currencyInfos, x => x.PairSymbols[0], x => x.Symbol, 
+                    (x, y) => (values: x, currency: y))
                 .Select(x => new CurrencyMarketInfo
                 {
-                    SourceSymbol = x.PairSymbols[0],
-                    TargetSymbol = x.PairSymbols[1],
-                    HighestBid = (double) x.MarketData.BidPrice,
-                    LowestAsk = (double) x.MarketData.AskPrice,
-                    LastPrice = (double) x.MarketData.LastPrice,
-                    LastDayLow = (double) x.MarketData.Low,
-                    LastDayHigh = (double) x.MarketData.High,
-                    LastDayVolume = (double) x.MarketData.Volume,
-                    BuyFeePercent = (double) x.TradePairData.TradeFee,
-                    SellFeePercent = (double)x.TradePairData.TradeFee,
-                    IsActive = (string)x.TradePairData.Status == "OK"
+                    SourceSymbol = x.values.PairSymbols[0],
+                    TargetSymbol = x.values.PairSymbols[1],
+                    HighestBid = (double) x.values.MarketData.BidPrice,
+                    LowestAsk = (double) x.values.MarketData.AskPrice,
+                    LastPrice = (double) x.values.MarketData.LastPrice,
+                    LastDayLow = (double) x.values.MarketData.Low,
+                    LastDayHigh = (double) x.values.MarketData.High,
+                    LastDayVolume = (double) x.values.MarketData.Volume,
+                    BuyFeePercent = (double) x.values.TradePairData.TradeFee,
+                    SellFeePercent = (double)x.values.TradePairData.TradeFee,
+                    IsActive = (x.currency == null || x.currency.IsActive)
+                               && (string)x.values.TradePairData.Status == "OK"
                 })
                 .ToArray();
 

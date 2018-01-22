@@ -14,5 +14,6 @@ namespace Msv.AutoMiner.Data.Logic
         public double Volume { get; set; }
         public double VolumeBtc => Volume * Price;
         public DateTime Updated { get; set; }
+        public bool IsActive { get; set; }
     }
 }

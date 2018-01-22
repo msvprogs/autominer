@@ -2,6 +2,7 @@
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -42,17 +43,20 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     Data = (dynamic) x.Value
                 })
                 .Where(x => x.PairSymbols.Length > 1)
+                .LeftOuterJoin(currencyInfos, x => x.PairSymbols[1], x => x.Symbol, 
+                    (x, y) => (values: x, currency: y))
                 .Select(x => new CurrencyMarketInfo
                 {
-                    SourceSymbol = x.PairSymbols[1],
-                    TargetSymbol = x.PairSymbols[0],
-                    IsActive = (int) x.Data.isFrozen == 0,
-                    HighestBid = (double) x.Data.highestBid,
-                    LowestAsk = (double) x.Data.lowestAsk,
-                    LastPrice = (double) x.Data.last,
-                    LastDayHigh = (double) x.Data.high24hr,
-                    LastDayLow = (double) x.Data.low24hr,
-                    LastDayVolume = (double) x.Data.quoteVolume,
+                    SourceSymbol = x.values.PairSymbols[1],
+                    TargetSymbol = x.values.PairSymbols[0],
+                    IsActive = (x.currency == null || x.currency.IsActive) 
+                               && (int) x.values.Data.isFrozen == 0,
+                    HighestBid = (double) x.values.Data.highestBid,
+                    LowestAsk = (double) x.values.Data.lowestAsk,
+                    LastPrice = (double) x.values.Data.last,
+                    LastDayHigh = (double) x.values.Data.high24hr,
+                    LastDayLow = (double) x.values.Data.low24hr,
+                    LastDayVolume = (double) x.values.Data.quoteVolume,
                     BuyFeePercent = ConversionFeePercent,
                     SellFeePercent = ConversionFeePercent
                 })
