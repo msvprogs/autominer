@@ -9,5 +9,8 @@
 
         public AutoMinerDbContext Create()
             => new AutoMinerDbContext(m_ConnectionString);
+
+        public AutoMinerDbContext CreateReadOnly()
+            => new AutoMinerDbContext(m_ConnectionString, true);
     }
 }

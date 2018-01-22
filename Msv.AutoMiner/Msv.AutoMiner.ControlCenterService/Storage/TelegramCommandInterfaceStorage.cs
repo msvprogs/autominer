@@ -32,18 +32,16 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public Dictionary<int, string> GetRigNames(int[] ids)
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Rigs
-                    .AsNoTracking()
                     .Where(x => ids.Contains(x.Id))
                     .ToDictionary(x => x.Id, x => x.Name);
         }
 
         public int[] GetRigIds(string[] names)
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Rigs
-                    .AsNoTracking()
                     .Where(x => names.Contains(x.Name))
                     .Select(x => x.Id)
                     .ToArray();
@@ -51,7 +49,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public Coin[] GetCoins()
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Coins
                     .Include(x => x.Algorithm)
                     .ToArray();

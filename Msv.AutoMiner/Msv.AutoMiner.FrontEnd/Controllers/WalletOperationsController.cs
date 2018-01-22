@@ -53,6 +53,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             IQueryable<WalletOperation> operations = m_Context.WalletOperations
                 .Include(x => x.Wallet)
                 .Include(x => x.Wallet.Coin)
+                .Include(x => x.Wallet.Coin.Algorithm)
                 .AsNoTracking()
                 .OrderByDescending(x => x.DateTime);
             if (wallets != null)

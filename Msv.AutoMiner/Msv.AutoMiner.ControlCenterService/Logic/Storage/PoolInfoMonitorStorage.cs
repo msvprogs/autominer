@@ -19,12 +19,11 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 
         public Pool[] GetActivePools()
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Pools
                     .Include(x => x.Coin)
                     .Include(x => x.Coin.Algorithm)
                     .Include(x => x.Coin.Wallets)
-                    .AsNoTracking()
                     .Where(x => x.Activity != ActivityState.Deleted)
                     .Where(x => x.Coin.Activity != ActivityState.Deleted)
                     .ToArray();
@@ -76,10 +75,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (externalIds == null)
                 throw new ArgumentNullException(nameof(externalIds));
 
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
             {
                 return context.PoolPayments
-                    .AsNoTracking()
                     .Where(x => x.DateTime >= startDate && externalIds.Contains(x.ExternalId))
                     .ToArray();
             }
@@ -90,10 +88,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (addresses == null)
                 throw new ArgumentNullException(nameof(addresses));
 
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
             {
                 return context.Wallets
-                    .AsNoTracking()
                     .Where(x => addresses.Contains(x.Address))
                     .Select(x => new { x.Address, x.Id })
                     .AsEnumerable()
@@ -104,7 +101,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 
         public Wallet GetBitCoinMiningTarget()
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
         }
     }

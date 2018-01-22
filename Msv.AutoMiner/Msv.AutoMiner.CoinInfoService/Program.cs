@@ -10,7 +10,7 @@ using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Log;
-using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.NetworkInfo;
 using Msv.HttpTools;
 using NLog;
@@ -36,20 +36,22 @@ namespace Msv.AutoMiner.CoinInfoService
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {
-                DbInitializer.InitializeIfNotExist(scope.ServiceProvider.GetRequiredService<AutoMinerDbContext>());
+                using (var context = scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>().Create())
+                    DbInitializer.InitializeIfNotExist(context);
 
                 using (new FiatValueMonitor(
                     new FiatValueProviderFactory(new LoggedWebClient()),
-                    () => scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))
+                    scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))
                 using (new MarketInfoMonitor(
                     new MarketInfoProviderFactory(new LoggedWebClient()),
-                    () => scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
+                    scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
                 using (new NetworkInfoMonitor(
-                    new JsBlockRewardCalculator(), 
+                    new JsBlockRewardCalculator(),
+                    scope.ServiceProvider.GetRequiredService<ICoinNetworkInfoProvider>(),
                     new NetworkInfoProviderFactory(
                         new LoggedWebClient(),
                         new ProxiedLoggedWebClient(new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
-                    () => scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
+                    scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {
                     host.Run();
                 }

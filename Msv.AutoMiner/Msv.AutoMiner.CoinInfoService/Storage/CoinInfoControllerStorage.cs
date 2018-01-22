@@ -1,21 +1,20 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService.Storage
 {
     public class CoinInfoControllerStorage : ICoinInfoControllerStorage
     {
-        private readonly AutoMinerDbContext m_Context;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public CoinInfoControllerStorage(AutoMinerDbContext context)
+        public CoinInfoControllerStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
+
+        public CoinAlgorithm[] GetAlgorithms()
         {
-            m_Context = context;
+            using (var context = m_Factory.CreateReadOnly())
+                return context.CoinAlgorithms.ToArray();
         }
-
-        public async Task<CoinAlgorithm[]> GetAlgorithms()
-            => await m_Context.CoinAlgorithms
-                .AsNoTracking()
-                .ToArrayAsync();
     }
 }

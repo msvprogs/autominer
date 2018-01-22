@@ -17,10 +17,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 
         public Wallet[] GetActiveWallets()
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Wallets
                     .Include(x => x.Coin)
-                    .AsNoTracking()
                     .Where(x => x.Activity != ActivityState.Deleted)
                     .Where(x => x.ExchangeType == null || x.Exchange.Activity == ActivityState.Active)
                     .ToArray();
@@ -43,9 +42,8 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             if (externalIds == null)
                 throw new ArgumentNullException(nameof(externalIds));
 
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.WalletOperations
-                    .AsNoTracking()
                     .Where(x => x.DateTime >= startDate && externalIds.Contains(x.ExternalId))
                     .ToArray();
         }

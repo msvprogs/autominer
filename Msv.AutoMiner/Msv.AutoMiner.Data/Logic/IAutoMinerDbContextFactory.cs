@@ -3,5 +3,6 @@
     public interface IAutoMinerDbContextFactory
     {
         AutoMinerDbContext Create();
+        AutoMinerDbContext CreateReadOnly();
     }
 }

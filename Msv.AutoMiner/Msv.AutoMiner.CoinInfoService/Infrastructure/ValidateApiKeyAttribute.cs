@@ -36,7 +36,7 @@ namespace Msv.AutoMiner.CoinInfoService.Infrastructure
                     context.Result = new ForbidResult();
                     return;
                 }
-                var apiKey = await m_Storage.GetApiKey(apiKeyString);
+                var apiKey = m_Storage.GetApiKey(apiKeyString);
                 if (apiKey == null
                     || apiKey.Type != m_Type
                     || apiKey.UsagesLeft <= 0
@@ -48,7 +48,7 @@ namespace Msv.AutoMiner.CoinInfoService.Infrastructure
                 if (apiKey.UsagesLeft != null && m_DecreaseCounter)
                 {
                     apiKey.UsagesLeft--;
-                    await m_Storage.SaveApiKey(apiKey);
+                    m_Storage.SaveApiKey(apiKey);
                 }
                 await next();
             }

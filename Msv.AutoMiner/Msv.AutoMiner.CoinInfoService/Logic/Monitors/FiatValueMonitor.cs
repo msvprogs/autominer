@@ -12,21 +12,20 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
     public class FiatValueMonitor : MonitorBase
     {
         private readonly IFiatValueProviderFactory m_ProviderFactory;
-        private readonly Func<IFiatValueMonitorStorage> m_StorageGetter;
+        private readonly IFiatValueMonitorStorage m_Storage;
 
-        public FiatValueMonitor(IFiatValueProviderFactory providerFactory, Func<IFiatValueMonitorStorage> storageGetter)
-            : base(TimeSpan.FromMinutes(5))
+        public FiatValueMonitor(IFiatValueProviderFactory providerFactory, IFiatValueMonitorStorage storage)
+            : base(TimeSpan.FromMinutes(10))
         {
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
-            m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         protected override void DoWork()
         {
-            var storage = m_StorageGetter.Invoke();
-            var coins = storage.GetCoins()
+            var coins = m_Storage.GetCoins()
                 .ToLookup(x => x.Symbol);
-            var fiatCurrencies = storage.GetFiatCurrencies()
+            var fiatCurrencies = m_Storage.GetFiatCurrencies()
                 .ToDictionary(x => x.Symbol);
             var now = DateTime.UtcNow;
             var values = EnumHelper.GetValues<CoinFiatValueSource>()
@@ -55,12 +54,12 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                         CoinId = y.coinId,
                         FiatCurrencyId = y.fiatId,
                         Source = x.type,
-                        Value = y.value.Value,
+                        Value = y.value.Value.ZeroIfNaN(),
                         DateTime = now
                     })
                     .Where(y => y.Value > 0))
                 .ToArray();
-            storage.StoreValues(values);
+            m_Storage.StoreValues(values);
         }
 
         private (CoinFiatValueSource type, CurrencyFiatValue[] values) ProcessSource(

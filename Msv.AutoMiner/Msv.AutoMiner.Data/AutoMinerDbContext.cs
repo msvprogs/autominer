@@ -5,10 +5,12 @@ namespace Msv.AutoMiner.Data
     public class AutoMinerDbContext : DbContext
     {
         private readonly string m_ConnectionString;
+        private readonly bool m_ReadOnly;
 
-        public AutoMinerDbContext(string connectionString)
+        public AutoMinerDbContext(string connectionString, bool readOnly = false)
         {
             m_ConnectionString = connectionString;
+            m_ReadOnly = readOnly;
         }
 
         public AutoMinerDbContext(DbContextOptions<AutoMinerDbContext> options)
@@ -44,6 +46,8 @@ namespace Msv.AutoMiner.Data
 
             if (m_ConnectionString != null)
                 optionsBuilder.UseMySql(m_ConnectionString, y => y.CommandTimeout(30));
+            if (m_ReadOnly)
+                optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

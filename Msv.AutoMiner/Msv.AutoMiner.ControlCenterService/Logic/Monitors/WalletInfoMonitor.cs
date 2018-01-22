@@ -96,10 +96,10 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Select(x => new WalletBalance
                 {
                     WalletId = x.wallet.Id,
-                    Balance = x.result.Available,
-                    BlockedBalance = x.result.Blocked,
+                    Balance = x.result.Available.ZeroIfNaN(),
+                    BlockedBalance = x.result.Blocked.ZeroIfNaN(),
                     DateTime = now,
-                    UnconfirmedBalance = x.result.Unconfirmed
+                    UnconfirmedBalance = x.result.Unconfirmed.ZeroIfNaN()
                 })
                 .ToArray();
             m_Storage.StoreWalletBalances(balances);
@@ -113,7 +113,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 {
                     DateTime = x.operation.DateTime,
                     ExternalId = x.operation.ExternalId ?? x.operation.DateTime.Ticks.ToString(),
-                    Amount = x.operation.Amount,
+                    Amount = x.operation.Amount.ZeroIfNaN(),
                     TargetAddress = x.operation.Address,
                     Transaction = x.operation.Transaction,
                     WalletId = x.wallet.Id

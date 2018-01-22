@@ -8,50 +8,47 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.NetworkInfo;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
 {
     public class NetworkInfoMonitor : MonitorBase
-    {
-        private readonly IBlockRewardCalculator m_RewardCalculator;
+    {       
         private const int ProviderParallelismDegree = 6;
+
+        private readonly IBlockRewardCalculator m_RewardCalculator;
+        private readonly ICoinNetworkInfoProvider m_StoredInfoProvider;
         private readonly INetworkInfoProviderFactory m_ProviderFactory;
-        private readonly Func<INetworkInfoMonitorStorage> m_StorageGetter;
+        private readonly INetworkInfoMonitorStorage m_Storage;
 
         public NetworkInfoMonitor(
             IBlockRewardCalculator blockRewardCalculator,
+            ICoinNetworkInfoProvider storedInfoProvider,
             INetworkInfoProviderFactory providerFactory,
-            Func<INetworkInfoMonitorStorage> storageGetter) 
-            : base(TimeSpan.FromMinutes(10))
+            INetworkInfoMonitorStorage storage) 
+            : base(TimeSpan.FromMinutes(15))
         {
             m_RewardCalculator = blockRewardCalculator ?? throw new ArgumentNullException(nameof(blockRewardCalculator));
+            m_StoredInfoProvider = storedInfoProvider ?? throw new ArgumentNullException(nameof(storedInfoProvider));
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
-            m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         protected override void DoWork()
         {
-            var storage = m_StorageGetter.Invoke();
-            var coins = storage.GetCoins();
+            var coins = m_Storage.GetCoins();
             var multiProviderCoins = coins
                 .Where(x => x.NetworkInfoApiType == CoinNetworkInfoApiType.SpecialMulti)
                 .ToArray();
-
-            var previousInfos = storage.GetLastNetworkInfos()
-                .ToDictionary(x => x.CoinId);
-#if !DEBUG
-            if (previousInfos.Select(x => x.Value.Created)
-                .OrderByDescending(x => x)
-                .FirstOrDefault() > DateTime.UtcNow - Period)
-                return;
-#endif
 
             var multiProvider = m_ProviderFactory.CreateMulti(multiProviderCoins);
             var multiResults = multiProviderCoins.Any() 
                 ? multiProvider.GetMultiNetworkStats() 
                 : new Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>>();
 
+            var previousInfos = m_StoredInfoProvider.GetCurrentNetworkInfos(true)
+                .ToDictionary(x => x.CoinId);
             var now = DateTime.UtcNow;
             var random = new Random();
             coins.OrderBy(x => random.NextDouble())
@@ -89,13 +86,15 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     CoinId = x.coin.Id,
                     Created = now,
-                    BlockReward = x.result.BlockReward ?? 0,
-                    BlockTimeSeconds = x.coin.CanonicalBlockTimeSeconds ?? x.result.BlockTimeSeconds ?? 0,
-                    Difficulty = x.result.Difficulty,
+                    BlockReward = x.result.BlockReward.NullIfNaN() ?? 0,
+                    BlockTimeSeconds = x.coin.CanonicalBlockTimeSeconds.NullIfNaN()
+                                       ?? x.result.BlockTimeSeconds.NullIfNaN()
+                                       ?? 0,
+                    Difficulty = x.result.Difficulty.ZeroIfNaN(),
                     Height = x.result.Height,
-                    NetHashRate = x.result.NetHashRate
+                    NetHashRate = x.result.NetHashRate.ZeroIfNaN()
                 })
-                .ForAll(x => storage.StoreNetworkInfo(x));
+                .ForAll(x => m_Storage.StoreNetworkInfo(x));
         }
 
         private void LogResults(Coin coin, CoinNetworkStatistics current, CoinNetworkInfo previous)

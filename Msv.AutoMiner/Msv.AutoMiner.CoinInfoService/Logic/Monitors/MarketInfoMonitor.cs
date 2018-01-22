@@ -15,24 +15,23 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
         private const string BtcSymbol = "BTC";
 
         private readonly IMarketInfoProviderFactory m_ProviderFactory;
-        private readonly Func<IMarketInfoMonitorStorage> m_StorageGetter;
+        private readonly IMarketInfoMonitorStorage m_Storage;
 
-        public MarketInfoMonitor(IMarketInfoProviderFactory providerFactory, Func<IMarketInfoMonitorStorage> storageGetter) 
-            : base(TimeSpan.FromMinutes(5))
+        public MarketInfoMonitor(IMarketInfoProviderFactory providerFactory, IMarketInfoMonitorStorage storage) 
+            : base(TimeSpan.FromMinutes(10))
         {
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
-            m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
         protected override void DoWork()
         {
-            var storage = m_StorageGetter.Invoke();
-            var coins = storage.GetCoins()
+            var coins = m_Storage.GetCoins()
                 .ToLookup(x => x.Symbol, x => x.Id);
             var coinSymbols = coins.Select(x => x.Key).ToArray();
             var now = DateTime.UtcNow;
             var downloadedExchangeData = EnumHelper.GetValues<ExchangeType>()
-                .Join(storage.GetExchanges().Where(x => x.Activity == ActivityState.Active), x => x, x => x.Type, (x, y) => x)
+                .Join(m_Storage.GetExchanges().Where(x => x.Activity == ActivityState.Active), x => x, x => x.Type, (x, y) => x)
                 .Select(x => (type:x, provider: m_ProviderFactory.Create(x)))
                 .Select(x =>
                 {
@@ -60,8 +59,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                             CoinId = y.coinId,
                             Exchange = x.type,
                             DateTime = now,
-                            MinWithdrawAmount = y.coin.MinWithdrawAmount,
-                            WithdrawalFee = y.coin.WithdrawalFee
+                            MinWithdrawAmount = y.coin.MinWithdrawAmount.ZeroIfNaN(),
+                            WithdrawalFee = y.coin.WithdrawalFee.ZeroIfNaN()
                         }),
                     ExchangeMarketPrices = x.marketInfos
                         .Where(y => y.TargetSymbol == BtcSymbol)
@@ -71,22 +70,22 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                         {
                             ExchangeType = x.type,
                             IsActive = y.coin.IsActive,
-                            LowestAsk = y.coin.LowestAsk,
-                            HighestBid = y.coin.HighestBid,
-                            LastDayLow = y.coin.LastDayLow,
-                            LastDayHigh = y.coin.LastDayHigh,
-                            LastDayVolume = y.coin.LastDayVolume,
-                            LastPrice = y.coin.LastPrice,
+                            LowestAsk = y.coin.LowestAsk.ZeroIfNaN(),
+                            HighestBid = y.coin.HighestBid.ZeroIfNaN(),
+                            LastDayLow = y.coin.LastDayLow.ZeroIfNaN(),
+                            LastDayHigh = y.coin.LastDayHigh.ZeroIfNaN(),
+                            LastDayVolume = y.coin.LastDayVolume.ZeroIfNaN(),
+                            LastPrice = y.coin.LastPrice.ZeroIfNaN(),
                             SourceCoinId = y.coinId,
                             TargetCoinId = coins[y.coin.TargetSymbol].First(),
                             DateTime = now,
-                            SellFeePercent = y.coin.SellFeePercent,
-                            BuyFeePercent = y.coin.BuyFeePercent
+                            SellFeePercent = y.coin.SellFeePercent.ZeroIfNaN(),
+                            BuyFeePercent = y.coin.BuyFeePercent.ZeroIfNaN()
                         })
                 })
                 .ToArray();
-            storage.StoreExchangeCoins(exchangeCurrenciesData.SelectMany(x => x.ExchangeCoins).ToArray());
-            storage.StoreMarketPrices(exchangeCurrenciesData.SelectMany(x => x.ExchangeMarketPrices).ToArray());
+            m_Storage.StoreExchangeCoins(exchangeCurrenciesData.SelectMany(x => x.ExchangeCoins).ToArray());
+            m_Storage.StoreMarketPrices(exchangeCurrenciesData.SelectMany(x => x.ExchangeMarketPrices).ToArray());
         }
 
         private (ExchangeType type, ExchangeCurrencyInfo[] currencies, CurrencyMarketInfo[] marketInfos) ProcessExchange(

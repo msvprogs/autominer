@@ -7,7 +7,7 @@ namespace Msv.AutoMiner.Common
     public static class Extensions
     {
         public static TValue TryGetValue<TValue, TKey>(
-            this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue))
+            this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default)
         {
             if (dictionary == null)
                 throw new ArgumentNullException(nameof(dictionary));
@@ -94,5 +94,13 @@ namespace Msv.AutoMiner.Common
                 ? source.Substring(0, maxLength) + "..."
                 : source;
         }
+
+        public static double ZeroIfNaN(this double source)
+            => double.IsNaN(source) ? 0 : source;
+
+        public static double? NullIfNaN(this double? source)
+            => source != null && double.IsNaN(source.Value)
+                ? null
+                : source;
     }
 }

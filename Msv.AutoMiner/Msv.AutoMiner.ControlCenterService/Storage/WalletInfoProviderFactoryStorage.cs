@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
@@ -16,8 +15,8 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public Exchange GetExchange(ExchangeType type)
         {
-            using (var context = m_Factory.Create())
-                return context.Exchanges.AsNoTracking().FirstOrDefault(x => x.Type == type);
+            using (var context = m_Factory.CreateReadOnly())
+                return context.Exchanges.FirstOrDefault(x => x.Type == type);
         }
     }
 }

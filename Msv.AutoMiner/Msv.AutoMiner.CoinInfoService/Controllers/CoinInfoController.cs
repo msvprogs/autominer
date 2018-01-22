@@ -39,17 +39,15 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
 
         [HttpGet("getAlgorithms")]
         //[ValidateApiKey(ApiKeyType.CoinInfoService, false)]
-        public async Task<AlgorithmInfo[]> GetAlgorithms()
-        {
-            return (await m_Storage.GetAlgorithms())
+        public Task<AlgorithmInfo[]> GetAlgorithms() 
+            => Task.FromResult(m_Storage.GetAlgorithms()
                 .Select(x => new AlgorithmInfo
                 {
                     Id = x.Id,
                     KnownValue = x.KnownValue,
                     Name = x.Name
                 })
-                .ToArray();
-        }
+                .ToArray());
 
         [HttpPost("getProfitabilities")]
         //[ValidateApiKey(ApiKeyType.CoinInfoService)]

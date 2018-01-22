@@ -1,23 +1,29 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService.Storage
 {
     public class ValidateApiKeyFilterStorage : IValidateApiKeyFilterStorage
     {
-        private readonly AutoMinerDbContext m_Context;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public ValidateApiKeyFilterStorage(AutoMinerDbContext context) 
-            => m_Context = context;
+        public ValidateApiKeyFilterStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
 
-        public Task<ApiKey> GetApiKey(string key) 
-            => m_Context.ApiKeys.FirstOrDefaultAsync(x => x.Key == key);
-
-        public async Task SaveApiKey(ApiKey key)
+        public ApiKey GetApiKey(string key)
         {
-            m_Context.Attach(key);
-            await m_Context.SaveChangesAsync();
+            using (var context = m_Factory.CreateReadOnly())
+                return context.ApiKeys.FirstOrDefault(x => x.Key == key);
+        }
+
+        public void SaveApiKey(ApiKey key)
+        {
+            using (var context = m_Factory.Create())
+            {
+                context.Attach(key);
+                context.SaveChanges();
+            }
         }
     }
 }

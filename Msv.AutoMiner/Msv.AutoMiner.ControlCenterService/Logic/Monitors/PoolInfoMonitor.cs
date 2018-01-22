@@ -13,6 +13,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
     public class PoolInfoMonitor : MonitorBase
     {
         private const int ParallelismDegree = 6;
+
         private static readonly PoolApiProtocol[] M_MultiPoolProtocols = {PoolApiProtocol.Yiimp};
         private static readonly TimeSpan M_LastOperationsPeriod = TimeSpan.FromDays(7);
 
@@ -93,7 +94,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Select(x => new PoolAccountState
                 {
                     DateTime = now,
-                    ConfirmedBalance = x.info.AccountInfo.ConfirmedBalance,
+                    ConfirmedBalance = x.info.AccountInfo.ConfirmedBalance.ZeroIfNaN(),
                     HashRate = x.info.AccountInfo.HashRate,
                     InvalidShares = x.info.AccountInfo.InvalidShares,
                     ValidShares = x.info.AccountInfo.ValidShares,
@@ -101,7 +102,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     PoolId = x.pool.Id,
                     PoolLastBlock = x.info.State.LastBlock,
                     PoolWorkers = x.info.State.TotalWorkers,
-                    UnconfirmedBalance = x.info.AccountInfo.UnconfirmedBalance
+                    UnconfirmedBalance = x.info.AccountInfo.UnconfirmedBalance.ZeroIfNaN()
                 })
                 .ToArray());
 
@@ -114,7 +115,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                     .Select(y => new PoolPayment
                     {
                         ExternalId = y.ExternalId ?? y.DateTime.Ticks.ToString(),
-                        Amount = y.Amount,
+                        Amount = y.Amount.ZeroIfNaN(),
                         DateTime = y.DateTime.AddHours(-x.pool.TimeZoneCorrectionHours),
                         PoolId = x.pool.Id,
                         Transaction = y.Transaction,

@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common.Infrastructure;
-using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService
@@ -26,23 +23,22 @@ namespace Msv.AutoMiner.CoinInfoService
         {
             services.AddEntityFrameworkMySql();
 
-            services.AddDbContext<AutoMinerDbContext>(
-                x => x.UseMySql(Configuration.GetConnectionString("AutoMinerDb"), y => y.CommandTimeout(30)),
-                ServiceLifetime.Transient);
+            services.AddSingleton<IAutoMinerDbContextFactory>(
+                x => new AutoMinerDbContextFactory(Configuration.GetConnectionString("AutoMinerDb")));
 
             services.AddMvc();
 
             services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
 
-            services.AddTransient<ICoinInfoControllerStorage, CoinInfoControllerStorage>();
-            services.AddTransient<IValidateApiKeyFilterStorage, ValidateApiKeyFilterStorage>();
-            services.AddTransient<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
-            services.AddTransient<ICoinValueProvider, CoinValueProvider>();
+            services.AddSingleton<ICoinInfoControllerStorage, CoinInfoControllerStorage>();
+            services.AddSingleton<IValidateApiKeyFilterStorage, ValidateApiKeyFilterStorage>();
+            services.AddSingleton<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
+            services.AddSingleton<ICoinValueProvider, CoinValueProvider>();
 
-            services.AddTransient<IFiatValueMonitorStorage, FiatValueMonitorStorage>();
-            services.AddTransient<IMarketInfoMonitorStorage, MarketInfoMonitorStorage>();
-            services.AddTransient<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
-            services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
+            services.AddSingleton<IFiatValueMonitorStorage, FiatValueMonitorStorage>();
+            services.AddSingleton<IMarketInfoMonitorStorage, MarketInfoMonitorStorage>();
+            services.AddSingleton<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
+            services.AddSingleton<IStoredFiatValueProvider, StoredFiatValueProvider>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

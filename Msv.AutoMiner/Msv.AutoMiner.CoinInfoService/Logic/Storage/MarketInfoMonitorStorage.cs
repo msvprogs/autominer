@@ -3,26 +3,29 @@ using System.Linq;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
 {
     public class MarketInfoMonitorStorage : IMarketInfoMonitorStorage
     {
-        private readonly AutoMinerDbContext m_Context;
+        private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public MarketInfoMonitorStorage(AutoMinerDbContext context)
-            => m_Context = context;
+        public MarketInfoMonitorStorage(IAutoMinerDbContextFactory factory)
+            => m_Factory = factory;
 
         public Coin[] GetCoins()
         {
-            return m_Context.Coins
-                .Where(x => x.Activity != ActivityState.Deleted)
-                .ToArray();
+            using (var context = m_Factory.CreateReadOnly())
+                return context.Coins
+                    .Where(x => x.Activity != ActivityState.Deleted)
+                    .ToArray();
         }
 
         public Exchange[] GetExchanges()
         {
-            return m_Context.Exchanges.ToArray();
+            using (var context = m_Factory.CreateReadOnly())
+                return context.Exchanges.ToArray();
         }
 
         public void StoreExchangeCoins(ExchangeCoin[] coins)
@@ -30,14 +33,17 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
             if (coins == null)
                 throw new ArgumentNullException(nameof(coins));
 
-            var exchanges = coins.Select(x => x.Exchange)
-                .Distinct()
-                .ToArray();
-            m_Context.ExchangeCoins
-                .RemoveRange(m_Context.ExchangeCoins.Where(x => exchanges.Contains(x.Exchange)).ToArray());
-            m_Context.SaveChanges();
-            m_Context.ExchangeCoins.AddRange(coins);
-            m_Context.SaveChanges();
+            using (var context = m_Factory.Create())
+            {
+                var exchanges = coins.Select(x => x.Exchange)
+                    .Distinct()
+                    .ToArray();
+                context.ExchangeCoins
+                    .RemoveRange(context.ExchangeCoins.Where(x => exchanges.Contains(x.Exchange)).ToArray());
+                context.SaveChanges();
+                context.ExchangeCoins.AddRange(coins);
+                context.SaveChanges();
+            }
         }
 
         public void StoreMarketPrices(ExchangeMarketPrice[] prices)
@@ -45,8 +51,11 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
             if (prices == null)
                 throw new ArgumentNullException(nameof(prices));
 
-            m_Context.ExchangeMarketPrices.AddRange(prices);
-            m_Context.SaveChanges();
+            using (var context = m_Factory.Create())
+            {
+                context.ExchangeMarketPrices.AddRange(prices);
+                context.SaveChanges();
+            }
         }
     }
 }

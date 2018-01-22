@@ -1,6 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Data;
+using Newtonsoft.Json.Linq;
 using NLog;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -47,13 +48,16 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var info = m_RpcClient.Execute<dynamic>("getmininginfo");
             return new CoinNetworkStatistics
             {
-                Height = ((long?) info.blocks).GetValueOrDefault(),
+                Height = (long?) info.blocks ?? 0,
                 BlockReward = (double?) info.blockvalue / 1e8,
-                Difficulty = (double?) info.difficulty["proof-of-work"]
-                             ?? (double?) info.difficulty["Proof of Work"]
-                             ?? (double?) info.difficulty
+                Difficulty = (info.difficulty is JObject difficultyObj
+                                 ? ((double?) difficultyObj["proof-of-work"]
+                                    ?? (double?) difficultyObj["Proof of Work"])
+                                 : (double?) info.difficulty)
                              ?? 0,
-                NetHashRate = (long) (((double?) info.netmhashps).GetValueOrDefault() * 1e6)
+                NetHashRate = (long?) ((double?) info.netmhashps * 1e6)
+                    ?? (long?) info.networkhashps
+                    ?? 0
             };
         }
     }

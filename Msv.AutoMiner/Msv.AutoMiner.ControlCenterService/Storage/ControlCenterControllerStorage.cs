@@ -17,7 +17,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public Rig GetRigByName(string name)
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Rigs.FirstOrDefault(x => x.Name == name);
         }
 
@@ -59,10 +59,9 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public RigCommand GetNextCommand(int rigId)
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
             {
                 return context.RigCommands
-                    .AsNoTracking()
                     .Where(x => x.RigId == rigId && x.Sent == null)
                     .OrderBy(x => x.Created)
                     .FirstOrDefault();
@@ -84,12 +83,11 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             if (coinIds == null)
                 throw new ArgumentNullException(nameof(coinIds));
 
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
             {
                 return context.Pools
                     .Include(x => x.Coin)
                     .Include(x => x.Coin.Wallets)
-                    .AsNoTracking()
                     .Where(x => coinIds.Contains(x.CoinId) && x.Activity == ActivityState.Active)
                     .ToArray();
             }
@@ -109,7 +107,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
 
         public Wallet GetBitCoinMiningTarget()
         {
-            using (var context = m_Factory.Create())
+            using (var context = m_Factory.CreateReadOnly())
                 return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
         }
     }

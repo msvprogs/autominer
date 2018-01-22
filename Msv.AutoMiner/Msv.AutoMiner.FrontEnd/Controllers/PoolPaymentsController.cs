@@ -44,6 +44,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             IQueryable<PoolPayment> payments = m_Context.PoolPayments
                 .Include(x => x.Pool)
                 .Include(x => x.Pool.Coin)
+                .Include(x => x.Pool.Coin.Algorithm)
                 .AsNoTracking()
                 .OrderByDescending(x => x.DateTime);
             if (pools != null)
