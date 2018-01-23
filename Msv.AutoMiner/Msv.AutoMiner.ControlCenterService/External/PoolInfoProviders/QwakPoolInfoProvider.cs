@@ -76,21 +76,23 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             if (stateJson.last_block != null)
                 state.LastBlock = (long) stateJson.last_block;
 
-            dynamic transactionsJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(GetActionUri("getusertransactions"), headers: M_Headers));
-            var payments = ((JArray) transactionsJson.getusertransactions.data.transactions)
+            var userTransactionsString = m_WebClient.DownloadString(
+                GetActionUri("getusertransactions"), headers: M_Headers);
+            var payments = !string.IsNullOrWhiteSpace(userTransactionsString)
+                ? ((JArray) JsonConvert.DeserializeObject<dynamic>(userTransactionsString)
+                    .getusertransactions.data.transactions)
                 .Cast<dynamic>()
                 .Where(x => x.amount != null)
                 .Select(x => new
                 {
-                    Id = (string)x.id,
-                    Type = (string)x.type,
-                    Amount = (double)x.amount,
-                    DateTime = (string)x.timestamp,
-                    BlockHash = (string)x.blockhash,
-                    TxHash = (string)x.txid,
-                    Confirmations = (int?)x.confirmations,
-                    Address = (string)x.coin_address
+                    Id = (string) x.id,
+                    Type = (string) x.type,
+                    Amount = (double) x.amount,
+                    DateTime = (string) x.timestamp,
+                    BlockHash = (string) x.blockhash,
+                    TxHash = (string) x.txid,
+                    Confirmations = (int?) x.confirmations,
+                    Address = (string) x.coin_address
                 })
                 .Select(x => new PoolPaymentData
                 {
@@ -103,7 +105,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     Type = GetPaymentType(x.Type)
                 })
                 .Where(x => x.DateTime > minPaymentDate)
-                .ToArray();
+                .ToArray()
+                : new PoolPaymentData[0];
             return new PoolInfo
             {
                 AccountInfo = accountInfo,
