@@ -13,6 +13,11 @@
 
 <form asp-action="Save" method="post">
     <input asp-for="Id" />
+    
+    <button type="button" class="btn btn-info pull-right" id="importJsonFileButton">
+        <i class="fa fa-download" aria-hidden="true"></i> Import from JSON...
+    </button>
+    <input type="file" class="invisible" id="importJsonFileInput" accept="application/json" />
 
     <h3>Basic info</h3>
     <div class="form-group">
@@ -24,16 +29,16 @@
         <input asp-for="Name" class="form-control" placeholder="For example, BitCoin" />
     </div>
     <div class="form-group">
-        <label asp-for="NewLogoUrl">Logo URL:</label>
-        @if (Model.Logo != null && Model.Logo.Any())
-        {
-            <div>
-                Current logo: @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(null, Model.Logo))
+        <label asp-for="NewLogoUrl">Logo:</label>
+        <span id="logoContainer">       
+            @if (Model.Logo != null && Model.Logo.Any())
+            {
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(null, Model.Logo))
                 <label>
                     <input asp-for="DeleteLogo" type="checkbox" /> Delete it
                 </label>
-            </div>
-        }
+            }
+        </span>
         <p class="small">
             Specify the URL of the coin logo in any widely used image format: PNG, JPG, GIF, BMP. 
             It will be automatically resized to 16x16 icon size and converted to PNG.
@@ -232,7 +237,43 @@
             return value / Math.pow(2, times ^ 0);
         }
 
+        function importFile(importedData) {
+            $("input#Name").val(importedData.Name);
+            $("input#Symbol").val(importedData.Symbol);
+            $("select#NetworkInfoApiType").val(importedData.NetworkInfoApiType).change();
+            $("input#NetworkApiName").val(importedData.NetworkApiName);
+            $("input#NetworkApiUrl").val(importedData.NetworkApiUrl);
+            $("input#MaxTarget").val(importedData.MaxTarget);
+            $("select#AlgorithmId").val(importedData.AlgorithmId).change();
+            $(".CodeMirror")[0].CodeMirror.setValue(importedData.RewardCalculationJavaScript);
+            $("select#AddressFormat").val(importedData.AddressFormat).change();
+            $("input#AddressPrefixes").val(importedData.AddressPrefixes);
+            if (!isNullOrWhitespace(importedData.Logo)) {
+                $("#logoContainer").empty()
+                    .append($("<img>").attr({
+                        width: "16px",
+                        height: "16px",
+                        alt: " ",
+                        src: "data:image/png;base64," + importedData.Logo
+                    }))
+                    .append($("<input>").attr({
+                        name: "Logo",
+                        type: "hidden",
+                        value: importedData.Logo
+                    }));
+            }
+
+            new Notification("Coin settings has been imported successfully").success();
+        }
+
         $(function() {
+            // Configure import button
+            $("button#importJsonFileButton").click(function() {
+                $("input#importJsonFileInput").click();
+            });
+            new JsonFileReader("importJsonFileInput").subscribe(importFile);
+
+            // Configure JavaScipt code editor
             var editor = CodeMirror.fromTextArea(
                 document.getElementById("RewardCalculationJavaScript"),
                 {
@@ -240,6 +281,7 @@
                     lineNumbers: true
                 });
 
+            // Configure JS code testbox
             var testFunction = function(success, error) {
                 try {
                     var code = editor.getValue();

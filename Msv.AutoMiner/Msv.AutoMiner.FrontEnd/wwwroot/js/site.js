@@ -165,6 +165,41 @@ AjaxOperationControl.prototype.enable = function() {
 
 // -- End of AjaxOperationControl --
 
+// -- JsonFileReader --
+function JsonFileReader(fileInputId) {
+    this.fileInputId = fileInputId;
+}
+
+JsonFileReader.prototype.subscribe = function(callback) {
+    $(format("input#{0}", this.fileInputId)).change(function() {
+        if (!window.File || !window.FileReader) {
+            new Notification("Your browser doesn't support local file loading").danger();
+            return;
+        }
+        var selectedFile = $(this).prop("files")[0];
+        if (selectedFile === undefined || selectedFile === null)
+            return;
+        if (selectedFile.type !== "application/json") {
+            new Notification("Selected file isn't a JSON").danger();
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function() {
+            var parsedJson;
+            try {
+                parsedJson = JSON.parse(reader.result);
+            } catch (e) {
+                new Notification("Couldn't parse the selected file: " + e.message).danger();
+                return;
+            }
+            callback(parsedJson);
+        }
+        reader.readAsText(selectedFile);
+    });
+}
+
+// -- End of JsonFileReader --
+
 // *** DOMContentLoaded handler
 
 $(function () {
@@ -597,8 +632,12 @@ function format(pattern) {
     return pattern.replace(/\{\d+\}/g,
         function(match) {
             var index = parseInt(match.substr(1, match.length - 2));
-            return index < formatArgs.length
+            return formatArgs[index] !== undefined
                 ? formatArgs[index].toString()
                 : "";
         });
+}
+
+function isNullOrWhitespace(str) {
+    return str === null || str === undefined || $.trim(str) === "";
 }

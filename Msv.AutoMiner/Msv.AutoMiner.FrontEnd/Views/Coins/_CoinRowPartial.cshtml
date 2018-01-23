@@ -24,7 +24,7 @@
 }
 
 <tr class="@rowClass" title="@title" data-coin-id="@Model.Id" data-coin-name="@Model.Name">
-    <td class="space-no-wrap">
+    <td class="space-no-wrap small">
         @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Name, Model.Logo))
     </td>
     <td>@Model.Symbol</td>
@@ -106,7 +106,7 @@
             }
         </table>
     </td>
-    <td msv-absolute-date="@Model.LastUpdated"></td>
+    <td class="small" msv-absolute-date="@Model.LastUpdated"></td>
     <td>
         @if (Model.Symbol != "BTC")
         {
@@ -144,6 +144,12 @@
                         </a>
                     </li>
                 }
+                <li>
+                    <a class="btn btn-xs btn-info" asp-action="Export" asp-route-id="@Model.Id"
+                       title="Export coin data to JSON file">
+                        <i class="fa fa-upload" aria-hidden="true"></i>
+                    </a>
+                </li>
                 <li>
                     <button class="btn btn-xs btn-danger"
                             title="Delete coin"

@@ -14,6 +14,7 @@ using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
+using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
@@ -84,11 +85,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 AlgorithmId = coin.AlgorithmId,
                 AvailableAlgorithms = await GetAvailableAlgorithms(),
                 NetworkInfoApiType = coin.NetworkInfoApiType,
-                CanonicalBlockReward = coin.CanonicalBlockReward,
                 NodeLogin = coin.NodeLogin,
                 MaxTarget = coin.MaxTarget,
                 NodePassword = coin.NodePassword,
-                CanonicalBlockTimeSeconds = coin.CanonicalBlockTimeSeconds,
                 NetworkApiName = coin.NetworkInfoApiName,
                 NetworkApiUrl = coin.NetworkInfoApiUrl,
                 RewardCalculationJavaScript = coin.RewardCalculationJavaScript,
@@ -103,12 +102,33 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return View(coinModel);
         }
 
+        public async Task<IActionResult> Export(Guid id)
+        {
+            var coin = await m_Context.Coins.FirstAsync(x => x.Id == id);
+            var exportedContent = JsonConvert.SerializeObject(
+                new CoinExportModel
+                {
+                    AddressFormat = coin.AddressFormat,
+                    AddressPrefixes = coin.AddressPrefixes,
+                    AlgorithmId = coin.AlgorithmId,
+                    Logo = coin.LogoImageBytes,
+                    MaxTarget = coin.MaxTarget,
+                    Name = coin.Name,
+                    NetworkApiName = coin.NetworkInfoApiName,
+                    NetworkApiUrl = coin.NetworkInfoApiUrl,
+                    NetworkInfoApiType = coin.NetworkInfoApiType,
+                    RewardCalculationJavaScript = coin.RewardCalculationJavaScript,
+                    Symbol = coin.Symbol
+                });
+            return File(Encoding.UTF8.GetBytes(exportedContent), "application/json", $"{coin.Name}_settings.json");
+        }
+
         [HttpPost]
         public async Task<IActionResult> Save(CoinEditModel coinModel)
         {
             byte[] newLogoBytes = null;
             if (coinModel.NewLogoUrl != null)
-                using (var httpClient = new HttpClient())
+                using (var httpClient = new HttpClient {Timeout = TimeSpan.FromSeconds(20)})
                 using (var response = await httpClient.GetAsync(coinModel.NewLogoUrl))
                 {
                     if (!response.IsSuccessStatusCode)
@@ -120,6 +140,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     else
                         newLogoBytes = await response.Content.ReadAsByteArrayAsync();
                 }
+            if (!coinModel.Logo.IsNullOrEmpty())
+                newLogoBytes = coinModel.Logo;
+
             var nodeUrl = coinModel.NodeUrl != null
                 ? new Uri(coinModel.NodeUrl)
                 : null;
@@ -141,8 +164,6 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.AlgorithmId = coinModel.AlgorithmId.GetValueOrDefault();
             coin.Symbol = coinModel.Symbol.ToUpperInvariant();
             coin.NetworkInfoApiUrl = coinModel.NetworkApiUrl;
-            coin.CanonicalBlockReward = coinModel.CanonicalBlockReward;
-            coin.CanonicalBlockTimeSeconds = coinModel.CanonicalBlockTimeSeconds;
             coin.Id = coinModel.Id;
             coin.NetworkInfoApiName = coinModel.NetworkApiName;
             coin.NetworkInfoApiType = coinModel.NetworkInfoApiType;
