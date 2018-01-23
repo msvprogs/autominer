@@ -7,6 +7,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Exchanges
     {
         public ExchangeType Type { get; set; }
 
+        public Uri Url { get; set; }
+
         public ActivityState Activity { get; set; }
 
         public bool HasKeys { get; set; }

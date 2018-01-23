@@ -172,7 +172,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             wallet.Activity = ActivityState.Deleted;
 
             await m_Context.SaveChangesAsync();
-            return Content("");
+            return NoContent();
         }
 
         public IActionResult ToggleShowZero()

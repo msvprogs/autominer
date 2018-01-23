@@ -87,11 +87,26 @@
                     <ul class="nav navbar-nav" id="topNavBar">
                         @MakeNavBarItem("Home", "Home", "Index", "fa-home")
                         @MakeNavBarItem("Coins", "Coins", "Index", "fa-btc")
-                        @MakeNavBarItem("Pools", "Pools", "Index", "fa-tasks")
-                        @MakeNavBarItem("Pool payments", "PoolPayments", "Index", "fa-handshake-o")
-                        @MakeNavBarItem("Wallets", "Wallets", "Index", "fa-money")
-                        @MakeNavBarItem("Wallet operations", "WalletOperations", "Index", "fa-handshake-o")
-                        @MakeNavBarItem("Exchanges", "Exchanges", "Index", "fa-exchange")
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-tasks"></i> Pools <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @MakeNavBarItem("Pools", "Pools", "Index", "fa-tasks")
+                                @MakeNavBarItem("Payments", "PoolPayments", "Index", "fa-money")
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-credit-card"></i> Wallets <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @MakeNavBarItem("Wallets", "Wallets", "Index", "fa-credit-card")
+                                @MakeNavBarItem("Operations", "WalletOperations", "Index", "fa-money")
+                                <li role="separator" class="divider" />
+                                @MakeNavBarItem("Exchange settings", "Exchanges", "Index", "fa-exchange")
+                            </ul>
+                        </li>
                         @MakeNavBarItem("Rigs", "Rigs", "Index", "fa-desktop")
                         @MakeNavBarItem("Tools", "Tools", "Index", "fa-wrench")
                     </ul>

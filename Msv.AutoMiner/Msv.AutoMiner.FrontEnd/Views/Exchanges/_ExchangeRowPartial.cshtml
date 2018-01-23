@@ -1,0 +1,67 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@model Msv.AutoMiner.FrontEnd.Models.Exchanges.ExchangeModel
+
+@{
+    var rowClass = Model.Activity == ActivityState.Active
+        ? ""
+        : "text-muted";
+}
+
+<tr class="@rowClass" data-exchange-name="@Model.Type" data-row-id="@Model.Type">
+    <td>
+        @if (Model.Url != null)
+        {
+            <a href="@Model.Url" target="_blank">@Model.Type</a>
+        }
+        else
+        {
+            @Model.Type
+        }
+    </td>
+    <td class="text-center">
+        @if (Model.HasKeys)
+        {
+            <i class="glyphicon glyphicon-ok"></i>
+        }
+    </td>
+    <td>@Model.WalletCount</td>
+    <td msv-absolute-date="@Model.LastPriceDate"></td>
+    <td msv-absolute-date="@Model.LastBalanceDate"></td>
+    <td>
+        <ul class="list-inline">
+            <li>
+                <button class="btn btn-xs btn-primary" 
+                        data-action="register-keys"
+                        title="Register API keys">
+                    <i class="fa fa-key" aria-hidden="true"></i>
+                </button>
+            </li>
+            <li>
+                @{
+                    var activationButtonTitle = Model.Activity == ActivityState.Active
+                        ? "Disable exchange"
+                        : "Enable exchange";
+                }
+                <button class="btn btn-xs btn-info"
+                        title="@activationButtonTitle"
+                        data-disable-url="@Url.Action("ToggleActive", new {id = Model.Type})">
+                    @if (Model.Activity == ActivityState.Active)
+                    {
+                        <i class="glyphicon glyphicon-remove"></i>
+                    }
+                    else if (Model.Activity == ActivityState.Inactive)
+                    {
+                        <i class="glyphicon glyphicon-flash"></i>
+                    }
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-xs btn-danger"
+                        title="Delete exchange"
+                        data-delete-url="@Url.Action("Delete", new {id = Model.Type})">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </button>
+            </li>
+        </ul>
+    </td>
+</tr>

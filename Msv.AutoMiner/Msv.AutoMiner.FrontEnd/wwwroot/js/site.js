@@ -430,6 +430,33 @@ $(function () {
         function(button, error) {
             new Notification(format("Error while setting the new mining target: {0}", error)).danger();
         });
+
+    // ** Exchange Index
+    bindDisableButton($("tbody#exchanges-table"), "exchange-name", "exchange");
+    bindDeleteButton($("tbody#exchanges-table"), "exchange-name", "exchange");
+    // bind 'Register keys' button
+    bindRowFormPostAction($("tbody#exchanges-table"),
+        "register-keys",
+        "editKeysForm",
+        "exchangeInput",
+        function(row, data) {
+            $("#editKeysDialog").modal("hide");
+            new Notification(format("Keys for exchange {0} have been registered successfully", row.data("exchange-name")))
+                .success();
+            row.replaceWith(data);
+        },
+        function(row, error) {
+            $("#editKeysDialog").modal("hide");
+            new Notification(format("Error while registering keys: {0}", error)).danger();
+        },
+        function(row) {
+            var exchange = row.data("exchange-name");
+            $("#editKeysExchange").text(exchange);
+            $("#exchangeInput").val(exchange);
+            $("#publicKeyInput").val("");
+            $("#privateKeyInput").val("");
+            $("#editKeysDialog").modal("show");
+        });
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {
@@ -503,6 +530,31 @@ function bindButtonPostAction(parent, urlAttribute, success, error, preview) {
         });
 }
 
+function bindRowFormPostAction(parent, buttonAction, formId, keyId, success, error, preview) {
+    parent.on("click",
+        format("button[data-action='{0}']", buttonAction),
+        function(e) {
+            preview($(e.currentTarget).closest("tr"));
+        });
+
+    $(format("form#{0}", formId)).submit(function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var exchangeRowId = form.find(format("input#{0}", keyId)).val();
+        var sourceRow = $(format("tr[data-row-id='{0}']", exchangeRowId));
+        $.ajax({
+                url: form.attr("action"),
+                method: "post",
+                data: form.serialize()            
+            })
+            .done(function(data) {
+                success(sourceRow, data);
+            })
+            .fail(function(xhr, textStatus, errorThrown) {
+                error(sourceRow, errorThrown);
+            });
+    });
+}
 
 function showModal(srcHref, callback) {
     var dialogSection = $("<div>").prependTo("body");

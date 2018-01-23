@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,21 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     {
         public const string ExchangesMessageKey = "ExchangesMessage";
 
+        private static readonly Dictionary<ExchangeType, Uri> M_ExchangeUrls
+            = new Dictionary<ExchangeType, Uri>
+            {
+                [ExchangeType.Bittrex] = new Uri("https://bittrex.com"),
+                [ExchangeType.CoinExchange] = new Uri("https://www.coinexchange.io"),
+                [ExchangeType.CoinsMarkets] = new Uri("http://coinsmarkets.com"),
+                [ExchangeType.Cryptopia] = new Uri("https://www.cryptopia.co.nz"),
+                [ExchangeType.LiveCoin] = new Uri("https://www.livecoin.net"),
+                [ExchangeType.Novaexchange] = new Uri("https://novaexchange.com"),
+                [ExchangeType.Poloniex] = new Uri("https://poloniex.com"),
+                [ExchangeType.StocksExchange] = new Uri("https://stocks.exchange"),
+                [ExchangeType.TradeSatoshi] = new Uri("https://tradesatoshi.com"),
+                [ExchangeType.YoBit] = new Uri("https://yobit.net")
+            };
+
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IWalletBalanceProvider m_WalletBalanceProvider;
         private readonly AutoMinerDbContext m_Context;
@@ -31,6 +47,75 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         public IActionResult Index()
+            => View(GetExchangeModels(null));
+
+        [HttpPost]
+        public async Task<IActionResult> SetKeys(EditKeysModel model)
+        {
+            var exchange = await m_Context.Exchanges
+                .FirstOrDefaultAsync(x => x.Type == model.Exchange);
+            if (exchange == null)
+                return NotFound();
+            exchange.PublicKey = model.PublicKey;
+            exchange.PrivateKey = model.PrivateKey;
+
+            await m_Context.SaveChangesAsync();
+            return PartialView("_ExchangeRowPartial", GetExchangeModels(new[] {exchange.Type}).FirstOrDefault());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleActive(ExchangeType id)
+        {
+            var exchange = await m_Context.Exchanges.FirstOrDefaultAsync(x => x.Type == id);
+            if (exchange == null)
+                return NotFound();
+            if (exchange.Activity == ActivityState.Active)
+                exchange.Activity = ActivityState.Inactive;
+            else if (exchange.Activity == ActivityState.Inactive)
+                exchange.Activity = ActivityState.Active;
+
+            await m_Context.SaveChangesAsync();
+            return PartialView("_ExchangeRowPartial", GetExchangeModels(new[] {id}).FirstOrDefault());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add(ExchangeType id)
+        {
+            if (id == ExchangeType.Unknown)
+                return NotFound();
+            var exchange = await m_Context.Exchanges
+                .FirstOrDefaultAsync(x => x.Type == id);
+            if (exchange != null && exchange.Activity != ActivityState.Deleted)
+                return Forbid();
+            if (exchange == null)
+                await m_Context.Exchanges.AddAsync(new Exchange
+                {
+                    Type = id,
+                    Activity = ActivityState.Active
+                });
+            else
+                exchange.Activity = ActivityState.Active;
+
+            await m_Context.SaveChangesAsync();
+            TempData[ExchangesMessageKey] = $"Exchange {id} has been successfully added";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(ExchangeType id)
+        {
+            var exchange = await m_Context.Exchanges.FirstOrDefaultAsync(x => x.Type == id);
+            if (exchange == null)
+                return NotFound();
+            exchange.Activity = ActivityState.Deleted;
+            exchange.PrivateKey = null;
+            exchange.PublicKey = null;
+
+            await m_Context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        private ExchangeModel[] GetExchangeModels(ExchangeType[] types)
         {
             var wallets = m_Context.Wallets
                 .Where(x => x.Activity != ActivityState.Deleted)
@@ -48,14 +133,18 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .Where(x => x.Key != null)
                 .ToDictionary(x => x.Key, x => (DateTime?) x.OrderByDescending(y => y.DateTime).First().DateTime);
 
-            var exchanges = m_Context.Exchanges
-                .Where(x => x.Activity != ActivityState.Deleted)
+            var exchangesQuery = m_Context.Exchanges
+                .Where(x => x.Activity != ActivityState.Deleted);
+            if (!types.IsNullOrEmpty())
+                exchangesQuery = exchangesQuery.Where(x => types.Contains(x.Type));
+            return exchangesQuery
                 .Select(x => new { x.Type, x.Activity, HasKeys = x.PrivateKey != null && x.PublicKey != null })
                 .AsEnumerable()
                 .LeftOuterJoin(wallets, x => x.Type, x => x.Key, (x, y) => (exchange:x, wallets:y.Value))
                 .Select(x => new ExchangeModel
                 {
                     Type = x.exchange.Type,
+                    Url = M_ExchangeUrls.TryGetValue(x.exchange.Type),
                     Activity = x.exchange.Activity,
                     HasKeys = x.exchange.HasKeys,
                     WalletCount = x.wallets,
@@ -63,51 +152,6 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     LastPriceDate = lastPriceDates.TryGetValue(x.exchange.Type)
                 })
                 .ToArray();
-            return View(exchanges);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SetKeys(EditKeysModel model)
-        {
-            var exchange = await m_Context.Exchanges
-                .FirstOrDefaultAsync(x => x.Type == model.Exchange);
-            if (exchange == null)
-                return NotFound();
-            exchange.PublicKey = model.PublicKey;
-            exchange.PrivateKey = model.PrivateKey;
-            await m_Context.SaveChangesAsync();
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ToggleActive(ExchangeType id)
-        {
-            var exchange = await m_Context.Exchanges.FirstOrDefaultAsync(x => x.Type == id);
-            if (exchange == null)
-                return NotFound();
-            if (exchange.Activity == ActivityState.Active)
-                exchange.Activity = ActivityState.Inactive;
-            else if (exchange.Activity == ActivityState.Inactive)
-                exchange.Activity = ActivityState.Active;
-
-            await m_Context.SaveChangesAsync();
-
-            TempData[ExchangesMessageKey] =
-                $"Exchange {id} has been successfully {(exchange.Activity == ActivityState.Active ? "activated" : "deactivated")}";
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(ExchangeType id)
-        {
-            var exchange = await m_Context.Exchanges.FirstOrDefaultAsync(x => x.Type == id);
-            if (exchange == null)
-                return NotFound();
-            exchange.Activity = ActivityState.Deleted;
-            await m_Context.SaveChangesAsync();
-
-            TempData[ExchangesMessageKey] = $"Exchange {id} has been successfully deleted";
-            return RedirectToAction("Index");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Exchanges.ExchangeModel[]
     
@@ -15,7 +16,36 @@
     </div>
 }
 
+@{
+    var newExchanges = EnumHelper.GetCaptions<ExchangeType>()
+        .Select(x => x.Key)
+        .Where(x => x != ExchangeType.Unknown)
+        .Except(Model.Select(y => y.Type))
+        .OrderBy(x => x.ToString())
+        .ToArray();
+}
+
 <h2 class="text-center">Exchanges</h2>
+
+<div class="pull-right div-table-actions">
+    @if (newExchanges.Any())
+    {
+        <form asp-action="Add" method="post" class="form-inline">
+            <label for="add-new-exchange-id">Add new exchange:</label>
+            <select class="form-control" id="add-new-exchange-id" name="id">
+                <option value="">Select...</option>
+                @foreach (var newExchange in newExchanges)
+                {
+                    <option value="@newExchange">@newExchange</option>
+                }
+            </select>
+            <button id="add-new-exchange-button" disabled="disabled"
+                    class="btn btn-info" type="submit" title="Add new exchange">
+                <i class="glyphicon glyphicon-plus"></i> Add
+            </button>
+        </form>
+    }
+</div>
 
 <table class="table table-bordered table-striped sticky-header">
     <thead>
@@ -28,90 +58,19 @@
         <th>Actions</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody id="exchanges-table">
     @foreach (var exchange in Model.OrderBy(x => x.Type.ToString()))
     {
-        var rowClass = exchange.Activity == ActivityState.Active
-            ? ""
-            : "text-muted";
-
-        <tr class="@rowClass">
-            <td>@exchange.Type</td>
-            <td id="hasKeys_@exchange.Type" class="text-center">
-                @if (exchange.HasKeys)
-                {
-                    <i class="glyphicon glyphicon-ok"></i>
-                }
-            </td>
-            <td>@exchange.WalletCount</td>
-            <td msv-absolute-date="@exchange.LastPriceDate"></td>
-            <td msv-absolute-date="@exchange.LastBalanceDate"></td>
-            <td>
-                <ul class="list-inline">
-                    <li>
-                        <button class="btn btn-xs btn-primary" data-action="register-keys" data-exchange="@exchange.Type" title="Register API keys">
-                            <i class="fa fa-key" aria-hidden="true"></i>
-                        </button>
-                    </li>
-                    <li>
-                        @{
-                            var activationButtonTitle = exchange.Activity == ActivityState.Active
-                                ? "Disable exchange"
-                                : "Enable exchange";
-                        }
-                        <form asp-action="ToggleActive" asp-route-id="@exchange.Type" method="post" title="@activationButtonTitle">
-                            <button class="btn btn-xs btn-info">
-                                @if (exchange.Activity == ActivityState.Active)
-                                {
-                                    <i class="glyphicon glyphicon-remove"></i>
-                                }
-                                else if (exchange.Activity == ActivityState.Inactive)
-                                {
-                                    <i class="glyphicon glyphicon-flash"></i>
-                                }
-                            </button>
-                        </form>
-                    </li>
-                    <li>
-                        <form asp-action="Delete" asp-route-id="@exchange.Type"
-                              method="post" title="Delete exchange"
-                              data-confirm-title="Delete exchange @exchange.Type?"
-                              data-confirm-body="You are going to delete exchange @exchange.Type. Are you sure?">
-                            <button class="btn btn-xs btn-danger">
-                                <i class="glyphicon glyphicon-trash"></i>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </td>
-        </tr>
+        @Html.Partial("_ExchangeRowPartial", exchange)
     }
     </tbody>
 </table>
 
-@section Scripts
-{
+@section Scripts {
     <script>
-        $(function () {
-            $("button[data-action='register-keys']").click(function() {
-                var exchange = $(this).data("exchange");
-                $("#editKeysExchange").text(exchange);
-                $("#exchangeInput").val(exchange);
-                $("#publicKeyInput").val("");
-                $("#privateKeyInput").val("");
-                $("#editKeysDialog").modal("show");
-            });
-
-            $('#editKeysForm').submit(function(e) {
-                e.preventDefault();
-                var self = this;
-                $.post(
-                    $(self).attr("action"),
-                    $(self).serialize(),
-                    function() {
-                        $("#hasKeys_" + self.exchange.value).html("<i class='glyphicon glyphicon-ok'></i>");
-                        $("#editKeysDialog").modal("hide");
-                    });
+        $(function() {
+            $("select#add-new-exchange-id").change(function() {
+                $("#add-new-exchange-button").prop("disabled", $("select#add-new-exchange-id").prop("selectedIndex") <= 0);
             });
         })
     </script>

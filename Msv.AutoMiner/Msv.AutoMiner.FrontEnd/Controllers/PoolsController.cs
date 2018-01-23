@@ -188,7 +188,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             pool.Activity = ActivityState.Deleted;
 
             await m_Context.SaveChangesAsync();
-            return Content("");
+            return NoContent();
         }
 
         public IActionResult ToggleShowZero()

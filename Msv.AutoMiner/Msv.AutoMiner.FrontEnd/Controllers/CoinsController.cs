@@ -189,8 +189,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             if (coin.Symbol == "BTC")
                 return Forbid();
             coin.Activity = ActivityState.Deleted;
+
             await m_Context.SaveChangesAsync();
-            return Content("");
+            return NoContent();
         }
 
         public async Task<IActionResult> CreateConfigFile(Guid id)
