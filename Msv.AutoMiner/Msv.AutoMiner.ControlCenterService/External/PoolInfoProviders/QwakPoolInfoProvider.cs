@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Net;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Data;
 using Newtonsoft.Json;
@@ -43,10 +43,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         public PoolInfo GetInfo(DateTime minPaymentDate)
         {
-            dynamic userInfoJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(GetActionUri("getuserstatus"), headers: M_Headers));
-            dynamic balanceInfoJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(GetActionUri("getuserbalance"), headers: M_Headers));
+            dynamic userInfoJson = JsonConvert.DeserializeObject(ExecuteApiMethod("getuserstatus"));
+            dynamic balanceInfoJson = JsonConvert.DeserializeObject(ExecuteApiMethod("getuserbalance"));
             var accountInfo = new PoolAccountInfo
             {
                 ConfirmedBalance = ((double?) balanceInfoJson.getuserbalance.data.confirmed).GetValueOrDefault(),
@@ -60,10 +58,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 accountInfo.InvalidShares = (int) (shares["invalid"]?.Value<double?>()).GetValueOrDefault();
             }
 
-            dynamic stateJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(GetActionUri("public"), headers: M_Headers));
-            dynamic poolInfoJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(GetActionUri("getpoolinfo"), headers: M_Headers));
+            dynamic stateJson = JsonConvert.DeserializeObject(ExecuteApiMethod("public"));
+            dynamic poolInfoJson = JsonConvert.DeserializeObject(ExecuteApiMethod("getpoolinfo"));
             var hashRate = stateJson.hashrate ?? stateJson.pool_hashrate;
             var workers = stateJson.workers ?? stateJson.pool_workers;
             var state = new PoolState
@@ -76,10 +72,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             if (stateJson.last_block != null)
                 state.LastBlock = (long) stateJson.last_block;
 
-            var userTransactionsString = m_WebClient.DownloadString(
-                GetActionUri("getusertransactions"), headers: M_Headers);
-            var payments = !string.IsNullOrWhiteSpace(userTransactionsString)
-                ? ((JArray) JsonConvert.DeserializeObject<dynamic>(userTransactionsString)
+            var userTransactionsString = ExecuteApiMethod("getusertransactions");
+            var payments = string.IsNullOrWhiteSpace(userTransactionsString)
+                ? new PoolPaymentData[0]
+                : ((JArray) JsonConvert.DeserializeObject<dynamic>(userTransactionsString)
                     .getusertransactions.data.transactions)
                 .Cast<dynamic>()
                 .Where(x => x.amount != null)
@@ -97,7 +93,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .Select(x => new PoolPaymentData
                 {
                     Amount = x.Amount,
-                    DateTime = DateTime.ParseExact(x.DateTime, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    DateTime = DateTimeHelper.FromIso8601(x.DateTime),
                     Transaction = x.TxHash,
                     Address = x.Address,
                     BlockHash = x.BlockHash,
@@ -105,8 +101,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     Type = GetPaymentType(x.Type)
                 })
                 .Where(x => x.DateTime > minPaymentDate)
-                .ToArray()
-                : new PoolPaymentData[0];
+                .ToArray();
             return new PoolInfo
             {
                 AccountInfo = accountInfo,
@@ -114,6 +109,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 PaymentsData = payments
             };
         }
+
+        private string ExecuteApiMethod(string method)
+            => m_WebClient.DownloadString(GetActionUri(method), headers: M_Headers);
 
         private long NormalizeHashRate(dynamic hashRateItem)
         {

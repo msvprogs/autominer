@@ -48,9 +48,6 @@ namespace Msv.AutoMiner.Common.Helpers
         public static DateTime FromIso8601(string dateTimeStr)
             => FromKnownStringFormat(dateTimeStr, "yyyy-MM-dd HH:mm:ss");
 
-        public static long TimestampFromRussianDateTime(string dateTimeStr, TimeZoneInfo timeZone = null)
-            => TimestampFromKnownStringFormat(dateTimeStr, "dd.MM.yyyy HH:mm:ss", timeZone);
-
         public static string ToRelativeTime(DateTime dateTime)
         {
             var utcDateTime = dateTime.Kind == DateTimeKind.Local
@@ -84,8 +81,5 @@ namespace Msv.AutoMiner.Common.Helpers
 
         private static DateTime FromKnownStringFormat(string dateTimeStr, string format)
             => DateTime.ParseExact(dateTimeStr, format, CultureInfo.InvariantCulture);
-
-        private static long TimestampFromKnownStringFormat(string dateTimeStr, string format, TimeZoneInfo timeZone = null)
-            => ToTimestamp(FromKnownStringFormat(dateTimeStr, format), timeZone ?? TimeZoneInfo.Utc);
     }
 }
