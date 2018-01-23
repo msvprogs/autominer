@@ -36,13 +36,13 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         }
 
         public override Uri CreateTransactionUrl(string hash)
-            => new Uri(m_BaseUrl, $"tx/{hash}");
+            => new Uri(m_BaseUrl, $"/tx/{hash}");
 
         public override Uri CreateAddressUrl(string address)
-            => new Uri(m_BaseUrl, $"address/{address}");
+            => new Uri(m_BaseUrl, $"/address/{address}");
 
         public override Uri CreateBlockUrl(string blockHash)
-            => new Uri(m_BaseUrl, $"block/{blockHash}");
+            => new Uri(m_BaseUrl, $"/block/{blockHash}");
 
         protected virtual double GetDifficulty(dynamic statsInfo) 
             => (double) statsInfo.difficulty;
