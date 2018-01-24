@@ -29,7 +29,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 [ExchangeType.Poloniex] = new Uri("https://poloniex.com"),
                 [ExchangeType.StocksExchange] = new Uri("https://stocks.exchange"),
                 [ExchangeType.TradeSatoshi] = new Uri("https://tradesatoshi.com"),
-                [ExchangeType.YoBit] = new Uri("https://yobit.net")
+                [ExchangeType.YoBit] = new Uri("https://yobit.net"),
+                [ExchangeType.BtcAlpha] = new Uri("https://btc-alpha.com")
             };
 
         private readonly ICoinValueProvider m_CoinValueProvider;

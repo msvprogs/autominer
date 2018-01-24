@@ -12,6 +12,7 @@
         CoinsMarkets = 7,
         Novaexchange = 8,
         LiveCoin = 9,
-        StocksExchange = 10
+        StocksExchange = 10,
+        BtcAlpha = 11
     }
 }
