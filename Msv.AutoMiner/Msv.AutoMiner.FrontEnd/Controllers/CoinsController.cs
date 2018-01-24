@@ -278,6 +278,8 @@ rpcallowip={allowIpMask}
                     LastBlockTime = x.network.LastBlockTime,
                     Logo = x.coin.LogoImageBytes,
                     HasLocalNode = !string.IsNullOrEmpty(x.coin.NodeHost),
+                    MasternodeCount = x.network.MasternodeCount,
+                    TotalSupply = x.network.TotalSupply,
                     LastUpdated = x.network.Created != default
                         ? x.network.Created
                         : (DateTime?) null

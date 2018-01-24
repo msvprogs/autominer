@@ -26,6 +26,14 @@
 <tr class="@rowClass" title="@title" data-coin-id="@Model.Id" data-coin-name="@Model.Name">
     <td class="space-no-wrap small">
         @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Name, Model.Logo))
+        @if (Model.MasternodeCount != null)
+        {
+            <div class="secondary-info">Masternodes: <b>@Model.MasternodeCount</b></div>
+        }
+        @if (Model.TotalSupply != null)
+        {
+            <div class="secondary-info">Total supply: <b>@Model.TotalSupply.Value.ToString("N0")</b></div>
+        }
     </td>
     <td>@Model.Symbol</td>
     <td>@Model.Algorithm.Name</td>

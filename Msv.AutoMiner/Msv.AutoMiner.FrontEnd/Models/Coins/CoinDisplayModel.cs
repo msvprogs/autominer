@@ -27,5 +27,9 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public bool HasLocalNode { get; set; }
 
         public ExchangeType? MiningTargetExchange { get; set; }
+
+        public int? MasternodeCount { get; set; }
+
+        public double? TotalSupply { get; set; }
     }
 }
