@@ -58,7 +58,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 Height = (long?) info.blocks ?? 0,
                 BlockReward = (double?) info.blockvalue / 1e8,
                 Difficulty = m_Coin.GetDifficultyFromLastPoWBlock
-                    ? new BlockChainSearcher(x => m_RpcClient.Execute<dynamic>("getblock", x))
+                    ? new BlockChainSearcher(x => m_RpcClient.Execute<BlockHeader>("getblock", x))
                         .SearchPoWBlock(bestBlockInfo).Difficulty
                     : ParseDifficulty(info),
                 NetHashRate = (long?) ((double?) info.netmhashps * 1e6)

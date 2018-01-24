@@ -2,6 +2,7 @@
 using System.Net;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NLog;
 
 namespace Msv.AutoMiner.Common.External
@@ -53,7 +54,7 @@ namespace Msv.AutoMiner.Common.External
                     throw new ExternalDataUnavailableException((string) response.error.ToString());
                 if ((int) response.id != requestId)
                     throw new ExternalDataUnavailableException("Response ID mismatch");
-                return (TResponse)response.result;
+                return ((JObject)response.result).ToObject<TResponse>();
             }
         }
 
