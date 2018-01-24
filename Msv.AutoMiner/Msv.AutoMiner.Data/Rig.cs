@@ -5,7 +5,7 @@ using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
 {
-    public class Rig
+    public class Rig : IEntity<int>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -17,8 +17,6 @@ namespace Msv.AutoMiner.Data
 
         public DateTime Created { get; set; }
 
-        public bool IsActive { get; set; }
-
         public byte[] ClientCertificateSerial { get; set; }
 
         public byte[] ClientCertificateThumbprint { get; set; }
@@ -26,5 +24,7 @@ namespace Msv.AutoMiner.Data
         public ValueAggregationType DifficultyAggregationType { get; set; }
 
         public ValueAggregationType PriceAggregationType { get; set; }
+
+        public ActivityState Activity { get; set; }
     }
 }

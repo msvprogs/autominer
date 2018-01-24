@@ -5,7 +5,7 @@ using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
 {
-    public class Pool
+    public class Pool : IEntity<int>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }

@@ -109,7 +109,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             {
                 Received = DateTime.UtcNow,
                 RigId = rigId,
-                ContentsJson = JsonConvert.SerializeObject(heartbeat)
+                ContentsJson = JsonConvert.SerializeObject(heartbeat),
+                RemoteAddress = HttpContext.Connection.RemoteIpAddress.ToString()
             });
             var now = DateTime.UtcNow;
             m_Storage.SaveMiningStates(heartbeat.MiningStates

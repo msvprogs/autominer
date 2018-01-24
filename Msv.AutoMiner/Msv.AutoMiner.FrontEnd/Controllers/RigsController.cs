@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Data;
@@ -17,46 +18,30 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
-    public class RigsController : Controller
+    public class RigsController : EntityControllerBase<Rig, RigDisplayModel, int>
     {
         public const string RigsMessageKey = "RigsMessage";
 
         private readonly IRigHeartbeatProvider m_HeartbeatProvider;
         private readonly AutoMinerDbContext m_Context;
 
-        public RigsController(IRigHeartbeatProvider heartbeatProvider, AutoMinerDbContext context)
+        public RigsController(
+            IRigHeartbeatProvider heartbeatProvider, 
+            AutoMinerDbContext context)
+            : base("_RigRowPartial", context)
         {
             m_HeartbeatProvider = heartbeatProvider;
             m_Context = context;
         }
 
-        public IActionResult Index()
-        {
-            var lastHeartbeats = m_HeartbeatProvider.GetLastHeartbeats();
-            var rigs = m_Context.Rigs
-                .AsNoTracking()
-                .AsEnumerable()
-                .LeftOuterJoin(lastHeartbeats, x => x.Id, x => x.Key,
-                    (x, y) => (rig: x, heartbeat: y.Value ?? new Heartbeat()))
-                .Select(x => new RigDisplayModel
-                {
-                    Id = x.rig.Id,
-                    Name = x.rig.Name,
-                    IsActive = x.rig.IsActive,
-                    CertificateSerial = x.rig.ClientCertificateSerial != null
-                        ? HexHelper.ToHex(x.rig.ClientCertificateSerial)
-                        : null,
-                    LastHeartbeat = x.heartbeat.DateTime != default
-                        ? x.heartbeat.DateTime
-                        : (DateTime?)null
-                })
-                .ToArray();
-            return View(rigs);
-        }
+        public IActionResult Index() 
+            => View(GetEntityModels(null));
 
         public async Task<IActionResult> CreateRegistrationRequest(int id)
         {
-            var rig = await m_Context.Rigs.FirstOrDefaultAsync(x => x.Id == id);
+            var rig = await m_Context.Rigs
+                .Where(x => x.Activity == ActivityState.Active)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (rig == null)
                 return NotFound();
             using (var prng = new RNGCryptoServiceProvider())
@@ -96,18 +81,13 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             TempData[RigsMessageKey] = $"Certificate of rig {rig.Name} was revoked";
             return RedirectToAction("Index");
         }
+        
+        public IActionResult Create()
+        {
+            throw new NotImplementedException();
+        }
 
         public IActionResult Edit()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IActionResult ToggleActive()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IActionResult Create()
         {
             throw new NotImplementedException();
         }
@@ -174,20 +154,20 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             }
 
             var lastRigHeartbeat = m_HeartbeatProvider.GetLastHeartbeat(id);
-            if (currentMiningState != null && lastRigHeartbeat != null)
+            if (currentMiningState != null && lastRigHeartbeat.entity != null)
                 durations.Add(new RigStatisticsModel.CoinMiningDuration
                 {
                     CoinName = coins[currentMiningState.CoinId].Name,
                     CoinSymbol = coins[currentMiningState.CoinId].Symbol,
                     Duration = currentMiningState.Duration,
-                    Time = lastRigHeartbeat.DateTime
+                    Time = lastRigHeartbeat.entity.Received
                 });
 
             return View(new RigStatisticsModel
             {
                 Id = id,
                 Name = rig.Name,
-                LastHeartbeat = lastRigHeartbeat,
+                LastHeartbeat = lastRigHeartbeat.heartbeat,
                 LastProfitabilityTable = profitabilityTable,
                 ProfitabilityTableTime = lastProfitabilityTime != default
                     ? lastProfitabilityTime
@@ -195,6 +175,36 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 LastDayActivity = durations.ToArray(),
                 Algorithms = m_Context.CoinAlgorithms.AsNoTracking().ToArray()
             });
+        }
+
+        protected override RigDisplayModel[] GetEntityModels(int[] ids)
+        {
+            var lastHeartbeats = m_HeartbeatProvider.GetLastHeartbeats();
+            var rigQuery = m_Context.Rigs
+                .Where(x => x.Activity != ActivityState.Deleted)
+                .AsNoTracking();
+            if (!ids.IsNullOrEmpty())
+                rigQuery = rigQuery.Where(x => ids.Contains(x.Id));
+            return rigQuery
+                .AsEnumerable()
+                .LeftOuterJoin(lastHeartbeats, x => x.Id, x => x.Key,
+                    (x, y) => (rig: x, 
+                        heartbeat: y.Value.heartbeat ?? new Heartbeat(),
+                        heartbeatEntity: y.Value.entity ?? new RigHeartbeat()))
+                .Select(x => new RigDisplayModel
+                {
+                    Id = x.rig.Id,
+                    Name = x.rig.Name,
+                    Activity = x.rig.Activity,
+                    RemoteAddress = x.heartbeatEntity.RemoteAddress,
+                    CertificateSerial = x.rig.ClientCertificateSerial != null
+                        ? HexHelper.ToHex(x.rig.ClientCertificateSerial)
+                        : null,
+                    LastHeartbeat = x.heartbeatEntity.Received != default
+                        ? x.heartbeatEntity.Received
+                        : (DateTime?)null
+                })
+                .ToArray();
         }
     }
 }

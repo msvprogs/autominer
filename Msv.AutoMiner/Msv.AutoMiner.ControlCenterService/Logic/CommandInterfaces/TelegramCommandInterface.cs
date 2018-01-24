@@ -142,15 +142,15 @@ Pool balance: confirmed <b>{12} {14}</b>, unconfirmed <b>{13} {14}</b>";
             var rigIdNames = m_Storage.GetRigNames(heartbeats.Keys.ToArray());
 
             var heartbeatStrings = heartbeats
-                .Where(x => x.Value.DateTime + M_OldestInfoPeriod > DateTime.UtcNow)
+                .Where(x => x.Value.entity.Received + M_OldestInfoPeriod > DateTime.UtcNow)
                 .Select(x => new
                 {
                     Name = rigIdNames[x.Key],
-                    NowMining = x.Value.MiningStates.EmptyIfNull().FirstOrDefault() ?? new Heartbeat.MiningState(),
-                    VideoCardStates = x.Value.VideoAdapterStates.EmptyIfNull(),
-                    x.Value.ClientVersion,
-                    x.Value.DateTime,
-                    PoolState = x.Value.MiningStates?.Select(y => poolStates.TryGetValue(y.PoolId))
+                    NowMining = x.Value.heartbeat.MiningStates.EmptyIfNull().FirstOrDefault() ?? new Heartbeat.MiningState(),
+                    VideoCardStates = x.Value.heartbeat.VideoAdapterStates.EmptyIfNull(),
+                    x.Value.heartbeat.ClientVersion,
+                    x.Value.entity.Received,
+                    PoolState = x.Value.heartbeat.MiningStates?.Select(y => poolStates.TryGetValue(y.PoolId))
                         .FirstOrDefault(y => y != null) ?? new PoolAccountState()
                 })
                 .OrderBy(x => x.Name)
@@ -163,7 +163,7 @@ Pool balance: confirmed <b>{12} {14}</b>, unconfirmed <b>{13} {14}</b>";
                     string.Join(", ", x.VideoCardStates.Select(y => y.Temperature.Current + "°C")),
                     string.Join(", ", x.VideoCardStates.Select(y => y.Utilization + "%")),
                     HtmlEntity.Entitize(x.ClientVersion),
-                    HtmlEntity.Entitize(DateTimeHelper.ToRelativeTime(x.DateTime)),
+                    HtmlEntity.Entitize(DateTimeHelper.ToRelativeTime(x.Received)),
                     x.PoolState.ValidShares,
                     x.PoolState.InvalidShares,
                     HtmlEntity.Entitize(ConversionHelper.ToHashRateWithUnits(x.PoolState.HashRate, coins[x.NowMining.CoinId].Algorithm.KnownValue)),

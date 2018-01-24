@@ -5,7 +5,7 @@ using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
 {
-    public class Wallet
+    public class Wallet : IEntity<int>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }

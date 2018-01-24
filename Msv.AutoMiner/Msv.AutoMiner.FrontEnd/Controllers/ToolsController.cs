@@ -11,7 +11,6 @@ using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Tools;
-using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
@@ -50,7 +49,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 {
                     Id = x.Key,
                     Name = y.Value,
-                    HashRates = x.Value.AlgorithmMiningCapabilities.EmptyIfNull()
+                    HashRates = x.Value.heartbeat.AlgorithmMiningCapabilities.EmptyIfNull()
                 })
                 .OrderBy(x => x.Name)
                 .ToArray();

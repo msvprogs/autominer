@@ -3,7 +3,7 @@ using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
 {
-    public class Exchange
+    public class Exchange : IEntity<ExchangeType>
     {
         [Key]
         public ExchangeType Type { get; set; }
@@ -13,5 +13,11 @@ namespace Msv.AutoMiner.Data
         public string PublicKey { get; set; }
 
         public string PrivateKey { get; set; }
+
+        ExchangeType IEntity<ExchangeType>.Id
+        {
+            get => Type;
+            set => Type = value;
+        }
     }
 }

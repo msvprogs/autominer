@@ -15,7 +15,7 @@ using Msv.AutoMiner.FrontEnd.Models.Pools;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
-    public class PoolsController : Controller
+    public class PoolsController : EntityControllerBase<Pool, PoolDisplayModel, int>
     {
         public const string PoolsMessageKey = "PoolsMessage";
         public const string ShowZeroValuesKey = "PoolsShowZeroValues";
@@ -32,6 +32,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             ICoinNetworkInfoProvider networkInfoProvider,
             IProfitabilityCalculator profitabilityCalculator,
             AutoMinerDbContext context)
+            : base("_PoolRowPartial", context)
         {
             m_CoinValueProvider = coinValueProvider;
             m_PoolInfoProvider = poolInfoProvider;
@@ -41,7 +42,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         public IActionResult Index()
-            => View(GetPoolDisplayModels(null));
+            => View(GetEntityModels(null));
 
         public async Task<IActionResult> CreateStratum()
             => View("Edit", new PoolEditModel
@@ -164,40 +165,13 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ToggleActive(int id)
-        {
-            var pool = await m_Context.Pools.FirstOrDefaultAsync(x => x.Id == id);
-            if (pool == null)
-                return NotFound();
-            if (pool.Activity == ActivityState.Active)
-                pool.Activity = ActivityState.Inactive;
-            else if (pool.Activity == ActivityState.Inactive)
-                pool.Activity = ActivityState.Active;
-
-            await m_Context.SaveChangesAsync();
-            return PartialView("_PoolRowPartial", GetPoolDisplayModels(new[] {id}).FirstOrDefault());
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var pool = await m_Context.Pools.FirstOrDefaultAsync(x => x.Id == id);
-            if (pool == null)
-                return NotFound();
-            pool.Activity = ActivityState.Deleted;
-
-            await m_Context.SaveChangesAsync();
-            return NoContent();
-        }
-
         public IActionResult ToggleShowZero()
         {
             HttpContext.Session.SetBool(ShowZeroValuesKey, !HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true));
             return RedirectToAction("Index");
         }
 
-        private PoolDisplayModel[] GetPoolDisplayModels(int[] ids)
+        protected override PoolDisplayModel[] GetEntityModels(int[] ids)
         {
             var lastPoolInfos = m_PoolInfoProvider.GetCurrentPoolInfos();
             var coinPrices = m_CoinValueProvider.GetCurrentCoinValues(false);

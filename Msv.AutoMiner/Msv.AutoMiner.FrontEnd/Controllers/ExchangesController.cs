@@ -13,7 +13,7 @@ using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
-    public class ExchangesController : Controller
+    public class ExchangesController : EntityControllerBase<Exchange, ExchangeModel, ExchangeType>
     {
         public const string ExchangesMessageKey = "ExchangesMessage";
 
@@ -41,6 +41,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             ICoinValueProvider coinValueProvider, 
             IWalletBalanceProvider walletBalanceProvider,
             AutoMinerDbContext context)
+            : base("_ExchangeRowPartial", context)
         {
             m_CoinValueProvider = coinValueProvider;
             m_WalletBalanceProvider = walletBalanceProvider;
@@ -48,7 +49,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         public IActionResult Index()
-            => View(GetExchangeModels(null));
+            => View(GetEntityModels(null));
 
         [HttpPost]
         public async Task<IActionResult> SetKeys(EditKeysModel model)
@@ -61,22 +62,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             exchange.PrivateKey = model.PrivateKey;
 
             await m_Context.SaveChangesAsync();
-            return PartialView("_ExchangeRowPartial", GetExchangeModels(new[] {exchange.Type}).FirstOrDefault());
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ToggleActive(ExchangeType id)
-        {
-            var exchange = await m_Context.Exchanges.FirstOrDefaultAsync(x => x.Type == id);
-            if (exchange == null)
-                return NotFound();
-            if (exchange.Activity == ActivityState.Active)
-                exchange.Activity = ActivityState.Inactive;
-            else if (exchange.Activity == ActivityState.Inactive)
-                exchange.Activity = ActivityState.Active;
-
-            await m_Context.SaveChangesAsync();
-            return PartialView("_ExchangeRowPartial", GetExchangeModels(new[] {id}).FirstOrDefault());
+            return PartialView("_ExchangeRowPartial", GetEntityModels(new[] {exchange.Type}).FirstOrDefault());
         }
 
         [HttpPost]
@@ -102,21 +88,13 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(ExchangeType id)
+        protected override void OnDeleting(Exchange entity)
         {
-            var exchange = await m_Context.Exchanges.FirstOrDefaultAsync(x => x.Type == id);
-            if (exchange == null)
-                return NotFound();
-            exchange.Activity = ActivityState.Deleted;
-            exchange.PrivateKey = null;
-            exchange.PublicKey = null;
-
-            await m_Context.SaveChangesAsync();
-            return NoContent();
+            entity.PrivateKey = null;
+            entity.PublicKey = null;
         }
 
-        private ExchangeModel[] GetExchangeModels(ExchangeType[] types)
+        protected override ExchangeModel[] GetEntityModels(ExchangeType[] ids)
         {
             var wallets = m_Context.Wallets
                 .Where(x => x.Activity != ActivityState.Deleted)
@@ -136,10 +114,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             var exchangesQuery = m_Context.Exchanges
                 .Where(x => x.Activity != ActivityState.Deleted);
-            if (!types.IsNullOrEmpty())
-                exchangesQuery = exchangesQuery.Where(x => types.Contains(x.Type));
+            if (!ids.IsNullOrEmpty())
+                exchangesQuery = exchangesQuery.Where(x => ids.Contains(x.Type));
             return exchangesQuery
-                .Select(x => new { x.Type, x.Activity, HasKeys = x.PrivateKey != null && x.PublicKey != null })
+                .Select(x => new {x.Type, x.Activity, HasKeys = x.PrivateKey != null && x.PublicKey != null })
                 .AsEnumerable()
                 .LeftOuterJoin(wallets, x => x.Type, x => x.Key, (x, y) => (exchange:x, wallets:y.Value))
                 .Select(x => new ExchangeModel

@@ -5,7 +5,7 @@ using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
 {
-    public class Coin
+    public class Coin : IEntity<Guid>
     {
         [Key]
         public Guid Id { get; set; }

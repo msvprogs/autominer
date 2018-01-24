@@ -31,7 +31,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             var coinSymbols = coins.Select(x => x.Key).ToArray();
             var now = DateTime.UtcNow;
             var downloadedExchangeData = EnumHelper.GetValues<ExchangeType>()
-                .Join(m_Storage.GetExchanges().Where(x => x.Activity == ActivityState.Active), x => x, x => x.Type, (x, y) => x)
+                .Join(m_Storage.GetExchanges().Where(x => x.Activity == ActivityState.Active), x => x, x => x.Id, (x, y) => x)
                 .Select(x => (type:x, provider: m_ProviderFactory.Create(x)))
                 .Select(x =>
                 {

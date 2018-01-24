@@ -15,7 +15,7 @@ using Msv.AutoMiner.FrontEnd.Providers;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
-    public class WalletsController : Controller
+    public class WalletsController : EntityControllerBase<Wallet, WalletDisplayModel, int>
     {
         public const string WalletsMessageKey = "WalletsMessage";
         public const string ShowZeroValuesKey = "WalletsShowZeroValues";
@@ -32,6 +32,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             IWalletBalanceProvider walletBalanceProvider,
             IWalletAddressValidatorFactory addressValidatorFactory,
             AutoMinerDbContext context)
+            : base("_WalletRowsPartial", context)
         {
             m_FiatValueProvider = fiatValueProvider;
             m_CoinValueProvider = coinValueProvider;
@@ -42,7 +43,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
         public IActionResult Index()
         {
-            var wallets = GetWalletDisplayModels(null);
+            var wallets = GetEntityModels(null);
 
             var totalBtc = wallets
                 .Where(x => x.Coin.Symbol == "BTC")
@@ -137,21 +138,6 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ToggleActive(int id)
-        {
-            var wallet = await m_Context.Wallets.FirstOrDefaultAsync(x => x.Id == id);
-            if (wallet == null)
-                return NotFound();
-            if (wallet.Activity == ActivityState.Active)
-                wallet.Activity = ActivityState.Inactive;
-            else if (wallet.Activity == ActivityState.Inactive)
-                wallet.Activity = ActivityState.Active;
-
-            await m_Context.SaveChangesAsync();
-            return PartialView("_WalletRowsPartial", GetWalletDisplayModels(new[] {id}));
-        }
-
-        [HttpPost]
         public async Task<IActionResult> SetAsMiningTarget(int id)
         {
             var wallet = await m_Context.Wallets.FirstOrDefaultAsync(x => x.Id == id);
@@ -160,19 +146,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             var allWalletIds = await SetWalletAsMiningTarget(wallet);
             await m_Context.SaveChangesAsync();
-            return PartialView("_WalletRowsPartial", GetWalletDisplayModels(allWalletIds));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var wallet = await m_Context.Wallets.FirstOrDefaultAsync(x => x.Id == id);
-            if (wallet == null)
-                return NotFound();
-            wallet.Activity = ActivityState.Deleted;
-
-            await m_Context.SaveChangesAsync();
-            return NoContent();
+            return PartialView("_WalletRowsPartial", GetEntityModels(allWalletIds));
         }
 
         public IActionResult ToggleShowZero()
@@ -181,17 +155,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return RedirectToAction("Index");
         }
 
-        private async Task<int[]> SetWalletAsMiningTarget(Wallet wallet)
-        {
-            var allWallets = await m_Context.Wallets
-                .Where(x => x.CoinId == wallet.CoinId && x.Id != wallet.Id)
-                .ToArrayAsync();
-            allWallets.ForEach(x => x.IsMiningTarget = false);
-            wallet.IsMiningTarget = true;
-            return allWallets.Select(x => x.Id).Concat(new[] {wallet.Id}).ToArray();
-        }
-
-        private WalletDisplayModel[] GetWalletDisplayModels(int[] ids)
+        protected override WalletDisplayModel[] GetEntityModels(int[] ids)
         {
             var lastBalances = m_WalletBalanceProvider.GetLastBalances();
             var coinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
@@ -242,6 +206,16 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         : (DateTime?)null
                 })
                 .ToArray();
+        }
+
+        private async Task<int[]> SetWalletAsMiningTarget(Wallet wallet)
+        {
+            var allWallets = await m_Context.Wallets
+                .Where(x => x.CoinId == wallet.CoinId && x.Id != wallet.Id)
+                .ToArrayAsync();
+            allWallets.ForEach(x => x.IsMiningTarget = false);
+            wallet.IsMiningTarget = true;
+            return allWallets.Select(x => x.Id).Concat(new[] {wallet.Id}).ToArray();
         }
 
         private Task<CoinBaseModel[]> GetAvailableCoins()

@@ -13,7 +13,7 @@ namespace Msv.AutoMiner.Data.Logic
         public RigHeartbeatProvider(IAutoMinerDbContextFactory factory)
             => m_Factory = factory;
 
-        public Heartbeat GetLastHeartbeat(int rigId)
+        public (Heartbeat heartbeat, RigHeartbeat entity) GetLastHeartbeat(int rigId)
         {
             using (var context = m_Factory.Create())
             {
@@ -21,12 +21,12 @@ namespace Msv.AutoMiner.Data.Logic
                     .OrderByDescending(x => x.Received)
                     .FirstOrDefault(x => x.RigId == rigId);
                 return entity != null 
-                    ? JsonConvert.DeserializeObject<Heartbeat>(entity.ContentsJson)
-                    : null;
+                    ? (JsonConvert.DeserializeObject<Heartbeat>(entity.ContentsJson), entity)
+                    : default;
             }
         }
 
-        public Dictionary<int, Heartbeat> GetLastHeartbeats(int[] rigIds = null)
+        public Dictionary<int, (Heartbeat heartbeat, RigHeartbeat entity)> GetLastHeartbeats(int[] rigIds = null)
         {
             var sqlQuery = $@"SELECT source.* FROM RigHeartbeats source
   JOIN (SELECT RigId, MAX(Received) AS MaxReceived FROM RigHeartbeats
@@ -40,12 +40,14 @@ namespace Msv.AutoMiner.Data.Logic
                     .FromSql(sqlQuery)
                     .AsEnumerable()
                     .GroupBy(x => x.RigId)
+                    .Select(x => new
+                    {
+                        x.Key,
+                        LastHeartbeat = x.OrderByDescending(y => y.Received).First()
+                    })
                     .ToDictionary(
                         x => x.Key,
-                        x => JsonConvert.DeserializeObject<Heartbeat>(
-                            x.OrderByDescending(y => y.Received)
-                                .First()
-                                .ContentsJson));
+                        x => (JsonConvert.DeserializeObject<Heartbeat>(x.LastHeartbeat.ContentsJson), x.LastHeartbeat));
             }
         }
     }

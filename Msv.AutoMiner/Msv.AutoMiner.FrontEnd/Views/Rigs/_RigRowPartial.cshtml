@@ -1,0 +1,88 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.FrontEnd.Models.Rigs
+@model RigDisplayModel
+
+@{
+    string rowClass;
+    string title;
+    if (Model.Activity == ActivityState.Inactive)
+    {
+        rowClass = "text-muted";
+        title = "Rig is inactive";
+    }
+    else if (Model.CertificateSerial == null)
+    {
+        rowClass = "warning";
+        title = "Certificate for the rig isn't registered";
+    }
+    else if (Model.LastHeartbeat == null || Model.LastHeartbeat < DateTime.UtcNow - TimeSpan.FromMinutes(10))
+    {
+        rowClass = "warning";
+        title = "Rig data is unavailable or obsolete, no recent heartbeats";
+    }
+    else
+    {
+        rowClass = null;
+        title = null;
+    }
+}
+
+<tr class="@rowClass" title="@title" data-rig-name="@Model.Name">
+    <td>
+        <a asp-action="Statistics" asp-route-id="@Model.Id" title="Show statistics">@Model.Name</a>
+    </td>
+    <td>@Model.RemoteAddress</td>
+    <td class="text-monospace small">@Model.CertificateSerial</td>
+    <td msv-absolute-date="@Model.LastHeartbeat"></td>
+    <td>
+        <ul class="list-inline">
+            <li>
+                <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@Model.Id" title="Edit rig">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            </li>
+            <li>
+                @{
+                    var activationButtonTitle = Model.Activity == ActivityState.Active
+                        ? "Disable rig"
+                        : "Enable rig";
+                }
+                <button class="btn btn-xs btn-info"
+                        title="@activationButtonTitle"
+                        data-disable-url="@Url.Action("ToggleActive", new {id = Model.Id})">
+                    @if (Model.Activity == ActivityState.Active)
+                    {
+                        <i class="glyphicon glyphicon-remove"></i>
+                    }
+                    else if (Model.Activity == ActivityState.Inactive)
+                    {
+                        <i class="glyphicon glyphicon-flash"></i>
+                    }
+                </button>
+            </li>
+            <li>
+                @if (Model.CertificateSerial == null)
+                {
+                    <a class="btn btn-xs btn-info"
+                       asp-action="CreateRegistrationRequest" asp-route-id="@Model.Id" title="Register rig">
+                        <i class="fa fa-user-plus" aria-hidden="true"></i>
+                    </a>
+                }
+                else
+                {
+                    <a class="btn btn-xs btn-info"
+                       asp-action="RevokeCertificate" asp-route-id="@Model.Id" title="Revoke rig certificate">
+                        <i class="fa fa-user-times" aria-hidden="true"></i>
+                    </a>
+                }
+            </li>
+            <li>
+                <button class="btn btn-xs btn-danger"
+                        title="Delete rig"
+                        data-delete-url="@Url.Action("Delete", new {id = Model.Id})">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </button>
+            </li>
+        </ul>
+    </td>
+</tr>

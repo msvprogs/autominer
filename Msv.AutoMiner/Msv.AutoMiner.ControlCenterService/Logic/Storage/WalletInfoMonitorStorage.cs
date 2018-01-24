@@ -20,8 +20,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
             using (var context = m_Factory.CreateReadOnly())
                 return context.Wallets
                     .Include(x => x.Coin)
-                    .Where(x => x.Activity != ActivityState.Deleted)
+                    .Where(x => x.Activity == ActivityState.Active)
                     .Where(x => x.ExchangeType == null || x.Exchange.Activity == ActivityState.Active)
+                    .Where(x => x.Coin.Activity != ActivityState.Deleted)
                     .ToArray();
         }
 

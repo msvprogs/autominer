@@ -19,7 +19,7 @@ using SixLabors.ImageSharp;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
-    public class CoinsController : Controller
+    public class CoinsController : EntityControllerBase<Coin, CoinDisplayModel, Guid>
     {
         public const string CoinsMessageKey = "CoinsMessage";
 
@@ -35,6 +35,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             IStoredFiatValueProvider fiatValueProvider,
             IImageProcessor imageProcessor,
             AutoMinerDbContext context)
+            : base("_CoinRowPartial", context)
         {
             m_NetworkInfoProvider = networkInfoProvider;
             m_CoinValueProvider = coinValueProvider;
@@ -49,7 +50,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var yesterdayBtcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue(DateTime.UtcNow.AddDays(-1)).Value;
             return View(new CoinsIndexModel
             {
-                Coins = GetCoinDisplayModels(null),
+                Coins = GetEntityModels(null),
                 BtcUsdRate = currentBtcUsdRate,
                 BtcUsdRateDelta = ConversionHelper.GetDiffRatio(yesterdayBtcUsdRate, currentBtcUsdRate)
             });
@@ -70,7 +71,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (coin == null)
                 return NotFound();
-            if (coin.Symbol == "BTC")
+            if (!IsEditable(coin))
                 return Forbid();
             var lastNetworkInfo = await m_Context.CoinNetworkInfos
                 .Where(x => x.CoinId == coin.Id)
@@ -187,37 +188,6 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ToggleActive(Guid id)
-        {
-            var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
-            if (coin == null)
-                return NotFound();
-            if (coin.Symbol == "BTC")
-                return Forbid();
-            if (coin.Activity == ActivityState.Active)
-                coin.Activity = ActivityState.Inactive;
-            else if (coin.Activity == ActivityState.Inactive)
-                coin.Activity = ActivityState.Active;
-            await m_Context.SaveChangesAsync();
-
-            return PartialView("_CoinRowPartial", GetCoinDisplayModels(new[] {id}).FirstOrDefault());
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
-            if (coin == null)
-                return NotFound();
-            if (coin.Symbol == "BTC")
-                return Forbid();
-            coin.Activity = ActivityState.Deleted;
-
-            await m_Context.SaveChangesAsync();
-            return NoContent();
-        }
-
         public async Task<IActionResult> CreateConfigFile(Guid id)
         {
             var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
@@ -240,7 +210,10 @@ rpcallowip={allowIpMask}
             return File(Encoding.ASCII.GetBytes(configContents), "application/octet-stream", $"{configFileName}.conf");
         }
 
-        private CoinDisplayModel[] GetCoinDisplayModels(Guid[] ids)
+        protected override bool IsEditable(Coin entity)
+            => entity.Symbol != "BTC";
+
+        protected override CoinDisplayModel[] GetEntityModels(Guid[] ids)
         {
             var yesterday = DateTime.UtcNow.AddDays(-1);
             var lastInfos = m_NetworkInfoProvider.GetCurrentNetworkInfos(false);

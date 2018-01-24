@@ -492,6 +492,10 @@ $(function () {
             $("#privateKeyInput").val("");
             $("#editKeysDialog").modal("show");
         });
+
+    // ** Rig index
+    bindDisableButton($("tbody#rigs-table"), "rig-name", "rig");
+    bindDeleteButton($("tbody#rigs-table"), "rig-name", "rig");
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

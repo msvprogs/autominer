@@ -5,7 +5,7 @@ namespace Msv.AutoMiner.Data.Logic
 {
     public interface IRigHeartbeatProvider
     {
-        Heartbeat GetLastHeartbeat(int rigId);
-        Dictionary<int, Heartbeat> GetLastHeartbeats(int[] rigIds = null);
+        (Heartbeat heartbeat, RigHeartbeat entity) GetLastHeartbeat(int rigId);
+        Dictionary<int, (Heartbeat heartbeat, RigHeartbeat entity)> GetLastHeartbeats(int[] rigIds = null);
     }
 }

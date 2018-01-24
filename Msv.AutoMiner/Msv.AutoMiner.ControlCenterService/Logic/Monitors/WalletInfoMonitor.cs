@@ -29,7 +29,8 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
             var now = DateTime.UtcNow;
             var startDate = now - M_LastOperationsPeriod;
 
-            var exchangeResults = wallets.Select(x => x.ExchangeType)
+            var exchangeResults = wallets
+                .Select(x => x.ExchangeType)
                 .Where(x => x != null && x != ExchangeType.Unknown)
                 .Select(x => x.Value)
                 .Distinct()

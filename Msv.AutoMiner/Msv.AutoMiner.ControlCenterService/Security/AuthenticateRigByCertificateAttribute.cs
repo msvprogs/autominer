@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using NLog;
 
@@ -49,7 +50,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                     context.Result = new UnauthorizedResult();
                     return;
                 }
-                if (!rig.IsActive)
+                if (rig.Activity != ActivityState.Active)
                 {
                     M_Logger.Warn($"{ip}: Rig {rig.Id} ({rig.Name}) is inactive");
                     context.Result = new UnauthorizedResult();

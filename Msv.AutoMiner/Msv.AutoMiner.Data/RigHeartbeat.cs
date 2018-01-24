@@ -14,5 +14,7 @@ namespace Msv.AutoMiner.Data
         public DateTime Received { get; set; }
 
         public string ContentsJson { get; set; }
+
+        public string RemoteAddress { get; set; }
     }
 }
