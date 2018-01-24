@@ -221,9 +221,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Symbol = "EXP",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.EtHash],
                     NetworkInfoApiType = CoinNetworkInfoApiType.OpenEthereumPool,
-                    NetworkInfoApiUrl = "http://52.165.128.189/api/stats",
-                    CanonicalBlockReward = 8,
-                    CanonicalBlockTimeSeconds = 60
+                    NetworkInfoApiUrl = "http://52.165.128.189/api/stats"
                 },
                 new Coin
                 {
@@ -273,9 +271,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Symbol = "UBQ",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.EtHash],
                     NetworkInfoApiType = CoinNetworkInfoApiType.OpenEthereumPool,
-                    NetworkInfoApiUrl = "http://ubiqpool.io/api/stats",
-                    CanonicalBlockReward = 8,
-                    CanonicalBlockTimeSeconds = 88
+                    NetworkInfoApiUrl = "http://ubiqpool.io/api/stats"
                 },
                 new Coin
                 {
@@ -516,9 +512,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                     Name = "DaxxCoin",
                     Symbol = "DAXX",
                     AlgorithmId = algorithms[KnownCoinAlgorithm.EtHash],
-                    NetworkInfoApiType = CoinNetworkInfoApiType.Special,
-                    CanonicalBlockReward = 30,
-                    CanonicalBlockTimeSeconds = 30
+                    NetworkInfoApiType = CoinNetworkInfoApiType.Special
                 },
                 new Coin
                 {

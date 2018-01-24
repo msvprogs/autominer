@@ -19,7 +19,7 @@ namespace Msv.AutoMiner.Common.Helpers
         {
             var normalizedValue = NormalizeNumber(str);
             return normalizedValue != string.Empty 
-                ? long.Parse(normalizedValue) 
+                ? long.Parse(normalizedValue, NumberStyles.AllowThousands, M_AmericanCulture) 
                 : 0;
         }
 

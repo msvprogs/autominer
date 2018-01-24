@@ -21,5 +21,9 @@ namespace Msv.AutoMiner.Data
         public long Height { get; set; }
 
         public DateTime? LastBlockTime { get; set; }
+
+        public int? MasternodeCount { get; set; }
+
+        public double? TotalSupply { get; set; }
     }
 }

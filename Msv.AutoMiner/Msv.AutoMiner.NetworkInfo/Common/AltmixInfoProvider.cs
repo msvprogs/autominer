@@ -38,7 +38,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 NetHashRate = ParsingHelper.ParseHashRate(infoNodes[3].InnerText),
                 Difficulty = ParsingHelper.ParseDouble(lastBlockInfo.SelectSingleNode(".//td[3]").InnerText),
                 Height = long.Parse(lastBlockLink.InnerText),
-                MoneySupply = ParsingHelper.ParseDouble(infoNodes[0].InnerText),
+                TotalSupply = ParsingHelper.ParseDouble(infoNodes[0].InnerText),
                 LastBlockTime = DateTimeHelper.FromIso8601(
                     lastBlockInfo.SelectSingleNode(".//td[2]/span")?.GetAttributeValue("title", null))
             };

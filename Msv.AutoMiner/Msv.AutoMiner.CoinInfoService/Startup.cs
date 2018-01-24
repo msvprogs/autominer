@@ -39,6 +39,7 @@ namespace Msv.AutoMiner.CoinInfoService
             services.AddSingleton<IMarketInfoMonitorStorage, MarketInfoMonitorStorage>();
             services.AddSingleton<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
             services.AddSingleton<IStoredFiatValueProvider, StoredFiatValueProvider>();
+            services.AddSingleton<IMasternodeInfoStorage, MasternodeInfoMemoryStorage>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

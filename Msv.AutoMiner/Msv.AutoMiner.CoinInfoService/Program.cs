@@ -45,12 +45,16 @@ namespace Msv.AutoMiner.CoinInfoService
                 using (new MarketInfoMonitor(
                     new MarketInfoProviderFactory(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
+                using (new MasternodeInfoMonitor(
+                    new MasternodeInfoProviderFactory(new LoggedWebClient()),
+                    scope.ServiceProvider.GetRequiredService<IMasternodeInfoStorage>()))
                 using (new NetworkInfoMonitor(
                     new JsBlockRewardCalculator(),
                     scope.ServiceProvider.GetRequiredService<ICoinNetworkInfoProvider>(),
                     new NetworkInfoProviderFactory(
                         new LoggedWebClient(),
                         new ProxiedLoggedWebClient(new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
+                    scope.ServiceProvider.GetRequiredService<IMasternodeInfoStorage>(),
                     scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {
                     host.Run();

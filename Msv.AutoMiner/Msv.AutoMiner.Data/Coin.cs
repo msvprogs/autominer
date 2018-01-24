@@ -40,10 +40,6 @@ namespace Msv.AutoMiner.Data
 
         public string NodePassword { get; set; }
 
-        public double? CanonicalBlockReward { get; set; }
-
-        public double? CanonicalBlockTimeSeconds { get; set; }
-
         public string RewardCalculationJavaScript { get; set; }
 
         public byte[] LogoImageBytes { get; set; }

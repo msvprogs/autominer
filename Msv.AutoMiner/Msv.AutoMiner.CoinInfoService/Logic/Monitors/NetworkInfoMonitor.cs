@@ -25,18 +25,21 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
         private readonly IBlockRewardCalculator m_RewardCalculator;
         private readonly ICoinNetworkInfoProvider m_StoredInfoProvider;
         private readonly INetworkInfoProviderFactory m_ProviderFactory;
+        private readonly IMasternodeInfoStorage m_MasternodeInfoStorage;
         private readonly INetworkInfoMonitorStorage m_Storage;
 
         public NetworkInfoMonitor(
             IBlockRewardCalculator blockRewardCalculator,
             ICoinNetworkInfoProvider storedInfoProvider,
             INetworkInfoProviderFactory providerFactory,
+            IMasternodeInfoStorage masternodeInfoStorage,
             INetworkInfoMonitorStorage storage) 
             : base(TimeSpan.FromMinutes(15))
         {
             m_RewardCalculator = blockRewardCalculator ?? throw new ArgumentNullException(nameof(blockRewardCalculator));
             m_StoredInfoProvider = storedInfoProvider ?? throw new ArgumentNullException(nameof(storedInfoProvider));
             m_ProviderFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
+            m_MasternodeInfoStorage = masternodeInfoStorage ?? throw new ArgumentNullException(nameof(masternodeInfoStorage));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
@@ -48,7 +51,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 .ToArray();
 
             var multiProvider = m_ProviderFactory.CreateMulti(multiProviderCoins);
-            var multiResults = multiProviderCoins.Any() 
+            var multiProviderResults = multiProviderCoins.Any() 
                 ? multiProvider.GetMultiNetworkStats() 
                 : new Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>>();
 
@@ -63,27 +66,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     try
                     {
-                        var provider = m_ProviderFactory.Create(x);
-                        var multiResult = multiResults.TryGetValue(x.Symbol);
-                        var result = multiResult?.TryGetValue(x.Algorithm.KnownValue.GetValueOrDefault())
-                                     ?? multiResult?.TryGetValue(KnownCoinAlgorithm.Unknown)
-                                     ?? provider.GetNetworkStats();
-                        if (result.NetHashRate <= 0 && result.Difficulty <= 0)
-                            return (coin: x, result: null);
-                        if (!string.IsNullOrWhiteSpace(x.RewardCalculationJavaScript))
-                        {
-                            var reward = m_RewardCalculator.Calculate(
-                                x.RewardCalculationJavaScript, result.Height, result.Difficulty, result.MoneySupply, result.MasternodeCount);
-                            if (reward != null)
-                                result.BlockReward = reward;
-                        }
-                        LogResults(x, result, previousInfos.TryGetValue(x.Id, new CoinNetworkInfo()));
-                        if (result.LastBlockTime.HasValue
-                            && (DateTime.UtcNow - result.LastBlockTime.Value > M_MaxLastBlockPastDifference
-                            || result.LastBlockTime.Value - DateTime.UtcNow > M_MaxLastBlockFutureDifference))
-                            throw new ExternalDataUnavailableException(
-                                $"Provider blockchain is possibly out of sync: last block time is {result.LastBlockTime:R}, current time is {DateTime.UtcNow:R}");
-                        return (coin: x, result);
+                        return ProcessSingleCoin(x, multiProviderResults, previousInfos);
                     }
                     catch (Exception ex)
                     {
@@ -96,16 +79,52 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     CoinId = x.coin.Id,
                     Created = now,
-                    BlockReward = x.result.BlockReward.NullIfNaN() ?? 0,
-                    BlockTimeSeconds = x.coin.CanonicalBlockTimeSeconds.NullIfNaN()
-                                       ?? x.result.BlockTimeSeconds.NullIfNaN()
-                                       ?? 0,
+                    BlockReward = x.result.BlockReward.NullIfNaN().GetValueOrDefault(),
+                    BlockTimeSeconds = x.result.BlockTimeSeconds.NullIfNaN().GetValueOrDefault(),
                     Difficulty = x.result.Difficulty.ZeroIfNaN(),
                     Height = x.result.Height,
                     NetHashRate = x.result.NetHashRate.ZeroIfNaN(),
-                    LastBlockTime = x.result.LastBlockTime
+                    LastBlockTime = x.result.LastBlockTime,
+                    MasternodeCount = x.result.MasternodeCount,
+                    TotalSupply = x.result.TotalSupply.NullIfNaN()
                 })
                 .ForAll(x => m_Storage.StoreNetworkInfo(x));
+        }
+
+        private (Coin coin, CoinNetworkStatistics result) ProcessSingleCoin(
+            Coin coin, 
+            Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>> multiProviderResults,
+            Dictionary<Guid, CoinNetworkInfo> previousInfos)
+        {
+            var provider = m_ProviderFactory.Create(coin);
+            var multiProviderResult = multiProviderResults.TryGetValue(coin.Symbol);
+            var result = multiProviderResult?.TryGetValue(coin.Algorithm.KnownValue.GetValueOrDefault())
+                         ?? multiProviderResult?.TryGetValue(KnownCoinAlgorithm.Unknown)
+                         ?? provider.GetNetworkStats();
+            if (result.NetHashRate <= 0 && result.Difficulty <= 0)
+                return (coin, result: null);
+
+            var masternodeInfo = m_MasternodeInfoStorage.Load(coin.Symbol);
+            if (result.MasternodeCount == null)
+                result.MasternodeCount = masternodeInfo?.MasternodesCount;
+            if (result.TotalSupply == null)
+                result.TotalSupply = masternodeInfo?.TotalSupply;
+
+            if (!string.IsNullOrWhiteSpace(coin.RewardCalculationJavaScript))
+            {
+                var reward = m_RewardCalculator.Calculate(
+                    coin.RewardCalculationJavaScript, result.Height, result.Difficulty, result.TotalSupply, result.MasternodeCount);
+                if (reward != null)
+                    result.BlockReward = reward;
+            }
+
+            LogResults(coin, result, previousInfos.TryGetValue(coin.Id, new CoinNetworkInfo()));
+            if (result.LastBlockTime.HasValue
+                && (DateTime.UtcNow - result.LastBlockTime.Value > M_MaxLastBlockPastDifference
+                    || result.LastBlockTime.Value - DateTime.UtcNow > M_MaxLastBlockFutureDifference))
+                throw new ExternalDataUnavailableException(
+                    $"Provider blockchain is possibly out of sync: last block time is {result.LastBlockTime:R}, current time is {DateTime.UtcNow:R}");
+            return (coin, result);
         }
 
         private void LogResults(Coin coin, CoinNetworkStatistics current, CoinNetworkInfo previous)
@@ -121,6 +140,10 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             networkInfoBuilder.Append($", Current Blockchain Height: {current.Height}");
             if (current.LastBlockTime != null)
                 networkInfoBuilder.Append($", Last Block Time: {current.LastBlockTime.Value:R}");
+            if (current.MasternodeCount != null)
+                networkInfoBuilder.Append($", Masternodes: {current.MasternodeCount}");
+            if (current.TotalSupply != null)
+                networkInfoBuilder.Append($", Total Supply: {current.TotalSupply:N0}");
             Log.Info(networkInfoBuilder.ToString());
         }
 
