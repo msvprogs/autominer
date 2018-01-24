@@ -16,7 +16,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
         public Exchange GetExchange(ExchangeType type)
         {
             using (var context = m_Factory.CreateReadOnly())
-                return context.Exchanges.FirstOrDefault(x => x.Id == type);
+                return context.Exchanges.FirstOrDefault(x => x.Type == type);
         }
     }
 }

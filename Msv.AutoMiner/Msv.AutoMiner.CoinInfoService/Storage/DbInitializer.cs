@@ -150,7 +150,7 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
                 EnumHelper.GetValues<ExchangeType>()
                     .Select(x => new Exchange
                     {
-                        Id = x
+                        Type = x
                     }));
             context.SaveChanges();
         }
