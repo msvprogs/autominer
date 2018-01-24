@@ -23,7 +23,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             throw new NotImplementedException();
         }
 
-        public string UploadString(string url, string data, Dictionary<string, string> headers)
+        public string UploadString(string url, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
         {
             throw new NotImplementedException();
         }
