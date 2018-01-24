@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {

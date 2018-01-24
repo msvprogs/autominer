@@ -10,11 +10,12 @@ using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
+using Msv.AutoMiner.FrontEnd.Models.EstimateProfitability;
 using Msv.AutoMiner.FrontEnd.Models.Tools;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
 {
-    public class ToolsController : Controller
+    public class EstimateProfitabilityController : Controller
     {
         private const string ElectricityCostUsdKey = "ElectricityCostUsd";
 
@@ -24,7 +25,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         private readonly ICoinInfoService m_CoinInfoService;
         private readonly AutoMinerDbContext m_Context;
 
-        public ToolsController(
+        public EstimateProfitabilityController(
             ICoinNetworkInfoProvider networkInfoProvider,
             ICoinValueProvider coinValueProvider,
             IRigHeartbeatProvider rigHeartbeatProvider,
@@ -53,7 +54,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 })
                 .OrderBy(x => x.Name)
                 .ToArray();
-            return View(new ToolsIndexModel
+            return View(new EstimateProfitabilityIndexModel
             {
                 ElectricityCostUsd = HttpContext.Session.GetDouble(ElectricityCostUsdKey),
                 Rigs = rigs,

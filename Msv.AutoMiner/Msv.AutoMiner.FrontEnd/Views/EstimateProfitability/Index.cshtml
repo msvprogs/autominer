@@ -1,0 +1,164 @@
+﻿@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Models.EstimateProfitability
+@model EstimateProfitabilityIndexModel
+
+@{
+    ViewBag.Title = "Profitability estimation";
+}
+
+<h2 class="text-center">Profitability estimation</h2>
+
+<div class="row">
+    <form asp-action="EstimateProfitability" id="estimateProfitForm" onsubmit="return false">
+        <h4>Choose coin or input arbitrary network data</h4>
+        <div class="form-group">
+            <label>Choose coin:</label>
+            <select class="form-control" id="coinSelector">
+                <option value="" disabled="disabled" selected="selected">Select...</option>
+                @foreach (var coin in Model.Coins.OrderBy(x => x.Name))
+                {
+                    <option value="@coin.Id"
+                            data-difficulty="@coin.Difficulty"
+                            data-reward="@coin.BlockReward"
+                            data-max-target="@coin.MaxTarget"
+                            data-algorithm="@coin.Algorithm.Id"
+                            data-btc-price="@ConversionHelper.ToCryptoCurrencyValue(coin.BtcPrice)">
+                        @coin.Name (@coin.Symbol)
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 form-group">
+                <label for="difficulty">Difficulty:</label>
+                <input type="text" id="difficulty" name="difficulty" class="form-control" />
+            </div>
+            <div class="col-xs-6 form-group">
+                <label for="blockReward">Block reward:</label>
+                <input type="text" id="blockReward" name="blockReward" class="form-control" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 form-group">
+                <label for="btcPrice">BTC price per coin:</label>
+                <input type="text" id="btcPrice" name="btcPrice" class="form-control" />
+            </div>
+            <div class="col-xs-6 form-group">
+                <label for="maxTarget">Max hash target (Bitcoin-like by default):</label>
+                <input id="maxTarget" name="maxTarget" class="form-control text-monospace"
+                       placeholder="For example, 0x1d00ffff or 0x00000000ffff0000000000000000000000000000000000000000000000000000" />
+            </div>
+        </div>
+
+        <h4>Choose algorithm and rig or input arbitrary hashrate</h4>
+        <div class="row">
+            <div class="col-xs-6 form-group">
+                <label>Choose algorithm:</label>
+                <select class="form-control" id="algorithmSelector">
+                    <option value="" disabled="disabled" selected="selected">Select...</option>
+                    @foreach (var algorithm in Model.Algorithms)
+                    {
+                        <option value="@algorithm.Id">@algorithm.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-xs-6 form-group">
+                <label>Choose target rig:</label>
+                <select class="form-control" id="rigSelector">
+                    <option value="" disabled="disabled" selected="selected">Select...</option>
+                    @foreach (var rig in Model.Rigs)
+                    {
+                        <option value="@rig.Id">@rig.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 form-group">
+                <label for="hashRate">Hashrate:</label>
+                <input type="text" id="hashRate" name="hashRate" class="form-control"
+                        placeholder="For example, 56 Mh/s" />
+            </div>
+            <div class="col-xs-4 form-group">
+                <label for="clientPowerUsage">Power usage, W:</label>
+                <input type="text" id="clientPowerUsage" name="clientPowerUsage" class="form-control" />
+            </div>
+            <div class="col-xs-4 form-group">
+                <label for="electricityCostUsd">Electricity cost, USD per kWh:</label>
+                <input type="text" id="electricityCostUsd" name="electricityCostUsd"
+                        class="form-control" value="@Model.ElectricityCostUsd" />
+            </div>
+        </div>
+        <div class="text-center">
+            <button id="estimateProfitSubmit" class="btn btn-lg btn-primary" type="button">Calculate</button>
+        </div>
+    </form>
+    <div id="estimationResult" class="padded"></div>
+</div>
+
+@section Scripts {
+    <script>
+        var rigHashrates = @Json.Serialize(Model.Rigs);
+
+        $(function () {
+            $("#algorithmSelector").change(updateHashrate);
+            $("#rigSelector").change(updateHashrate);
+
+            $("#coinSelector").change(function(e) {
+                var selectedOption = getSelectedOption(e.currentTarget);
+                if (selectedOption == null)
+                    return;
+                $("#difficulty").val(selectedOption.data("difficulty"));
+                $("#blockReward").val(selectedOption.data("reward"));
+                $("#maxTarget").val(selectedOption.data("max-target"));
+                $("#btcPrice").val(selectedOption.data("btc-price"));
+                $("#algorithmSelector > option[value='" + selectedOption.data("algorithm") + "']")
+                    .prop("selected", true);
+                updateHashrate();
+            });
+
+            $("#estimateProfitSubmit").click(function () {
+                var profitForm = $("#estimateProfitForm");
+                $("#estimationResult").html("");
+                $("#estimationErrorResult").html("");
+
+                $.ajax({
+                        url: profitForm.attr("action"),
+                        type: "POST",
+                        data: profitForm.serialize(),
+                        success: function(result) {
+                            $("#estimationResult").html(result);
+                        }
+                    })
+                    .fail(function(xhr, textStatus, error) {
+                        new Notification("Profitability estimation request failed: " + error).danger();
+                    });
+            });
+        });
+
+        function updateHashrate() {
+            var algorithmSelector = document.getElementById("algorithmSelector");
+            var rigSelector = document.getElementById("rigSelector");
+            var selectedAlgorithm = getSelectedOption(algorithmSelector);
+            var selectedRig = getSelectedOption(rigSelector);
+            if (selectedAlgorithm == null || selectedRig == null)
+                return;
+            for (var i = 0; i < rigHashrates.length; i++)
+                if (rigHashrates[i].id == selectedRig.val())
+                    for (var j = 0; j < rigHashrates[i].hashRates.length; j++) {
+                        var hashRateItem = rigHashrates[i].hashRates[j];
+                        if (hashRateItem.algorithmId == selectedAlgorithm.val()) {
+                            $("#hashRate").val(hashRateItem.netHashRate + " H/s");
+                            $("#clientPowerUsage").val(hashRateItem.power);
+                        }
+                    }
+        }
+
+        function getSelectedOption(selector) {
+            var selectedItem = $(selector.options[selector.selectedIndex]);
+            if (selectedItem == null || selectedItem.val() === '')
+                return null;
+            return selectedItem;
+        }
+    </script>
+}

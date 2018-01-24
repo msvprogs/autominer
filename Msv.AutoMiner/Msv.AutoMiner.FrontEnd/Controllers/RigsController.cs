@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
@@ -12,8 +10,8 @@ using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Rigs;
-using Msv.AutoMiner.FrontEnd.Models.Shared;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
@@ -23,20 +21,24 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public const string RigsMessageKey = "RigsMessage";
 
         private readonly IRigHeartbeatProvider m_HeartbeatProvider;
+        private readonly ICryptoRandomGenerator m_RandomGenerator;
         private readonly AutoMinerDbContext m_Context;
 
         public RigsController(
             IRigHeartbeatProvider heartbeatProvider, 
+            ICryptoRandomGenerator randomGenerator,
             AutoMinerDbContext context)
             : base("_RigRowPartial", context)
         {
             m_HeartbeatProvider = heartbeatProvider;
+            m_RandomGenerator = randomGenerator;
             m_Context = context;
         }
 
         public IActionResult Index() 
             => View(GetEntityModels(null));
 
+        [HttpPost]
         public async Task<IActionResult> CreateRegistrationRequest(int id)
         {
             var rig = await m_Context.Rigs
@@ -44,52 +46,64 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (rig == null)
                 return NotFound();
-            using (var prng = new RNGCryptoServiceProvider())
-            {
-                var passwordBytes = new byte[4];
-                prng.GetBytes(passwordBytes);
-                rig.RegistrationPassword = BitConverter.ToUInt32(passwordBytes, 0).ToString();
-            }
+
+            rig.RegistrationPassword = BitConverter.ToUInt32(m_RandomGenerator.GenerateRandom(4), 0).ToString();
             await m_Context.SaveChangesAsync();
-            return PartialView("_AlertPartial", new AlertModel
-            {
-                Type = AlertType.Info,
-                Body = $"Rig name: {rig.Name}, password for rig registration: {rig.RegistrationPassword}",
-                Title = $"Registration of rig {rig.Name}"
-            });
+            return Content($"Rig name: <b>{rig.Name}</b><br />Password for rig registration: <b>{rig.RegistrationPassword}</b>");
         }
 
-        [HttpGet, HttpPost]
+        [HttpPost]
         public async Task<IActionResult> RevokeCertificate(int id)
         {
             var rig = await m_Context.Rigs.FirstOrDefaultAsync(x => x.Id == id);
             if (rig == null)
                 return NotFound();
-            if (HttpContext.Request.Method == HttpMethods.Get)
-                return PartialView("_ConfirmPartial", new ConfirmModel
-                {
-                    Title = $"Revoke certificate of rig {rig.Name}",
-                    Body = $"Would you really like to revoke certificate of rig {rig.Name}?" 
-                        + " It will no longer be able to connect to the control center."
-                });
-
-            if (HttpContext.Request.Method != HttpMethods.Post)
-                throw new InvalidOperationException();
             rig.ClientCertificateSerial = null;
             rig.ClientCertificateThumbprint = null;
+
             await m_Context.SaveChangesAsync();
-            TempData[RigsMessageKey] = $"Certificate of rig {rig.Name} was revoked";
-            return RedirectToAction("Index");
-        }
-        
-        public IActionResult Create()
-        {
-            throw new NotImplementedException();
+            return PartialView("_RigRowPartial", GetEntityModels(new[] {id}).FirstOrDefault());
         }
 
-        public IActionResult Edit()
+        public IActionResult Create()
+            => View("Edit", new RigEditModel
+            {
+                DifficultyAggregationType = ValueAggregationType.Last12Hours,
+                PriceAggregationType = ValueAggregationType.Last24Hours
+            });
+
+        public async Task<IActionResult> Edit(int id)
         {
-            throw new NotImplementedException();
+            var rig = await m_Context.Rigs.FirstOrDefaultAsync(x => x.Id == id);
+            if (rig == null)
+                return NotFound();
+            return View(new RigEditModel
+            {
+                Id = id,
+                DifficultyAggregationType = rig.DifficultyAggregationType,
+                Name = rig.Name,
+                PriceAggregationType = rig.PriceAggregationType
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Save(RigEditModel model)
+        {
+            if (!ModelState.IsValid)
+                return View("Edit", model);
+
+            var rig = await m_Context.Rigs.FirstOrDefaultAsync(x => x.Id == model.Id)
+                      ?? m_Context.Rigs.Add(new Rig
+                      {
+                          Activity = ActivityState.Active
+                      }).Entity;
+            rig.Name = model.Name;
+            rig.DifficultyAggregationType = model.DifficultyAggregationType;
+            rig.PriceAggregationType = model.PriceAggregationType;
+
+            await m_Context.SaveChangesAsync();
+            TempData[RigsMessageKey] = $"Rig {rig.Name} has been successfully saved";
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Statistics(int id)
@@ -197,6 +211,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Name = x.rig.Name,
                     Activity = x.rig.Activity,
                     RemoteAddress = x.heartbeatEntity.RemoteAddress,
+                    DifficultyAggregationType = x.rig.DifficultyAggregationType,
+                    PriceAggregationType = x.rig.PriceAggregationType,
                     CertificateSerial = x.rig.ClientCertificateSerial != null
                         ? HexHelper.ToHex(x.rig.ClientCertificateSerial)
                         : null,

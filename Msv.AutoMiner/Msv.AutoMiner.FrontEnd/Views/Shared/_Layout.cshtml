@@ -108,7 +108,14 @@
                             </ul>
                         </li>
                         @MakeNavBarItem("Rigs", "Rigs", "Index", "fa-desktop")
-                        @MakeNavBarItem("Tools", "Tools", "Index", "fa-wrench")
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-wrench"></i> Tools <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @MakeNavBarItem("Profitability estimation", "EstimateProfitability", "Index", "fa-usd")
+                            </ul>
+                        </li>
                     </ul>
                 }
             </div>

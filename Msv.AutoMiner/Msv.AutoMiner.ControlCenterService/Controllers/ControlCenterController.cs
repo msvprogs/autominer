@@ -61,6 +61,11 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 M_Logger.Warn($"Rig {request.Name} not found");
                 return new RegisterRigResponseModel();
             }
+            if (rig.Activity != ActivityState.Active)
+            {
+                M_Logger.Warn($"Rig {request.Name} is inactive");
+                return new RegisterRigResponseModel();
+            }
             if (rig.RegistrationPassword == null)
             {
                 M_Logger.Warn($"Rig {request.Name} has no registration password");
@@ -145,13 +150,14 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             var rigId = (int)ControllerContext.RouteData.Values["rigId"];
             M_Logger.Info($"Rig {rigId} requested new mining work");
 
+            var rig = m_Storage.GetRigById(rigId);
             var coinStatistics = await m_CoinInfoService.GetProfitabilities(
                 new ProfitabilityRequestModel
                 {
                     AlgorithmDatas = request.AlgorithmDatas,
-                    DifficultyAggregationType = ValueAggregationType.Last12Hours,
+                    DifficultyAggregationType = rig.DifficultyAggregationType,
                     ElectricityCostUsd = request.ElectricityCostUsd,
-                    PriceAggregationType = ValueAggregationType.Last24Hours
+                    PriceAggregationType = rig.PriceAggregationType
                 });
             var coinIds = coinStatistics.Profitabilities
                 .EmptyIfNull()

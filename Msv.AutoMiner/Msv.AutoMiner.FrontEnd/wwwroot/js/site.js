@@ -166,12 +166,24 @@ AjaxOperationControl.prototype.enable = function() {
 // -- End of AjaxOperationControl --
 
 // -- JsonFileReader --
-function JsonFileReader(fileInputId) {
-    this.fileInputId = fileInputId;
+function JsonFileReader(button) {
+    var input = $("<input>")
+        .attr({
+            type: "file",
+            accept: ".json"
+        })
+        .css("display", "none")
+        .appendTo($(button).parent());
+    button.click(function() {
+        input.click();
+    });
+
+    this.button = button;
+    this.input = input;
 }
 
 JsonFileReader.prototype.subscribe = function(callback) {
-    $(format("input#{0}", this.fileInputId)).change(function() {
+    this.input.change(function() {
         if (!window.File || !window.FileReader) {
             new Notification("Your browser doesn't support local file loading").danger();
             return;
@@ -179,10 +191,7 @@ JsonFileReader.prototype.subscribe = function(callback) {
         var selectedFile = $(this).prop("files")[0];
         if (selectedFile === undefined || selectedFile === null)
             return;
-        if (selectedFile.type !== "application/json") {
-            new Notification("Selected file isn't a JSON").danger();
-            return;
-        }
+
         var reader = new FileReader();
         reader.onload = function() {
             var parsedJson;
@@ -496,6 +505,37 @@ $(function () {
     // ** Rig index
     bindDisableButton($("tbody#rigs-table"), "rig-name", "rig");
     bindDeleteButton($("tbody#rigs-table"), "rig-name", "rig");
+    //Bind revoke certificate button
+    bindButtonPostAction($("tbody#rigs-table"),
+        "revoke-certificate-url",
+        function(button, data) {
+            var row = button.closest("tr");
+            new Notification(format("Certificate for rig {0} has been revoked", row.data("rig-name")))
+                .success();
+            row.replaceWith(data);
+        },
+        function(button, error) {
+            new Notification(format("Error while revoking certificate: {0}", error)).danger();
+        },
+        function(button, callback) {
+            var row = button.closest("tr");
+            MessageBox.confirm(
+                format("Revoke certificate for rig {0}?", row.data("rig-name")),
+                format("You are going to revoke certificate for rig {0}. Are you sure? It will no longer be able to connect to the control center.", row.data("rig-name")),
+                function(result) {
+                    if (result)
+                        callback();
+                });
+        });
+    bindButtonPostAction($("tbody#rigs-table"),
+        "register-url",
+        function(button, data) {
+            var row = button.closest("tr");
+            MessageBox.alert(format("Register rig {0}", row.data("rig-name")), "info", data);
+        },
+        function(button, error) {
+            new Notification(format("Error while registering rig: {0}", error)).danger();
+        });
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {
@@ -555,6 +595,7 @@ function bindButtonPostAction(parent, urlAttribute, success, error, preview) {
                     })
                     .done(function(data) {
                         success(button, data);
+                        operationButton.enable();
                     })
                     .fail(function(xhr, textStatus, errorThrown) {
                         error(button, errorThrown);

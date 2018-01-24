@@ -21,6 +21,12 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
                 return context.Rigs.FirstOrDefault(x => x.Name == name);
         }
 
+        public Rig GetRigById(int rigId)
+        {
+            using (var context = m_Factory.CreateReadOnly())
+                return context.Rigs.First(x => x.Id == rigId);
+        }
+
         public void SaveRig(Rig rig)
         {
             if (rig == null)

@@ -3,7 +3,7 @@ using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Rigs
 {
-    public class RigDisplayModel : RigBaseModel
+    public class RigDisplayModel : RigEditModel
     {
         public ActivityState Activity { get; set; }
         

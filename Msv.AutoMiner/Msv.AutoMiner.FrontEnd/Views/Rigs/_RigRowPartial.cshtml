@@ -1,4 +1,5 @@
 ﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Models.Rigs
 @model RigDisplayModel
 
@@ -25,6 +26,8 @@
         rowClass = null;
         title = null;
     }
+
+    var aggregationTypes = EnumHelper.GetCaptions<ValueAggregationType>();
 }
 
 <tr class="@rowClass" title="@title" data-rig-name="@Model.Name">
@@ -32,6 +35,8 @@
         <a asp-action="Statistics" asp-route-id="@Model.Id" title="Show statistics">@Model.Name</a>
     </td>
     <td>@Model.RemoteAddress</td>
+    <td>@aggregationTypes[Model.DifficultyAggregationType]</td>
+    <td>@aggregationTypes[Model.PriceAggregationType]</td>
     <td class="text-monospace small">@Model.CertificateSerial</td>
     <td msv-absolute-date="@Model.LastHeartbeat"></td>
     <td>
@@ -61,21 +66,22 @@
                 </button>
             </li>
             <li>
-                @if (Model.CertificateSerial == null)
-                {
-                    <a class="btn btn-xs btn-info"
-                       asp-action="CreateRegistrationRequest" asp-route-id="@Model.Id" title="Register rig">
-                        <i class="fa fa-user-plus" aria-hidden="true"></i>
-                    </a>
-                }
-                else
-                {
-                    <a class="btn btn-xs btn-info"
-                       asp-action="RevokeCertificate" asp-route-id="@Model.Id" title="Revoke rig certificate">
-                        <i class="fa fa-user-times" aria-hidden="true"></i>
-                    </a>
-                }
+                <button class="btn btn-xs btn-info"
+                        title="Register rig"
+                        data-register-url="@Url.Action("CreateRegistrationRequest", new {id = Model.Id})">
+                    <i class="fa fa-user-plus" aria-hidden="true"></i>
+                </button>
             </li>
+            @if (Model.CertificateSerial != null)
+            {
+                <li>
+                    <button class="btn btn-xs btn-danger"
+                            title="Revoke rig certificate"
+                            data-revoke-certificate-url="@Url.Action("RevokeCertificate", new {id = Model.Id})">
+                        <i class="fa fa-user-times" aria-hidden="true"></i>
+                    </button>
+                </li>
+            }
             <li>
                 <button class="btn btn-xs btn-danger"
                         title="Delete rig"

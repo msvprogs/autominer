@@ -17,7 +17,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
 {
     public class CertificateService : ICertificateService
     {
-        private static readonly TimeSpan M_CertificateValidityPeriod = TimeSpan.FromDays(365 * 5);
+        private static readonly TimeSpan M_CertificateValidityPeriod = TimeSpan.FromDays(365 * 10);
 
         private readonly ICertificateServiceStorage m_Storage;
 
@@ -43,7 +43,7 @@ namespace Msv.AutoMiner.ControlCenterService.Security
                 return null;
 
             var generator = new X509V3CertificateGenerator();
-            generator.SetSerialNumber(new BigInteger(128, new SecureRandom()));
+            generator.SetSerialNumber(new BigInteger(256, new SecureRandom()));
             generator.SetIssuerDN(new X509Name(serverCertificate.SubjectName.Format(false)));
             generator.SetSubjectDN(requestInfo.Subject);
             generator.SetNotBefore(DateTime.UtcNow);

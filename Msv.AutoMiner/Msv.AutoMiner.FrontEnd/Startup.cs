@@ -84,6 +84,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddSingleton<INetworkInfoProviderFactory>(x => new NetworkInfoProviderFactory(
                 new DummyWebClient(), new DummyWebClient()));
             services.AddSingleton<IBlockExplorerUrlProviderFactory, BlockExplorerUrlProviderFactory>();
+            services.AddSingleton<ICryptoRandomGenerator, CryptoRandomGenerator>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
                 Configuration["Services:CoinInfo:ApiKey"]));

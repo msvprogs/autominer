@@ -17,7 +17,6 @@
     <button type="button" class="btn btn-info pull-right" id="importJsonFileButton">
         <i class="fa fa-download" aria-hidden="true"></i> Import from JSON...
     </button>
-    <input type="file" class="invisible" id="importJsonFileInput" accept="application/json" />
 
     <h3>Basic info</h3>
     <div class="form-group">
@@ -278,10 +277,7 @@
 
         $(function() {
             // Configure import button
-            $("button#importJsonFileButton").click(function() {
-                $("input#importJsonFileInput").click();
-            });
-            new JsonFileReader("importJsonFileInput").subscribe(importFile);
+            new JsonFileReader($("#importJsonFileButton")).subscribe(importFile);
 
             // Configure JavaScipt code editor
             var editor = CodeMirror.fromTextArea(

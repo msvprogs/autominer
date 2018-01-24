@@ -24,6 +24,8 @@
         <tr>
             <th>Name</th>
             <th>IP address</th>
+            <th>Difficulty aggregation</th>
+            <th>Market price aggregation</th>
             <th>Certificate serial</th>
             <th>Last heartbeat</th>
             <th>Actions</th>
@@ -36,16 +38,3 @@
     }
     </tbody>
 </table>
-
-@section Scripts {
-    <script>
-        $("a[href*='CreateRegistrationRequest']").click(function() {
-            showModal(this.href);
-            return false;
-        });
-        $("a[href*='RevokeCertificate']").click(function () {
-            confirmAndPost(this.href);
-            return false;
-        });
-    </script>
-}
