@@ -20,8 +20,8 @@ namespace Msv.HttpTools
 #else
             TimeSpan.FromSeconds(70);
 #endif
-
-
+      
+        public WebClient UnderlyingClient => this;
         public CookieContainer CookieContainer { get; set; } = new CookieContainer();
 
         static CorrectWebClient()
@@ -57,7 +57,7 @@ namespace Msv.HttpTools
             return DoTaskWithTimeoutAsync(DownloadStringTaskAsync(uri));
         }
 
-        public Task<string> UploadStringAsync(Uri uri, string data, Dictionary<string, string> headers)
+        public Task<string> UploadStringAsync(Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -65,10 +65,11 @@ namespace Msv.HttpTools
                 throw new ArgumentNullException(nameof(headers));
 
             SetHeaders(headers);
+            Credentials = credentials;
             return DoTaskWithTimeoutAsync(UploadStringTaskAsync(uri, data));
         }
 
-        public Task<string> UploadStringAsync(Uri uri, string data, Dictionary<HttpRequestHeader, string> headers)
+        public Task<string> UploadStringAsync(Uri uri, string data, Dictionary<HttpRequestHeader, string> headers, NetworkCredential credentials = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -76,6 +77,7 @@ namespace Msv.HttpTools
                 throw new ArgumentNullException(nameof(headers));
 
             SetHeaders(headers);
+            Credentials = credentials;
             return DoTaskWithTimeoutAsync(UploadStringTaskAsync(uri, data));
         }
 

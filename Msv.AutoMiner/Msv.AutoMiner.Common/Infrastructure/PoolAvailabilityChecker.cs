@@ -101,7 +101,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
 
         private static bool CheckJsonRpcServer(PoolDataModel pool)
         {
-            var client = new JsonRpcClient(pool.Url.Host, pool.Url.Port, pool.Login, pool.Password);
+            var client = new JsonRpcClient(new LoggedWebClient(), pool.Url.Host, pool.Url.Port, pool.Login, pool.Password);
             try
             {
                 client.Execute<object>("ping");

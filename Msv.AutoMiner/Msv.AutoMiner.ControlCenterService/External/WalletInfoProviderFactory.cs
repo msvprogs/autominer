@@ -27,7 +27,7 @@ namespace Msv.AutoMiner.ControlCenterService.External
                 throw new ArgumentNullException(nameof(coin));
 
             return new JsonRpcLocalWalletInfoProvider(
-                new JsonRpcClient(coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword),
+                new JsonRpcClient(m_WebClient, coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword),
                 coin);
         }
 

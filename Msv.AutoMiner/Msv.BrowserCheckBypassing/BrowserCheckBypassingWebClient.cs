@@ -22,6 +22,8 @@ namespace Msv.BrowserCheckBypassing
             set => m_BaseWebClient.Encoding = value;
         }
 
+        public WebClient UnderlyingClient => m_BaseWebClient.UnderlyingClient;
+
         private readonly IBaseWebClient m_BaseWebClient;
         private readonly IBrowserCheckBypasserFactory m_BypasserFactory;
         private readonly IWritableClearanceCookieStorage m_CookieStorage;
@@ -76,7 +78,7 @@ namespace Msv.BrowserCheckBypassing
             }
         }
 
-        public async Task<string> UploadStringAsync(Uri uri, string data, Dictionary<string, string> headers)
+        public async Task<string> UploadStringAsync(Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -86,7 +88,7 @@ namespace Msv.BrowserCheckBypassing
             try
             {
                 LoadCookies(uri);
-                return await m_BaseWebClient.UploadStringAsync(uri, data, headers);
+                return await m_BaseWebClient.UploadStringAsync(uri, data, headers, credentials);
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
             {
@@ -96,7 +98,7 @@ namespace Msv.BrowserCheckBypassing
             }
         }
 
-        public async Task<string> UploadStringAsync(Uri uri, string data, Dictionary<HttpRequestHeader, string> headers)
+        public async Task<string> UploadStringAsync(Uri uri, string data, Dictionary<HttpRequestHeader, string> headers, NetworkCredential credentials = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -106,7 +108,7 @@ namespace Msv.BrowserCheckBypassing
             try
             {
                 LoadCookies(uri);
-                return await m_BaseWebClient.UploadStringAsync(uri, data, headers);
+                return await m_BaseWebClient.UploadStringAsync(uri, data, headers, credentials);
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
             {

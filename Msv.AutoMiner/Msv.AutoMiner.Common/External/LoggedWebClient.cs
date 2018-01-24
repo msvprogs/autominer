@@ -43,13 +43,13 @@ namespace Msv.AutoMiner.Common.External
             }
         }
 
-        public string UploadString(string url, string data, Dictionary<string, string> headers)
+        public string UploadString(string url, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
         {
             using (var webClient = CreateBaseWebClient())
             {
                 M_Logger.Debug($"POST {url}{Environment.NewLine}{data}");
-                var response = webClient.UploadStringAsync(new Uri(url), data, headers).GetAwaiter().GetResult();
-                M_Logger.Debug($"POST {url} response:{Environment.NewLine}{response}");
+                var response = webClient.UploadStringAsync(new Uri(url), data, headers, credentials).GetAwaiter().GetResult();
+                M_Logger.Debug($"POST {url} response ({webClient.UnderlyingClient.ResponseHeaders[HttpResponseHeader.Server]}):{Environment.NewLine}{response}");
                 return response;
             }
         }
