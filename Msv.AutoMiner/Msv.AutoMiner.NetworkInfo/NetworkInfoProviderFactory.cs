@@ -49,6 +49,10 @@ namespace Msv.AutoMiner.NetworkInfo
 
         private INetworkInfoProvider CreateExternal(Coin coin)
         {
+            var options = new NetworkInfoProviderOptions
+            {
+                GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock
+            };
             switch (coin.NetworkInfoApiType)
             {
                 case CoinNetworkInfoApiType.JsonRpc:
@@ -62,9 +66,9 @@ namespace Msv.AutoMiner.NetworkInfo
                 case CoinNetworkInfoApiType.Insight:
                     return new InsightInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 case CoinNetworkInfoApiType.Iquidus:
-                    return new IquidusInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
+                    return new IquidusInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl, options);
                 case CoinNetworkInfoApiType.IquidusWithPos:
-                    return new IquidusWithPosDifficultyInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
+                    return new IquidusWithPosDifficultyInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl, options);
                 case CoinNetworkInfoApiType.MinerGate:
                     return new MinerGateInfoProvider(m_OrdinaryClient, coin.Symbol);
                 case CoinNetworkInfoApiType.OpenEthereumPool:

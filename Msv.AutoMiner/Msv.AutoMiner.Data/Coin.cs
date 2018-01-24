@@ -28,6 +28,8 @@ namespace Msv.AutoMiner.Data
 
         public string NetworkInfoApiName { get; set; }
 
+        public bool GetDifficultyFromLastPoWBlock { get; set; }
+
         public string MaxTarget { get; set; }
 
         public string NodeHost { get; set; }

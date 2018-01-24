@@ -1,8 +1,10 @@
 ﻿using System;
+using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.NetworkInfo.Data;
+using Msv.AutoMiner.NetworkInfo.Utilities;
 using Newtonsoft.Json.Linq;
 using NLog;
 
@@ -48,23 +50,33 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         private CoinNetworkStatistics GetRpcNetworkStats()
         {
             var info = m_RpcClient.Execute<dynamic>("getmininginfo");
-            var bestBlockInfo = m_RpcClient.Execute<dynamic>(
+            var bestBlockInfo = m_RpcClient.Execute<BlockHeader>(
                 "getblock", m_RpcClient.Execute<string>("getbestblockhash"));
 
             return new CoinNetworkStatistics
             {
                 Height = (long?) info.blocks ?? 0,
                 BlockReward = (double?) info.blockvalue / 1e8,
-                Difficulty = (info.difficulty is JObject difficultyObj
-                                 ? ((double?) difficultyObj["proof-of-work"]
-                                    ?? (double?) difficultyObj["Proof of Work"])
-                                 : (double?) info.difficulty)
-                             ?? 0,
+                Difficulty = m_Coin.GetDifficultyFromLastPoWBlock
+                    ? new BlockChainSearcher(x => m_RpcClient.Execute<dynamic>("getblock", x))
+                        .SearchPoWBlock(bestBlockInfo).Difficulty
+                    : ParseDifficulty(info),
                 NetHashRate = (long?) ((double?) info.netmhashps * 1e6)
-                    ?? (long?) info.networkhashps
-                    ?? 0,
-                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)bestBlockInfo.time)
+                              ?? (long?) info.networkhashps
+                              ?? 0,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc(bestBlockInfo.Time)
             };
+        }
+
+        private static double ParseDifficulty(dynamic miningInfoJson)
+        {
+            var difficulty = miningInfoJson.difficulty is JObject difficultyObj
+                ? ((double?) difficultyObj["proof-of-work"]
+                   ?? (double?) difficultyObj["Proof of Work"])
+                : (double?) miningInfoJson.difficulty;
+            if (difficulty == null)
+                throw new ExternalDataUnavailableException("Couldn't parse difficulty from getmininginfo() response");
+            return difficulty.Value;
         }
     }
 }

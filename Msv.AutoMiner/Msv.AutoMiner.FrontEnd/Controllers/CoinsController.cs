@@ -97,7 +97,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 LastHeight = lastNetworkInfo?.Height,
                 LastDifficulty = lastNetworkInfo?.Difficulty,
                 AddressFormat = coin.AddressFormat,
-                AddressPrefixes = coin.AddressPrefixes
+                AddressPrefixes = coin.AddressPrefixes,
+                GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock
             };
             return View(coinModel);
         }
@@ -118,7 +119,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     NetworkApiUrl = coin.NetworkInfoApiUrl,
                     NetworkInfoApiType = coin.NetworkInfoApiType,
                     RewardCalculationJavaScript = coin.RewardCalculationJavaScript,
-                    Symbol = coin.Symbol
+                    Symbol = coin.Symbol,
+                    GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock
                 });
             return File(Encoding.UTF8.GetBytes(exportedContent), "application/json", $"{coin.Name}_settings.json");
         }
@@ -175,6 +177,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.RewardCalculationJavaScript = coinModel.RewardCalculationJavaScript;
             coin.AddressFormat = coinModel.AddressFormat;
             coin.AddressPrefixes = coinModel.AddressPrefixes;
+            coin.GetDifficultyFromLastPoWBlock = coinModel.GetDifficultyFromLastPoWBlock;
             if (newLogoBytes != null)
                 coin.LogoImageBytes = m_ImageProcessor.Resize(newLogoBytes, 16, 16, ImageFormats.Png);
             else if (coinModel.DeleteLogo)

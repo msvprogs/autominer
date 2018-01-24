@@ -30,5 +30,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public AddressFormat AddressFormat { get; set; }
 
         public string AddressPrefixes { get; set; }
+
+        public bool GetDifficultyFromLastPoWBlock { get; set; }
     }
 }
