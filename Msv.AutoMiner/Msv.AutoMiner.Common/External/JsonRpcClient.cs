@@ -54,7 +54,9 @@ namespace Msv.AutoMiner.Common.External
                     throw new ExternalDataUnavailableException((string) response.error.ToString());
                 if ((int) response.id != requestId)
                     throw new ExternalDataUnavailableException("Response ID mismatch");
-                return ((JObject)response.result).ToObject<TResponse>();
+                return response.result is JObject jobject 
+                    ? jobject.ToObject<TResponse>()
+                    : (TResponse)response.result;
             }
         }
 
