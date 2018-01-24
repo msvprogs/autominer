@@ -18,6 +18,10 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         public double? LastDifficulty { get; set; }
 
+        public int? LastMasternodeCount { get; set; }
+
+        public double? LastTotalSupply { get; set; }
+
         [Url(ErrorMessage = "Invalid logo URL")]
         public string NewLogoUrl { get; set; }
 

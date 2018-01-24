@@ -97,6 +97,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     : null,
                 LastHeight = lastNetworkInfo?.Height,
                 LastDifficulty = lastNetworkInfo?.Difficulty,
+                LastTotalSupply = lastNetworkInfo?.TotalSupply,
+                LastMasternodeCount = lastNetworkInfo?.MasternodeCount,
                 AddressFormat = coin.AddressFormat,
                 AddressPrefixes = coin.AddressPrefixes,
                 GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock

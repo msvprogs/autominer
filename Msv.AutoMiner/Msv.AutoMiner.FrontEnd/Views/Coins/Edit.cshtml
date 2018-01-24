@@ -5,7 +5,14 @@
 @using Msv.AutoMiner.FrontEnd.Models.Shared
 @model Msv.AutoMiner.FrontEnd.Models.Coins.CoinEditModel
 
-@{ ViewBag.Title = "Edit coin details"; }    
+@{ ViewBag.Title = "Edit coin details"; }  
+
+@functions {
+
+    private string DoubleToString(double? value)
+        => value != null ? value.Value.ToString(CultureInfo.InvariantCulture) : "";
+
+}
 
 <h2 class="text-center">Edit coin details</h2>
 
@@ -208,19 +215,21 @@
                     <label class="col-sm-4 control-label" for="sampleDifficultyInput">Difficulty:</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" id="sampleDifficultyInput"
-                               value="@(Model.LastDifficulty != null ? Model.LastDifficulty.Value.ToString(CultureInfo.InvariantCulture) : "")" />
+                               value="@DoubleToString(Model.LastDifficulty)" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label" for="sampleMoneySupplyInput">Money supply:</label>
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" id="sampleMoneySupplyInput" />
+                        <input type="text" class="form-control" id="sampleMoneySupplyInput"
+                               value="@DoubleToString(Model.LastTotalSupply)"/>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label" for="sampleMasternodeCountInput">Masternodes:</label>
                     <div class="col-sm-8">
-                        <input type="number" class="form-control" id="sampleMasternodeCountInput" />
+                        <input type="number" class="form-control" id="sampleMasternodeCountInput"
+                               value="@Model.LastMasternodeCount"/>
                     </div>
                 </div>
                 <div class="text-center">
