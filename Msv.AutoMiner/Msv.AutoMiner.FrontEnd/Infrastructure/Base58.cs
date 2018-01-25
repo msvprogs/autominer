@@ -10,6 +10,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
     public static class Base58
     {        
         private const string Symbols = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+        private const char ZeroSymbol = '1';
         private const int Base = 58;
 
         private static readonly Dictionary<char, int> M_SymbolIndexes = Symbols
@@ -29,6 +30,11 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             var resultBytes = value
                 .Aggregate(BigInteger.Zero, (x, y) => x * Base + M_SymbolIndexes[y])
                 .ToByteArray();
+            if (value.StartsWith(ZeroSymbol))
+            {
+                var zeroBytes = value.TakeWhile(x => x == ZeroSymbol).Count();
+                Array.Resize(ref resultBytes, resultBytes.Length + zeroBytes);
+            }
             Array.Reverse(resultBytes);
             return resultBytes;
         }
@@ -49,7 +55,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
 
             var leadingZeroes = bytes.TakeWhile(x => x == 0).Count();
             if (leadingZeroes > 0)
-                resultSymbols.AddRange(Enumerable.Repeat(Symbols[0], leadingZeroes));
+                resultSymbols.AddRange(Enumerable.Repeat(ZeroSymbol, leadingZeroes));
 
             resultSymbols.Reverse();
             return new string(resultSymbols.ToArray());
