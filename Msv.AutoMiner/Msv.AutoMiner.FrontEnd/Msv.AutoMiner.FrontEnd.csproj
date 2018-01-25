@@ -28,4 +28,8 @@
     <ProjectReference Include="..\Msv.AutoMiner.NetworkInfo\Msv.AutoMiner.NetworkInfo.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Home\" />
+  </ItemGroup>
+
 </Project>

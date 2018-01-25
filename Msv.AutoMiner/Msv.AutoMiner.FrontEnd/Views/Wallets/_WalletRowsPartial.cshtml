@@ -21,11 +21,6 @@
         rowClass = "warning";
         title = "Wallet data is unavailable or obsolete";
     }
-    else if (wallet.IsMiningTarget)
-    {
-        rowClass = "success";
-        title = "This wallet is mining target for its coin";
-    }
     else
     {
         rowClass = null;
@@ -53,12 +48,17 @@
                 }
             </div>
         </td>
-        <td>
+        <td class="text-right">
+            @if (wallet.IsMiningTarget)
+            {
+                <img src="~/images/mining-icon.png" alt="Mining target" width="16" height="16"
+                     title="This wallet is mining target for its coin" />
+            }
             @await Component.InvokeAsync("LongId", new LongIdModel
             {
                 Id = wallet.Address,
                 Title = "Show all operations for this wallet",
-                Url = Url.Action("Index", "WalletOperations", new { walletId = wallet.Id })
+                Url = Url.Action("Index", "WalletOperations", new {walletId = wallet.Id})
             })
         </td>
         <td>

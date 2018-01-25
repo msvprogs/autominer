@@ -1,4 +1,4 @@
-﻿namespace Msv.AutoMiner.FrontEnd.Models.Home
+﻿namespace Msv.AutoMiner.FrontEnd.Models.Logs
 {
     public class ServiceLogsModel
     {
