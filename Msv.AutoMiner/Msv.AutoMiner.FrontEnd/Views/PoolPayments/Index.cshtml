@@ -7,7 +7,7 @@
 @{
     ViewBag.Title = "Pool payments";
 
-    var paymentTypes = EnumHelper.GetCaptions<PoolPaymentType>();
+    var paymentTypes = EnumHelper.GetCaptionsCached<PoolPaymentType>();
 }    
 
 <h2 class="text-center">@Model.Title</h2>

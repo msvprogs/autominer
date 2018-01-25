@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts
@@ -7,7 +8,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts
     public interface IPoolAvailabilityMonitorStorage
     {
         Pool[] GetActivePools();
-        void SavePoolResponseStoppedDates(Dictionary<int, DateTime?> dates);
+        void SavePoolAvailabilities(Dictionary<int, (PoolAvailabilityState availability, DateTime? date)> availabilities);
         Wallet GetBitCoinMiningTarget();
     }
 }

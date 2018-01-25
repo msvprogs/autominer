@@ -51,6 +51,8 @@ namespace Msv.AutoMiner.Data
 
         public DateTime? ResponsesStoppedDate { get; set; }
 
+        public PoolAvailabilityState Availability { get; set; }
+
         public bool UseBtcWallet { get; set; }
     }
 }

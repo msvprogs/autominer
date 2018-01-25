@@ -83,7 +83,7 @@
     <div class="form-group">
         <label asp-for="PoolApiProtocol">API type:</label>
         <select asp-for="PoolApiProtocol" class="form-control">
-            @foreach (var apiType in EnumHelper.GetCaptions<PoolApiProtocol>().OrderBy(x => x.Value))
+            @foreach (var apiType in EnumHelper.GetCaptionsCached<PoolApiProtocol>().OrderBy(x => x.Value))
             {
                 <option value="@apiType.Key">@apiType.Value</option>
             }

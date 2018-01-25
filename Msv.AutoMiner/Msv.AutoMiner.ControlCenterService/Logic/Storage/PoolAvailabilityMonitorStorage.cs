@@ -29,19 +29,23 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                     .ToArray();
         }
 
-        public void SavePoolResponseStoppedDates(Dictionary<int, DateTime?> dates)
+        public void SavePoolAvailabilities(Dictionary<int, (PoolAvailabilityState availability, DateTime? date)> availabilities)
         {
-            if (dates == null)
-                throw new ArgumentNullException(nameof(dates));
+            if (availabilities == null)
+                throw new ArgumentNullException(nameof(availabilities));
 
             using (var context = m_Factory.Create())
             {
-                var poolIds = dates.Keys.ToArray();
+                var poolIds = availabilities.Keys.ToArray();
                 context.Pools
                     .Where(x => poolIds.Contains(x.Id))
                     .AsEnumerable()
-                    .Join(dates, x => x.Id, x => x.Key, (x, y) => (pool:x, date:y.Value))
-                    .ForEach(x => x.pool.ResponsesStoppedDate = x.date);
+                    .Join(availabilities, x => x.Id, x => x.Key, (x, y) => (pool:x, data:y.Value))
+                    .ForEach(x =>
+                    {
+                        x.pool.Availability = x.data.availability;
+                        x.pool.ResponsesStoppedDate = x.data.date;
+                    });
                 context.SaveChanges();
             }
         }

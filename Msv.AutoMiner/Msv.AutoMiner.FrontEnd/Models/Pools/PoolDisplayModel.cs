@@ -32,6 +32,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
 
         public DateTime? LastUpdated { get; set; }
 
+        public PoolAvailabilityState Availability { get; set; }
+
         public DateTime? ResponsesStoppedDate { get; set; }
     }
 }

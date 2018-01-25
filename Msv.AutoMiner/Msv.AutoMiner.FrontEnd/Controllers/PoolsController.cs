@@ -226,7 +226,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         ? x.state.DateTime
                         : (DateTime?)null,
                     ResponsesStoppedDate = x.pool.ResponsesStoppedDate,
-                    UseBtcWallet = x.pool.UseBtcWallet
+                    UseBtcWallet = x.pool.UseBtcWallet,
+                    Availability = x.pool.Availability
                 })
                 .ToArray();
         }

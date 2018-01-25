@@ -17,7 +17,7 @@
 }
 
 @{
-    var newExchanges = EnumHelper.GetCaptions<ExchangeType>()
+    var newExchanges = EnumHelper.GetCaptionsCached<ExchangeType>()
         .Select(x => x.Key)
         .Where(x => x != ExchangeType.Unknown)
         .Except(Model.Select(y => y.Type))

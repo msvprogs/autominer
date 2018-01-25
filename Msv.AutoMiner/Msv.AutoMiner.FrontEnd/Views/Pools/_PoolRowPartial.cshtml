@@ -38,6 +38,8 @@
         rowClass = null;
         title = null;
     }
+
+    var availabilities = EnumHelper.GetCaptionsCached<PoolAvailabilityState>();
 }
 
 <tr class="@rowClass" title="@title" data-pool-id="@Model.Id" data-pool-name="@Model.Name">
@@ -83,9 +85,9 @@
                 {
                     <span class="label label-warning">Longish TTF</span>
                 }
-                @if (Model.ResponsesStoppedDate != null)
+                @if (Model.Availability != PoolAvailabilityState.Available)
                 {
-                    <span class="label label-danger">No response</span>
+                    <span class="label label-danger">@availabilities[Model.Availability]</span>
                 }
             </div>
         }

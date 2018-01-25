@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Rig.Data;
@@ -92,7 +93,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
             var mostProfitable = profitabilityTable
                 .Where(x => x.PoolData.BtcPerDay >= 0)
-                .Where(x => m_PoolAvailabilityChecker.Check(x.PoolData))
+                .Where(x => m_PoolAvailabilityChecker.Check(x.PoolData) == PoolAvailabilityState.Available)
                 .FirstOrDefault();
             if (mostProfitable == null)
             {

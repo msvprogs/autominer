@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.External;
+using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Newtonsoft.Json;
 using NLog;
@@ -20,17 +21,17 @@ namespace Msv.AutoMiner.Common.Infrastructure
 
         protected static ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-        public virtual bool Check(PoolDataModel pool)
+        public virtual PoolAvailabilityState Check(PoolDataModel pool)
         {
             var watch = Stopwatch.StartNew();
             var result = CheckServer(pool);
-            if (!result) 
-                return false;
+            if (result != PoolAvailabilityState.Available) 
+                return result;
             Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded (response time: {watch.ElapsedMilliseconds} msec)");
-            return true;
+            return PoolAvailabilityState.Available;
         }
 
-        private static bool CheckServer(PoolDataModel pool)
+        private static PoolAvailabilityState CheckServer(PoolDataModel pool)
         {
             try
             {
@@ -48,11 +49,11 @@ namespace Msv.AutoMiner.Common.Infrastructure
             catch (Exception ex)
             {
                 Logger.Error($"Pool {pool.Name} ({pool.Url}) didn't respond. {ex.Message}");
-                return false;
+                return PoolAvailabilityState.NoResponse;
             }
         }
 
-        private static bool CheckStratumServer(PoolDataModel pool)
+        private static PoolAvailabilityState CheckStratumServer(PoolDataModel pool)
         {
             using (var client = new TcpClient())
             {
@@ -61,8 +62,9 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 client.Connect(pool.Url.Host, pool.Url.Port);
                 Logger.Info($"{poolString}: connection succeeded");
                 if (pool.Login == null)
-                    return false;
-                const int requestId = 2;
+                    return PoolAvailabilityState.AuthenticationFailed;
+
+                var requestId = Environment.TickCount;
                 var authRequest = JsonConvert.SerializeObject(new
                 {
                     @params = new[] { pool.Login, pool.Password },
@@ -75,14 +77,21 @@ namespace Msv.AutoMiner.Common.Infrastructure
                     var bytes = M_StratumEncoding.GetBytes(authRequest + "\n");
                     stream.Write(bytes, 0, bytes.Length);
                     stream.Flush();
-                    var responseStr = ReadStratumLine(stream);
-                    Logger.Info($"{poolString}: received Stratum response {responseStr}");
-                    var response = (dynamic)JsonConvert.DeserializeObject(responseStr);
-                    return (string)response.method == "mining.set_difficulty"
-                        || (string)response.method == "mining.notify"
-                        || (string)response.method == "client.show_message" //well, it could be message like "I'm not working now"...
-                        || (int?)response.id == requestId 
-                        && (bool?)response.result == true;
+
+                    dynamic response;
+                    do
+                    {
+                        var responseStr = ReadStratumLine(stream);
+                        Logger.Info($"{poolString}: received Stratum response {responseStr}");
+                        response = JsonConvert.DeserializeObject(responseStr);
+                    } while ((int?)response.id != requestId
+                             && response.method != null);
+
+                    if ((int?)response.id != requestId)
+                        return PoolAvailabilityState.NoResponse;
+                    return (bool?) response.result == true
+                        ? PoolAvailabilityState.Available
+                        : PoolAvailabilityState.AuthenticationFailed;
                 }
             }
         }
@@ -99,16 +108,34 @@ namespace Msv.AutoMiner.Common.Infrastructure
             }
         }
 
-        private static bool CheckJsonRpcServer(PoolDataModel pool)
+        private static PoolAvailabilityState CheckJsonRpcServer(PoolDataModel pool)
         {
             var client = new JsonRpcClient(new LoggedWebClient(), pool.Url.Host, pool.Url.Port, pool.Login, pool.Password);
             try
             {
-                client.Execute<object>("ping");
+                if (!TryJsonRpc(client, "ping"))
+                    return PoolAvailabilityState.AuthenticationFailed;
             }
             catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
             {
-                client.Execute<object>("getinfo");
+                if (!TryJsonRpc(client, "getinfo"))
+                    return PoolAvailabilityState.AuthenticationFailed;
+            }
+            return PoolAvailabilityState.Available;
+        }
+
+        private static bool TryJsonRpc(IRpcClient client, string method)
+        {
+            try
+            {
+                client.Execute<object>(method);
+            }
+            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
+            {
+                var httpResponse = (HttpWebResponse) wex.Response;
+                if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                    return false;
+                throw;
             }
             return true;
         }

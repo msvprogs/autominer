@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
@@ -36,7 +37,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Select(x => new
                 {
                     Pool = x.pool,
-                    IsAvailable = m_PoolAvailabilityChecker.Check(new PoolDataModel
+                    Availability = m_PoolAvailabilityChecker.Check(new PoolDataModel
                     {
                         Login = x.login,
                         Password = x.pool.WorkerPassword,
@@ -45,9 +46,12 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         Url = x.pool.GetUrl()
                     })
                 })
-                .Where(x => x.Pool.ResponsesStoppedDate == null ^ x.IsAvailable)
-                .ToDictionary(x => x.Pool.Id, x => x.IsAvailable ? (DateTime?) null : now);
-            m_Storage.SavePoolResponseStoppedDates(results);
+                .Where(x => x.Pool.Availability != x.Availability)
+                .ToDictionary(
+                    x => x.Pool.Id, 
+                    x => (availability: x.Availability, 
+                        date: x.Availability == PoolAvailabilityState.Available ? (DateTime?) null : now));
+            m_Storage.SavePoolAvailabilities(results);
         }
     }
 }
