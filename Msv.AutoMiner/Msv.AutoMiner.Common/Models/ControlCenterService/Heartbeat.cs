@@ -23,6 +23,8 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
 
         public AlgorithmPowerData[] AlgorithmMiningCapabilities { get; set; }
 
+        public double ElectricityUnitCostUsd { get; set; }
+
         public struct ValueWithReference<T>
         {
             public T Current { get; set; }

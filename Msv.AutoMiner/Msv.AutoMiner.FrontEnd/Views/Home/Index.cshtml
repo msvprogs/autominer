@@ -1,5 +1,108 @@
-﻿@{
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Controllers
+@using Msv.AutoMiner.FrontEnd.Infrastructure
+@using Msv.AutoMiner.FrontEnd.Models.Home
+@model HomeIndexModel
+@{
     ViewData["Title"] = "Home Page";
+
+    var aggregationTypes = EnumHelper.GetCaptionsCached<ValueAggregationType>();
 }
 
+<h2 class="text-center">Overall mining information</h2>
+<h4>Updated on <span id="updateTime">@DateTime.UtcNow.ToString("R")</span></h4>
+<div class="row">
+    <div class="col-xs-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Algorithm capabitilies</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-condensed">
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Hashrate</th>
+                        <th>Power usage</th>
+                    </tr>
+                    @foreach (var algorithmInfo in Model.TotalAlgorithmCapabilities
+                        .Join(Model.Algorithms, x => x.AlgorithmId, x => x.Id, (x, y) => (capability:x, algorithm:y))
+                        .OrderBy(x => x.algorithm.Name))
+                    {
+                        <tr>
+                            <td>@algorithmInfo.algorithm.Name</td>
+                            <td>@ConversionHelper.ToHashRateWithUnits(algorithmInfo.capability.NetHashRate, algorithmInfo.algorithm.KnownValue)</td>
+                            <td>@algorithmInfo.capability.Power.ToString("F2") W</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+        <div class="row text-muted text-center">
+            <i>Пусть жрем мы электричество сполна
+<br /> Зато не платим Путину налоги
+<br /> Работники хеша и стакана
+<br /> Копатели с большой дороги!</i>
+        </div>
+    </div>
+    <div class="col-xs-8">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Profitability table</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="list-inline text-right text-small">
+                    <li>Difficulty aggregation:</li>
+                    @foreach (var aggregationType in aggregationTypes)
+                    {
+                        var isPressed = aggregationType.Key == Context.Session.GetEnum<ValueAggregationType>(HomeController.DifficultyAggregationKey);
+                        var buttonClass = isPressed ? "active" : null;
+                        <li>
+                            <a href="#" class="btn btn-xs btn-primary @buttonClass" role="button" aria-pressed="@isPressed" data-difficulty-aggr="@aggregationType.Key">
+                                @aggregationType.Value
+                            </a>
+                        </li>
+                    }
+                </ul>
+                <ul class="list-inline text-right text-small">
+                    <li>Price aggregation:</li>
+                    @foreach (var aggregationType in aggregationTypes)
+                    {
+                        var isPressed = aggregationType.Key == Context.Session.GetEnum<ValueAggregationType>(HomeController.MarketPriceAggregationKey);
+                        var buttonClass = isPressed ? "active" : null;
+                        <li>
+                            <a href="#" class="btn btn-xs btn-primary @buttonClass" role="button" aria-pressed="@isPressed" data-price-aggr="@aggregationType.Key">
+                                @aggregationType.Value
+                            </a>
+                        </li>
+                    }
+                </ul>
+                <div id="profitabilityTableContainer">
+                    @Html.Partial("_ProfitabilityTablePartial", Model.CurrentProfitabilities)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+@section Scripts {
+    <script>
+        $(function() {
+            $("a[data-difficulty-aggr], a[data-price-aggr]").click(function(e) {
+                e.preventDefault();
+                var queryString = $.param({
+                    difficultyAggregation: $(this).data("difficulty-aggr"),
+                    marketPriceAggregation: $(this).data("price-aggr")
+                });
+                $(this).blur();
+                $("#profitabilityTableContainer")
+                    .load("@Url.Action("GetProfitabilities")?" + queryString);
+                $(this).closest("ul").find("a")
+                    .attr("aria-pressed", "false")
+                    .removeClass("active");
+                $(this).addClass("active").attr("aria-pressed", "true");
+                $("#updateTime").text(new Date().toUTCString());
+            });
+        });
+    </script>
+}

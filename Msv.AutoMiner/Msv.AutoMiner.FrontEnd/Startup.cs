@@ -87,6 +87,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddSingleton<IProfitabilityTableBuilder, ProfitabilityTableBuilder>();
             services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
+            services.AddSingleton<IOverallProfitabilityCalculator, OverallProfitabilityCalculator>();
             services.AddSingleton<IControlCenterService>(x => new ControlCenterServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:ControlCenter:Url"]))));
         }

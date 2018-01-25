@@ -51,6 +51,30 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             session.Set(key, BitConverter.GetBytes(value));
         }
 
+        public static T GetEnum<T>(this ISession session, string key)
+            where T : struct
+        {
+            if (session == null)
+                throw new ArgumentNullException(nameof(session));
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("Value cannot be null or empty.", nameof(key));
+
+            if (!session.TryGetValue(key, out var bytes))
+                return default;
+            return (T) Convert.ChangeType(BitConverter.ToUInt64(bytes, 0), Enum.GetUnderlyingType(typeof(T)));
+        }
+
+        public static void SetEnum<T>(this ISession session, string key, T value)
+            where T : struct
+        {
+            if (session == null)
+                throw new ArgumentNullException(nameof(session));
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("Value cannot be null or empty.", nameof(key));
+
+            session.Set(key, BitConverter.GetBytes(Convert.ToUInt64(value)));
+        }
+
         public static void AddClasses(this TagHelperAttributeList attributes, params string[] newClasses)
         {
             if (attributes == null)

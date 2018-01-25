@@ -1,0 +1,26 @@
+﻿@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Models.Home
+@using Msv.AutoMiner.FrontEnd.Models.Shared
+@model ProfitabilityModel[]
+
+<table class="table table-striped text-small table-condensed table-bordered">
+    <tr>
+        <th>Coin</th>
+        <th>Pool name</th>
+        <th>Coins/day</th>
+        <th>BTC/day</th>
+        <th>USD/day</th>
+    </tr>
+    @foreach (var item in Model.OrderByDescending(x => x.UsdPerDay))
+    {
+        <tr>
+            <td class="space-no-wrap">
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.CoinName, item.CoinLogo))
+            </td>
+            <td>@item.PoolName</td>
+            <td class="text-right">@ConversionHelper.ToCryptoCurrencyValue(item.CoinsPerDay)</td>
+            <td class="text-right">@ConversionHelper.ToCryptoCurrencyValue(item.BtcPerDay)</td>
+            <td class="text-right">@ConversionHelper.ToFiatValue(item.UsdPerDay)</td>
+        </tr>
+    }
+</table>

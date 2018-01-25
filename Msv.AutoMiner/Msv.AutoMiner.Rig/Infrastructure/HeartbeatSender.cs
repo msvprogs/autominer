@@ -22,6 +22,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly IControlCenterService m_Service;
         private readonly IHeartbeatSenderStorage m_Storage;
         private readonly double m_SystemPowerUsage;
+        private readonly double m_ElectricityUnitCostUsd;
 
         public HeartbeatSender(
             ISystemStateProvider systemStateProvider,
@@ -30,7 +31,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             IControlCenterService service,
             IPeriodicTaskDelayProvider delayProvider,
             IHeartbeatSenderStorage storage,
-            double systemPowerUsage)
+            double systemPowerUsage,
+            double electricityUnitCostUsd)
             : base(TimeSpan.FromMinutes(1), delayProvider.GetDelay<HeartbeatSender>(), true)
         {
             m_SystemStateProvider = systemStateProvider ?? throw new ArgumentNullException(nameof(systemStateProvider));
@@ -40,6 +42,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             m_Service = service ?? throw new ArgumentNullException(nameof(service));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
             m_SystemPowerUsage = systemPowerUsage;
+            m_ElectricityUnitCostUsd = electricityUnitCostUsd;
         }
 
         protected override void DoWork()
@@ -96,7 +99,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                         NetHashRate = x.SpeedInHashes,
                         Power = x.Power + m_SystemPowerUsage
                     })
-                    .ToArray()
+                    .ToArray(),
+                ElectricityUnitCostUsd = m_ElectricityUnitCostUsd
             };
             m_Service.SendHeartbeat(heartbeat);
         }

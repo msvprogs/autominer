@@ -122,7 +122,8 @@ namespace Msv.AutoMiner.Rig
                     controlCenterClient,
                     delayProvider,
                     new HeartbeatSenderStorage(),
-                    Settings.Default.SystemPowerUsageWatts))
+                    Settings.Default.SystemPowerUsageWatts,
+                    Settings.Default.ElectricityKwhCostUsd))
                 using (CreateWatchdogDisposable(videoAdapterMonitor))
                 {
                     M_Logger.Info("Automatic miner controller started.");
