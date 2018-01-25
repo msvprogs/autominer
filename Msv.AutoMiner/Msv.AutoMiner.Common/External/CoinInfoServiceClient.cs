@@ -21,12 +21,12 @@ namespace Msv.AutoMiner.Common.External
         public Task<AlgorithmInfo[]> GetAlgorithms() 
             => m_RestClient.GetAsync<AlgorithmInfo[]>($"/api/coinInfo/getAlgorithms?apikey={m_ApiKey}");
 
-        public Task<ProfitabilityResponseModel> GetProfitabilities(ProfitabilityRequestModel request)
-            => m_RestClient.PostAsync<ProfitabilityRequestModel, ProfitabilityResponseModel>(
+        public Task<ProfitabilityResponseModel> GetProfitabilities(ProfitabilityRequest request)
+            => m_RestClient.PostAsync<ProfitabilityRequest, ProfitabilityResponseModel>(
                 $"/api/coinInfo/getProfitabilities?apikey={m_ApiKey}", request);
 
-        public Task<EstimateProfitabilityResponseModel> EstimateProfitability(EstimateProfitabilityRequestModel request)
-            => m_RestClient.PostAsync<EstimateProfitabilityRequestModel, EstimateProfitabilityResponseModel>(
+        public Task<EstimateProfitabilityResponse> EstimateProfitability(EstimateProfitabilityRequest request)
+            => m_RestClient.PostAsync<EstimateProfitabilityRequest, EstimateProfitabilityResponse>(
                 $"/api/coinInfo/estimateProfitability?apikey={m_ApiKey}", request);
 
         public Task<ServiceLogs> GetLog()

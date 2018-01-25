@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Infrastructure;
-using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
@@ -69,11 +68,11 @@ namespace Msv.AutoMiner.FrontEnd
             services.Configure<GzipCompressionProviderOptions>(x => x.Level = CompressionLevel.Optimal);
             services.AddResponseCompression();
 
-            services.AddTransient<IStoredFiatValueProvider, StoredFiatValueProvider>();
-            services.AddTransient<ICoinValueProvider, CoinValueProvider>();
-            services.AddTransient<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
-            services.AddTransient<IRigHeartbeatProvider, RigHeartbeatProvider>();
-            services.AddTransient<IPoolInfoProvider, PoolInfoProvider>();
+            services.AddSingleton<IStoredFiatValueProvider, StoredFiatValueProvider>();
+            services.AddSingleton<ICoinValueProvider, CoinValueProvider>();
+            services.AddSingleton<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
+            services.AddSingleton<IRigHeartbeatProvider, RigHeartbeatProvider>();
+            services.AddSingleton<IPoolInfoProvider, PoolInfoProvider>();
             services.AddTransient<IWalletBalanceProvider, WalletBalanceProvider>();
 
             services.AddSingleton<IPasswordHasher, Sha256PasswordHasher>();
@@ -85,9 +84,9 @@ namespace Msv.AutoMiner.FrontEnd
                 new DummyWebClient(), new DummyWebClient()));
             services.AddSingleton<IBlockExplorerUrlProviderFactory, BlockExplorerUrlProviderFactory>();
             services.AddSingleton<ICryptoRandomGenerator, CryptoRandomGenerator>();
-            services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
-                new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
-                Configuration["Services:CoinInfo:ApiKey"]));
+            services.AddSingleton<IProfitabilityTableBuilder, ProfitabilityTableBuilder>();
+            services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
+            services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
             services.AddSingleton<IControlCenterService>(x => new ControlCenterServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:ControlCenter:Url"]))));
         }

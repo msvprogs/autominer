@@ -29,6 +29,7 @@ namespace Msv.AutoMiner.CoinInfoService
             services.AddMvc();
 
             services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
+            services.AddSingleton<IProfitabilityTableBuilder, ProfitabilityTableBuilder>();
 
             services.AddSingleton<ICoinInfoControllerStorage, CoinInfoControllerStorage>();
             services.AddSingleton<IValidateApiKeyFilterStorage, ValidateApiKeyFilterStorage>();

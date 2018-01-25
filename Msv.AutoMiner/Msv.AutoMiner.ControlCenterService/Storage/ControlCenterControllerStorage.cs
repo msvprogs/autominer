@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
@@ -87,21 +85,6 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
             }
         }
 
-        public Pool[] GetActivePools(Guid[] coinIds)
-        {
-            if (coinIds == null)
-                throw new ArgumentNullException(nameof(coinIds));
-
-            using (var context = m_Factory.CreateReadOnly())
-            {
-                return context.Pools
-                    .Include(x => x.Coin)
-                    .Include(x => x.Coin.Wallets)
-                    .Where(x => coinIds.Contains(x.CoinId) && x.Activity == ActivityState.Active)
-                    .ToArray();
-            }
-        }
-
         public void SaveProfitabilities(CoinProfitability[] profitabilities)
         {
             if (profitabilities == null)
@@ -112,12 +95,6 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
                 context.CoinProfitabilities.AddRange(profitabilities);
                 context.SaveChanges();
             }
-        }
-
-        public Wallet GetBitCoinMiningTarget()
-        {
-            using (var context = m_Factory.CreateReadOnly())
-                return context.Wallets.FirstOrDefault(x => x.IsMiningTarget && x.Coin.Symbol == "BTC");
         }
     }
 }

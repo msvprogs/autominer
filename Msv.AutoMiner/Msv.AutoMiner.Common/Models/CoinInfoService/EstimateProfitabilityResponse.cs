@@ -1,6 +1,6 @@
 ﻿namespace Msv.AutoMiner.Common.Models.CoinInfoService
 {
-    public class EstimateProfitabilityResponseModel
+    public class EstimateProfitabilityResponse
     {
         public CumulativeProfitability Coins { get; set; }
         public CumulativeProfitability Btc { get; set; }

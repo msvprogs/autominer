@@ -45,6 +45,8 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddSingleton<IWalletInfoMonitorStorage, WalletInfoMonitorStorage>();
             services.AddSingleton<IRigStatusNotifierStorage, RigStatusNotifierStorage>();
             services.AddSingleton<IPoolAvailabilityMonitorStorage, PoolAvailabilityMonitorStorage>();
+            services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
+            services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
 
             services.AddSingleton<ITelegramBotClient>(
                 x => new TelegramBotClient(Configuration.GetValue<string>("Notifications:Telegram:Token")));

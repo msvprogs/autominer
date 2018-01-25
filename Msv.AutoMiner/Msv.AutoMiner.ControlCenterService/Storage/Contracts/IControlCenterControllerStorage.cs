@@ -1,5 +1,4 @@
-﻿using System;
-using Msv.AutoMiner.Data;
+﻿using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
 {
@@ -12,8 +11,6 @@ namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
         void SaveMiningStates(RigMiningState[] miningStates);
         RigCommand GetNextCommand(int rigId);
         void MarkCommandAsSent(int commandId);
-        Pool[] GetActivePools(Guid[] coinIds);
         void SaveProfitabilities(CoinProfitability[] profitabilities);
-        Wallet GetBitCoinMiningTarget();
     }
 }

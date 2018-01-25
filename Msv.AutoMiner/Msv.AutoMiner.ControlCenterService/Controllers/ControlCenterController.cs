@@ -25,24 +25,25 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
     [Route("api/[controller]")]
     public class ControlCenterController : Controller, IControlCenterService
     {
-        private static readonly TimeSpan M_MaxInactivityInterval = TimeSpan.FromHours(2);
-
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         private readonly ICertificateService m_CertificateService;
         private readonly ICoinInfoService m_CoinInfoService;
         private readonly IHeartbeatAnalyzer m_HeartbeatAnalyzer;
+        private readonly IMiningWorkBuilder m_MiningWorkBuilder;
         private readonly IControlCenterControllerStorage m_Storage;
 
         public ControlCenterController(
             ICertificateService certificateService,
             ICoinInfoService coinInfoService,
             IHeartbeatAnalyzer heartbeatAnalyzer,
+            IMiningWorkBuilder miningWorkBuilder,
             IControlCenterControllerStorage storage)
         {
             m_CertificateService = certificateService;
             m_CoinInfoService = coinInfoService;
             m_HeartbeatAnalyzer = heartbeatAnalyzer;
+            m_MiningWorkBuilder = miningWorkBuilder;
             m_Storage = storage;
         }
 
@@ -152,36 +153,14 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
 
             var rig = m_Storage.GetRigById(rigId);
             var coinStatistics = await m_CoinInfoService.GetProfitabilities(
-                new ProfitabilityRequestModel
+                new ProfitabilityRequest
                 {
                     AlgorithmDatas = request.AlgorithmDatas,
                     DifficultyAggregationType = rig.DifficultyAggregationType,
                     ElectricityCostUsd = request.ElectricityCostUsd,
                     PriceAggregationType = rig.PriceAggregationType
                 });
-            var coinIds = coinStatistics.Profitabilities
-                .EmptyIfNull()
-                .Where(x => DateTime.UtcNow - M_MaxInactivityInterval < x.LastUpdatedUtc)
-                .Select(x => x.CoinId)
-                .ToArray();
-            var btcMiningTarget = m_Storage.GetBitCoinMiningTarget();
-            var works = m_Storage.GetActivePools(coinIds)
-                .GroupBy(x => x.Coin)
-                .Join(coinStatistics.Profitabilities.EmptyIfNull(), x => x.Key.Id, x => x.CoinId,
-                    (x, y) => (profitability:y, pools:x, miningTarget: x.Key.Wallets.FirstOrDefault(a => a.IsMiningTarget)))
-                .Select(x => new MiningWorkModel
-                {
-                    CoinId = x.pools.Key.Id,
-                    CoinName = x.pools.Key.Name,
-                    CoinSymbol = x.pools.Key.Symbol,
-                    CoinAlgorithmId = x.pools.Key.AlgorithmId,
-                    Pools = x.pools.Select(y => CreatePoolDataModel(
-                        y, x.profitability, y.UseBtcWallet ? btcMiningTarget : x.miningTarget))
-                        .Where(y => y != null)
-                        .ToArray()
-                })
-                .Where(x => x.Pools.Any())
-                .ToArray();
+            var works = m_MiningWorkBuilder.Build(coinStatistics.Profitabilities.EmptyIfNull());
             if (request.TestMode)
                 return works;
             var now = DateTime.UtcNow;
@@ -209,37 +188,5 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 Errors = MemoryBufferTarget.GetBuffer("ErrorLogBuffer"),
                 Full = MemoryBufferTarget.GetBuffer("FullLogBuffer")
             });
-
-        private static PoolDataModel CreatePoolDataModel(Pool currentPool, SingleProfitabilityData profitability, Wallet miningTarget)
-        {
-            if (miningTarget == null)
-                return null;
-
-            var market = SelectAppropriateMarket(
-                profitability.MarketPrices,
-                currentPool.UseBtcWallet ? null : miningTarget.ExchangeType);
-            return new PoolDataModel
-            {
-                Id = currentPool.Id,
-                Name = currentPool.Name,
-                Protocol = currentPool.Protocol,
-                CoinsPerDay = CalculateValueWithPoolFee(profitability.CoinsPerDay, currentPool.FeeRatio),
-                ElectricityCost = profitability.ElectricityCostPerDay,
-                BtcPerDay = CalculateValueWithPoolFee(market?.BtcPerDay, currentPool.FeeRatio),
-                UsdPerDay = CalculateValueWithPoolFee(market?.UsdPerDay, currentPool.FeeRatio),
-                Priority = currentPool.Priority,
-                Login = currentPool.GetLogin(miningTarget),
-                Password = string.IsNullOrEmpty(currentPool.WorkerPassword) ? "x" : currentPool.WorkerPassword,
-                Url = currentPool.GetUrl()
-            };
-
-            double CalculateValueWithPoolFee(double? value, double poolFee)
-                => value.GetValueOrDefault() * (1 - poolFee / 100);
-
-            MarketPriceData SelectAppropriateMarket(MarketPriceData[] markets, ExchangeType? exchangeType)
-                => markets.Where(z => exchangeType == null || z.Exchange == exchangeType)
-                    .OrderByDescending(z => z.BtcPerDay)
-                    .FirstOrDefault();
-        }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Msv.AutoMiner.Common.Models.CoinInfoService
 {
-    public class EstimateProfitabilityRequestModel
+    public class EstimateProfitabilityRequest
     {
         public double Difficulty { get; set; }
 

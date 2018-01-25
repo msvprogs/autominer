@@ -7,8 +7,8 @@ namespace Msv.AutoMiner.Common.ServiceContracts
     public interface ICoinInfoService
     {
         Task<AlgorithmInfo[]> GetAlgorithms();
-        Task<ProfitabilityResponseModel> GetProfitabilities(ProfitabilityRequestModel request);
-        Task<EstimateProfitabilityResponseModel> EstimateProfitability(EstimateProfitabilityRequestModel request);
+        Task<ProfitabilityResponseModel> GetProfitabilities(ProfitabilityRequest request);
+        Task<EstimateProfitabilityResponse> EstimateProfitability(EstimateProfitabilityRequest request);
         Task<ServiceLogs> GetLog();
     }
 }

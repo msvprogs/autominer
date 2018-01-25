@@ -4,7 +4,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Msv.AutoMiner.Common.Models.CoinInfoService
 {
-    public class ProfitabilityRequestModel
+    public class ProfitabilityRequest
     {
         public AlgorithmPowerData[] AlgorithmDatas { get; set; }
 

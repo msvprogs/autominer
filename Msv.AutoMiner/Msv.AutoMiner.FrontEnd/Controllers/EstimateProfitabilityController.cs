@@ -1,11 +1,9 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
-using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
@@ -22,20 +20,20 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         private readonly ICoinNetworkInfoProvider m_NetworkInfoProvider;
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IRigHeartbeatProvider m_RigHeartbeatProvider;
-        private readonly ICoinInfoService m_CoinInfoService;
+        private readonly IProfitabilityTableBuilder m_TableBuilder;
         private readonly AutoMinerDbContext m_Context;
 
         public EstimateProfitabilityController(
             ICoinNetworkInfoProvider networkInfoProvider,
             ICoinValueProvider coinValueProvider,
             IRigHeartbeatProvider rigHeartbeatProvider,
-            ICoinInfoService coinInfoService,
+            IProfitabilityTableBuilder tableBuilder,
             AutoMinerDbContext context)
         {
             m_NetworkInfoProvider = networkInfoProvider;
             m_CoinValueProvider = coinValueProvider;
             m_RigHeartbeatProvider = rigHeartbeatProvider;
-            m_CoinInfoService = coinInfoService;
+            m_TableBuilder = tableBuilder;
             m_Context = context;
         }
 
@@ -90,7 +88,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EstimateProfitability(EstimateProfitabilityRawRequestModel request)
+        public IActionResult EstimateProfitability(EstimateProfitabilityRawRequestModel request)
         {
             var electricityCostUsd = ParsingHelper.ParseDouble(request.ElectricityCostUsd, true);
             if (electricityCostUsd > 0)
@@ -98,8 +96,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             else
                 HttpContext.Session.Remove(ElectricityCostUsdKey);
 
-            return PartialView("_EstimatedProfitPartial", await m_CoinInfoService.EstimateProfitability(
-                new EstimateProfitabilityRequestModel
+            return PartialView("_EstimatedProfitPartial", m_TableBuilder.EstimateProfitability(
+                new EstimateProfitabilityRequest
                 {
                     BlockReward = ParsingHelper.ParseDouble(request.BlockReward, true),
                     BtcPrice = ParsingHelper.ParseDouble(request.BtcPrice, true),
