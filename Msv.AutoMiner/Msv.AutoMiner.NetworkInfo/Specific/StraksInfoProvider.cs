@@ -32,7 +32,9 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 Height = (long) ParsingHelper.ParseDouble(lastBlockLink.InnerText),
                 LastBlockTime = DateTimeHelper.ToDateTimeUtc(
                     long.Parse(lastBlockLink.SelectSingleNode(".//ancestor::div/following-sibling::div")
-                    .GetAttributeValue("data-time", null)))
+                    .GetAttributeValue("data-time", null))),
+                TotalSupply = ParsingHelper.ParseDouble(
+                    html.DocumentNode.SelectSingleNode("//p[@id='supply']").InnerText)
             };
         }
 
