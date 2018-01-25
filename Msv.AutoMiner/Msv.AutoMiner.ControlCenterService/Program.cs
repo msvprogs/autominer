@@ -35,7 +35,7 @@ namespace Msv.AutoMiner.ControlCenterService
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
-        { 
+        {
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
 
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
