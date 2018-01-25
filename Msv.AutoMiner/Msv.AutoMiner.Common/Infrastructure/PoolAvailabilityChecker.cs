@@ -39,7 +39,8 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 switch (pool.Protocol)
                 {
                     case PoolProtocol.Stratum:
-                        return CheckStratumServer(pool);
+                        using (var client = new TcpClient())
+                            return CheckStratumServer(client, pool);
                     case PoolProtocol.JsonRpc:
                         return CheckJsonRpcServer(pool);
                     default:
@@ -53,46 +54,43 @@ namespace Msv.AutoMiner.Common.Infrastructure
             }
         }
 
-        private static PoolAvailabilityState CheckStratumServer(PoolDataModel pool)
+        private static PoolAvailabilityState CheckStratumServer(TcpClient client, PoolDataModel pool)
         {
-            using (var client = new TcpClient())
+            var poolString = $"Pool {pool.Name} ({pool.Url})";
+            client.ReceiveTimeout = client.SendTimeout = (int) M_SocketTimeout.TotalMilliseconds;
+            client.Connect(pool.Url.Host, pool.Url.Port);
+            Logger.Info($"{poolString}: connection succeeded");
+            if (pool.Login == null)
+                return PoolAvailabilityState.AuthenticationFailed;
+
+            var requestId = new Random().Next();
+            var authRequest = JsonConvert.SerializeObject(new
             {
-                var poolString = $"Pool {pool.Name} ({pool.Url})";
-                client.ReceiveTimeout = client.SendTimeout = (int)M_SocketTimeout.TotalMilliseconds;
-                client.Connect(pool.Url.Host, pool.Url.Port);
-                Logger.Info($"{poolString}: connection succeeded");
-                if (pool.Login == null)
-                    return PoolAvailabilityState.AuthenticationFailed;
+                @params = new[] {pool.Login, pool.Password},
+                id = requestId,
+                method = "mining.authorize"
+            });
+            using (var stream = client.GetStream())
+            {
+                Logger.Info($"{poolString}: sending Stratum request {authRequest}");
+                var bytes = M_StratumEncoding.GetBytes(authRequest + "\n");
+                stream.Write(bytes, 0, bytes.Length);
+                stream.Flush();
 
-                var requestId = Environment.TickCount;
-                var authRequest = JsonConvert.SerializeObject(new
+                dynamic response;
+                do
                 {
-                    @params = new[] { pool.Login, pool.Password },
-                    id = requestId,
-                    method = "mining.authorize"
-                });
-                using (var stream = client.GetStream())
-                {
-                    Logger.Info($"{poolString}: sending Stratum request {authRequest}");
-                    var bytes = M_StratumEncoding.GetBytes(authRequest + "\n");
-                    stream.Write(bytes, 0, bytes.Length);
-                    stream.Flush();
+                    var responseStr = ReadStratumLine(stream);
+                    Logger.Info($"{poolString}: received Stratum response {responseStr}");
+                    response = JsonConvert.DeserializeObject(responseStr);
+                } while ((int?) response.id != requestId
+                         && response.method != null);
 
-                    dynamic response;
-                    do
-                    {
-                        var responseStr = ReadStratumLine(stream);
-                        Logger.Info($"{poolString}: received Stratum response {responseStr}");
-                        response = JsonConvert.DeserializeObject(responseStr);
-                    } while ((int?)response.id != requestId
-                             && response.method != null);
-
-                    if ((int?)response.id != requestId)
-                        return PoolAvailabilityState.NoResponse;
-                    return (bool?) response.result == true
-                        ? PoolAvailabilityState.Available
-                        : PoolAvailabilityState.AuthenticationFailed;
-                }
+                if ((int?) response.id != requestId)
+                    return PoolAvailabilityState.NoResponse;
+                return (bool?) response.result == true
+                    ? PoolAvailabilityState.Available
+                    : PoolAvailabilityState.AuthenticationFailed;
             }
         }
 
