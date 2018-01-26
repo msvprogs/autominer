@@ -1,0 +1,43 @@
+﻿@model Msv.AutoMiner.FrontEnd.Models.Shared.DatePeriodModel
+
+<form action="" method="get">
+    <ul class="list-inline form-inline">
+        <li>Period: </li>
+        <li>
+            <select class="form-control" data-type="datePeriodPresetSelector">
+                <option value="">Select...</option>
+                <option value="Today">Today</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="LastWeek">Last week</option>
+                <option value="LastTwoWeeks">Last 2 weeks</option>
+                <option value="ThisMonth">This month</option>
+                <option value="ThisYear">This year</option>
+            </select>
+        </li>
+        <li>from:</li>
+        <li>
+            <div class="form-group">
+                <div class="input-group date" data-type="datetimepicker">
+                    <input type="text" class="form-control" name="fromDate" value="@Model.From.ToString("dd.MM.yyyy")" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </li>
+        <li>to:</li>
+        <li>
+            <div class="form-group">
+                <div class="input-group date" data-type="datetimepicker">
+                    <input type="text" class="form-control" name="toDate" value="@Model.To.ToString("dd.MM.yyyy")" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </li>
+        <li>
+            <button type="submit" class="btn btn-primary">Show</button>
+        </li>
+    </ul>
+</form>

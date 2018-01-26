@@ -270,6 +270,50 @@ $(function () {
             $(element).attr("title", format("{0} {1}", date.toLocaleDateString(), date.toLocaleTimeString()));
         });
 
+    // Enable datepickers
+    $("div[data-type='datetimepicker']")
+        .datetimepicker({
+            format: "DD.MM.YYYY"
+        });
+
+    // Enable date period selector
+    $("select[data-type='datePeriodPresetSelector']")
+        .change(function() {
+            var parent = $(this).closest("ul");
+            var fromDateInput = parent.find("input[name='fromDate']");
+            var toDateInput = parent.find("input[name='toDate']");
+            var selectedIndex = $(this).prop("selectedIndex");
+            if (selectedIndex < 0)
+                return;
+
+            var fromDate = new Date();
+            var toDate = new Date();
+            switch ($(this).prop("options")[selectedIndex].value) {
+            case "Today":
+                break;
+            case "Yesterday":
+                fromDate.addDays(-1);
+                toDate.addDays(-1);
+                break;
+            case "LastWeek":
+                fromDate.addDays(-7);
+                break;
+            case "LastTwoWeeks":
+                fromDate.addDays(-14);
+                break;
+            case "ThisMonth":
+                fromDate = new Date(fromDate.getFullYear(), fromDate.getMonth(), 1);
+                break;
+            case "ThisYear":
+                fromDate = new Date(fromDate.getFullYear(), 0, 1);
+                break;
+            default:
+                break;
+            }
+            fromDateInput.val(fromDate.toStringFormatted());
+            toDateInput.val(toDate.toStringFormatted());
+        });
+
     // Page-specific event handlers
 
     // ** Coins Index
@@ -689,4 +733,27 @@ function format(pattern) {
 
 function isNullOrWhitespace(str) {
     return str === null || str === undefined || $.trim(str) === "";
+}
+
+// Date polyfills
+
+// ReSharper disable once NativeTypePrototypeExtending
+// I know it but can't handle the standard JS Date interface
+Date.prototype.addDays = function(days) {
+    return this.setDate(this.getDate() + days);
+}
+// ReSharper disable once NativeTypePrototypeExtending
+Date.prototype.toStringFormatted = function() {
+    return format("{0}.{1}.{2}", 
+        padLeftWithZeroes(this.getDate(), 2),
+        padLeftWithZeroes(this.getMonth()+1, 2),
+        padLeftWithZeroes(this.getFullYear(), 4));
+}
+
+function padLeftWithZeroes(value, length) {
+    var stringValue = value.toString();
+    var valueLength = stringValue.length;
+    for (var i = 0; i < length - valueLength; i++)
+        stringValue = "0" + stringValue;
+    return stringValue;
 }

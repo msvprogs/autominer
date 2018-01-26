@@ -238,3 +238,7 @@ thead {
 .text-small {
     font-size: small
 }
+
+tfoot {
+    background: #D1D1D1
+}

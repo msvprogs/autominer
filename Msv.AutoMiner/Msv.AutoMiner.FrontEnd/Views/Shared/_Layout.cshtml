@@ -48,6 +48,7 @@
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
         <link rel="stylesheet" href="~/lib/codemirror/lib/codemirror.css">
         <link rel="stylesheet" href="~/css/animate.css">
+        <link rel="stylesheet" href="~/lib/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment exclude="Development">
@@ -57,6 +58,7 @@
         <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
         <link rel="stylesheet" href="~/lib/codemirror/lib/codemirror.css">
         <link rel="stylesheet" href="~/css/animate.min.css">
+        <link rel="stylesheet" href="~/lib/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
 
@@ -103,6 +105,8 @@
                             <ul class="dropdown-menu">
                                 @MakeNavBarItem("Wallets", "Wallets", "Index", "fa-credit-card")
                                 @MakeNavBarItem("Operations", "WalletOperations", "Index", "fa-money")
+                                <li role="separator" class="divider" />
+                                @MakeNavBarItem("Ledger sheet", "LedgerSheet", "Index", "fa-book")
                                 <li role="separator" class="divider" />
                                 @MakeNavBarItem("Exchange settings", "Exchanges", "Index", "fa-exchange")
                             </ul>
@@ -173,6 +177,8 @@
         <script src="~/lib/codemirror/lib/codemirror.js"></script>
         <script src="~/lib/codemirror/mode/javascript/javascript.js"></script>
         <script src="~/lib/jquery.floatThead/dist/jquery.floatThead.min.js"></script>
+        <script type="text/javascript" src="~/lib/moment/min/moment.min.js"></script>
+        <script type="text/javascript" src="~/lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
     <environment exclude="Development">
@@ -193,6 +199,8 @@
         <script src="~/lib/codemirror/mode/javascript/javascript.js"></script>
         <script src="~/lib/jquery.floatThead/dist/jquery.floatThead.min.js"></script>
         <script src="~/lib/remarkable-bootstrap-notify/bootstrap-notify.js"></script>
+        <script type="text/javascript" src="~/lib/moment/min/moment.min.js"></script>
+        <script type="text/javascript" src="~/lib/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
         <script src="~/js/site.min.js" asp-append-version="true"></script>
     </environment>
 

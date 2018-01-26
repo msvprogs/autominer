@@ -1,0 +1,44 @@
+﻿@using Msv.AutoMiner.FrontEnd.Models.Shared
+@model Msv.AutoMiner.FrontEnd.Models.LedgerSheet.LedgerSheetIndexModel
+
+@{ ViewBag.Title = "Ledger sheet";}
+
+<h2 class="text-center">Ledger sheet</h2>
+
+@await Component.InvokeAsync("DatePeriod", new DatePeriodModel
+{
+    From = Model.StartDate,
+    To = Model.EndDate
+})
+
+<table class="table table-striped table-condensed table-bordered sticky-header">
+    <thead>
+        <tr>
+            <th>Coin</th>
+            <th>Debit</th>
+            <th>Credit</th>
+            <th>Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items.OrderBy(x => x.Coin.Name))
+        {
+            <tr>
+                <td class="space-no-wrap">
+                    @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.Coin.Name, item.Coin.Logo))
+                </td>          
+                <td msv-balance="@item.Debit" msv-btc-price="@item.CoinBtcPrice"></td>
+                <td msv-balance="@item.Credit" msv-btc-price="@item.CoinBtcPrice"></td>
+                <td msv-balance="@item.Balance" msv-enable-color="true" msv-btc-price="@item.CoinBtcPrice"></td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td class="text-right">Total BTC:</td>
+            <td msv-balance="@Model.TotalDebitBtc"></td>
+            <td msv-balance="@Model.TotalCreditBtc"></td>
+            <td msv-balance="@Model.TotalBalanceBtc" msv-enable-color="true"></td>
+        </tr>
+    </tfoot>
+</table>
