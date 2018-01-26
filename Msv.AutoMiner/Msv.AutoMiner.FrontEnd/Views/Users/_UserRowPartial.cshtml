@@ -1,0 +1,58 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@model Msv.AutoMiner.FrontEnd.Models.Users.UserDisplayModel
+
+@{
+    string rowClass;
+    string title;
+    if (Model.Activity == ActivityState.Inactive)
+    {
+        rowClass = "text-muted";
+        title = "User is inactive";
+    }
+    else
+    {
+        rowClass = null;
+        title = null;
+    }
+}
+
+<tr class="@rowClass" title="@title" data-user-name="@Model.Login">
+    <td>@Model.Login</td>
+    <td>@Model.Name</td>
+    @*<td>@Model.Role</td>*@
+    <td>
+        <ul class="list-inline">
+            <li>
+                <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@Model.Id" title="Edit user">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            </li>
+            <li>
+                @{
+                    var activationButtonTitle = Model.Activity == ActivityState.Active
+                        ? "Disable user"
+                        : "Enable user";
+                }
+                <button class="btn btn-xs btn-info"
+                        title="@activationButtonTitle"
+                        data-disable-url="@Url.Action("ToggleActive", new {id = Model.Id})">
+                    @if (Model.Activity == ActivityState.Active)
+                    {
+                        <i class="glyphicon glyphicon-remove"></i>
+                    }
+                    else if (Model.Activity == ActivityState.Inactive)
+                    {
+                        <i class="glyphicon glyphicon-flash"></i>
+                    }
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-xs btn-danger"
+                        title="Delete user"
+                        data-delete-url="@Url.Action("Delete", new {id = Model.Id})">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </button>
+            </li>
+        </ul>
+    </td>
+</tr>

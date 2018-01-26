@@ -37,6 +37,7 @@ namespace Msv.AutoMiner.Data
         public DbSet<RigMiningState> RigMiningStates { get; set; }
         public DbSet<TelegramUser> TelegramUsers { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserLogin> UserLogins { get; set; }
         public DbSet<WalletBalance> WalletBalances { get; set; }
         public DbSet<WalletOperation> WalletOperations { get; set; }
 

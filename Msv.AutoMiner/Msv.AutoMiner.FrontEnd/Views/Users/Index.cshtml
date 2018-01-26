@@ -1,0 +1,40 @@
+﻿@using Msv.AutoMiner.FrontEnd.Controllers
+@model Msv.AutoMiner.FrontEnd.Models.Users.UserDisplayModel[]
+
+@{
+    ViewBag.Title = "Users";
+}
+
+@if (TempData[UsersController.UsersMessageKey] != null)
+{
+    <div class="panel panel-success">
+        <div class="panel-body text-success">
+            @TempData[UsersController.UsersMessageKey]
+        </div>
+    </div>
+}
+
+<h2 class="text-center">Users</h2>
+
+<div class="pull-right div-table-actions">
+    <a class="btn btn-info" asp-action="Create">
+        <i class="glyphicon glyphicon-plus"></i> Add user...
+    </a>
+</div>
+
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
+        <tr>
+            <th>Login</th>
+            <th>Name</th>
+            @*<th>Role</th>*@
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="users-table">
+        @foreach (var user in Model.OrderBy(x => x.Login))
+        {
+            @Html.Partial("_UserRowPartial", user)
+        }
+    </tbody>
+</table>

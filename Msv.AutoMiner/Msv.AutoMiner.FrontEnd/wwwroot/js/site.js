@@ -536,6 +536,10 @@ $(function () {
         function(button, error) {
             new Notification(format("Error while registering rig: {0}", error)).danger();
         });
+
+    // **Users index
+    bindDisableButton($("tbody#users-table"), "user-name", "user");
+    bindDeleteButton($("tbody#users-table"), "user-name", "user");
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

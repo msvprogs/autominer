@@ -4,10 +4,12 @@ using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data
 {
-    public class User
+    public class User : IEntity<int>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
+        public ActivityState Activity { get; set; }
 
         [Required]
         public string Login { get; set; }
