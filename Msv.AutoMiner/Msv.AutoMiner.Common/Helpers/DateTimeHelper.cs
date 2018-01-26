@@ -7,15 +7,15 @@ namespace Msv.AutoMiner.Common.Helpers
     {
         private static readonly DateTime M_EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public static long NowTimestamp => ToTimestamp(DateTime.UtcNow, TimeZoneInfo.Utc);
+        public static long NowTimestamp => ToTimestamp(DateTime.UtcNow);
 
-        public static long NowTimestampMsec => ToTimestampMsec(DateTime.UtcNow, TimeZoneInfo.Utc);
+        public static long NowTimestampMsec => ToTimestampMsec(DateTime.UtcNow);
 
-        public static long ToTimestamp(DateTime dateTime, TimeZoneInfo timeZone)
-            => (long) (TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone) - M_EpochStart).TotalSeconds;
+        public static long ToTimestamp(DateTime dateTime, TimeZoneInfo timeZone = null)
+            => (long) (TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone ?? TimeZoneInfo.Utc) - M_EpochStart).TotalSeconds;
 
-        public static long ToTimestampMsec(DateTime dateTime, TimeZoneInfo timeZone)
-            => (long)(TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone) - M_EpochStart).TotalMilliseconds;
+        public static long ToTimestampMsec(DateTime dateTime, TimeZoneInfo timeZone = null)
+            => (long)(TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone ?? TimeZoneInfo.Utc) - M_EpochStart).TotalMilliseconds;
 
         public static DateTime ToDateTimeLocal(long timestamp)
             => TimeZoneInfo.ConvertTimeFromUtc(ToDateTimeUtc(timestamp), TimeZoneInfo.Local);

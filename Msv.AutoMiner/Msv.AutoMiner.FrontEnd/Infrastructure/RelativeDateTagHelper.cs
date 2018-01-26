@@ -23,7 +23,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             output.Attributes.SetAttribute(
                 "title", $"{AbsoluteDate.Value:yyyy-MM-dd HH:mm:ss} GMT");
             output.Attributes.SetAttribute(
-                "data-timestamp", DateTimeHelper.ToTimestampMsec(AbsoluteDate.Value, TimeZoneInfo.Utc));
+                "data-timestamp", DateTimeHelper.ToTimestampMsec(AbsoluteDate.Value));
             output.Content.SetContent(DateTimeHelper.ToRelativeTime(AbsoluteDate.Value));
         }
     }

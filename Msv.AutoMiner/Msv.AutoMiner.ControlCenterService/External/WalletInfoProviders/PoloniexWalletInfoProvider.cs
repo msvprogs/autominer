@@ -39,7 +39,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
             var operations = DoPostRequest("returnDepositsWithdrawals",
                 new Dictionary<string, string>
                 {
-                    ["start"] = DateTimeHelper.ToTimestamp(startDate, TimeZoneInfo.Utc).ToString(),
+                    ["start"] = DateTimeHelper.ToTimestamp(startDate).ToString(),
                     ["end"] = DateTimeHelper.NowTimestamp.ToString()
                 });
             return operations["deposits"]

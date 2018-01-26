@@ -48,7 +48,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
             JArray result = DoGetRequest("/payment/history/transactions",
                 new Dictionary<string, string>
                 {
-                    ["start"] = DateTimeHelper.ToTimestampMsec(startDate, TimeZoneInfo.Utc).ToString(),
+                    ["start"] = DateTimeHelper.ToTimestampMsec(startDate).ToString(),
                     ["end"] = DateTimeHelper.NowTimestampMsec.ToString(),
                     ["types"] = "DEPOSIT,WITHDRAWAL"
                 });
