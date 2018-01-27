@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ToggleActive(TId id)
+        public virtual async Task<IActionResult> ToggleActive(TId id)
         {
             var entity = await m_Context.Set<TEntity>()
                 .Where(x => x.Activity != ActivityState.Deleted)
@@ -65,6 +66,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             await m_Context.SaveChangesAsync();
             return NoContent();
         }
+
+        protected IActionResult ReturnAsJsonFile(string fileName, string jsonContent)
+            => File(Encoding.UTF8.GetBytes(jsonContent), "application/json", fileName);
 
         protected virtual bool IsEditable(TEntity entity) => true;
 

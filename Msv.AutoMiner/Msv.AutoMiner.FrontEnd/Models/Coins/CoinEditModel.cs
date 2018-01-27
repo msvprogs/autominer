@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
 
         public string NodePassword { get; set; }
 
-        public AlgorithmModel[] AvailableAlgorithms { get; set; }
+        public AlgorithmBaseModel[] AvailableAlgorithms { get; set; }
 
         public long? LastHeight { get; set; }
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
@@ -26,6 +27,7 @@ namespace Msv.AutoMiner.CoinInfoService.Controllers
         //[ValidateApiKey(ApiKeyType.CoinInfoService, false)]
         public Task<AlgorithmInfo[]> GetAlgorithms() 
             => Task.FromResult(m_Storage.GetAlgorithms()
+                .Where(x => x.Activity == ActivityState.Active)
                 .Select(x => new AlgorithmInfo
                 {
                     Id = x.Id,

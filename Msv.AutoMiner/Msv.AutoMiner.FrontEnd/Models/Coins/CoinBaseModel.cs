@@ -10,7 +10,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         [HiddenInput]
         public Guid Id { get; set; }
 
-        public AlgorithmModel Algorithm { get; set; }
+        public AlgorithmBaseModel Algorithm { get; set; }
 
         [Required(ErrorMessage = "Coin name is required")]
         [MaxLength(128, ErrorMessage = "Coin name is too long. Max 128 characters")]

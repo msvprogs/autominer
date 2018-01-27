@@ -584,6 +584,9 @@ $(function () {
     // **Users index
     bindDisableButton($("tbody#users-table"), "user-name", "user");
     bindDeleteButton($("tbody#users-table"), "user-name", "user");
+
+    // ** Algorithms index
+    bindDeleteButton($("tbody#algorithms-table"), "algorithm-name", "algorithm");
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

@@ -34,8 +34,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public IActionResult Index()
         {
             var algorithms = m_Context.CoinAlgorithms
-                .EmptyIfNull()
-                .Select(x => new AlgorithmModel
+                .Where(x => x.Activity == ActivityState.Active)
+                .Select(x => new AlgorithmBaseModel
                 {
                     Id = x.Id,
                     Name = x.Name,

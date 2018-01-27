@@ -88,7 +88,15 @@
                 {
                     <ul class="nav navbar-nav" id="topNavBar">
                         @MakeNavBarItem("Home", "Home", "Index", "fa-home")
-                        @MakeNavBarItem("Coins", "Coins", "Index", "fa-btc")
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-btc"></i> Coins &amp; Algorithms <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @MakeNavBarItem("Coins", "Coins", "Index", "fa-btc")
+                                @MakeNavBarItem("Algorithms", "Algorithms", "Index", "fa-calculator")
+                            </ul>
+                        </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-tasks"></i> Pools <span class="caret"></span>

@@ -125,7 +125,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Symbol = coin.Symbol,
                     GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock
                 });
-            return File(Encoding.UTF8.GetBytes(exportedContent), "application/json", $"{coin.Name}_settings.json");
+            return ReturnAsJsonFile($"{coin.Name}_settings.json", exportedContent);
         }
 
         [HttpPost]
@@ -234,7 +234,8 @@ rpcallowip={allowIpMask}
             var coinQuery = m_Context.Coins
                 .Include(x => x.Algorithm)
                 .AsNoTracking()
-                .Where(x => x.Activity != ActivityState.Deleted);
+                .Where(x => x.Activity != ActivityState.Deleted)
+                .Where(x => x.Algorithm.Activity == ActivityState.Active);
             if (!ids.IsNullOrEmpty())
                 coinQuery = coinQuery.Where(x => ids.Contains(x.Id));
             return coinQuery
@@ -254,7 +255,7 @@ rpcallowip={allowIpMask}
                     Id = x.coin.Id,
                     Name = x.coin.Name,
                     Symbol = x.coin.Symbol,
-                    Algorithm = new AlgorithmModel
+                    Algorithm = new AlgorithmBaseModel
                     {
                         Id = x.coin.AlgorithmId,
                         KnownValue = x.coin.Algorithm.KnownValue,
@@ -287,9 +288,10 @@ rpcallowip={allowIpMask}
                 .ToArray();
         }
 
-        private Task<AlgorithmModel[]> GetAvailableAlgorithms()
+        private Task<AlgorithmBaseModel[]> GetAvailableAlgorithms()
             => m_Context.CoinAlgorithms
-                .Select(x => new AlgorithmModel
+                .Where(x => x.Activity == ActivityState.Active)
+                .Select(x => new AlgorithmBaseModel
                 {
                     Id = x.Id,
                     KnownValue = x.KnownValue,

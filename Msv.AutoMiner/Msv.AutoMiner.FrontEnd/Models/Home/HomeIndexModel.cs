@@ -5,7 +5,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Home
 {
     public class HomeIndexModel
     {
-        public AlgorithmModel[] Algorithms { get; set; }
+        public AlgorithmBaseModel[] Algorithms { get; set; }
         public AlgorithmPowerDataCost[] TotalAlgorithmCapabilities { get; set; }
         public ProfitabilityModel[] CurrentProfitabilities { get; set; }
     }

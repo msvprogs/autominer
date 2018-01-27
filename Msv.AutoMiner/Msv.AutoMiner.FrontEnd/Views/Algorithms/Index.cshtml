@@ -1,0 +1,39 @@
+﻿@using Msv.AutoMiner.FrontEnd.Controllers
+@using Msv.AutoMiner.FrontEnd.Models.Algorithms
+@model AlgorithmBaseModel[]
+
+@{ ViewBag.Title = "Algorithms"; }
+
+@if (TempData[AlgorithmsController.AlgorithmsMessageKey] != null)
+{
+    <div class="panel panel-success">
+        <div class="panel-body text-success">
+            @TempData[AlgorithmsController.AlgorithmsMessageKey]
+        </div>
+    </div>
+}
+
+<h2 class="text-center">Algorithms</h2>
+
+<div class="pull-right div-table-actions">
+    <a class="btn btn-info" asp-action="Create">
+        <i class="glyphicon glyphicon-plus"></i> Add new algorithm...
+    </a>
+</div>
+
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>ID</th>
+            <th>Known algorithm type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="algorithms-table">
+        @foreach (var algorithm in Model.OrderBy(x => x.Name))
+        {
+            @Html.Partial("_AlgorithmRowPartial", algorithm)
+        }
+    </tbody>
+</table>

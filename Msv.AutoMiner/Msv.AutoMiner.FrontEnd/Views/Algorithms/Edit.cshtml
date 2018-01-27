@@ -1,0 +1,73 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
+@model Msv.AutoMiner.FrontEnd.Models.Algorithms.AlgorithmEditModel
+
+@{ ViewBag.Title = "Edit algorithm details"; }
+
+<h2 class="text-center">Edit algorithm details</h2>
+
+<div class="text-danger" asp-validation-summary="All"></div>
+
+@if (Model.IsNewEntity)
+{
+    <div class="text-right">
+        <button type="button" class="btn btn-info" id="importJsonFileButton">
+            <i class="fa fa-download" aria-hidden="true"></i> Import from JSON...
+        </button>
+    </div>
+}
+
+<form asp-action="Save" method="post">
+    <div class="form-group">
+        <label asp-for="Id">ID:</label>
+        @if (Model.IsNewEntity)
+        {
+            <input asp-for="Id" class="form-control text-monospace" placeholder="A GUID value" />
+        }
+        else
+        {
+            <input asp-for="Id" class="form-control text-monospace" placeholder="A GUID value" readonly="readonly" />
+        }
+    </div>
+    <div class="form-group">
+        <label asp-for="Name">Name:</label>
+        <input asp-for="Name" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="KnownValue">Known algorithm type:</label>
+        <p class="small">
+            Select this value if the algorithm has some specialities (non-standard profitability formula, units etc.) and the system is aware about them.
+        </p>
+        <select asp-for="KnownValue" class="form-control">
+            <option value="">&lt;none&gt;</option>
+            @foreach (var knownAlgorithm in EnumHelper.GetCaptionsCached<KnownCoinAlgorithm>().OrderBy(x => x.Value))
+            {
+                <option value="@knownAlgorithm.Key">@knownAlgorithm.Value</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Save
+    </button>
+    <a class="btn btn-default" asp-action="Index">
+        <i class="glyphicon glyphicon-chevron-left"></i> Return to algorithms list
+    </a>
+</form>
+
+@section Scripts {
+    <script>
+        function importFile(importedData) {
+            $("input#Id").val(importedData.Id);
+            $("input#Name").val(importedData.Name);
+            $("select#KnownValue").val(importedData.KnownValue).change();
+
+            new Notification("Algorithm settings have been imported successfully").success();
+        }
+
+        $(function() {
+            // Configure import button
+            new JsonFileReader($("#importJsonFileButton")).subscribe(importFile);
+        });
+    </script>
+}

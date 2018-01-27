@@ -21,6 +21,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IRigHeartbeatProvider m_RigHeartbeatProvider;
         private readonly IProfitabilityTableBuilder m_TableBuilder;
+        private readonly IOverallProfitabilityCalculator m_OverallProfitabilityCalculator;
         private readonly AutoMinerDbContext m_Context;
 
         public EstimateProfitabilityController(
@@ -28,12 +29,14 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             ICoinValueProvider coinValueProvider,
             IRigHeartbeatProvider rigHeartbeatProvider,
             IProfitabilityTableBuilder tableBuilder,
+            IOverallProfitabilityCalculator overallProfitabilityCalculator,
             AutoMinerDbContext context)
         {
             m_NetworkInfoProvider = networkInfoProvider;
             m_CoinValueProvider = coinValueProvider;
             m_RigHeartbeatProvider = rigHeartbeatProvider;
             m_TableBuilder = tableBuilder;
+            m_OverallProfitabilityCalculator = overallProfitabilityCalculator;
             m_Context = context;
         }
 
@@ -51,13 +54,22 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     HashRates = x.Value.heartbeat.AlgorithmMiningCapabilities.EmptyIfNull()
                 })
                 .OrderBy(x => x.Name)
+                .Prepend(new RigModel
+                {
+                    Id = int.MinValue,
+                    Name = "<overall>",
+                    HashRates = m_OverallProfitabilityCalculator.CalculateTotalPower()
+                        .Cast<AlgorithmPowerData>()
+                        .ToArray()
+                })
                 .ToArray();
             return View(new EstimateProfitabilityIndexModel
             {
                 ElectricityCostUsd = HttpContext.Session.GetDouble(ElectricityCostUsdKey),
                 Rigs = rigs,
                 Algorithms = m_Context.CoinAlgorithms
-                    .Select(x => new AlgorithmModel
+                    .Where(x => x.Activity == ActivityState.Active)
+                    .Select(x => new AlgorithmBaseModel
                     {
                         Id = x.Id,
                         Name = x.Name,
@@ -73,7 +85,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         (x, y) => (x.coin, x.network, price: y))
                     .Select(x => new CoinModel
                     {
-                        Algorithm = new AlgorithmModel {Id = x.coin.AlgorithmId},
+                        Algorithm = new AlgorithmBaseModel {Id = x.coin.AlgorithmId},
                         BlockReward = x.network?.BlockReward,
                         Difficulty = x.network?.Difficulty,
                         Id = x.coin.Id,

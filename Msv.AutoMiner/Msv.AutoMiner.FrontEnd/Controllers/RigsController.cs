@@ -187,7 +187,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     ? lastProfitabilityTime
                     : (DateTime?) null,
                 LastDayActivity = durations.ToArray(),
-                Algorithms = m_Context.CoinAlgorithms.AsNoTracking().ToArray()
+                Algorithms = m_Context.CoinAlgorithms
+                    .AsNoTracking()
+                    .Where(x => x.Activity == ActivityState.Active)
+                    .ToArray()
             });
         }
 
