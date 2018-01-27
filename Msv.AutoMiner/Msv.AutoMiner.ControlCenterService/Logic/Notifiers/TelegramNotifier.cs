@@ -9,13 +9,13 @@ using Telegram.Bot.Types.Enums;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Notifiers
 {
-    public class TelegramRigStatusNotifier : IRigStatusNotifier
+    public class TelegramNotifier : INotifier
     {
         private readonly ITelegramBotClient m_Client;
-        private readonly IRigStatusNotifierStorage m_Storage;
+        private readonly INotifierStorage m_Storage;
         private readonly string[] m_UserWhiteList;
 
-        public TelegramRigStatusNotifier(ITelegramBotClient client, IRigStatusNotifierStorage storage, string[] userWhiteList)
+        public TelegramNotifier(ITelegramBotClient client, INotifierStorage storage, string[] userWhiteList)
         {
             m_Client = client ?? throw new ArgumentNullException(nameof(client));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
@@ -33,6 +33,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Notifiers
 
         public void NotifyUnusualHashRate(int rigId, int[] samples)
             => SendMessageToSubscribers(CreateMessage(rigId, "Current hashrate differs too much from reference one", samples, "%"));
+
+        public void SendMessage(string message) 
+            => SendMessageToSubscribers(message);
 
         private void SendMessageToSubscribers(string message) 
             => Task.WaitAll(m_Storage.GetReceiverIds(m_UserWhiteList)

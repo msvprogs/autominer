@@ -29,18 +29,18 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                     .ToArray();
         }
 
-        public void SavePoolAvailabilities(Dictionary<int, (PoolAvailabilityState availability, DateTime? date)> availabilities)
+        public void SavePoolAvailabilities(Dictionary<Pool, (PoolAvailabilityState availability, DateTime? date)> availabilities)
         {
             if (availabilities == null)
                 throw new ArgumentNullException(nameof(availabilities));
 
             using (var context = m_Factory.Create())
             {
-                var poolIds = availabilities.Keys.ToArray();
+                var poolIds = availabilities.Keys.Select(x => x.Id).ToArray();
                 context.Pools
                     .Where(x => poolIds.Contains(x.Id))
                     .AsEnumerable()
-                    .Join(availabilities, x => x.Id, x => x.Key, (x, y) => (pool:x, data:y.Value))
+                    .Join(availabilities, x => x.Id, x => x.Key.Id, (x, y) => (pool:x, data:y.Value))
                     .ForEach(x =>
                     {
                         x.pool.Availability = x.data.availability;

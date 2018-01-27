@@ -10,11 +10,11 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Analyzers
 {
     public class HeartbeatAnalyzer : IHeartbeatAnalyzer
     {
-        private readonly IRigStatusNotifier m_Notifier;
+        private readonly INotifier m_Notifier;
         private readonly HeartbeatAnalyzerParams m_Options;
         private readonly ConcurrentDictionary<int, RigState> m_RigStates = new ConcurrentDictionary<int, RigState>();
 
-        public HeartbeatAnalyzer(IRigStatusNotifier notifier, HeartbeatAnalyzerParams options)
+        public HeartbeatAnalyzer(INotifier notifier, HeartbeatAnalyzerParams options)
         {
             m_Notifier = notifier ?? throw new ArgumentNullException(nameof(notifier));
             m_Options = options ?? throw new ArgumentNullException(nameof(options));

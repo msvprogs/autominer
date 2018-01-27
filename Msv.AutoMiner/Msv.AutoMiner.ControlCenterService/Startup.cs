@@ -43,7 +43,7 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddSingleton<IWalletInfoProviderFactoryStorage, WalletInfoProviderFactoryStorage>();
             services.AddSingleton<IPoolInfoMonitorStorage, PoolInfoMonitorStorage>();
             services.AddSingleton<IWalletInfoMonitorStorage, WalletInfoMonitorStorage>();
-            services.AddSingleton<IRigStatusNotifierStorage, RigStatusNotifierStorage>();
+            services.AddSingleton<INotifierStorage, NotifierStorage>();
             services.AddSingleton<IPoolAvailabilityMonitorStorage, PoolAvailabilityMonitorStorage>();
             services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
@@ -59,10 +59,10 @@ namespace Msv.AutoMiner.ControlCenterService
                 MaxVideoTemperature = Configuration.GetValue<int>("NormalRigStateCriteria:MaxVideoTemperature")
             });
             //@autominer_test
-            services.AddSingleton<IRigStatusNotifier>(
-                x => new TelegramRigStatusNotifier(
+            services.AddSingleton<INotifier>(
+                x => new TelegramNotifier(
                     x.GetRequiredService<ITelegramBotClient>(),
-                    x.GetRequiredService<IRigStatusNotifierStorage>(),
+                    x.GetRequiredService<INotifierStorage>(),
                     Configuration.GetSection("Notifications:Telegram:Subscribers")
                         .GetChildren()
                         .Select(y => y.Value)

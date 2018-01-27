@@ -5,11 +5,11 @@ using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
 {
-    public class RigStatusNotifierStorage : IRigStatusNotifierStorage
+    public class NotifierStorage : INotifierStorage
     {
         private readonly IAutoMinerDbContextFactory m_Factory;
 
-        public RigStatusNotifierStorage(IAutoMinerDbContextFactory factory)
+        public NotifierStorage(IAutoMinerDbContextFactory factory)
             => m_Factory = factory;
 
         public Rig GetRig(int rigId)
