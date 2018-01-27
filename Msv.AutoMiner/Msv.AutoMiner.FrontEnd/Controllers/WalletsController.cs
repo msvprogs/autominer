@@ -24,6 +24,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IWalletBalanceProvider m_WalletBalanceProvider;
         private readonly IWalletAddressValidatorFactory m_AddressValidatorFactory;
+        private readonly IBlockExplorerUrlProviderFactory m_BlockExplorerFactory;
         private readonly AutoMinerDbContext m_Context;
 
         public WalletsController(
@@ -31,6 +32,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             ICoinValueProvider coinValueProvider,
             IWalletBalanceProvider walletBalanceProvider,
             IWalletAddressValidatorFactory addressValidatorFactory,
+            IBlockExplorerUrlProviderFactory blockExplorerFactory,
             AutoMinerDbContext context)
             : base("_WalletRowsPartial", context)
         {
@@ -38,6 +40,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             m_CoinValueProvider = coinValueProvider;
             m_WalletBalanceProvider = walletBalanceProvider;
             m_AddressValidatorFactory = addressValidatorFactory;
+            m_BlockExplorerFactory = blockExplorerFactory;
             m_Context = context;
         }
 
@@ -162,6 +165,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
 
             var walletQuery = m_Context.Wallets
                 .Include(x => x.Coin)
+                .Include(x => x.Coin.Algorithm)
                 .AsNoTracking()
                 .Where(x => x.ExchangeType == null || x.Exchange.Activity != ActivityState.Deleted)
                 .Where(x => x.Coin.Activity != ActivityState.Deleted)
@@ -201,6 +205,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Blocked = x.balances.BlockedBalance,
                     Unconfirmed = x.balances.UnconfirmedBalance,
                     IsMiningTarget = x.wallet.IsMiningTarget,
+                    BlockExplorerUri = m_BlockExplorerFactory.Create(x.wallet.Coin)
+                        .CreateAddressUrl(x.wallet.Address),
                     LastUpdated = x.balances.DateTime != default
                         ? x.balances.DateTime
                         : (DateTime?)null

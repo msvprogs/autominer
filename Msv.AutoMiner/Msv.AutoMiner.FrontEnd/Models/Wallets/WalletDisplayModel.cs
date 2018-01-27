@@ -25,5 +25,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Wallets
         public double Unconfirmed { get; set; }
 
         public DateTime? LastUpdated { get; set; }
+
+        public Uri BlockExplorerUri { get; set; }
     }
 }

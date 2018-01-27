@@ -56,10 +56,21 @@
             }
             @await Component.InvokeAsync("LongId", new LongIdModel
             {
-                Id = wallet.Address,
-                Title = "Show all operations for this wallet",
-                Url = Url.Action("Index", "WalletOperations", new {walletId = wallet.Id})
+                Id = wallet.Address
             })
+            <div class="list-inline text-right small">
+                <a asp-controller="WalletOperations" asp-action="Index" asp-route-walletId="@wallet.Id"
+                   title="Show all operations for this wallet">
+                    <i class="fa fa-link" aria-hidden="true"></i> Operations
+                </a>
+                @if (wallet.BlockExplorerUri != null)
+                {
+                    @: &nbsp; &nbsp;
+                    <a href="@wallet.BlockExplorerUri" title="Show block explorer page for this wallet">
+                        <i class="fa fa-external-link" aria-hidden="true"></i> Block explorer
+                    </a>
+                }
+            </div>
         </td>
         <td>
             <a asp-controller="WalletOperations" asp-action="Index" asp-route-exchange="@wallet.ExchangeType"

@@ -10,10 +10,8 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
     {
         private readonly INetworkInfoProviderFactory m_NetworkInfoProviderFactory;
 
-        public BlockExplorerUrlProviderFactory(INetworkInfoProviderFactory networkInfoProviderFactory)
-        {
-            m_NetworkInfoProviderFactory = networkInfoProviderFactory;
-        }
+        public BlockExplorerUrlProviderFactory(INetworkInfoProviderFactory networkInfoProviderFactory) 
+            => m_NetworkInfoProviderFactory = networkInfoProviderFactory;
 
         public IBlockExplorerUrlProvider Create([NotNull] Coin coin)
         {
