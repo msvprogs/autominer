@@ -16,6 +16,7 @@ using Msv.AutoMiner.Common.Security;
 using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces;
 using Msv.AutoMiner.ControlCenterService.Logic.Monitors;
+using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Storage;
@@ -60,7 +61,8 @@ namespace Msv.AutoMiner.ControlCenterService
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 using (new PoolAvailabilityMonitor(
-                    new PoolAvailabilityChecker(), 
+                    new PoolAvailabilityChecker(),
+                    scope.ServiceProvider.GetRequiredService<INotifier>(),
                     scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
                 using (new TelegramCommandInterface(
                     new TelegramBotClient(config.GetValue<string>("Notifications:Telegram:Token")),

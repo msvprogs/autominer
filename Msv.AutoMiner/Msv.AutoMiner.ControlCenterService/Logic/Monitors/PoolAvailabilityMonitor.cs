@@ -64,7 +64,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         break;
                     case PoolAvailabilityState.AuthenticationFailed:
                         m_Notifier.SendMessage(
-                            $"Warning: Authentication on the pool {x.Key.Name} has failed. Please check your credentials, wallet address and the pool site");
+                            $"Warning: Authentication on the pool {x.Key.Name} has failed. Please check your credentials, wallet address and the pool site.");
                         break;
                     case PoolAvailabilityState.NoResponse:
                         m_Notifier.SendMessage(
