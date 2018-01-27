@@ -354,7 +354,7 @@ $(function () {
             case "Iquidus":
             case "IquidusWithPos":
                 apiUrlEnabled = true;
-                urlDescriptionText = "URL of the block explorer's main page";
+                urlDescriptionText = "In most cases it is the URL of the explorer main page, but it's recommended to check the API page for actual URLs (of course, if there are localhost addresses, they're not actual)";
                 break;
             case "OpenEthereumPool":
                 apiUrlEnabled = true;
