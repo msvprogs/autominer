@@ -16,13 +16,13 @@ namespace Msv.AutoMiner.Data.Logic
         public MiningWorkBuilder(IMiningWorkBuilderStorage storage) 
             => m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
 
-        public MiningWorkModel[] Build(SingleProfitabilityData[] profitabilities)
+        public MiningWorkModel[] Build(SingleProfitabilityData[] profitabilities, bool testMode)
         {
             if (profitabilities == null) 
                 throw new ArgumentNullException(nameof(profitabilities));
 
             var coinIds = profitabilities
-                .Where(x => DateTime.UtcNow - M_MaxInactivityInterval < x.LastUpdatedUtc)
+                .Where(x => testMode || DateTime.UtcNow - M_MaxInactivityInterval < x.LastUpdatedUtc)
                 .Select(x => x.CoinId)
                 .ToArray();
             var btcMiningTarget = m_Storage.GetBitCoinMiningTarget();

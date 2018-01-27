@@ -160,7 +160,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                     ElectricityCostUsd = request.ElectricityCostUsd,
                     PriceAggregationType = rig.PriceAggregationType
                 });
-            var works = m_MiningWorkBuilder.Build(coinStatistics.Profitabilities.EmptyIfNull());
+            var works = m_MiningWorkBuilder.Build(coinStatistics.Profitabilities.EmptyIfNull(), request.TestMode);
             if (request.TestMode)
                 return works;
             var now = DateTime.UtcNow;

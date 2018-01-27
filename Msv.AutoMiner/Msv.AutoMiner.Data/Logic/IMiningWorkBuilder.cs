@@ -5,6 +5,6 @@ namespace Msv.AutoMiner.Data.Logic
 {
     public interface IMiningWorkBuilder
     {
-        MiningWorkModel[] Build(SingleProfitabilityData[] profitabilities);
+        MiningWorkModel[] Build(SingleProfitabilityData[] profitabilities, bool testMode);
     }
 }

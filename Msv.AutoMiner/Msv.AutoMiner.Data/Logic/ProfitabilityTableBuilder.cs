@@ -46,12 +46,12 @@ namespace Msv.AutoMiner.Data.Logic
             return request.AlgorithmDatas
                 .Join(networkInfos, x => x.AlgorithmId, x => x.Coin.AlgorithmId,
                     (x, y) => (networkInfo: y, algorithmInfo: x))
-                .Join(marketPrices, x => x.networkInfo.CoinId, x => x.CurrencyId,
+                .LeftOuterJoin(marketPrices, x => x.networkInfo.CoinId, x => x.CurrencyId,
                     (x, y) => new
                     {
                         NetworkInfo = x.networkInfo,
                         AlgorithmInfo = x.algorithmInfo,
-                        MarketPrices = y.ExchangePrices.EmptyIfNull(),
+                        MarketPrices = (y?.ExchangePrices).EmptyIfNull(),
                         CoinsPerDay = Math.Round(m_Calculator.CalculateCoinsPerDay(
                                 x.networkInfo.Difficulty, x.networkInfo.BlockReward,
                                 x.networkInfo.Coin.MaxTarget, x.algorithmInfo.NetHashRate),

@@ -71,7 +71,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             => m_MiningWorkBuilder.Build(
                 m_ProfitabilityCalculator.BuildProfitabilityTable(
                     HttpContext.Session.GetEnum<ValueAggregationType>(DifficultyAggregationKey),
-                    HttpContext.Session.GetEnum<ValueAggregationType>(MarketPriceAggregationKey)))
+                    HttpContext.Session.GetEnum<ValueAggregationType>(MarketPriceAggregationKey)),
+                false)
             .Select(x => (coin: x, pool: x.Pools.OrderByDescending(y => y.UsdPerDay).FirstOrDefault()))
             .Where(x => x.pool != null)
             .LeftOuterJoin(m_Context.Coins
