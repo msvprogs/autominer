@@ -5,11 +5,11 @@
 
 @if (Model.Id != 0)
 {
-    <h2 class="text-center">Edit @Model.MinerName version @Model.Version</h2>
+    <h2 class="text-center">Edit @Model.MinerName version @Model.Version for @Model.Platform</h2>
 }
 else
 {
-    <h2 class="text-center">Add new version for @Model.MinerName</h2>
+    <h2 class="text-center">Add new @Model.Platform version for @Model.MinerName</h2>
 }
 
 <div class="text-danger" asp-validation-summary="All"></div>
@@ -50,7 +50,7 @@ else
             <br />
             <i>
                 If your miner is to be run through some other program or environment (for example, Wine or Mono), specify the <b>runtime command</b> for it here.
-                The miner filename or path must be specified in the following field.
+                The miner filename or path must be specified in the 'Secondary executable' field.
             </i>
         </p>
         <input asp-for="ExeFilePath" class="form-control text-monospace" />

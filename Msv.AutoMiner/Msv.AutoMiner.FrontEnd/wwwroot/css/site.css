@@ -242,3 +242,9 @@ thead {
 tfoot {
     background: #D1D1D1
 }
+
+.required-value-marker {
+    color: red;
+    font-weight: bold;
+    margin-right: 4px;
+}
