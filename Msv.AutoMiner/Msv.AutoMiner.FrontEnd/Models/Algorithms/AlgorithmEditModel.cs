@@ -8,7 +8,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Algorithms
 
         public int? MinerId { get; set; }
 
-        public int? Intensity { get; set; }
+        public double? Intensity { get; set; }
 
         public string AdditionalArguments {get; set; }
 

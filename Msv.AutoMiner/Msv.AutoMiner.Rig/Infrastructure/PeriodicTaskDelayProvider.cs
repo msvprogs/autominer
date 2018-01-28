@@ -18,12 +18,16 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
         public TimeSpan GetDelay<T>()
         {
+#if DEBUG
+            return TimeSpan.Zero;
+#else
             var certificate = m_CertificateProvider.GetCertificate();
             var seed = certificate != null
                 ? BitConverter.ToInt32(certificate.GetSerialNumber(), 0)
                 : 0;
             var random = new Random(seed ^ typeof(T).GetHashCode());
             return TimeSpan.FromSeconds(random.Next(MinDelaySecs, MaxDelaySecs));
+#endif
         }
     }
 }

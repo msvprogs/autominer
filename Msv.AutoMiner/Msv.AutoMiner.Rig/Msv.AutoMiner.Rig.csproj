@@ -74,7 +74,10 @@
     <Reference Include="System.Data.SQLite.Linq, Version=1.0.105.2, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.105.2\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="System.IO.Compression, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL" />
+    <Reference Include="System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <Aliases>global,oldIoCompression</Aliases>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Reactive.Core, Version=3.0.3000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
@@ -113,6 +116,7 @@
     <Compile Include="Data\ProfitabilityTableBuilderParams.cs" />
     <Compile Include="DllMapConfigurationSection.cs" />
     <Compile Include="Infrastructure\AutomaticMinerChanger.cs" />
+    <Compile Include="Infrastructure\ConfigurationUpdater.cs" />
     <Compile Include="Infrastructure\Contracts\IAutomaticMinerChanger.cs" />
     <Compile Include="Infrastructure\Contracts\IPeriodicTaskDelayProvider.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerOutputProcessor.cs" />
@@ -126,11 +130,13 @@
     <Compile Include="Data\ConsolidationRoute.cs" />
     <Compile Include="Data\MinerChangingOptions.cs" />
     <Compile Include="Infrastructure\HeartbeatSender.cs" />
+    <Compile Include="Infrastructure\Contracts\IMinerFileStorage.cs" />
     <Compile Include="Infrastructure\MinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\MinerProcessController.cs" />
     <Compile Include="Infrastructure\MinerTester.cs" />
     <Compile Include="Infrastructure\PeriodicTaskDelayProvider.cs" />
     <Compile Include="Infrastructure\CachedPoolAvailabilityChecker.cs" />
+    <Compile Include="Infrastructure\PhysicalMinerFileStorage.cs" />
     <Compile Include="Infrastructure\ProcessWrapper.cs" />
     <Compile Include="Infrastructure\MiningProfitabilityTableBuilder.cs" />
     <Compile Include="Infrastructure\VideoAdapterMonitor.cs" />
@@ -143,7 +149,9 @@
     <Compile Include="Security\MonoBuggedX509CertificateStorage.cs" />
     <Compile Include="Security\X509CertificateStorageFactory.cs" />
     <Compile Include="Storage\CommandProcessorStorage.cs" />
+    <Compile Include="Storage\ConfigurationUpdaterStorage.cs" />
     <Compile Include="Storage\Contracts\ICommandProcessorStorage.cs" />
+    <Compile Include="Storage\Contracts\IConfigurationUpdaterStorage.cs" />
     <Compile Include="Storage\Contracts\IHeartbeatSenderStorage.cs" />
     <Compile Include="Storage\HeartbeatSenderStorage.cs" />
     <Compile Include="Storage\Model\DbInitializer.cs" />

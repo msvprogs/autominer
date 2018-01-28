@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 
@@ -28,5 +29,18 @@ namespace Msv.AutoMiner.Rig.Remote
             => m_RestClient.Post<GetMiningWorkRequestModel, MiningWorkModel[]>(
                 "/api/controlCenter/getMiningWork",
                 request);
+
+        public CheckConfigurationResponseModel CheckConfiguration(GetConfigurationRequestModel request)
+            => m_RestClient.Post<GetConfigurationRequestModel, CheckConfigurationResponseModel>(
+                "/api/controlCenter/checkConfiguration",
+                request);
+
+        public GetConfigurationResponseModel GetConfiguration(GetConfigurationRequestModel request)
+            => m_RestClient.Post<GetConfigurationRequestModel, GetConfigurationResponseModel>(
+                "/api/controlCenter/getConfiguration",
+                request);
+
+        public Stream DownloadMiner(int versionId)
+            => m_RestClient.GetStream($"/api/controlCenter/downloadMiner/{versionId}");
     }
 }

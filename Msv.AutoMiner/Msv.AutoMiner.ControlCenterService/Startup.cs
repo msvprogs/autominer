@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common.External;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
 using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
@@ -70,6 +71,9 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddSingleton<IHeartbeatAnalyzer, HeartbeatAnalyzer>();
 
             services.AddSingleton<ICertificateService, CertificateService>();
+            services.AddSingleton<IUploadedFileStorage>(new PhysicalUploadedFileStorage(
+                Configuration["FileStorage:Miners"]));
+            services.AddSingleton<IConfigurationHasher, Sha256ConfigurationHasher>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
                 Configuration["Services:CoinInfo:ApiKey"]));

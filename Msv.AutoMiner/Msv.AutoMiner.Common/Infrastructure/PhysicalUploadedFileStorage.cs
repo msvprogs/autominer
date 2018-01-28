@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 
-namespace Msv.AutoMiner.FrontEnd.Infrastructure
+namespace Msv.AutoMiner.Common.Infrastructure
 {
     public class PhysicalUploadedFileStorage : IUploadedFileStorage
     {
@@ -18,7 +17,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 Directory.CreateDirectory(rootPath);
         }
 
-        public async Task SaveAsync([NotNull] string name, [NotNull] Stream contentsStream)
+        public async Task SaveAsync(string name, Stream contentsStream)
         {
             if (name == null) 
                 throw new ArgumentNullException(nameof(name));
@@ -29,7 +28,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 await contentsStream.CopyToAsync(fileStream);
         }
 
-        public Stream Load([NotNull] string name)
+        public Stream Load(string name)
         {
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
@@ -37,12 +36,15 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             return new FileStream(GetFullPath(name), FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public bool Exists([NotNull] string name)
+        public string[] Search(string pattern)
         {
-            if (name == null) 
-                throw new ArgumentNullException(nameof(name));
+            if (pattern == null) 
+                throw new ArgumentNullException(nameof(pattern));
 
-            return File.Exists(GetFullPath(name));
+            return new DirectoryInfo(m_RootPath)
+                .GetFiles(pattern, SearchOption.TopDirectoryOnly)
+                .Select(x => x.Name)
+                .ToArray();
         }
 
         private string GetFullPath(string name)

@@ -10,10 +10,8 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public DbSet<Setting> Settings { get; set; }
         public DbSet<ManualDeviceMapping> ManualDeviceMappings { get; set; }
 
-        public AutoMinerRigDbContext()
-        {
-            Configuration.LazyLoadingEnabled = false;
-        }
+        public AutoMinerRigDbContext() 
+            => Configuration.LazyLoadingEnabled = false;
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

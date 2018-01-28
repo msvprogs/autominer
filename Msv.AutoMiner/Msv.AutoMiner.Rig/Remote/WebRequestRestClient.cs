@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Newtonsoft.Json;
@@ -32,6 +34,20 @@ namespace Msv.AutoMiner.Rig.Remote
                 return JsonConvert.DeserializeObject<T>(
                     client.DownloadString(new Uri(m_BaseUrl, relativeUrl)));
             }
+        }
+
+        public Stream GetStream(string relativeUrl)
+        {
+            if (relativeUrl == null)
+                throw new ArgumentNullException(nameof(relativeUrl));
+
+            var httpClient = new HttpClient(new HttpClientHandler
+            {
+                ClientCertificates = {ClientCertificate}
+            });
+            var response = httpClient.GetAsync(new Uri(m_BaseUrl, relativeUrl))
+                .GetAwaiter().GetResult().EnsureSuccessStatusCode();
+            return response.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
         }
 
         public TResponse Post<TRequest, TResponse>(string relativeUrl, TRequest request)

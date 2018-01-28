@@ -1,4 +1,5 @@
-﻿using Msv.AutoMiner.Data;
+﻿using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
 {
@@ -12,5 +13,8 @@ namespace Msv.AutoMiner.ControlCenterService.Storage.Contracts
         RigCommand GetNextCommand(int rigId);
         void MarkCommandAsSent(int commandId);
         void SaveProfitabilities(CoinProfitability[] profitabilities);
+
+        MinerVersion[] GetLastMinerVersions(PlatformType platform);
+        CoinAlgorithm[] GetAlgorithms();
     }
 }

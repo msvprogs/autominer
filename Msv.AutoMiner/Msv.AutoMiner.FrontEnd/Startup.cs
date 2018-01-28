@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.IO.Compression;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -28,13 +27,8 @@ namespace Msv.AutoMiner.FrontEnd
     {        
         public IConfiguration Configuration { get; }
 
-        private readonly IHostingEnvironment m_HostingEnvironment;
-
-        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
-        {
-            Configuration = configuration;
-            m_HostingEnvironment = hostingEnvironment;
-        }
+        public Startup(IConfiguration configuration)
+            => Configuration = configuration;
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -94,7 +88,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
             services.AddSingleton<IOverallProfitabilityCalculator, OverallProfitabilityCalculator>();
             services.AddSingleton<IUploadedFileStorage>(new PhysicalUploadedFileStorage(
-                Path.Combine(m_HostingEnvironment.ContentRootPath, "Uploads")));
+                Configuration["FileStorage:Miners"]));
             services.AddSingleton<IControlCenterService>(x => new ControlCenterServiceClient(
                 new AsyncRestClient(new Uri(Configuration["Services:ControlCenter:Url"]))));
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(

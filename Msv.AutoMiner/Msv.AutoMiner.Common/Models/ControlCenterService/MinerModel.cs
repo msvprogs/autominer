@@ -1,25 +1,14 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Msv.AutoMiner.Common.Enums;
-using Msv.AutoMiner.Common.Models.ControlCenterService;
-
-namespace Msv.AutoMiner.Data
+﻿namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {
-    public class MinerVersion : IMinerModel
+    public class MinerModel : IMinerModel
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-
         public int MinerId { get; set; }
 
-        public PlatformType Platform { get; set; }
+        public string MinerName { get; set; }
 
-        public virtual Miner Miner { get; set; }
+        public int VersionId { get; set; }
 
         public string Version { get; set; }
-
-        public DateTime Uploaded { get; set; }
 
         public string ExeFilePath { get; set; }
 
@@ -50,13 +39,5 @@ namespace Msv.AutoMiner.Data
         public string BenchmarkResultRegex { get; set; }
 
         public bool OmitUrlSchema { get; set; }
-
-        public string ZipPath { get; set; }
-    
-        [NotMapped]
-        string IMinerModel.MinerName => Miner.Name;
-
-        [NotMapped]
-        int IMinerModel.VersionId => Id;
     }
 }

@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Rig.Commands;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure;
@@ -87,9 +88,25 @@ namespace Msv.AutoMiner.Rig
                     Console.WriteLine("This rig isn't registered! Register it at control center.");
                     return;
                 }
+               
+                var delayProvider = new PeriodicTaskDelayProvider(certificateProvider);
+                var configurationUpdater = new ConfigurationUpdater(
+                    delayProvider,
+                    controlCenterClient,
+                    new Sha256ConfigurationHasher(), 
+                    new PhysicalMinerFileStorage("Miners"),
+                    new ConfigurationUpdaterStorage());
+                try
+                {
+                    if (configurationUpdater.CheckUpdates())
+                        configurationUpdater.ApplyUpdates();
+                }
+                catch (Exception ex)
+                {
+                    M_Logger.Error(ex, "Configuration updating failed");
+                }
 
                 var started = DateTime.Now;
-                var delayProvider = new PeriodicTaskDelayProvider(certificateProvider);
                 using (Observable.Interval(TimeSpan.FromSeconds(10))
                     .Where(x => controller.CurrentState != null)
                     .Subscribe(x =>

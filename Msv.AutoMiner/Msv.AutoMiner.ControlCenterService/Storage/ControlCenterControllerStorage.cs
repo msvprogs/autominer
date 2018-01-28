@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
@@ -95,6 +97,27 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
                 context.CoinProfitabilities.AddRange(profitabilities);
                 context.SaveChanges();
             }
+        }
+
+        public MinerVersion[] GetLastMinerVersions(PlatformType platform)
+        {
+            using (var context = m_Factory.CreateReadOnly())
+                return context.MinerVersions
+                    .Include(x => x.Miner)
+                    .FromSql(@"SELECT ver.* FROM MinerVersions ver
+  join (select MinerId, Platform, MAX(Uploaded) as MaxUploaded
+    from MinerVersions
+    group by MinerId, Platform) maxUploaded
+  on ver.MinerId = maxUploaded.MinerId and ver.Platform = maxUploaded.Platform and ver.Uploaded = maxUploaded.MaxUploaded")
+                    .Where(x => x.Platform == platform)
+                    .ToArray();
+        }
+
+        public CoinAlgorithm[] GetAlgorithms()
+        {
+            using (var context = m_Factory.CreateReadOnly())
+                return context.CoinAlgorithms
+                    .ToArray();
         }
     }
 }

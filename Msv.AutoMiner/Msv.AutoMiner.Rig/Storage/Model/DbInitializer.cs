@@ -21,10 +21,10 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         {
             base.InitializeDatabase(context);
 
-            if (!context.Miners.Any())
-                InitializeMiners(context);
-            if (!context.MinerAlgorithmSettings.Any())
-                InitializeSettings(context);
+            //if (!context.Miners.Any())
+            //    InitializeMiners(context);
+            //if (!context.MinerAlgorithmSettings.Any())
+            //    InitializeSettings(context);
         }
 
         private static void InitializeSettings(AutoMinerRigDbContext context)

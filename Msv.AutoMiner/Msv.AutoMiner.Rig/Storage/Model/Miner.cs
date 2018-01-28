@@ -1,16 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
+using Msv.AutoMiner.Common.Models.ControlCenterService;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
-    public class Miner
+    public class Miner : IMinerModel
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
+
+        public int VersionId { get; set; }
+
+        public string Version { get; set; }
 
         [Required]
         public string FileName { get; set; }
@@ -59,5 +65,21 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public bool OmitUrlSchema { get; set; }
 
         public virtual ICollection<MinerAlgorithmSetting> AlgorithmValues { get; set; }
+
+        [NotMapped]
+        int IMinerModel.MinerId => Id;
+
+        [NotMapped]
+        string IMinerModel.MinerName => Name;
+
+        [NotMapped]
+        string IMinerModel.ExeFilePath => SecondaryFileName != null 
+            ? FileName 
+            : Path.GetFileName(FileName);
+
+        [NotMapped]
+        string IMinerModel.ExeSecondaryFilePath => SecondaryFileName != null
+            ? Path.GetFileName(SecondaryFileName)
+            : SecondaryFileName;
     }
 }

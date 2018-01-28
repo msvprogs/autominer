@@ -7,6 +7,7 @@ using Msv.AutoMiner.Common.Data;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
@@ -31,6 +32,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
         private readonly ICoinInfoService m_CoinInfoService;
         private readonly IHeartbeatAnalyzer m_HeartbeatAnalyzer;
         private readonly IMiningWorkBuilder m_MiningWorkBuilder;
+        private readonly IConfigurationHasher m_ConfigurationHasher;
+        private readonly IUploadedFileStorage m_UploadedFileStorage;
         private readonly IControlCenterControllerStorage m_Storage;
 
         public ControlCenterController(
@@ -38,12 +41,16 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             ICoinInfoService coinInfoService,
             IHeartbeatAnalyzer heartbeatAnalyzer,
             IMiningWorkBuilder miningWorkBuilder,
+            IConfigurationHasher configurationHasher,
+            IUploadedFileStorage uploadedFileStorage,
             IControlCenterControllerStorage storage)
         {
             m_CertificateService = certificateService;
             m_CoinInfoService = coinInfoService;
             m_HeartbeatAnalyzer = heartbeatAnalyzer;
             m_MiningWorkBuilder = miningWorkBuilder;
+            m_ConfigurationHasher = configurationHasher;
+            m_UploadedFileStorage = uploadedFileStorage;
             m_Storage = storage;
         }
 
@@ -96,11 +103,6 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 CaCertificate = SiteCertificates.PortCertificates[HttpContext.Connection.LocalPort].RawData
             };
         }
-
-        [HttpGet("getAlgorithms")]
-        [AuthenticateRigByCertificate]
-        public Task<AlgorithmInfo[]> GetAlgorithms() 
-            => m_CoinInfoService.GetAlgorithms();
 
         [HttpPost("sendHeartbeat")]
         [AuthenticateRigByCertificate]
@@ -180,6 +182,77 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             return works;
         }
 
+        [HttpPost("checkConfiguration")]
+        [AuthenticateRigByCertificate]
+        public CheckConfigurationResponseModel CheckConfiguration(
+            [FromBody] GetConfigurationRequestModel request)
+        {
+            var (minerVersions, algorithms) = GetCurrentConfiguration(request.Platform);
+            return new CheckConfigurationResponseModel
+            {
+                // ReSharper disable CoVariantArrayConversion
+                ConfigurationHash = m_ConfigurationHasher.Calculate(minerVersions, algorithms)
+                // ReSharper restore CoVariantArrayConversion
+            };
+        }
+
+        [HttpPost("getConfiguration")]
+        [AuthenticateRigByCertificate]
+        public GetConfigurationResponseModel GetConfiguration(
+            [FromBody] GetConfigurationRequestModel request)
+        {
+            var (minerVersions, algorithms) = GetCurrentConfiguration(request.Platform);
+            return new GetConfigurationResponseModel
+            {
+                Algorithms = algorithms
+                    .Where(x => x.MinerId != null)
+                    .Select(x => new AlgorithmMinerModel
+                    {
+                        AdditionalArguments = x.AdditionalArguments,
+                        AlgorithmArgument = x.AlgorithmArgument,
+                        AlgorithmId = x.Id,
+                        AlgorithmName = x.Name,
+                        Intensity = x.Intensity,
+                        MinerId = x.MinerId.Value
+                    })
+                    .ToArray(),
+                Miners = minerVersions
+                    .Select(x => new MinerModel
+                    {
+                        Version = x.Version,
+                        MinerId = x.MinerId,
+                        ExeSecondaryFilePath = x.ExeSecondaryFilePath,
+                        ExeFilePath = x.ExeFilePath,
+                        AlgorithmArgument = x.AlgorithmArgument,
+                        SpeedRegex = x.SpeedRegex,
+                        AdditionalArguments = x.AdditionalArguments,
+                        ServerArgument = x.ServerArgument,
+                        InvalidShareRegex = x.InvalidShareRegex,
+                        PasswordArgument = x.PasswordArgument,
+                        BenchmarkArgument = x.BenchmarkArgument,
+                        BenchmarkResultRegex = x.BenchmarkResultRegex,
+                        OmitUrlSchema = x.OmitUrlSchema,
+                        VersionId = x.Id,
+                        MinerName = x.Miner.Name,
+                        IntensityArgument = x.IntensityArgument,
+                        ValidShareRegex = x.ValidShareRegex,
+                        UserArgument = x.UserArgument,
+                        PortArgument = x.PortArgument
+                    })
+                    .ToArray()
+            };
+        }
+
+        [HttpGet("downloadMiner/{versionId}")]
+        [AuthenticateRigByCertificate]
+        public IActionResult DownloadMiner(int versionId)
+        {
+            var fileName = m_UploadedFileStorage.Search($"Miner_{versionId}_*.zip").FirstOrDefault();
+            if (fileName == null)
+                return NotFound();
+            return File(m_UploadedFileStorage.Load(fileName), "application/zip");
+        }
+
         [HttpGet("getLog")]
         //TODO: ONLY FOR INTERNAL SERVICE!!!!!!!!
         public Task<ServiceLogs> GetLog()
@@ -188,5 +261,18 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 Errors = MemoryBufferTarget.GetBuffer("ErrorLogBuffer"),
                 Full = MemoryBufferTarget.GetBuffer("FullLogBuffer")
             });
+
+        private (MinerVersion[] minerVersions, CoinAlgorithm[] algorithms) GetCurrentConfiguration(
+            PlatformType platformType)
+        {
+            var minerVersions = m_Storage.GetLastMinerVersions(platformType);
+            var supportedMinerIds = minerVersions.Select(x => x.MinerId)
+                .Distinct()
+                .ToArray();
+            var algorithms = m_Storage.GetAlgorithms()
+                .Where(x => x.MinerId != null && supportedMinerIds.Contains(x.MinerId.Value))
+                .ToArray();
+            return (minerVersions, algorithms);
+        }
     }
 }

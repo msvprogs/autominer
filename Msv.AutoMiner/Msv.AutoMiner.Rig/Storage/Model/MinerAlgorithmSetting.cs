@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Msv.AutoMiner.Common.Models.ControlCenterService;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
-    public class MinerAlgorithmSetting
+    public class MinerAlgorithmSetting : IAlgorithmMinerModel
     {
         [MaxLength(64)]
         public string AlgorithmId { get; set; }
@@ -20,5 +23,13 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public string LogFile { get; set; }
 
         public string AdditionalArguments { get; set; }
+
+        [NotMapped]
+        Guid IAlgorithmMinerModel.AlgorithmId => string.IsNullOrEmpty(AlgorithmId)
+            ? Guid.Empty
+            : Guid.Parse(AlgorithmId);
+
+        [NotMapped] 
+        string IAlgorithmMinerModel.AlgorithmName => Algorithm?.AlgorithmName;
     }
 }

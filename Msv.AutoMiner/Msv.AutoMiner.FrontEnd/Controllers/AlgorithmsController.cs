@@ -76,7 +76,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             algorithm.AdditionalArguments = algorithmModel.AdditionalArguments;
             algorithm.MinerId = algorithmModel.MinerId;
             algorithm.AlgorithmArgument = algorithmModel.MinerAlgorithmArgument;
-            algorithm.Intensity = algorithmModel.Intensity;
+            algorithm.Intensity = algorithmModel.Intensity.NullIfNaN();
 
             await m_Context.SaveChangesAsync();
             TempData[AlgorithmsMessageKey] = $"Algorithm {algorithmModel.Name} has been successfully saved";
