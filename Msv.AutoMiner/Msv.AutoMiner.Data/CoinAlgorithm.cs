@@ -17,5 +17,15 @@ namespace Msv.AutoMiner.Data
         public ProfitabilityFormulaType ProfitabilityFormulaType { get; set; }
 
         public KnownCoinAlgorithm? KnownValue { get; set; }
+
+        public int? MinerId { get; set; }
+
+        public virtual Miner Miner { get; set; }
+
+        public int? Intensity { get; set; }
+
+        public string AlgorithmArgument { get; set; }
+        
+        public string AdditionalArguments { get; set; }
     }
 }

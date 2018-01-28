@@ -314,6 +314,9 @@ $(function () {
             toDateInput.val(toDate.toStringFormatted());
         });
 
+    // Set the Bootstrap-like style for file inputs
+    $("input[type=file]").bootstrapFileInput();
+
     // Page-specific event handlers
 
     // ** Coins Index
@@ -587,6 +590,10 @@ $(function () {
 
     // ** Algorithms index
     bindDeleteButton($("tbody#algorithms-table"), "algorithm-name", "algorithm");
+
+    // ** Miners index
+    bindDisableButton($("tbody#miners-table"), "miner-name", "miner");
+    bindDeleteButton($("tbody#miners-table"), "miner-name", "miner");
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

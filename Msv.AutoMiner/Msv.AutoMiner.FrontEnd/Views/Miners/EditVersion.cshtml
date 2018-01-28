@@ -1,0 +1,176 @@
+﻿@using Msv.AutoMiner.FrontEnd.Models.Miners
+@model MinerVersionModel
+
+@{ ViewBag.Title = "Edit miner version details"; }
+
+@if (Model.Id != 0)
+{
+    <h2 class="text-center">Edit @Model.MinerName version @Model.Version</h2>
+}
+else
+{
+    <h2 class="text-center">Add new version for @Model.MinerName</h2>
+}
+
+<div class="text-danger" asp-validation-summary="All"></div>
+
+<form asp-action="SaveVersion" method="post" enctype="multipart/form-data">
+    <input asp-for="Id" />
+    <input asp-for="MinerId" />
+    <input asp-for="Platform" />
+
+    @if (Model.Id == 0)
+    {
+        <h3>Miner files</h3>
+        <p class="small">
+            Please archive all miner files to ZIP and specify it here.
+            If you would like to use miner files already existing on the rig rather than to upload them, leave this field blank.
+        </p>
+
+        <div class="form-group">
+            <label asp-for="ZipFile">Select ZIP archive with the miner:</label>
+            <div>
+                <input asp-for="ZipFile" accept=".zip"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Version">Version number:</label>
+            <input asp-for="Version" class="form-control" />
+        </div>
+    }
+
+    <h3>Miner executable file names/paths</h3>
+    <div class="form-group">
+        <label asp-for="ExeFilePath">Executable file name (path):</label>
+        <p class="small">
+            For <strong>uploaded archives</strong>, specify the <strong>name</strong> of the miner's main executable. 
+            <strong>It should be stored in the root directory of the archive.</strong>
+            <br />
+            For <strong>already existing files</strong>, specify the <strong>absolute path</strong> of the miner's main executable.
+            <br />
+            <i>
+                If your miner is to be run through some other program or environment (for example, Wine or Mono), specify the <b>runtime command</b> for it here.
+                The miner filename or path must be specified in the following field.
+            </i>
+        </p>
+        <input asp-for="ExeFilePath" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ExeSecondaryFilePath">Secondary executable file name (path):</label>
+        <p class="small">
+            Fill this field only for miners that are to be run through other program or environment, specified in the previous field.
+        </p>
+        <input asp-for="ExeSecondaryFilePath" class="form-control text-monospace" />
+    </div>
+
+    <h3>Command line arguments</h3>
+    <div class="form-group">
+        <label asp-for="ServerArgument">Server argument:</label>
+        <p class="small">
+            Specify the argument name for server address (usually <samp>-o</samp>)
+        </p>
+        <input asp-for="ServerArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label>
+            <input asp-for="OmitUrlSchema" /> Omit URL schema
+        </label>
+        <p class="small">
+            Check this option for miners that accept server address as <var>hostname</var> or <var>hostname:port</var> pair, not as URL.
+        </p>
+    </div>
+    <div class="form-group">
+        <label asp-for="PortArgument">Port argument:</label>
+        <p class="small">
+            Specify the argument name for server port (for miners that accept server hostname instead of URL as address)
+        </p>
+        <input asp-for="PortArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="UserArgument">Username argument:</label>
+        <p class="small">
+            Specify the argument name for worker username (usually <samp>-u</samp>)
+        </p>
+        <input asp-for="UserArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="PasswordArgument">Password argument:</label>
+        <p class="small">
+            Specify the argument name for worker password (usually <samp>-p</samp>)
+        </p>
+        <input asp-for="PasswordArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="AlgorithmArgument">Algorithm name argument:</label>
+        <p class="small">
+            Specify the argument name for mining algorithm (for multi-algo miners)
+        </p>
+        <input asp-for="AlgorithmArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="IntensityArgument">Intensity argument:</label>
+        <p class="small">
+            Specify the argument name for mining intensity
+        </p>
+        <input asp-for="IntensityArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="BenchmarkArgument">Benchmark mode argument:</label>
+        <p class="small">
+            Specify the argument for benchmark mode activation
+        </p>
+        <input asp-for="BenchmarkArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="AdditionalArguments">Additional arguments:</label>
+        <p class="small">
+            Specify the other arguments which must be passed to command line
+        </p>
+        <input asp-for="AdditionalArguments" class="form-control text-monospace" />
+    </div>
+
+    <h3>Output data regexes</h3>
+    <div class="form-group">
+        <label asp-for="SpeedRegex">Hashrate regex:</label>
+        <p class="small">
+            Specify the regular expression to parse current hashrate from the miner output.
+            <br />The hashrate string (for example, <samp>152 Kh/s</samp>) must be captured with <var>speed</var> named group.
+            <br /><i>Do not forget to capture hashrate units too.</i>
+            <br />Example: <samp>Total hashrate: <b>(?&lt;speed&gt;\d+ [kmg]h/s)</b></samp>
+        </p>
+        <input asp-for="SpeedRegex" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="BenchmarkResultRegex">Benchmarked hashrate regex:</label>
+        <p class="small">
+            Specify the regular expression to parse benchmarked hashrate from the miner output.
+            <br />The hashrate string (for example, <samp>152 Kh/s</samp>) must be captured with <var>speed</var> named group.
+            <br /><i>Do not forget to capture hashrate units too.</i>
+            <br />Example: <samp>Benchmark result: <b>(?&lt;speed&gt;\d+ [kmg]h/s)</b></samp>
+        </p>
+        <input asp-for="BenchmarkResultRegex" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ValidShareRegex">Valid share regex:</label>
+        <p class="small">
+            Specify the regular expression to detect the <b>valid</b> share from the miner output.
+            <br />Example: <samp>GPU\d+: accepted!</samp>
+        </p>
+        <input asp-for="ValidShareRegex" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="InvalidShareRegex">Invalid share regex:</label>
+        <p class="small">
+            Specify the regular expression to detect the <b>invalid</b> share from the miner output.
+            <br />Example: <samp>GPU\d+: rejected</samp>
+        </p>
+        <input asp-for="InvalidShareRegex" class="form-control text-monospace" />
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Save
+    </button>
+    <a class="btn btn-default" asp-action="Index">
+        <i class="glyphicon glyphicon-chevron-left"></i> Return to miners list
+    </a>
+</form>

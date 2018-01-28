@@ -1,0 +1,40 @@
+﻿@using Msv.AutoMiner.FrontEnd.Controllers
+@model Msv.AutoMiner.FrontEnd.Models.Miners.MinerDisplayModel[]
+
+@{ ViewBag.Title = "Miners"; }
+
+@if (TempData[MinersController.MinersMessageKey] != null)
+{
+    <div class="panel panel-success">
+        <div class="panel-body text-success">
+            @TempData[MinersController.MinersMessageKey]
+        </div>
+    </div>
+}
+
+<h2 class="text-center">Miners</h2>
+
+<div class="pull-right div-table-actions">
+    <a class="btn btn-info" asp-action="Create">
+        <i class="glyphicon glyphicon-plus"></i> Add new miner...
+    </a>
+</div>
+
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Current version</th>
+            <th>Last updated</th>
+            <th>Windows version</th>
+            <th>Linux version</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="miners-table">
+    @foreach (var miner in Model.OrderBy(x => x.Name))
+    {
+        @Html.Partial("_MinerRowPartial", miner)
+    }
+    </tbody>
+</table>

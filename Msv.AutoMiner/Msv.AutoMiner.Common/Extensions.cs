@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Msv.AutoMiner.Common
@@ -102,5 +103,13 @@ namespace Msv.AutoMiner.Common
             => source != null && double.IsNaN(source.Value)
                 ? null
                 : source;
+
+        public static string ToSafeFileName(this string source)
+        {
+            if (source == null) 
+                throw new ArgumentNullException(nameof(source));
+
+            return string.Join("_", source.Split(Path.GetInvalidFileNameChars()));
+        }
     }
 }

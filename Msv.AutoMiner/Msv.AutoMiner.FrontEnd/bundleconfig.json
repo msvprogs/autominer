@@ -20,5 +20,11 @@
     "inputFiles": [
       "wwwroot/css/animate.css"
     ]
+  },
+  {
+    "outputFileName": "wwwroot/js/bootstrap.file-input.min.js",
+    "inputFiles": [
+      "wwwroot/js/bootstrap.file-input.js"
+    ]
   }
 ]

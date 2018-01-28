@@ -15,5 +15,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Algorithms
 
         [JsonConverter(typeof(StringEnumConverter))]
         public KnownCoinAlgorithm? KnownValue { get; set; }
+
+        public string MinerAlgorithmArgument { get; set; }
     }
 }

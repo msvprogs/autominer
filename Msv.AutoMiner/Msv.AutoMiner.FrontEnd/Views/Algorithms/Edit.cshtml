@@ -18,15 +18,16 @@
 }
 
 <form asp-action="Save" method="post">
+    <h3>Basic info</h3>
     <div class="form-group">
         <label asp-for="Id">ID:</label>
         @if (Model.IsNewEntity)
         {
-            <input asp-for="Id" class="form-control text-monospace" placeholder="A GUID value" />
+            <input asp-for="Id" class="form-control text-monospace" placeholder="A GUID value"/>
         }
         else
         {
-            <input asp-for="Id" class="form-control text-monospace" placeholder="A GUID value" readonly="readonly" />
+            <input asp-for="Id" class="form-control text-monospace" placeholder="A GUID value" readonly="readonly"/>
         }
     </div>
     <div class="form-group">
@@ -45,6 +46,43 @@
                 <option value="@knownAlgorithm.Key">@knownAlgorithm.Value</option>
             }
         </select>
+    </div>
+    
+    <h3>Miner settings</h3>
+    
+    <div class="form-group">
+        <label asp-for="MinerId">Miner:</label>
+        <select asp-for="MinerId" class="form-control">
+            <option value="" selected="@(Model.MinerId == null ? "selected" : "")">&lt;none&gt;</option>
+            @foreach (var miner in Model.AvailableMiners.OrderBy(x => x.Name))
+            {
+                <option value="@miner.Id">@miner.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="MinerAlgorithmArgument">Algorithm argument value for miner:</label>
+        <p class="small">
+            This is required for multi-algorithm miner, like <samp>ccminer</samp>.
+            <br />Example: <samp>ccminer -a <b>skein</b></samp>
+        </p>
+        <input asp-for="MinerAlgorithmArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Intensity">Intensity:</label>
+        <p class="small">
+            Numeric value without units, which represents the relative level of mining intensity.
+            There is no need to specify it explicitly except for unusual situations like buggy algorithm implementation or specific hardware.
+        </p>
+        <input asp-for="Intensity" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="AdditionalArguments">Additional arguments:</label>
+        <p class="small">
+            Additional arguments to pass to the miner command line, required only for this algorithm.
+            <br /> For example, you can specify here the CUDA layout for Scrypt algorithm to mine with <i>ccminer</i>
+        </p>
+        <input asp-for="AdditionalArguments" class="form-control text-monospace" />
     </div>
 
     <button type="submit" class="btn btn-success">

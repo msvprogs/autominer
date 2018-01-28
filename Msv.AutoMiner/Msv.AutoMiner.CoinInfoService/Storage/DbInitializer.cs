@@ -11,6 +11,8 @@ namespace Msv.AutoMiner.CoinInfoService.Storage
 {
     public static class DbInitializer
     {
+
+
         private static readonly Dictionary<KnownCoinAlgorithm, ProfitabilityFormulaType> M_ProfitabilityFormulaTypes =
             new Dictionary<KnownCoinAlgorithm, ProfitabilityFormulaType>
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
@@ -11,7 +12,9 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            if (!context.Metadata.IsComplexType || context.Metadata.IsCollectionType)
+            if (!context.Metadata.IsComplexType 
+                || context.Metadata.IsCollectionType
+                || typeof(IFormFile).IsAssignableFrom(context.Metadata.ModelType))
                 return null;
 
             return new TrimmingModelBinder(

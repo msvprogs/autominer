@@ -40,6 +40,8 @@ namespace Msv.AutoMiner.Data
         public DbSet<UserLogin> UserLogins { get; set; }
         public DbSet<WalletBalance> WalletBalances { get; set; }
         public DbSet<WalletOperation> WalletOperations { get; set; }
+        public DbSet<Miner> Miners { get; set; }
+        public DbSet<MinerVersion> MinerVersions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

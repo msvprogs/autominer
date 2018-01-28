@@ -1,0 +1,118 @@
+﻿@using Msv.AutoMiner.Common.Enums
+@model Msv.AutoMiner.FrontEnd.Models.Miners.MinerDisplayModel
+
+@{
+    string rowClass;
+    string title;
+    if (Model.Activity == ActivityState.Inactive)
+    {
+        rowClass = "text-muted";
+        title = "Miner is inactive";
+    }
+    else
+    {
+        rowClass = null;
+        title = null;
+    }
+}
+
+<tr class="@rowClass" title="@title" data-miner-name="@Model.Name">
+    <td>@Model.Name</td>
+    <td>
+        @if (Model.CurrentWindowsVersion != null)
+        {
+            <div>Windows: @Model.CurrentWindowsVersion</div>
+        }
+        @if (Model.CurrentLinuxVersion != null)
+        {
+            <div>Linux: @Model.CurrentLinuxVersion</div>
+        }
+    </td>
+    <td>
+        @if (Model.LastWindowsUpdated != null)
+        {
+            <div>Windows: <span msv-absolute-date="@Model.LastWindowsUpdated"></span></div>
+        }
+        @if (Model.LastLinuxUpdated != null)
+        {
+            <div>Linux: <span msv-absolute-date="@Model.LastLinuxUpdated"></span></div>
+        }
+    </td>
+    <td>
+        <ul class="list-inline">
+            @if (Model.LastWindowsUpdated != null)
+            {
+                <li>
+                    <a class="btn btn-xs btn-info" asp-action="EditLastVersion"
+                       asp-route-minerId="@Model.Id" asp-route-platform="@PlatformType.Windows"
+                       title="Edit the last version of miner for Windows">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </a>
+                </li>
+            }
+            <li>
+                <a class="btn btn-xs btn-info" asp-action="UploadNewVersion"
+                   asp-route-minerId="@Model.Id" asp-route-platform="@PlatformType.Windows"
+                   title="Upload the new version of miner for Windows">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </td>
+    <td>
+        <ul class="list-inline">
+            @if (Model.LastLinuxUpdated != null)
+            {
+                <li>
+                    <a class="btn btn-xs btn-info" asp-action="EditLastVersion"
+                       asp-route-minerId="@Model.Id" asp-route-platform="@PlatformType.Linux"
+                       title="Edit the last version of miner for Linux">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </a>
+                </li>
+            }
+            <li>
+                <a class="btn btn-xs btn-info" asp-action="UploadNewVersion"
+                   asp-route-minerId="@Model.Id"  asp-route-platform="@PlatformType.Linux"
+                   title="Upload the new version of miner for Linux">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </td>
+    <td>
+        <ul class="list-inline">
+            <li>
+                <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@Model.Id" title="Edit miner">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            </li>
+            <li>
+                @{
+                    var activationButtonTitle = Model.Activity == ActivityState.Active
+                        ? "Disable miner"
+                        : "Enable miner";
+                }
+                <button class="btn btn-xs btn-info"
+                        title="@activationButtonTitle"
+                        data-disable-url="@Url.Action("ToggleActive", new {id = Model.Id})">
+                    @if (Model.Activity == ActivityState.Active)
+                    {
+                        <i class="glyphicon glyphicon-remove"></i>
+                    }
+                    else if (Model.Activity == ActivityState.Inactive)
+                    {
+                        <i class="glyphicon glyphicon-flash"></i>
+                    }
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-xs btn-danger"
+                        title="Delete miner"
+                        data-delete-url="@Url.Action("Delete", new {id = Model.Id})">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </button>
+            </li>
+        </ul>
+    </td>
+</tr>
