@@ -125,8 +125,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     MinerModel = x,
                     Path = m_MinerFileStorage.GetPath(x.VersionId) 
                            ?? (!Path.IsPathRooted(x.ExeFilePath)
-                                   && (x.ExeSecondaryFilePath == null
-                                       || !Path.IsPathRooted(x.ExeSecondaryFilePath))
+                                   || x.ExeSecondaryFilePath != null
+                                    && !Path.IsPathRooted(x.ExeSecondaryFilePath)
                                 ? m_MinerFileStorage.Save(m_Service.DownloadMiner(x.VersionId), x.MinerName, x.VersionId)
                                 : null)
                 })
