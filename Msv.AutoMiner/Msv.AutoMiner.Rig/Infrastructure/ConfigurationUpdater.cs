@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Infrastructure;
@@ -79,20 +78,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 {
                     Platform = GetCurrentPlatform()
                 });
-            M_Logger.Info($"Downloaded {response.Miners.Length} miners data, {response.Algorithms.Length} algorithms");
-
-            var currentMiners = m_Storage.GetMiners();
-            var newMiners = response.Miners
-                .LeftOuterJoin(currentMiners, x => (x.MinerId, x.VersionId), x => (x.Id, x.VersionId),
-                    (x, y) => (server: x, client: y))
-                .Where(x => x.client == null)
-                .Select(x => x.server)
-                .ToArray();
-            if (newMiners.Any())
-            {
-                M_Logger.Info($"Detected {newMiners.Length} new miner versions, downloading them...");
-                m_Storage.SaveMiners(DownloadAndConvertMiners(newMiners));
-            }
+            M_Logger.Info($"Got {response.Miners.Length} miners data, {response.Algorithms.Length} algorithms, downloading and applying them...");
+            if (response.Miners.Any())
+                m_Storage.SaveMiners(DownloadAndConvertMiners(response.Miners));
             if (response.Algorithms.Any())
             {
                 M_Logger.Info("Storing new algorithm info...");
