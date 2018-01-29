@@ -110,6 +110,7 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
     group by MinerId, Platform) maxUploaded
   on ver.MinerId = maxUploaded.MinerId and ver.Platform = maxUploaded.Platform and ver.Uploaded = maxUploaded.MaxUploaded")
                     .Where(x => x.Platform == platform)
+                    .Where(x => x.Miner.Activity == ActivityState.Active)
                     .ToArray();
         }
 
@@ -117,7 +118,8 @@ namespace Msv.AutoMiner.ControlCenterService.Storage
         {
             using (var context = m_Factory.CreateReadOnly())
                 return context.CoinAlgorithms
-                    .ToArray();
+                        .Where(x => x.Activity == ActivityState.Active)
+                        .ToArray();
         }
     }
 }
