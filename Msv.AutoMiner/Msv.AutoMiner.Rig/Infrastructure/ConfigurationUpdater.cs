@@ -137,6 +137,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     IntensityArgument = x.MinerModel.IntensityArgument,
                     UserArgument = x.MinerModel.UserArgument,
                     PortArgument = x.MinerModel.PortArgument,
+                    IsDownloaded = x.Path != null,
                     FileName = x.MinerModel.ExeSecondaryFilePath != null
                         ? x.MinerModel.ExeFilePath
                         : x.Path != null 

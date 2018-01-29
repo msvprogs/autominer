@@ -23,6 +23,8 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
         public string SecondaryFileName { get; set; }
 
+        public bool IsDownloaded { get; set; }
+
         [Required]
         public string ServerArgument { get; set; }
 
@@ -73,12 +75,12 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         string IMinerModel.MinerName => Name;
 
         [NotMapped]
-        string IMinerModel.ExeFilePath => SecondaryFileName != null 
+        string IMinerModel.ExeFilePath => SecondaryFileName != null || !IsDownloaded
             ? FileName 
             : Path.GetFileName(FileName);
 
         [NotMapped]
-        string IMinerModel.ExeSecondaryFilePath => SecondaryFileName != null
+        string IMinerModel.ExeSecondaryFilePath => SecondaryFileName != null && IsDownloaded
             ? Path.GetFileName(SecondaryFileName)
             : SecondaryFileName;
     }
