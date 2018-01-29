@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Newtonsoft.Json;
@@ -19,10 +18,8 @@ namespace Msv.AutoMiner.Rig.Remote
         static WebRequestRestClient() 
             => ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
-        public WebRequestRestClient(Uri baseUrl)
-        {
-            m_BaseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl));
-        }
+        public WebRequestRestClient(Uri baseUrl) 
+            => m_BaseUrl = baseUrl ?? throw new ArgumentNullException(nameof(baseUrl));
 
         public T Get<T>(string relativeUrl)
         {
@@ -41,13 +38,13 @@ namespace Msv.AutoMiner.Rig.Remote
             if (relativeUrl == null)
                 throw new ArgumentNullException(nameof(relativeUrl));
 
-            var httpClient = new HttpClient(new HttpClientHandler
+            //HttpClient doesn't work correctly in Mono
+            var tempFile = Path.GetTempFileName();
+            using (var client = new ExtendedWebClient(ClientCertificate))
             {
-                ClientCertificates = {ClientCertificate}
-            });
-            var response = httpClient.GetAsync(new Uri(m_BaseUrl, relativeUrl))
-                .GetAwaiter().GetResult().EnsureSuccessStatusCode();
-            return response.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
+                client.DownloadFile(new Uri(m_BaseUrl, relativeUrl), tempFile);
+                return new FileStream(tempFile, FileMode.Open, FileAccess.Read, FileShare.None, 4096, FileOptions.DeleteOnClose);
+            }
         }
 
         public TResponse Post<TRequest, TResponse>(string relativeUrl, TRequest request)
