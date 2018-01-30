@@ -13,6 +13,7 @@
         Novaexchange = 8,
         LiveCoin = 9,
         StocksExchange = 10,
-        BtcAlpha = 11
+        BtcAlpha = 11,
+        CryptoBridge = 12
     }
 }

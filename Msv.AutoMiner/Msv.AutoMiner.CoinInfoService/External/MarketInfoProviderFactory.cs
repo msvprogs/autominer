@@ -40,6 +40,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new StocksExchangeMarketInfoProvider(m_WebClient);
                 case ExchangeType.BtcAlpha:
                     return new BtcAlphaMarketInfoProvider(m_WebClient);
+                case ExchangeType.CryptoBridge:
+                    return new CryptoBridgeMarketInfoProvider(m_WebClient);
                 default:
                     return new DummyMarketInfoProvider();
             }
