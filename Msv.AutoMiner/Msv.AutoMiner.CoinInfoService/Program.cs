@@ -12,7 +12,9 @@ using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.NetworkInfo;
+using Msv.BrowserCheckBypassing;
 using Msv.HttpTools;
+using Msv.HttpTools.Contracts;
 using NLog;
 using NLog.Targets;
 
@@ -22,6 +24,7 @@ namespace Msv.AutoMiner.CoinInfoService
 {
     public class Program
     {
+        private const int WebClientPoolSize = 16;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
@@ -39,21 +42,26 @@ namespace Msv.AutoMiner.CoinInfoService
                 using (var context = scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>().Create())
                     DbInitializer.InitializeIfNotExist(context);
 
+                var proxyRoundRobin = new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt"));
+                using (var proxiedWebClientPool = new BaseWebClientPool<IProxiedBaseWebClient>(
+                    () => new ProxiedWebClient(proxyRoundRobin), WebClientPoolSize))
+                using (var webClientPool = new BaseWebClientPool<IBaseWebClient>(
+                    CreateBaseWebClient, WebClientPoolSize))
                 using (new FiatValueMonitor(
-                    new FiatValueProviderFactory(new LoggedWebClient()),
+                    new FiatValueProviderFactory(new LoggedWebClient<IBaseWebClient>(webClientPool)),
                     scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))
                 using (new MarketInfoMonitor(
-                    new MarketInfoProviderFactory(new LoggedWebClient()),
+                    new MarketInfoProviderFactory(new LoggedWebClient<IBaseWebClient>(webClientPool)),
                     scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
                 using (new MasternodeInfoMonitor(
-                    new MasternodeInfoProviderFactory(new LoggedWebClient()),
+                    new MasternodeInfoProviderFactory(new LoggedWebClient<IBaseWebClient>(webClientPool)),
                     scope.ServiceProvider.GetRequiredService<IMasternodeInfoStorage>()))
                 using (new NetworkInfoMonitor(
                     new JsBlockRewardCalculator(),
                     scope.ServiceProvider.GetRequiredService<ICoinNetworkInfoProvider>(),
                     new NetworkInfoProviderFactory(
-                        new LoggedWebClient(),
-                        new ProxiedLoggedWebClient(new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
+                        new LoggedWebClient<IBaseWebClient>(webClientPool),
+                        new ProxiedLoggedWebClient(proxiedWebClientPool)),
                     scope.ServiceProvider.GetRequiredService<IMasternodeInfoStorage>(),
                     scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {
@@ -66,5 +74,11 @@ namespace Msv.AutoMiner.CoinInfoService
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .Build();
+
+        private static IBaseWebClient CreateBaseWebClient()
+            => new BrowserCheckBypassingWebClient(
+                new CorrectWebClient(),
+                new BrowserCheckBypasserFactory(MemoryClearanceCookieStorage.Instance),
+                MemoryClearanceCookieStorage.Instance);
     }
 }

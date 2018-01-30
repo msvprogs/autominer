@@ -22,7 +22,9 @@ using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data.Logic;
+using Msv.BrowserCheckBypassing;
 using Msv.HttpTools;
+using Msv.HttpTools.Contracts;
 using NLog;
 using NLog.Targets;
 using Telegram.Bot;
@@ -33,6 +35,7 @@ namespace Msv.AutoMiner.ControlCenterService
 {
     public class Program
     {
+        private const int WebClientPoolSize = 32;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
@@ -49,19 +52,24 @@ namespace Msv.AutoMiner.ControlCenterService
             using (var scope = host.Services.CreateScope())
             {
                 var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                var proxyRoundRobin = new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt"));
+                using (var proxiedWebClientPool = new BaseWebClientPool<IProxiedBaseWebClient>(
+                    () => new ProxiedWebClient(proxyRoundRobin), WebClientPoolSize))
+                using (var webClientPool = new BaseWebClientPool<IBaseWebClient>(
+                    CreateBaseWebClient, WebClientPoolSize))
                 using (new PoolInfoMonitor(
                     new PoolInfoProviderFactory(
-                        new LoggedWebClient(),
-                        new ProxiedLoggedWebClient(
-                            new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
+                        new LoggedWebClient<IBaseWebClient>(webClientPool),
+                        new ProxiedLoggedWebClient(proxiedWebClientPool)),
                     scope.ServiceProvider.GetRequiredService<IPoolInfoMonitorStorage>()))
                 using (new WalletInfoMonitor(
                     new WalletInfoProviderFactory(
-                        new LoggedWebClient(),
+                        new LoggedWebClient<IBaseWebClient>(webClientPool),
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 using (new PoolAvailabilityMonitor(
-                    new PoolAvailabilityChecker(),
+                    new PoolAvailabilityChecker(
+                        new LoggedWebClient<IBaseWebClient>(webClientPool)),
                     scope.ServiceProvider.GetRequiredService<INotifier>(),
                     scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
                 using (new TelegramCommandInterface(
@@ -125,5 +133,11 @@ namespace Msv.AutoMiner.ControlCenterService
                 })
                 .UseStartup<Startup>()
                 .Build();
+
+        private static IBaseWebClient CreateBaseWebClient()
+            => new BrowserCheckBypassingWebClient(
+                new CorrectWebClient(),
+                new BrowserCheckBypasserFactory(MemoryClearanceCookieStorage.Instance),
+                MemoryClearanceCookieStorage.Instance);
     }
 }
