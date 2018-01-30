@@ -26,8 +26,11 @@ namespace Msv.HttpTools
 
         static CorrectWebClient()
         {
-            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol |=
+                SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             ServicePointManager.Expect100Continue = false;
+            ServicePointManager.DefaultConnectionLimit = 32;
+            ServicePointManager.MaxServicePoints = 8;
         }
 
         public CorrectWebClient()
