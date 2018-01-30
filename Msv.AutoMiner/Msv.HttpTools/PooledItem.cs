@@ -8,6 +8,8 @@ namespace Msv.HttpTools
     {     
         public T Value { get; }
 
+        private bool m_Returned;
+
         private readonly IBaseWebClientPool<T> m_Pool;
 
         public PooledItem(IBaseWebClientPool<T> pool, T value)
@@ -17,9 +19,16 @@ namespace Msv.HttpTools
         }
 
         public void Dispose()
-            => m_Pool.Return(this);
+        {
+            m_Pool.Return(this);
+            m_Returned = true;
+            GC.SuppressFinalize(this);
+        }
 
         ~PooledItem()
-            => m_Pool.Return(this);
+        {
+            if (!m_Returned)
+                m_Pool.Return(this);
+        }
     }
 }
