@@ -30,7 +30,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 [ExchangeType.StocksExchange] = new Uri("https://stocks.exchange"),
                 [ExchangeType.TradeSatoshi] = new Uri("https://tradesatoshi.com"),
                 [ExchangeType.YoBit] = new Uri("https://yobit.net"),
-                [ExchangeType.BtcAlpha] = new Uri("https://btc-alpha.com")
+                [ExchangeType.BtcAlpha] = new Uri("https://btc-alpha.com"),
+                [ExchangeType.CryptoBridge] = new Uri("https://wallet.crypto-bridge.org")
             };
 
         private readonly ICoinValueProvider m_CoinValueProvider;

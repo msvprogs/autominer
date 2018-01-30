@@ -1,0 +1,60 @@
+﻿@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Models.Coins
+@model GraphModel
+
+@{
+    ViewBag.Title = $"{Model.CoinName} {Model.Type} graph";
+}
+
+<h2 class="text-center">@Model.CoinName @Model.Type graph</h2>
+
+<a asp-action="Index" class="btn btn-default btn-sm pull-left">
+    <i class="glyphicon glyphicon-chevron-left"></i> Coins
+</a>
+
+<ul class="list-inline text-small text-right">
+    <li>Zoom:</li>
+    @foreach (var period in EnumHelper.GetCaptionsCached<GraphPeriod>())
+    {
+        var isPressed = period.Key == Model.Period;
+        var buttonClass = isPressed ? "active" : null;
+        <li>
+            <a class="btn btn-xs btn-primary @buttonClass" role="button" aria-pressed="@isPressed"
+               asp-action="Graph" asp-route-id="@Model.Id" asp-route-type="@Model.Type" asp-route-period="@period.Key">
+                @period.Value
+            </a>
+        </li>
+    }
+</ul>
+<canvas id="dataChart" width="400" height="200"></canvas>
+
+@section Scripts {
+    <script>
+        var serializedDates = @Json.Serialize(Model.Dates);
+        var dates = serializedDates.map(function(x) {
+            var date = new Date(x);
+            return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+        });
+
+        var ctx = document.getElementById("dataChart").getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    data: @Json.Serialize(Model.Values),
+                    label: "@Model.Type",
+                    fill: false,
+                    backgroundColor: "#137DA1",
+                    borderColor: "#137DA1"
+                }]
+            },
+            options: {
+                tooltips: {
+                    mode: 'label',
+                    intersect: false
+                }
+            }
+        });
+    </script>
+}

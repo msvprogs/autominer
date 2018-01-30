@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -190,6 +191,79 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return RedirectToAction("Index");
         }
 
+        public async Task<IActionResult> Graph(Guid id, GraphType type, GraphPeriod period)
+        {           
+            var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
+            if (coin == null)
+                return NotFound();
+
+            DateTime startDate;
+            var endDate = DateTime.UtcNow;
+            Func<DateTime, DateTime> dateAggregationKey;
+            switch (period)
+            {
+                case GraphPeriod.Day:
+                    startDate = endDate.AddDays(-1);
+                    dateAggregationKey = x => new DateTime(x.Year, x.Month, x.Day, x.Hour, x.Minute, 0);
+                    break;
+                case GraphPeriod.Week:
+                    startDate = endDate.AddDays(-7);
+                    dateAggregationKey = x => new DateTime(x.Year, x.Month, x.Day, x.Hour, 0, 0);
+                    break;
+                case GraphPeriod.TwoWeeks:
+                    startDate = endDate.AddDays(-14);
+                    dateAggregationKey = x => new DateTime(x.Year, x.Month, x.Day, x.Hour, 0, 0);
+                    break;
+                case GraphPeriod.Month:
+                    startDate = endDate.AddMonths(-1);
+                    dateAggregationKey = x => new DateTime(x.Year, x.Month, x.Day, 0, 0, 0);
+                    break;
+                case GraphPeriod.SixMonths:
+                    startDate = endDate.AddMonths(-6);
+                    dateAggregationKey = x => new DateTime(x.Year, x.Month, x.Day, 0, 0, 0);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(period));
+            }
+
+            Expression<Func<CoinNetworkInfo, TimestampedValue>> valueSelector;
+            switch (type)
+            {
+                case GraphType.Difficulty:
+                    valueSelector = x => new TimestampedValue {DateTime = x.Created, Value = x.Difficulty};
+                    break;
+                case GraphType.Height:
+                    valueSelector = x => new TimestampedValue {DateTime = x.Created, Value = x.Height};
+                    break;
+                case GraphType.Reward:
+                    valueSelector = x => new TimestampedValue {DateTime = x.Created, Value = x.BlockReward};
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type));
+            }
+
+            var values = m_Context.CoinNetworkInfos
+                .AsNoTracking()
+                .Where(x => x.CoinId == id)
+                .Where(x => x.Created > startDate && x.Created <= endDate)
+                .Select(valueSelector)
+                .AsEnumerable()
+                .GroupBy(x => dateAggregationKey(x.DateTime))
+                .Select(x => (dateTime: x.Key, value: x.Average(y => Convert.ToDouble(y.Value))))
+                .OrderBy(x => x.dateTime)
+                .ToArray();
+
+            return View(new GraphModel
+            {
+                Id = id,
+                Type = type,
+                CoinName = coin.Name,
+                Period = period,
+                Dates = values.Select(x => DateTime.SpecifyKind(x.dateTime, DateTimeKind.Utc)).ToArray(),
+                Values = values.Select(x => x.value).ToArray()
+            });
+        }
+
         public async Task<IActionResult> CreateConfigFile(Guid id)
         {
             var coin = await m_Context.Coins.FirstOrDefaultAsync(x => x.Id == id);
@@ -298,5 +372,11 @@ rpcallowip={allowIpMask}
                     Name = x.Name
                 })
                 .ToArrayAsync();
+
+        private class TimestampedValue
+        {
+            public object Value { get; set; }
+            public DateTime DateTime { get; set; }
+        }
     }
 }
