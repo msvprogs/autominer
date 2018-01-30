@@ -39,9 +39,10 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     SourceSymbol = x.PairSymbols[0],
                     TargetSymbol = x.PairSymbols[1],
                     HighestBid = (double) x.Data.bid,
-                    LastDayVolume = (double) x.Data.volume,
+                    //x.Data.volume is BTC volume
+                    LastDayVolume = (double) x.Data.volume / (double) x.Data.last,
                     LowestAsk = (double) x.Data.ask,
-                    LastPrice = (double) x.Data.last,
+                    LastPrice = (double) x.Data.last
                 })
                 .ToArray();
     }
