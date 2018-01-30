@@ -35,7 +35,7 @@ namespace Msv.AutoMiner.ControlCenterService
 {
     public class Program
     {
-        private const int WebClientPoolSize = 32;
+        private const int WebClientPoolSize = 16;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
@@ -137,7 +137,7 @@ namespace Msv.AutoMiner.ControlCenterService
         private static IBaseWebClient CreateBaseWebClient()
             => new BrowserCheckBypassingWebClient(
                 new CorrectWebClient(),
-                new BrowserCheckBypasserFactory(MemoryClearanceCookieStorage.Instance),
+                new BrowserCheckBypasserFactory(new SolverWebClient(), MemoryClearanceCookieStorage.Instance),
                 MemoryClearanceCookieStorage.Instance);
     }
 }

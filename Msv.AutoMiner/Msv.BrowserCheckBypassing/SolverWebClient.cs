@@ -4,7 +4,7 @@ using Msv.HttpTools;
 
 namespace Msv.BrowserCheckBypassing
 {
-    internal class SolverWebClient : CorrectWebClient
+    public class SolverWebClient : CorrectWebClient
     {
         protected override WebRequest GetWebRequest(Uri address)
         {
