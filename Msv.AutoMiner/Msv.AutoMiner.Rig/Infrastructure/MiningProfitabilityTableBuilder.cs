@@ -61,6 +61,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     PoolData = y,
                     PowerUsage = (algorithmDatas.TryGetValue(x.CoinAlgorithmId)?.Power).GetValueOrDefault()
                 }))
+                .Where(x => x.MinerSettings != null)
                 .OrderByDescending(x => x.UsdPerDayTotal)
                 .ToArray();
 
