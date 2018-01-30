@@ -32,6 +32,8 @@ namespace Msv.HttpTools
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             ServicePointManager.Expect100Continue = false;
             ServicePointManager.DefaultConnectionLimit = 16;
+            ServicePointManager.MaxServicePoints = 32;
+            ServicePointManager.MaxServicePointIdleTime = 100;
         }
 
         public CorrectWebClient()
@@ -90,6 +92,7 @@ namespace Msv.HttpTools
             request.CookieContainer = CookieContainer;
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Timeout = request.ReadWriteTimeout = (int)M_OrdinaryRequestTimeout.TotalMilliseconds;
+            request.KeepAlive = false;
 
             // In .NET Core, we can't pass default system proxy to FindServicePoint() method,
             // because it throws NotSupportedException when trying to call GetProxy() method of it.
@@ -99,6 +102,7 @@ namespace Msv.HttpTools
                 : request.Proxy;
             var servicePoint = ServicePointManager.FindServicePoint(address, proxy);
             servicePoint.ConnectionLeaseTimeout = (int)M_ConnectionLeaseTimeout.TotalMilliseconds;
+            servicePoint.ConnectionLimit = 1;
             return request;
         }
 
