@@ -31,9 +31,7 @@ namespace Msv.HttpTools
         }
 
         public CorrectWebClient()
-        {
-            Encoding = Encoding.UTF8;
-        }
+            => Encoding = Encoding.UTF8;
 
         public Task<string> DownloadStringAsync(Uri uri, Dictionary<string, string> headers)
         {
@@ -88,6 +86,7 @@ namespace Msv.HttpTools
             request.CookieContainer = CookieContainer;
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Timeout = request.ReadWriteTimeout = (int)M_OrdinaryRequestTimeout.TotalMilliseconds;
+            request.KeepAlive = false;
             return request;
         }
 

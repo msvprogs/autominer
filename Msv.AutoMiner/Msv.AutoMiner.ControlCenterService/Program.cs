@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Configuration;
@@ -41,8 +40,6 @@ namespace Msv.AutoMiner.ControlCenterService
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
 
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
-
-            ThreadPool.SetMaxThreads(150, 100);
 
             var certificateStorage = new X509CertificateStorage(
                 StoreLocation.CurrentUser, new X509Certificate2(File.ReadAllBytes("rootCa.cer")));
