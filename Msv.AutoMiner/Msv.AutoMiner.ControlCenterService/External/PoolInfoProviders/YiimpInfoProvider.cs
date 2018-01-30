@@ -38,7 +38,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 throw new ExternalDataUnavailableException("Currencies method returned an empty result");
             var currencies = JsonConvert.DeserializeObject<JObject>(currenciesJson);
             var statusesJson = DownloadDirectlyOrViaProxy($"{m_BaseUrl}/status");
-            var statuses = string.IsNullOrWhiteSpace(statusesJson)
+            dynamic statuses = string.IsNullOrWhiteSpace(statusesJson)
                 ? new JObject()
                 : JsonConvert.DeserializeObject<JObject>(statusesJson);
 
@@ -56,16 +56,16 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .Select(x => new
                 {
                     x.Pool,
-                    PoolInfo = currencies[$"{x.Pool.Coin.Symbol}-{x.Pool.ApiPoolName}"] 
+                    PoolInfo = (dynamic)(currencies[$"{x.Pool.Coin.Symbol}-{x.Pool.ApiPoolName}"] 
                         ?? currencies[x.Currency]
-                        ?? currencies[x.Pool.Coin.Symbol]
+                        ?? currencies[x.Pool.Coin.Symbol])
                 })
                 .Where(x => x.PoolInfo != null)
                 .ToDictionary(x => x.Pool, x => new PoolState
                 {
-                    TotalWorkers = x.PoolInfo["workers"].Value<int>(),
-                    TotalHashRate = x.PoolInfo["hashrate"].Value<long>(),
-                    PoolFee = statuses[x.Pool.ApiPoolName]?["fees"].Value<double>()
+                    TotalWorkers = ((int?)x.PoolInfo.workers).GetValueOrDefault(),
+                    TotalHashRate = ((long?)x.PoolInfo.hashrate).GetValueOrDefault(),
+                    PoolFee = (double?)statuses[x.Pool.ApiPoolName]?.fees
                 });
 
             var poolAccountInfos = m_Pools

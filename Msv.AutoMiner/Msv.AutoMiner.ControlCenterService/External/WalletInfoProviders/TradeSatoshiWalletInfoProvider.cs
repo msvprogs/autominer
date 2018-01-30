@@ -14,7 +14,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
     public class TradeSatoshiWalletInfoProvider : ExchangeWalletInfoProviderBase
     {
-        private const int MaxOperationCount = 30;
+        // TradeSatoshi returns operations very selectively with low limit. It can return every 10-th, 5-th operation and so on.
+        private const int MaxOperationCount = 1000;
 
         public TradeSatoshiWalletInfoProvider(IWebClient webClient, string apiKey, string apiSecret)
             : base(webClient, apiKey, Convert.FromBase64String(apiSecret))
