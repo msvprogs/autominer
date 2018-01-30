@@ -28,8 +28,10 @@ namespace Msv.HttpTools
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             ServicePointManager.Expect100Continue = false;
-            ServicePointManager.DefaultConnectionLimit = 32;
-            ServicePointManager.MaxServicePoints = 8;
+            ServicePointManager.DefaultConnectionLimit = 16;
+            ServicePointManager.MaxServicePoints = 16;
+            ServicePointManager.MaxServicePointIdleTime = 1000;
+            ServicePointManager.SetTcpKeepAlive(false, 0, 0);
         }
 
         public CorrectWebClient()
