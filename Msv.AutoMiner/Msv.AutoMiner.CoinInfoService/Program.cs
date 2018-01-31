@@ -24,7 +24,7 @@ namespace Msv.AutoMiner.CoinInfoService
 {
     public class Program
     {
-        private const int WebClientPoolSize = 22;
+        private const int WebClientPoolSize = 16;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
@@ -78,7 +78,7 @@ namespace Msv.AutoMiner.CoinInfoService
         private static IBaseWebClient CreateBaseWebClient()
             => new BrowserCheckBypassingWebClient(
                 new CorrectWebClient(),
-                new BrowserCheckBypasserFactory(new SolverWebClient(), MemoryClearanceCookieStorage.Instance),
+                new BrowserCheckBypasserFactory(MemoryClearanceCookieStorage.Instance),
                 MemoryClearanceCookieStorage.Instance);
     }
 }

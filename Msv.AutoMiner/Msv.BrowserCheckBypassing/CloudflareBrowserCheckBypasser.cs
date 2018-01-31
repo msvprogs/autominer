@@ -18,7 +18,6 @@ namespace Msv.BrowserCheckBypassing
 
         private static readonly string M_InitJs;
 
-        private readonly IBaseWebClient m_SolveWebClient;
         private readonly IWritableClearanceCookieStorage m_ClearanceCookieStorage;
 
         static CloudflareBrowserCheckBypasser()
@@ -33,12 +32,8 @@ namespace Msv.BrowserCheckBypassing
             => response.StatusCode == HttpStatusCode.ServiceUnavailable
                && !string.IsNullOrWhiteSpace(response.Headers["CF-RAY"]);
 
-        public CloudflareBrowserCheckBypasser(IBaseWebClient solveWebClient, IWritableClearanceCookieStorage clearanceCookieStorage)
-        {
-            m_SolveWebClient = solveWebClient ?? throw new ArgumentNullException(nameof(solveWebClient));
-            m_ClearanceCookieStorage =
-                clearanceCookieStorage ?? throw new ArgumentNullException(nameof(clearanceCookieStorage));
-        }
+        public CloudflareBrowserCheckBypasser(IWritableClearanceCookieStorage clearanceCookieStorage)
+            => m_ClearanceCookieStorage = clearanceCookieStorage ?? throw new ArgumentNullException(nameof(clearanceCookieStorage));
 
         public ClearanceCookie Solve(Uri uri, CookieContainer sourceCookies, HttpWebResponse challengeResponse)
         {
@@ -78,19 +73,21 @@ namespace Msv.BrowserCheckBypassing
                         .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"))
                 };
 
-                m_SolveWebClient.CookieContainer = sourceCookies;
-                try
+                using (IBaseWebClient client = new SolverWebClient {CookieContainer = sourceCookies})
                 {
-                    m_SolveWebClient.DownloadStringAsync(completionUrlBuilder.Uri, new Dictionary<HttpRequestHeader, string>
-                        {
-                            [HttpRequestHeader.Referer] = uri.ToString()
-                        })
-                        .GetAwaiter().GetResult();
-                }
-                catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
-                                                && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Found)
-                {
-                    //OK, challenge solved (WebClient treats HTTP status 302 as error)
+                    try
+                    {
+                        client.DownloadStringAsync(completionUrlBuilder.Uri, new Dictionary<HttpRequestHeader, string>
+                            {
+                                [HttpRequestHeader.Referer] = uri.ToString()
+                            })
+                            .GetAwaiter().GetResult();
+                    }
+                    catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
+                                                   && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Found)
+                    {
+                        //OK, challenge solved (WebClient treats HTTP status 302 as error)
+                    }
                 }
                 var newCookies = sourceCookies.GetCookies(completionUrlBuilder.Uri);
                 if (string.IsNullOrWhiteSpace(newCookies[ClearanceCookieName]?.Value))
