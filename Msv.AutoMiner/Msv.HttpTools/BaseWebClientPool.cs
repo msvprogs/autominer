@@ -47,10 +47,7 @@ namespace Msv.HttpTools
                 throw new ArgumentNullException(nameof(item));
 
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                item.Value.Dispose();
                 return;
-            }
             lock (m_PoolQueue)
             {                
                 if (m_PoolQueue.Contains(item.Value))
