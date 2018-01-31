@@ -30,6 +30,9 @@ namespace Msv.HttpTools
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             ServicePointManager.Expect100Continue = false;
+            ServicePointManager.DefaultConnectionLimit = 16;
+            ServicePointManager.MaxServicePointIdleTime = 10;
+            ServicePointManager.MaxServicePoints = 16;
         }
 
         public CorrectWebClient()
@@ -92,6 +95,14 @@ namespace Msv.HttpTools
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Timeout = request.ReadWriteTimeout = (int)M_OrdinaryRequestTimeout.TotalMilliseconds;
             request.KeepAlive = false;
+
+            var proxy = request.Proxy == null
+                        || request.Proxy.Equals(WebRequest.GetSystemWebProxy())
+                ? null
+                : request.Proxy;
+            var servicePoint = ServicePointManager.FindServicePoint(address, proxy);
+            servicePoint.ConnectionLeaseTimeout = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
+
             return request;
         }
 
@@ -102,7 +113,6 @@ namespace Msv.HttpTools
         protected override WebResponse GetWebResponse(WebRequest request)
         {
             return (m_response = base.GetWebResponse(request));
-
         }
 
         protected override WebResponse GetWebResponse(WebRequest request, IAsyncResult result)
