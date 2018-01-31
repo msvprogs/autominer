@@ -121,6 +121,11 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 if (!TryJsonRpc(client, "ping"))
                     return PoolAvailabilityState.AuthenticationFailed;
             }
+            catch (WebException)
+            {
+                if (!TryJsonRpc(client, "getinfo"))
+                    return PoolAvailabilityState.AuthenticationFailed;
+            }
             catch (CorrectHttpException)
             {
                 if (!TryJsonRpc(client, "getinfo"))
@@ -138,6 +143,12 @@ namespace Msv.AutoMiner.Common.Infrastructure
             catch (CorrectHttpException ex)
             {
                 if (ex.Status == HttpStatusCode.Unauthorized)
+                    return false;
+                throw;
+            }
+            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
+            {
+                if (((HttpWebResponse)wex.Response).StatusCode == HttpStatusCode.Unauthorized)
                     return false;
                 throw;
             }
