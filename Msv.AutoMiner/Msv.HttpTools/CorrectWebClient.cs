@@ -24,8 +24,6 @@ namespace Msv.HttpTools
         public WebClient UnderlyingClient => this;
         public CookieContainer CookieContainer { get; set; } = new CookieContainer();
 
-        private static int M_InstanceCount;
-
         static CorrectWebClient()
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
@@ -33,10 +31,7 @@ namespace Msv.HttpTools
         }
 
         public CorrectWebClient()
-        {
-            Encoding = Encoding.UTF8;
-            Console.WriteLine("Instance created. Total count: " + Interlocked.Increment(ref M_InstanceCount));
-        }
+            => Encoding = Encoding.UTF8;
 
         public Task<string> DownloadStringAsync(Uri uri, Dictionary<string, string> headers)
         {
@@ -93,15 +88,6 @@ namespace Msv.HttpTools
             request.Timeout = request.ReadWriteTimeout = (int)M_OrdinaryRequestTimeout.TotalMilliseconds;
             request.KeepAlive = false;
             return request;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-                Console.WriteLine("Instance disposed. Total count: " + Interlocked.Decrement(ref M_InstanceCount));
-            else
-                Console.WriteLine("Instance FINALIZED. Total count: " + Interlocked.Decrement(ref M_InstanceCount));
-            base.Dispose(disposing);
         }
 
         private void SetHeaders(Dictionary<string, string> headers)
