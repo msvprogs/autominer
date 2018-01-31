@@ -8,7 +8,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {
     public class DummyWebClient : IProxiedWebClient
     {
-        public string DownloadString(string url, Encoding encoding = null, Dictionary<HttpRequestHeader, string> headers = null)
+        public string DownloadString(string url, Encoding encoding = null, Dictionary<string, string> headers = null)
         {
             throw new NotImplementedException();
         }

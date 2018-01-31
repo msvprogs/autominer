@@ -7,7 +7,6 @@ using System.Threading;
 using HtmlAgilityPack;
 using Jint;
 using Msv.BrowserCheckBypassing.Contracts;
-using Msv.HttpTools.Contracts;
 
 namespace Msv.BrowserCheckBypassing
 {
@@ -73,22 +72,20 @@ namespace Msv.BrowserCheckBypassing
                         .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"))
                 };
 
-                using (IBaseWebClient client = new SolverWebClient {CookieContainer = sourceCookies})
+                try
                 {
-                    try
-                    {
-                        client.DownloadStringAsync(completionUrlBuilder.Uri, new Dictionary<HttpRequestHeader, string>
-                            {
-                                [HttpRequestHeader.Referer] = uri.ToString()
-                            })
-                            .GetAwaiter().GetResult();
-                    }
-                    catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
-                                                   && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Found)
-                    {
-                        //OK, challenge solved (WebClient treats HTTP status 302 as error)
-                    }
+                    var solverClient = new SolverWebClient {CookieContainer = sourceCookies};
+                    solverClient.DownloadStringAsync(completionUrlBuilder.Uri, new Dictionary<string, string>
+                        {
+                            ["Referer"] = uri.ToString()
+                        })
+                        .GetAwaiter().GetResult();
                 }
+                catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
+                                                && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Found)
+                {
+                    //OK, challenge solved (WebClient treats HTTP status 302 as error)
+                }              
                 var newCookies = sourceCookies.GetCookies(completionUrlBuilder.Uri);
                 if (string.IsNullOrWhiteSpace(newCookies[ClearanceCookieName]?.Value))
                     throw new ApplicationException("Something went wrong, failed to receive the clearance cookie");

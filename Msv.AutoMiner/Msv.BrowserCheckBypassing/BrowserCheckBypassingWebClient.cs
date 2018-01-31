@@ -22,8 +22,6 @@ namespace Msv.BrowserCheckBypassing
             set => m_BaseWebClient.Encoding = value;
         }
 
-        public WebClient UnderlyingClient => m_BaseWebClient.UnderlyingClient;
-
         private readonly IBaseWebClient m_BaseWebClient;
         private readonly IBrowserCheckBypasserFactory m_BypasserFactory;
         private readonly IWritableClearanceCookieStorage m_CookieStorage;
@@ -39,26 +37,6 @@ namespace Msv.BrowserCheckBypassing
         }
 
         public async Task<string> DownloadStringAsync(Uri uri, Dictionary<string, string> headers)
-        {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-
-            try
-            {
-                LoadCookies(uri);
-                return await m_BaseWebClient.DownloadStringAsync(uri, headers);
-            }
-            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
-            {
-                if (!TryToSolveChallenge(uri, wex.Response))
-                    throw;
-                return await DownloadStringAsync(uri, headers);
-            }
-        }
-
-        public async Task<string> DownloadStringAsync(Uri uri, Dictionary<HttpRequestHeader, string> headers)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
@@ -97,29 +75,6 @@ namespace Msv.BrowserCheckBypassing
                 return await UploadStringAsync(uri, data, headers);
             }
         }
-
-        public async Task<string> UploadStringAsync(Uri uri, string data, Dictionary<HttpRequestHeader, string> headers, NetworkCredential credentials = null)
-        {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
-
-            try
-            {
-                LoadCookies(uri);
-                return await m_BaseWebClient.UploadStringAsync(uri, data, headers, credentials);
-            }
-            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
-            {
-                if (!TryToSolveChallenge(uri, wex.Response))
-                    throw;
-                return await UploadStringAsync(uri, data, headers);
-            }
-        }
-
-        public void Dispose()
-            => m_BaseWebClient.Dispose();
 
         private bool TryToSolveChallenge(Uri uri, WebResponse response)
         {

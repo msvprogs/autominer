@@ -15,18 +15,16 @@ namespace Msv.AutoMiner.Common.External
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public virtual string DownloadString(
-            string url, Encoding encoding = null, Dictionary<HttpRequestHeader, string> headers = null)
+            string url, Encoding encoding = null, Dictionary<string, string> headers = null)
         {
-            using (var webClient = CreateBaseWebClient())
-            {
-                if (encoding != null)
-                    webClient.Encoding = encoding;
-                M_Logger.Debug($"GET {url}...");
-                var response = webClient.DownloadStringAsync(new Uri(url), headers ?? new Dictionary<HttpRequestHeader, string>())
-                    .GetAwaiter().GetResult();
-                M_Logger.Debug($"GET {url} response:{Environment.NewLine}{response}");
-                return response;
-            }
+            var webClient = CreateBaseWebClient();         
+            if (encoding != null)
+                webClient.Encoding = encoding;
+            M_Logger.Debug($"GET {url}...");
+            var response = webClient.DownloadStringAsync(new Uri(url), headers ?? new Dictionary<string, string>())
+                .GetAwaiter().GetResult();
+            M_Logger.Debug($"GET {url} response:{Environment.NewLine}{response}");
+            return response;          
         }
 
         public string DownloadString(Uri url, Encoding encoding = null)
@@ -34,24 +32,20 @@ namespace Msv.AutoMiner.Common.External
 
         public string DownloadString(string url, Dictionary<string, string> headers)
         {
-            using (var webClient = CreateBaseWebClient())
-            {
-                M_Logger.Debug($"GET {url}...");
-                var response = webClient.DownloadStringAsync(new Uri(url), headers).GetAwaiter().GetResult();
-                M_Logger.Debug($"GET {url} response:{Environment.NewLine}{response}");
-                return response;
-            }
+            var webClient = CreateBaseWebClient();  
+            M_Logger.Debug($"GET {url}...");
+            var response = webClient.DownloadStringAsync(new Uri(url), headers).GetAwaiter().GetResult();
+            M_Logger.Debug($"GET {url} response:{Environment.NewLine}{response}");
+            return response;          
         }
 
         public string UploadString(string url, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
         {
-            using (var webClient = CreateBaseWebClient())
-            {
-                M_Logger.Debug($"POST {url}{Environment.NewLine}{data}");
-                var response = webClient.UploadStringAsync(new Uri(url), data, headers, credentials).GetAwaiter().GetResult();
-                M_Logger.Debug($"POST {url} response ({webClient.UnderlyingClient.ResponseHeaders[HttpResponseHeader.Server]}):{Environment.NewLine}{response}");
-                return response;
-            }
+            var webClient = CreateBaseWebClient();           
+            M_Logger.Debug($"POST {url}{Environment.NewLine}{data}");
+            var response = webClient.UploadStringAsync(new Uri(url), data, headers, credentials).GetAwaiter().GetResult();
+            M_Logger.Debug($"POST {url} response:{Environment.NewLine}{response}");
+            return response;            
         }
 
         protected virtual IBaseWebClient CreateBaseWebClient()

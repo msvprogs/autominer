@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -14,10 +13,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 {
     public class QwakPoolInfoProvider : IPoolInfoProvider
     {
-        private static readonly Dictionary<HttpRequestHeader, string> M_Headers =
-            new Dictionary<HttpRequestHeader, string>
+        private static readonly Dictionary<string, string> M_Headers =
+            new Dictionary<string, string>
             {
-                [HttpRequestHeader.Accept] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                ["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
             };
 
         private readonly IWebClient m_WebClient;
@@ -111,7 +110,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
         }
 
         private string ExecuteApiMethod(string method)
-            => m_WebClient.DownloadString(GetActionUri(method), headers: M_Headers);
+            => m_WebClient.DownloadString(GetActionUri(method), M_Headers);
 
         private long NormalizeHashRate(dynamic hashRateItem)
         {

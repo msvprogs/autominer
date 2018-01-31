@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -27,9 +26,9 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         {
             var mainInfo = JsonConvert.DeserializeObject<dynamic>(
                 m_WebClient.DownloadString(new Uri(M_BaseUri, "/ajax").ToString(),
-                    headers: new Dictionary<HttpRequestHeader, string>
+                    new Dictionary<string, string>
                     {
-                        [HttpRequestHeader.Referer] = M_BaseUri.ToString()
+                        ["Referer"] = M_BaseUri.ToString()
                     }));
 
             var height = (long) mainInfo.block_number;

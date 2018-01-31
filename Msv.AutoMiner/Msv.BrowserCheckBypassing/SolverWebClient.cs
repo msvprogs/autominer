@@ -1,17 +1,16 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
+using System.Net.Http;
 using Msv.HttpTools;
 
 namespace Msv.BrowserCheckBypassing
 {
     internal class SolverWebClient : CorrectWebClient
     {
-        protected override WebRequest GetWebRequest(Uri address)
+        protected override HttpClientHandler CreateHttpClientHandler(NetworkCredential credentials)
         {
-            if (!(base.GetWebRequest(address) is HttpWebRequest request))
-                return null;
-            request.AllowAutoRedirect = false;
-            return request;
+            var handler = base.CreateHttpClientHandler(credentials);
+            handler.AllowAutoRedirect = false;
+            return handler;
         }
     }
 }

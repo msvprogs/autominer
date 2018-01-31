@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Msv.HttpTools.Contracts;
 
@@ -11,11 +12,11 @@ namespace Msv.HttpTools
         private const int MaxAttempts = 10;
 
         private readonly IRoundRobin<ProxyInfo> m_ProxyInfos;
+        private WebProxy m_CurrentProxy;
+        private ProxyInfo m_CurrentProxyInfo;
 
-        public ProxiedWebClient(IRoundRobin<ProxyInfo> proxyInfos)
-        {
-            m_ProxyInfos = proxyInfos ?? throw new ArgumentNullException(nameof(proxyInfos));
-        }
+        public ProxiedWebClient(IRoundRobin<ProxyInfo> proxyInfos) 
+            => m_ProxyInfos = proxyInfos ?? throw new ArgumentNullException(nameof(proxyInfos));
 
         public async Task<string> DownloadStringProxiedAsync(Uri uri, Dictionary<string, string> headers = null)
         {
@@ -24,22 +25,29 @@ namespace Msv.HttpTools
 
             for (var i = 0; i < MaxAttempts; i++)
             {
-                var currentProxy = GetNextActiveProxy();
+                m_CurrentProxyInfo = GetNextActiveProxy();
+                m_CurrentProxy = new WebProxy(m_CurrentProxyInfo.Uri);
                 try
                 {
-                    Proxy = new WebProxy(currentProxy.Uri);
                     var result = await DownloadStringAsync(uri, headers ?? new Dictionary<string, string>());
                     if (string.IsNullOrWhiteSpace(result))
                         throw new ProxyException("Server returned empty result");
-                    currentProxy.RecordSuccess();
+                    m_CurrentProxyInfo.RecordSuccess();
                     return result;
                 }
                 catch (WebException)
                 {
-                    currentProxy.RecordFailure();
+                    m_CurrentProxyInfo.RecordFailure();
                 }
             }
             throw new ProxyException("Couldn't download requested data through proxy, max attempts exceeded");
+        }
+
+        protected override HttpClientHandler CreateHttpClientHandler(NetworkCredential credentials)
+        {
+            var handler = base.CreateHttpClientHandler(credentials);
+            handler.Proxy = m_CurrentProxy ?? WebRequest.GetSystemWebProxy();
+            return handler;
         }
 
         private ProxyInfo GetNextActiveProxy()

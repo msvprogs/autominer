@@ -8,7 +8,7 @@ namespace Msv.AutoMiner.Common.External.Contracts
     public interface IWebClient
     {
         string DownloadString(
-            string url, Encoding encoding = null, Dictionary<HttpRequestHeader, string> headers = null);
+            string url, Encoding encoding = null, Dictionary<string, string> headers = null);
 
         string DownloadString(Uri url, Encoding encoding = null);
 
