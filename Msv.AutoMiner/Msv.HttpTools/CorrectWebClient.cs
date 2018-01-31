@@ -95,10 +95,26 @@ namespace Msv.HttpTools
             return request;
         }
 
+
+
+        private WebResponse m_response;
+
+        protected override WebResponse GetWebResponse(WebRequest request)
+        {
+            return (m_response = base.GetWebResponse(request));
+
+        }
+
+        protected override WebResponse GetWebResponse(WebRequest request, IAsyncResult result)
+        {
+            return (m_response = base.GetWebResponse(request, result));
+        }
+
         protected override void Dispose(bool disposing)
         {
+            m_response?.Dispose();
             if (disposing)
-                Console.WriteLine("Instance disposed. Total count: " + Interlocked.Decrement(ref M_InstanceCount));
+                Console.WriteLine("Instance disposed (response != null ? {0}). Total count: {1}", m_response != null,  Interlocked.Decrement(ref M_InstanceCount));
             else
                 Console.WriteLine("Instance FINALIZED. Total count: " + Interlocked.Decrement(ref M_InstanceCount));
             base.Dispose(disposing);
