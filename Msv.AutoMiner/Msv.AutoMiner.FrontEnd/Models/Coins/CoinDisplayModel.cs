@@ -31,5 +31,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public int? MasternodeCount { get; set; }
 
         public double? TotalSupply { get; set; }
+
+        public TimeSpan? SoloMiningTtf { get; set; }
     }
 }

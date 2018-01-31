@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
@@ -28,6 +29,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         private readonly ICoinValueProvider m_CoinValueProvider;
         private readonly IStoredFiatValueProvider m_FiatValueProvider;
         private readonly IImageProcessor m_ImageProcessor;
+        private readonly IOverallProfitabilityCalculator m_OverallProfitabilityCalculator;
+        private readonly IProfitabilityCalculator m_ProfitabilityCalculator;
         private readonly AutoMinerDbContext m_Context;
 
         public CoinsController(
@@ -35,6 +38,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             ICoinValueProvider coinValueProvider,
             IStoredFiatValueProvider fiatValueProvider,
             IImageProcessor imageProcessor,
+            IOverallProfitabilityCalculator overallProfitabilityCalculator,
+            IProfitabilityCalculator profitabilityCalculator,
             AutoMinerDbContext context)
             : base("_CoinRowPartial", context)
         {
@@ -42,6 +47,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             m_CoinValueProvider = coinValueProvider;
             m_FiatValueProvider = fiatValueProvider;
             m_ImageProcessor = imageProcessor;
+            m_OverallProfitabilityCalculator = overallProfitabilityCalculator;
+            m_ProfitabilityCalculator = profitabilityCalculator;
             m_Context = context;
         }
 
@@ -297,6 +304,8 @@ rpcallowip={allowIpMask}
             var lastCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false);
             var yesterdayCoinValues = m_CoinValueProvider.GetCurrentCoinValues(false, yesterday);
             var btcUsdRate = m_FiatValueProvider.GetLastBtcUsdValue().Value;
+            var overallHashrates = m_OverallProfitabilityCalculator.CalculateTotalPower()
+                .ToDictionary(x => x.AlgorithmId, x => x.NetHashRate);
 
             var miningExchanges = m_Context.Wallets
                 .AsNoTracking()
@@ -355,11 +364,14 @@ rpcallowip={allowIpMask}
                     HasLocalNode = !string.IsNullOrEmpty(x.coin.NodeHost),
                     MasternodeCount = x.network.MasternodeCount,
                     TotalSupply = x.network.TotalSupply,
+                    SoloMiningTtf = m_ProfitabilityCalculator.CalculateTimeToFind(
+                        x.network.Difficulty, x.coin.MaxTarget, overallHashrates.TryGetValue(x.coin.AlgorithmId)),
                     LastUpdated = x.network.Created != default
                         ? x.network.Created
                         : (DateTime?) null
                 })
                 .ToArray();
+            
         }
 
         private Task<AlgorithmBaseModel[]> GetAvailableAlgorithms()

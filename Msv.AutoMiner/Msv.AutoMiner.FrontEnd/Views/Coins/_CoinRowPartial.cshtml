@@ -35,6 +35,10 @@
         {
             <div class="secondary-info">Total supply: <b>@Model.TotalSupply.Value.ToString("N0")</b></div>
         }
+        @if (Model.SoloMiningTtf != null)
+        {
+            <div class="secondary-info">Solo-mine TTF: <b>@TimeSpanHelper.ToShortString(Model.SoloMiningTtf)</b></div>
+        }
     </td>
     <td>@Model.Symbol</td>
     <td>@Model.Algorithm.Name</td>
