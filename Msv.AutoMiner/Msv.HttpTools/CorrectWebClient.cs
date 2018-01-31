@@ -73,7 +73,8 @@ namespace Msv.HttpTools
             {
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip,
                 CookieContainer = CookieContainer,
-                Credentials = credentials
+                Credentials = credentials,
+                ServerCertificateCustomValidationCallback = delegate { return true;}
             };
 
         private static async Task<CorrectHttpException> CreateHttpException(HttpResponseMessage message)
@@ -101,7 +102,7 @@ namespace Msv.HttpTools
         private static async Task<string> ReadContentAsString(HttpResponseMessage response)
         {
             // HttpClient doesn't recognize 'utf8' string as valid
-            if ("utf8".Equals(response.Content.Headers.ContentType.CharSet,
+            if ("utf8".Equals(response.Content.Headers.ContentType?.CharSet,
                 StringComparison.InvariantCultureIgnoreCase))
                 return Encoding.UTF8.GetString(await response.Content.ReadAsByteArrayAsync());
 
