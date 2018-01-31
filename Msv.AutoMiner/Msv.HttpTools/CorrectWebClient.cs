@@ -13,6 +13,9 @@ namespace Msv.HttpTools
         private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0";
         private const string AcceptEncodings = "gzip, deflate";
 
+        //Crucial for Linux to reduce half-closed TCP connections in CLOSE_WAIT state
+        private static readonly TimeSpan M_ConnectionLeaseTimeout = TimeSpan.FromMinutes(1.5);
+
         private static readonly TimeSpan M_OrdinaryRequestTimeout = TimeSpan.FromSeconds(40);
         private static readonly TimeSpan M_MaxRequestTimeout =
 #if DEBUG
@@ -89,6 +92,17 @@ namespace Msv.HttpTools
             request.CookieContainer = CookieContainer;
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Timeout = request.ReadWriteTimeout = (int)M_OrdinaryRequestTimeout.TotalMilliseconds;
+            request.KeepAlive = false;
+
+            // In .NET Core, we can't pass default system proxy to FindServicePoint() method,
+            // because it throws NotSupportedException when trying to call GetProxy() method of it.
+            var proxy = request.Proxy == null
+                        || request.Proxy.Equals(WebRequest.GetSystemWebProxy())
+                ? null
+                : request.Proxy;
+            var servicePoint = ServicePointManager.FindServicePoint(address, proxy);
+            servicePoint.ConnectionLeaseTimeout = (int)M_ConnectionLeaseTimeout.TotalMilliseconds;
+            servicePoint.ConnectionLimit = 1;
             return request;
         }
 
@@ -121,7 +135,6 @@ namespace Msv.HttpTools
             if (resultTask == timeoutTask)
             {
                 CancelAsync();
-                await task;
                 throw new TimeoutException("WebClient operation timed out. All default timeouts were ignored (probably a .NET Core implementation bug)");
             }
 

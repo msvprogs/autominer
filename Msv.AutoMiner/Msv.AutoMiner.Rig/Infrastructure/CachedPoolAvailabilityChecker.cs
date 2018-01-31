@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using Msv.AutoMiner.Common.Enums;
-using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.HttpTools;
-using Msv.HttpTools.Contracts;
 
 namespace Msv.AutoMiner.Rig.Infrastructure
 {
@@ -31,23 +28,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             else
                 m_ResponsesStoppedTimes.AddOrUpdate(pool.Id, x => DateTime.Now, (x, y) => y);
             return result;
-        }
-
-        public CachedPoolAvailabilityChecker() 
-            : base(new LoggedWebClient<IBaseWebClient>(new DummyPool()))
-        { }
-
-        // Mono doesn't have the problem with disposing TCP connections, no need for pool
-        private class DummyPool : IBaseWebClientPool<IBaseWebClient>
-        {
-            public void Dispose()
-            { }
-
-            public PooledItem<IBaseWebClient> Acquire() 
-                => new PooledItem<IBaseWebClient>(this, new CorrectWebClient());
-
-            public void Return(PooledItem<IBaseWebClient> item)
-                => item.Value.Dispose();
         }
     }
 }

@@ -15,16 +15,11 @@ using NLog;
 namespace Msv.AutoMiner.Common.Infrastructure
 {
     public class PoolAvailabilityChecker : IPoolAvailabilityChecker
-    {        
-        protected static ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
-
+    {
         private static readonly TimeSpan M_SocketTimeout = TimeSpan.FromSeconds(25);
         private static readonly Encoding M_StratumEncoding = Encoding.ASCII;
 
-        private readonly IWebClient m_WebClient;
-
-        public PoolAvailabilityChecker(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        protected static ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         public virtual PoolAvailabilityState Check(PoolDataModel pool)
         {
@@ -36,7 +31,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
             return PoolAvailabilityState.Available;
         }
 
-        private PoolAvailabilityState CheckServer(PoolDataModel pool)
+        private static PoolAvailabilityState CheckServer(PoolDataModel pool)
         {
             try
             {
@@ -111,9 +106,9 @@ namespace Msv.AutoMiner.Common.Infrastructure
             }
         }
 
-        private PoolAvailabilityState CheckJsonRpcServer(PoolDataModel pool)
+        private static PoolAvailabilityState CheckJsonRpcServer(PoolDataModel pool)
         {
-            var client = new JsonRpcClient(m_WebClient, pool.Url.Host, pool.Url.Port, pool.Login, pool.Password);
+            var client = new JsonRpcClient(new LoggedWebClient(), pool.Url.Host, pool.Url.Port, pool.Login, pool.Password);
             try
             {
                 if (!TryJsonRpc(client, "ping"))

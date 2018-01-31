@@ -13,7 +13,9 @@ namespace Msv.HttpTools
         private readonly IRoundRobin<ProxyInfo> m_ProxyInfos;
 
         public ProxiedWebClient(IRoundRobin<ProxyInfo> proxyInfos)
-            => m_ProxyInfos = proxyInfos ?? throw new ArgumentNullException(nameof(proxyInfos));
+        {
+            m_ProxyInfos = proxyInfos ?? throw new ArgumentNullException(nameof(proxyInfos));
+        }
 
         public async Task<string> DownloadStringProxiedAsync(Uri uri, Dictionary<string, string> headers = null)
         {
