@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Msv.AutoMiner.Common
 {
@@ -39,7 +40,7 @@ namespace Msv.AutoMiner.Common
             }
         }
 
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        public static void ForEach<T>(this IEnumerable<T> source, [InstantHandle] Action<T> action)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));

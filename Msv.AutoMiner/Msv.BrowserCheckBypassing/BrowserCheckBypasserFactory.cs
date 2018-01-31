@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Net;
 using Msv.BrowserCheckBypassing.Contracts;
+using Msv.HttpTools;
 
 namespace Msv.BrowserCheckBypassing
 {
@@ -13,9 +13,14 @@ namespace Msv.BrowserCheckBypassing
             m_ClearanceCookieStorage = clearanceCookieStorage ?? throw new ArgumentNullException(nameof(clearanceCookieStorage));
         }
 
-        public IBrowserCheckBypasser Create(Uri uri, HttpWebResponse response)
+        public IBrowserCheckBypasser Create(Uri uri, CorrectHttpException exception)
         {
-            if (CloudflareBrowserCheckBypasser.IsCloudfareProtection(response))
+            if (uri == null)
+                throw new ArgumentNullException(nameof(uri));
+            if (exception == null) 
+                throw new ArgumentNullException(nameof(exception));
+
+            if (CloudflareBrowserCheckBypasser.IsCloudfareProtection(exception))
                 return new CloudflareBrowserCheckBypasser(m_ClearanceCookieStorage);
 
             return null;

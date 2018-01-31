@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;
@@ -12,11 +11,6 @@ namespace Msv.AutoMiner.Common.External
     {
         private const int MaxLoggableLength = 256;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
-
-        private static readonly Dictionary<string, string> M_RequestHeaders = new Dictionary<string, string>
-        {
-            ["Content-Type"] = "application/json-rpc"
-        };
 
         private readonly IWebClient m_WebClient;
         private readonly Uri m_Uri;
@@ -52,7 +46,7 @@ namespace Msv.AutoMiner.Common.External
             });
             M_Logger.Info($"Sending JSON-RPC request to {m_Uri}: {Truncate(requestStr)}");
             var responseStr = m_WebClient.UploadString(
-                m_Uri.ToString(), requestStr, M_RequestHeaders, new NetworkCredential(m_Login, m_Password));
+                m_Uri.ToString(), requestStr, null, new NetworkCredential(m_Login, m_Password), "application/json-rpc");
             M_Logger.Info($"Received JSON-RPC response {Truncate(responseStr)} from {m_Uri}");
 
             var response = (dynamic)JsonConvert.DeserializeObject(responseStr);

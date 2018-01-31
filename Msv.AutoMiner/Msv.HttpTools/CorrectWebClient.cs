@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -14,12 +16,6 @@ namespace Msv.HttpTools
         private const string AcceptEncodings = "gzip, deflate";
 
         private static readonly TimeSpan M_OrdinaryRequestTimeout = TimeSpan.FromSeconds(40);
-        private static readonly TimeSpan M_MaxRequestTimeout =
-#if DEBUG
-            TimeSpan.FromMinutes(20);
-#else
-            TimeSpan.FromSeconds(70);
-#endif
       
         public CookieContainer CookieContainer { get; set; } = new CookieContainer();
 
@@ -44,25 +40,31 @@ namespace Msv.HttpTools
             using (var client = CreateHttpClient())
             {
                 SetHeaders(client, headers);
-                using (var response = (await client.GetAsync(uri)).EnsureSuccessStatusCode())
-                    return await response.Content.ReadAsStringAsync();
+                using (var response = await client.GetAsync(uri))
+                {
+                    if (!response.IsSuccessStatusCode)
+                        throw await CreateHttpException(response);
+                    return await ReadContentAsString(response);
+                }
             }
         }
 
         public async Task<string> UploadStringAsync(
-            Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
+            Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null, string contentType = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
 
             using (var client = CreateHttpClient(credentials))
             {
                 SetHeaders(client, headers);
-                using (var requestContent = new StringContent(data, Encoding))
-                using (var response = (await client.PostAsync(uri, requestContent)).EnsureSuccessStatusCode())
-                    return await response.Content.ReadAsStringAsync();
+                using (var requestContent = new StringContent(data, Encoding, contentType))
+                using (var response = await client.PostAsync(uri, requestContent))
+                {
+                    if (!response.IsSuccessStatusCode)
+                        throw await CreateHttpException(response);
+                    return await ReadContentAsString(response);
+                }
             }
         }
 
@@ -74,15 +76,43 @@ namespace Msv.HttpTools
                 Credentials = credentials
             };
 
+        private static async Task<CorrectHttpException> CreateHttpException(HttpResponseMessage message)
+        {
+            var body = new MemoryStream();
+            if (message.Content != null)
+            {
+                await message.Content.CopyToAsync(body);
+                body.Position = 0;
+            }
+            return new CorrectHttpException(
+                message.StatusCode,
+                message.ReasonPhrase,
+                message.Headers
+                    .ToDictionary(x => x.Key, x => string.Join(", ", x.Value)),
+                body);
+        }
+
         private HttpClient CreateHttpClient(NetworkCredential credentials = null)
             => new HttpClient(CreateHttpClientHandler(credentials))
             {
                 Timeout = M_OrdinaryRequestTimeout
             };
 
+        private static async Task<string> ReadContentAsString(HttpResponseMessage response)
+        {
+            // HttpClient doesn't recognize 'utf8' string as valid
+            if ("utf8".Equals(response.Content.Headers.ContentType.CharSet,
+                StringComparison.InvariantCultureIgnoreCase))
+                return Encoding.UTF8.GetString(await response.Content.ReadAsByteArrayAsync());
+
+            return await response.Content.ReadAsStringAsync();
+        }
+
         private static void SetHeaders(HttpClient client, Dictionary<string, string> headers)
         {
             SetEssentialHeaders(client);
+            if (headers == null) 
+                return;
             foreach (var header in headers)
                 client.DefaultRequestHeaders.Add(header.Key, header.Value);
         }
@@ -92,21 +122,5 @@ namespace Msv.HttpTools
             client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
             client.DefaultRequestHeaders.AcceptEncoding.ParseAdd(AcceptEncodings);
         }
-
-        //private async Task<string> DoTaskWithTimeoutAsync(Task<string> task)
-        //{
-        //    var timeoutCancelSource = new CancellationTokenSource();
-        //    var timeoutTask = Task.Delay(M_MaxRequestTimeout, timeoutCancelSource.Token);
-
-        //    var resultTask = await Task.WhenAny(task, timeoutTask);
-        //    if (resultTask == timeoutTask)
-        //    {
-        //        CancelAsync();
-        //        throw new TimeoutException("WebClient operation timed out. All default timeouts were ignored (probably a .NET Core implementation bug)");
-        //    }
-
-        //    timeoutCancelSource.Cancel();
-        //    return await task;
-        //}
     }
 }

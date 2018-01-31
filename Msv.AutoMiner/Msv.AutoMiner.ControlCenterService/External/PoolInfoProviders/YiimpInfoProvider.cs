@@ -8,6 +8,7 @@ using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Data;
 using Msv.AutoMiner.Data;
+using Msv.HttpTools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -126,8 +127,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             {
                 result = m_WebClient.DownloadString(url).Trim();
             }
-            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
-                                           && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Forbidden)
+            catch (CorrectHttpException wex) when (wex.Status == HttpStatusCode.Forbidden)
             {
                 return m_WebClient.DownloadStringProxied(url);
             }

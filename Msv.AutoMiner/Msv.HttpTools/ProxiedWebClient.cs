@@ -35,6 +35,14 @@ namespace Msv.HttpTools
                     m_CurrentProxyInfo.RecordSuccess();
                     return result;
                 }
+                catch (CorrectHttpException)
+                {
+                    m_CurrentProxyInfo.RecordFailure();
+                }
+                catch (TaskCanceledException) // HttpClient throws this exception
+                {
+                    m_CurrentProxyInfo.RecordFailure();
+                }
                 catch (WebException)
                 {
                     m_CurrentProxyInfo.RecordFailure();

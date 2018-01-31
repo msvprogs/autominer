@@ -68,9 +68,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     requestJson,
                     new Dictionary<string, string>
                     {
-                        ["Authorization"] = $"amx {ApiKey}:{signature}:{nonce}",
-                        ["Content-Type"] = "application/json"
-                    });
+                        ["Authorization"] = $"amx {ApiKey}:{signature}:{nonce}"
+                    },
+                    contentType: "application/json");
                 var json = JsonConvert.DeserializeObject<JObject>(response);
                 if (!json["Success"].Value<bool>())
                     throw new ExternalDataUnavailableException(json["Error"].Value<string>());

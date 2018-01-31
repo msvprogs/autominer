@@ -39,11 +39,11 @@ namespace Msv.AutoMiner.Common.External
             return response;          
         }
 
-        public string UploadString(string url, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
+        public string UploadString(string url, string data, Dictionary<string, string> headers, NetworkCredential credentials = null, string contentType = null)
         {
             var webClient = CreateBaseWebClient();           
             M_Logger.Debug($"POST {url}{Environment.NewLine}{data}");
-            var response = webClient.UploadStringAsync(new Uri(url), data, headers, credentials).GetAwaiter().GetResult();
+            var response = webClient.UploadStringAsync(new Uri(url), data, headers, credentials, contentType).GetAwaiter().GetResult();
             M_Logger.Debug($"POST {url} response:{Environment.NewLine}{response}");
             return response;            
         }

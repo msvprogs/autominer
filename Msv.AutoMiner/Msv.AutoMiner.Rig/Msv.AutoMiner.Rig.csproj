@@ -146,6 +146,7 @@
     <Compile Include="Remote\WebRequestRestClient.cs" />
     <Compile Include="Remote\ControlCenterRegistrator.cs" />
     <Compile Include="Remote\IRestClient.cs" />
+    <Compile Include="Remote\WebRequestWebClient.cs" />
     <Compile Include="Security\MonoBuggedX509CertificateStorage.cs" />
     <Compile Include="Security\X509CertificateStorageFactory.cs" />
     <Compile Include="Storage\CommandProcessorStorage.cs" />

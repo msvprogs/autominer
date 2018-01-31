@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 
@@ -12,6 +13,10 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
         private readonly ConcurrentDictionary<int, DateTime> m_ResponsesStoppedTimes =
             new ConcurrentDictionary<int, DateTime>();
+
+        public CachedPoolAvailabilityChecker(IWebClient webClient) 
+            : base(webClient)
+        { }
 
         public override PoolAvailabilityState Check(PoolDataModel pool)
         {

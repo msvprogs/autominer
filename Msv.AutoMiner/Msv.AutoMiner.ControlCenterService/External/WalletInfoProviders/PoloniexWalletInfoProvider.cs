@@ -80,10 +80,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     queryString,
                     new Dictionary<string, string>
                     {
-                        ["Content-Type"] = "application/x-www-form-urlencoded",
                         ["Key"] = ApiKey,
                         ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(Encoding.UTF8.GetBytes(queryString)))
-                    });
+                    },
+                    contentType: "application/x-www-form-urlencoded");
                 var json = JsonConvert.DeserializeObject<JObject>(response);
                 if (json["error"] != null)
                     throw new ExternalDataUnavailableException(json["error"].Value<string>());

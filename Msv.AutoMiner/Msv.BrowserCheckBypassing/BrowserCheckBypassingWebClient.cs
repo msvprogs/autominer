@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Msv.BrowserCheckBypassing.Contracts;
+using Msv.HttpTools;
 using Msv.HttpTools.Contracts;
 
 namespace Msv.BrowserCheckBypassing
@@ -48,42 +49,41 @@ namespace Msv.BrowserCheckBypassing
                 LoadCookies(uri);
                 return await m_BaseWebClient.DownloadStringAsync(uri, headers);
             }
-            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
+            catch (CorrectHttpException ex)
             {
-                if (!TryToSolveChallenge(uri, wex.Response))
+                if (!TryToSolveChallenge(uri, ex))
                     throw;
                 return await DownloadStringAsync(uri, headers);
             }
         }
 
-        public async Task<string> UploadStringAsync(Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null)
+        public async Task<string> UploadStringAsync(
+            Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null, string contentType = null)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
-            if (headers == null)
-                throw new ArgumentNullException(nameof(headers));
 
             try
             {
                 LoadCookies(uri);
-                return await m_BaseWebClient.UploadStringAsync(uri, data, headers, credentials);
+                return await m_BaseWebClient.UploadStringAsync(uri, data, headers, credentials, contentType);
             }
-            catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError)
+            catch (CorrectHttpException ex)
             {
-                if (!TryToSolveChallenge(uri, wex.Response))
+                if (!TryToSolveChallenge(uri, ex))
                     throw;
-                return await UploadStringAsync(uri, data, headers);
+                return await UploadStringAsync(uri, data, headers, credentials, contentType);
             }
         }
 
-        private bool TryToSolveChallenge(Uri uri, WebResponse response)
+        private bool TryToSolveChallenge(Uri uri, CorrectHttpException exception)
         {
-            var solver = m_BypasserFactory.Create(uri, (HttpWebResponse)response);
+            var solver = m_BypasserFactory.Create(uri, exception);
             if (solver == null)
                 return false;
             try
             {
-                solver.Solve(uri, CookieContainer, (HttpWebResponse) response);
+                solver.Solve(uri, CookieContainer, exception);
                 return true;
             }
             catch

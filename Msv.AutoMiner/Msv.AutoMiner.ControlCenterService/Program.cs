@@ -61,7 +61,7 @@ namespace Msv.AutoMiner.ControlCenterService
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 using (new PoolAvailabilityMonitor(
-                    new PoolAvailabilityChecker(),
+                    new PoolAvailabilityChecker(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<INotifier>(),
                     scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
                 using (new TelegramCommandInterface(

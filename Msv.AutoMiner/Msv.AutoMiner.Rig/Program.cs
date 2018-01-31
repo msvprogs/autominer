@@ -122,7 +122,8 @@ namespace Msv.AutoMiner.Rig
                             ElectricityKwhCostUsd = Settings.Default.ElectricityKwhCostUsd,
                             SystemPowerUsageWatts = Settings.Default.SystemPowerUsageWatts
                         }),
-                    new CachedPoolAvailabilityChecker(), 
+                    new CachedPoolAvailabilityChecker(
+                        new WebRequestWebClient()), 
                     delayProvider,
                     videoAdapterMonitor,
                     new MinerChangingOptions

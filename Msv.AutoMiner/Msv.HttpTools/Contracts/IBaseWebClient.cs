@@ -13,6 +13,6 @@ namespace Msv.HttpTools.Contracts
 
         Task<string> DownloadStringAsync(Uri uri, Dictionary<string, string> headers);
         Task<string> UploadStringAsync(
-            Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null);
+            Uri uri, string data, Dictionary<string, string> headers, NetworkCredential credentials = null, string contentType = null);
     }
 }

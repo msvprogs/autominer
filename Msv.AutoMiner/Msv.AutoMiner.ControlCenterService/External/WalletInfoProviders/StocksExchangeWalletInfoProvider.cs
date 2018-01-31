@@ -93,10 +93,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     serializedData,
                     new Dictionary<string, string>
                     {
-                        ["Content-Type"] = "application/json",
                         ["Key"] = ApiKey,
                         ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(Encoding.UTF8.GetBytes(serializedData)))
-                    });
+                    },
+                    contentType: "application/json");
                 var json = JsonConvert.DeserializeObject<JObject>(response);
                 if (json["success"].Value<int>() == 0)
                     throw new ExternalDataUnavailableException(json["error"]?.Value<string>());

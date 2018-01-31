@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
@@ -66,10 +65,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 var response = WebClient.UploadString(
                     url,
                     $"apikey={Uri.EscapeDataString(ApiKey)}&signature={Uri.EscapeDataString(signature)}",
-                    new Dictionary<string, string>
-                    {
-                        ["Content-Type"] = "application/x-www-form-urlencoded"
-                    });
+                    null,
+                    contentType: "application/x-www-form-urlencoded");
                 var json = JsonConvert.DeserializeObject<JObject>(response);
                 if (json["status"].Value<string>() != "success")
                     throw new ExternalDataUnavailableException(json["message"].Value<string>());

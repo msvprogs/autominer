@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using HtmlAgilityPack;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.HttpTools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -88,7 +88,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     {
                         return m_WebClient.DownloadString(new Uri(x, relativeUrl));
                     }
-                    catch (WebException ex)
+                    catch (CorrectHttpException ex)
                     {
                         exception = ex;
                         return null;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,10 +23,8 @@ namespace Msv.AutoMiner.ControlCenterService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) 
+            => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
 
@@ -37,6 +36,12 @@ namespace Msv.AutoMiner.ControlCenterService
                 x => new AutoMinerDbContextFactory(Configuration.GetConnectionString("AutoMinerDb")));
 
             services.AddMvc();
+
+            //Disable dependency tracking telemetry HTTP headers
+            var module = services.FirstOrDefault(
+                t => t.ImplementationFactory?.GetType() == typeof(Func<IServiceProvider, DependencyTrackingTelemetryModule>));
+            if (module != null)
+                services.Remove(module);
 
             services.AddSingleton(x => Configuration);
             services.AddSingleton<ICertificateServiceStorage, CertificateServiceStorage>();

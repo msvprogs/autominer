@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Linq;
+using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,10 +15,8 @@ namespace Msv.AutoMiner.CoinInfoService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) 
+            => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
 
@@ -27,6 +28,12 @@ namespace Msv.AutoMiner.CoinInfoService
                 x => new AutoMinerDbContextFactory(Configuration.GetConnectionString("AutoMinerDb")));
 
             services.AddMvc();
+
+            //Disable dependency tracking telemetry HTTP headers
+            var module = services.FirstOrDefault(
+                t => t.ImplementationFactory?.GetType() == typeof(Func<IServiceProvider, DependencyTrackingTelemetryModule>));
+            if (module != null)
+                services.Remove(module);
 
             services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
             services.AddSingleton<IProfitabilityTableBuilder, ProfitabilityTableBuilder>();
@@ -41,6 +48,8 @@ namespace Msv.AutoMiner.CoinInfoService
             services.AddSingleton<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
             services.AddSingleton<IStoredFiatValueProvider, StoredFiatValueProvider>();
             services.AddSingleton<IMasternodeInfoStorage, MasternodeInfoMemoryStorage>();
+
+
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

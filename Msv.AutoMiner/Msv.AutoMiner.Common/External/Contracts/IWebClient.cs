@@ -14,6 +14,6 @@ namespace Msv.AutoMiner.Common.External.Contracts
 
         string DownloadString(string url, Dictionary<string, string> headers);
 
-        string UploadString(string url, string data, Dictionary<string, string> headers, NetworkCredential credentials = null);
+        string UploadString(string url, string data, Dictionary<string, string> headers, NetworkCredential credentials = null, string contentType = null);
     }
 }

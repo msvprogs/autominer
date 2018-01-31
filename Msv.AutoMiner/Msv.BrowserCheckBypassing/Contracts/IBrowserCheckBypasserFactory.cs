@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Net;
+using Msv.HttpTools;
 
 namespace Msv.BrowserCheckBypassing.Contracts
 {
     public interface IBrowserCheckBypasserFactory
     {
-        IBrowserCheckBypasser Create(Uri uri, HttpWebResponse response);
+        IBrowserCheckBypasser Create(Uri uri, CorrectHttpException exception);
     }
 }

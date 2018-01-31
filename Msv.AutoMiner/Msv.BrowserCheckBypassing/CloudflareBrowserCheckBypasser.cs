@@ -7,6 +7,7 @@ using System.Threading;
 using HtmlAgilityPack;
 using Jint;
 using Msv.BrowserCheckBypassing.Contracts;
+using Msv.HttpTools;
 
 namespace Msv.BrowserCheckBypassing
 {
@@ -27,21 +28,21 @@ namespace Msv.BrowserCheckBypassing
                 M_InitJs = reader.ReadToEnd();
         }
 
-        public static bool IsCloudfareProtection(HttpWebResponse response)
-            => response.StatusCode == HttpStatusCode.ServiceUnavailable
-               && !string.IsNullOrWhiteSpace(response.Headers["CF-RAY"]);
+        public static bool IsCloudfareProtection(CorrectHttpException exception)
+            => exception.Status == HttpStatusCode.ServiceUnavailable
+               && !string.IsNullOrWhiteSpace(exception.Headers["CF-RAY"]);
 
         public CloudflareBrowserCheckBypasser(IWritableClearanceCookieStorage clearanceCookieStorage)
             => m_ClearanceCookieStorage = clearanceCookieStorage ?? throw new ArgumentNullException(nameof(clearanceCookieStorage));
 
-        public ClearanceCookie Solve(Uri uri, CookieContainer sourceCookies, HttpWebResponse challengeResponse)
+        public ClearanceCookie Solve(Uri uri, CookieContainer sourceCookies, CorrectHttpException responseException)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
             if (sourceCookies == null)
                 throw new ArgumentNullException(nameof(sourceCookies));
-            if (challengeResponse == null)
-                throw new ArgumentNullException(nameof(challengeResponse));
+            if (responseException == null)
+                throw new ArgumentNullException(nameof(responseException));
 
             var cookie = m_ClearanceCookieStorage.GetCookieOrEmpty(uri);
             lock (cookie)
@@ -50,7 +51,7 @@ namespace Msv.BrowserCheckBypassing
                     throw new ApplicationException("Challenge solving fails repeatedly (endless cycle detected)");
 
                 var html = new HtmlDocument();
-                html.Load(challengeResponse.GetResponseStream());
+                html.Load(responseException.Body);
 
                 var answer = CalculateAnswer(uri, html);
                 var completionUrlBuilder = new UriBuilder(
@@ -81,8 +82,7 @@ namespace Msv.BrowserCheckBypassing
                         })
                         .GetAwaiter().GetResult();
                 }
-                catch (WebException wex) when (wex.Status == WebExceptionStatus.ProtocolError
-                                                && ((HttpWebResponse) wex.Response).StatusCode == HttpStatusCode.Found)
+                catch (CorrectHttpException ex) when (ex.Status == HttpStatusCode.Found)
                 {
                     //OK, challenge solved (WebClient treats HTTP status 302 as error)
                 }              
