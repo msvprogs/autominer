@@ -11,7 +11,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
     public class JsonRpcLocalWalletInfoProvider : IWalletInfoProvider
     {
-        private const int LastTransactionCount = 40;
+        private const int LastTransactionCount = 200;
 
         private readonly IRpcClient m_RpcClient;
         private readonly Coin m_Coin;
@@ -30,7 +30,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 new WalletBalanceData
                 {
                     Available = (double) info.balance,
-                    Unconfirmed = (double) info.newmint,
+                    Unconfirmed = (double?) info.newmint ?? CountImmatureMinedBalance() ?? 0,
                     Blocked = ((double?)info.stake).GetValueOrDefault(),
                     CurrencySymbol = m_Coin.Symbol
                 }
@@ -50,5 +50,13 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     Transaction = (string) x.txid
                 })
                 .ToArray();
+
+        private double? CountImmatureMinedBalance() 
+            => m_RpcClient.Execute<JArray>("listtransactions", string.Empty, LastTransactionCount)
+                .Cast<dynamic>()
+                .Where(x => (string) x.category == "immature" && (bool) x.generated)
+                .Select(x => (double?) x.amount)
+                .DefaultIfEmpty(null)
+                .Sum();
     }
 }

@@ -10,7 +10,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 {
     public class JsonRpcLocalPoolInfoProvider : IPoolInfoProvider
     {
-        private const int LastTransactionCount = 40;
+        private const int LastTransactionCount = 200;
 
         private readonly IRpcClient m_RpcClient;
 
@@ -31,7 +31,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 AccountInfo = new PoolAccountInfo
                 {
                     ConfirmedBalance = ((double?) info.balance).GetValueOrDefault(),
-                    UnconfirmedBalance = ((double?) info.newmint).GetValueOrDefault()
+                    UnconfirmedBalance = ((double?) info.newmint ?? CountImmatureMinedBalance()).GetValueOrDefault()
                         + ((double?)info.stake).GetValueOrDefault()
                 },
                 State = new PoolState
@@ -53,5 +53,13 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     .ToArray()
             };
         }
+
+        private double? CountImmatureMinedBalance() 
+            => m_RpcClient.Execute<JArray>("listtransactions", string.Empty, LastTransactionCount)
+                .Cast<dynamic>()
+                .Where(x => (string) x.category == "immature" && (bool) x.generated)
+                .Select(x => (double?) x.amount)
+                .DefaultIfEmpty(null)
+                .Sum();
     }
 }
