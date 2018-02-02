@@ -83,6 +83,8 @@ namespace Msv.AutoMiner.NetworkInfo
                     return CreateExternalSpecial(coin);
                 case CoinNetworkInfoApiType.Altmix:
                     return new AltmixInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiName);
+                case CoinNetworkInfoApiType.EtcExplorer:
+                    return new EtcExplorerInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 default:
                     return new DummyInfoProvider();
             }

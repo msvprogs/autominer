@@ -361,7 +361,7 @@ $(function () {
                 break;
             case "OpenEthereumPool":
                 apiUrlEnabled = true;
-                urlDescriptionText = "URL of the 'stats' API method (extract it with Fiddler or browser's network activity recorder)";
+                urlDescriptionText = "Usually the URL of the pool main page + '/api'. Example: <i>http://dbix.pool.sexy/api</i>";
                 break;
             case "ProHashing":
                 apiCoinNameEnabled = true;
@@ -381,6 +381,10 @@ $(function () {
                 apiCoinNameEnabled = true;
                 coinNameDescriptionText =
                     "Last section of the explorer URL, example: <i>https://altmix.org/coins/<b>28-Scorecoin</b></i>";
+                break;
+            case "EtcExplorer":
+                apiUrlEnabled = true;
+                urlDescriptionText = "URL of the explorer's main page";
                 break;
             default:
                 break;
@@ -469,7 +473,7 @@ $(function () {
                 break;
             case "OpenEthereum":
                 apiUrlEnabled = true;
-                urlDescriptionText = ""; //TODO: find how to determine API URL
+                urlDescriptionText = "URL of the pool's main page";
                 break;
             case "Bitfly":
                 apiUrlEnabled = true;

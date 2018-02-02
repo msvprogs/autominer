@@ -30,7 +30,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
         public PoolInfo GetInfo(DateTime minPaymentDate)
         {
             dynamic accountJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(m_Url + "/accounts/" + m_Wallet));
+                m_WebClient.DownloadString(m_Url + "/api/accounts/" + m_Wallet));
             var accountInfo = new PoolAccountInfo
             {
                 HashRate = (long) accountJson.currentHashrate,
@@ -39,7 +39,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 UnconfirmedBalance = (double) accountJson.stats.immature / 1e9
             };
             dynamic stateJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(m_Url + "/stats"));
+                m_WebClient.DownloadString(m_Url + "/api/stats"));
             var state = new PoolState
             {
                 TotalWorkers = (int) stateJson.minersTotal,

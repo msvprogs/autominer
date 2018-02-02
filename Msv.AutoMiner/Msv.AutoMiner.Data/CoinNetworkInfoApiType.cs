@@ -47,6 +47,9 @@ namespace Msv.AutoMiner.Data
         Altmix = 14,
 
         [EnumCaption("Special (hardcoded) with multi-algo")]
-        SpecialMulti = 15
+        SpecialMulti = 15,
+
+        [EnumCaption("ETC explorer (like etherhub.io)")]
+        EtcExplorer = 16
     }
 }
