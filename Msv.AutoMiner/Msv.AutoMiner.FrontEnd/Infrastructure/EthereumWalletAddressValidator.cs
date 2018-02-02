@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Org.BouncyCastle.Crypto.Digests;
@@ -11,9 +10,6 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
     public class EthereumWalletAddressValidator : IWalletAddressValidator
     {
         private const int Sha3Bits = 256;
-
-        private static readonly Regex M_AddressRegex = new Regex(
-            "^(0x)?[0-9a-f]{40}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public bool IsValid(string address)
         {
@@ -34,7 +30,8 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
 
         private static bool IsValidFormat(string address)
             => !string.IsNullOrEmpty(address)
-               && M_AddressRegex.IsMatch(address);
+               && HexHelper.IsHex(address)
+               && HexHelper.CutPrefix(address).Length == 40*2;
 
         private static byte[] CalculateKeccak(string str)
         {
