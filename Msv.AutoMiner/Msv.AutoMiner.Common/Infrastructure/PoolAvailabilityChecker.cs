@@ -28,17 +28,17 @@ namespace Msv.AutoMiner.Common.Infrastructure
         public PoolAvailabilityChecker([NotNull] IWebClient webClient) 
             => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
 
-        public virtual PoolAvailabilityState Check(PoolDataModel pool)
+        public virtual PoolAvailabilityState Check(PoolDataModel pool, KnownCoinAlgorithm? knownCoinAlgorithm)
         {
             var watch = Stopwatch.StartNew();
-            var result = CheckServer(pool);
+            var result = CheckServer(pool, knownCoinAlgorithm);
             if (result != PoolAvailabilityState.Available) 
                 return result;
             Logger.Info($"Pool {pool.Name} is available, connection & authorization succeeded (response time: {watch.ElapsedMilliseconds} msec)");
             return PoolAvailabilityState.Available;
         }
 
-        private PoolAvailabilityState CheckServer(PoolDataModel pool)
+        private PoolAvailabilityState CheckServer(PoolDataModel pool, KnownCoinAlgorithm? knownCoinAlgorithm)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 {
                     case PoolProtocol.Stratum:
                         using (var client = new TcpClient())
-                            return CheckStratumServer(client, pool);
+                            return CheckStratumServer(client, pool, knownCoinAlgorithm);
                     case PoolProtocol.JsonRpc:
                         return CheckJsonRpcServer(pool);
                     default:
@@ -61,7 +61,8 @@ namespace Msv.AutoMiner.Common.Infrastructure
             }
         }
 
-        private static PoolAvailabilityState CheckStratumServer(TcpClient client, PoolDataModel pool)
+        private static PoolAvailabilityState CheckStratumServer(
+            TcpClient client, PoolDataModel pool, KnownCoinAlgorithm? knownCoinAlgorithm)
         {
             var poolString = $"Pool {pool.Name} ({pool.Url})";
             client.ReceiveTimeout = client.SendTimeout = (int) M_SocketTimeout.TotalMilliseconds;
@@ -71,12 +72,30 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 return PoolAvailabilityState.AuthenticationFailed;
 
             var requestId = new Random().Next();
-            var authRequest = JsonConvert.SerializeObject(new
+            object request;
+            switch (knownCoinAlgorithm)
             {
-                @params = new[] {pool.Login, pool.Password},
-                id = requestId,
-                method = "mining.authorize"
-            });
+                case KnownCoinAlgorithm.EtHash:
+                    request = new
+                    {
+                        @params = new[] {pool.Login, pool.Password},
+                        id = requestId,
+                        method = "eth_submitLogin",
+                        jsonrpc = "2.0",
+                        worker = "eth1.0"
+                    };
+                    break;
+                default:
+                    request = new
+                    {
+                        @params = new[] {pool.Login, pool.Password},
+                        id = requestId,
+                        method = "mining.authorize"
+                    };
+                    break;
+            }
+
+            var authRequest = JsonConvert.SerializeObject(request);
             using (var stream = client.GetStream())
             {
                 Logger.Info($"{poolString}: sending Stratum request {authRequest}");

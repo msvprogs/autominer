@@ -41,14 +41,16 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Select(x => new
                 {
                     Pool = x.pool,
-                    Availability = m_PoolAvailabilityChecker.Check(new PoolDataModel
-                    {
-                        Login = x.login,
-                        Password = x.pool.WorkerPassword,
-                        Name = x.pool.Name,
-                        Protocol = x.pool.Protocol,
-                        Url = x.pool.GetUrl()
-                    })
+                    Availability = m_PoolAvailabilityChecker.Check(
+                        new PoolDataModel
+                        {
+                            Login = x.login,
+                            Password = x.pool.WorkerPassword,
+                            Name = x.pool.Name,
+                            Protocol = x.pool.Protocol,
+                            Url = x.pool.GetUrl()
+                        },
+                        x.pool.Coin.Algorithm.KnownValue)
                 })
                 .Where(x => x.Pool.Availability != x.Availability)
                 .ToDictionary(

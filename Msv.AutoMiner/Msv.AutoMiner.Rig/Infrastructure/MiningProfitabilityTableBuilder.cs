@@ -57,6 +57,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     CoinId = x.CoinId,
                     CoinName = x.CoinName,
                     CoinSymbol = x.CoinSymbol,
+                    AlgorithmId = x.CoinAlgorithmId,
+                    KnownCoinAlgorithm = algorithmDatas.TryGetValue(x.CoinAlgorithmId)?.KnownValue,
                     MinerSettings = minerSettings.TryGetValue(x.CoinAlgorithmId),
                     PoolData = y,
                     PowerUsage = (algorithmDatas.TryGetValue(x.CoinAlgorithmId)?.Power).GetValueOrDefault()

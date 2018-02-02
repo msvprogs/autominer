@@ -1,6 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using System.Collections.Generic;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Rig.Storage.Model;
 
 namespace Msv.AutoMiner.Rig.Data
@@ -10,6 +11,8 @@ namespace Msv.AutoMiner.Rig.Data
         public Guid CoinId { get; set; }
         public string CoinName { get; set; }
         public string CoinSymbol { get; set; }
+        public Guid AlgorithmId { get; set; }
+        public KnownCoinAlgorithm? KnownCoinAlgorithm { get; set; }
         public bool BenchmarkMode { get; set; }
         public MinerAlgorithmSetting MinerSettings { get; set; }
         public PoolDataModel PoolData { get; set; }

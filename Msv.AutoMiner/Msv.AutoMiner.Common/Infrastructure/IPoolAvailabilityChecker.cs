@@ -5,6 +5,6 @@ namespace Msv.AutoMiner.Common.Infrastructure
 {
     public interface IPoolAvailabilityChecker
     {
-        PoolAvailabilityState Check(PoolDataModel poolData);
+        PoolAvailabilityState Check(PoolDataModel poolData, KnownCoinAlgorithm? knownCoinAlgorithm);
     }
 }

@@ -93,7 +93,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
             var mostProfitable = profitabilityTable
                 .Where(x => x.PoolData.BtcPerDay >= 0)
-                .Where(x => m_PoolAvailabilityChecker.Check(x.PoolData) == PoolAvailabilityState.Available)
+                .Where(x => m_PoolAvailabilityChecker.Check(x.PoolData, x.KnownCoinAlgorithm) == PoolAvailabilityState.Available)
                 .FirstOrDefault();
             if (mostProfitable == null)
             {
