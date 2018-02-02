@@ -109,9 +109,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 string.IsNullOrEmpty(coin.AddressPrefixes)
                     ? new string[0]
                     : coin.AddressPrefixes.Split(',').Select(x => x.Trim()).ToArray());
-            if (!addressValidator.HasCheckSum(walletModel.Address))
-                ModelState.AddModelError(nameof(walletModel.Address), "Your address doesn't contain checksum");
-            else if (!addressValidator.IsValid(walletModel.Address))
+            if (!addressValidator.IsValid(walletModel.Address))
                 ModelState.AddModelError(nameof(walletModel.Address), "Incorrect address");
 
             if (!ModelState.IsValid)

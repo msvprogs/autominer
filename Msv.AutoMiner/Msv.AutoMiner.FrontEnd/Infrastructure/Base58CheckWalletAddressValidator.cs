@@ -30,9 +30,6 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 .ToArray();
         }
 
-        public bool HasCheckSum(string address)
-            => true;
-
         public bool IsValid(string address)
         {
             if (string.IsNullOrWhiteSpace(address))

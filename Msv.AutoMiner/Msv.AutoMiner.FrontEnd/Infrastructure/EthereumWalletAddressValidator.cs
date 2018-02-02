@@ -15,13 +15,13 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
         private static readonly Regex M_AddressRegex = new Regex(
             "^(0x)?[0-9a-f]{40}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        public bool HasCheckSum(string address)
-            => IsValidFormat(address) && address != address.ToLowerInvariant();
-
         public bool IsValid(string address)
         {
             if (!IsValidFormat(address))
                 return false;
+            // no checksum = valid
+            if (address == address.ToLowerInvariant())
+                return true;
 
             address = HexHelper.CutPrefix(address);
             return HexHelper.ToHex(CalculateKeccak(address.ToLowerInvariant()))

@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            if (For == null || !For.Metadata.IsRequired)
+            if (For == null || !For.Metadata.IsRequired || For.Metadata.ModelType == typeof(bool))
                 return;
 
             var asteriskSpan = new TagBuilder("span")

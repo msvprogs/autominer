@@ -7,13 +7,13 @@ namespace Msv.AutoMiner.Data
         [EnumCaption("None (do not use API)")]
         None = 0,
 
-        [EnumCaption("Qwak - used on the most pools")]
+        [EnumCaption("Qwak - used on MPOS pools")]
         Qwak = 1,
 
         [EnumCaption("TheBlockFactory")]
         Tbf = 2,
 
-        [EnumCaption("Open Ethereum")]
+        [EnumCaption("Open Ethereum Pool")]
         OpenEthereum = 3,
 
         [EnumCaption("Bitfly")]
