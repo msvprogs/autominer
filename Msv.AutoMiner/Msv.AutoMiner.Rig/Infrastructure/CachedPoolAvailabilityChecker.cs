@@ -18,7 +18,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             : base(webClient)
         { }
 
-        public override PoolAvailabilityState Check(PoolDataModel pool)
+        public override PoolAvailabilityState Check(PoolDataModel pool, KnownCoinAlgorithm? knownCoinAlgorithm)
         {
             if (m_ResponsesStoppedTimes.TryGetValue(pool.Id, out var stoppedTime)
                 && stoppedTime + M_RecheckInterval > DateTime.Now)
@@ -27,7 +27,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 return PoolAvailabilityState.NoResponse;
             }
 
-            var result = base.Check(pool);
+            var result = base.Check(pool, knownCoinAlgorithm);
             if (result == PoolAvailabilityState.Available)
                 m_ResponsesStoppedTimes.TryRemove(pool.Id, out _);
             else
