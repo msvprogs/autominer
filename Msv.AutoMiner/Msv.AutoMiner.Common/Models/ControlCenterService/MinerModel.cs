@@ -1,4 +1,6 @@
-﻿namespace Msv.AutoMiner.Common.Models.ControlCenterService
+﻿using System.IO;
+
+namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {
     public class MinerModel : IMinerModel
     {
@@ -39,5 +41,12 @@
         public string BenchmarkResultRegex { get; set; }
 
         public bool OmitUrlSchema { get; set; }
+
+        public string MainExecutableName =>
+            Path.IsPathRooted(ExeFilePath)
+                ? ExeSecondaryFilePath != null && Path.IsPathRooted(ExeSecondaryFilePath) 
+                    ? null
+                    : ExeSecondaryFilePath
+                : ExeFilePath;
     }
 }

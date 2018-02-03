@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Mono.Unix;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 
@@ -20,7 +21,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 Directory.CreateDirectory(m_RootPath);
         }
 
-        public string Save(Stream zipStream, string name, int versionId)
+        public string Save(Stream zipStream, string name, int versionId, string mainExecutable)
         {
             if (zipStream == null)
                 throw new ArgumentNullException(nameof(zipStream));
@@ -36,6 +37,13 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     Directory.Delete(directoryName, true);
                 Directory.CreateDirectory(directoryName);
                 zipArchive.ExtractToDirectory(directoryName);
+
+                if (mainExecutable == null || Environment.OSVersion.Platform != PlatformID.Unix)
+                    return directoryName;
+                // Unix requires to set execute permission on the main executable
+                var executableInfo = new UnixFileInfo(Path.Combine(directoryName, mainExecutable));
+                executableInfo.FileAccessPermissions |= 
+                    FileAccessPermissions.UserExecute | FileAccessPermissions.GroupExecute | FileAccessPermissions.OtherExecute;
                 return directoryName;
             }
         }
