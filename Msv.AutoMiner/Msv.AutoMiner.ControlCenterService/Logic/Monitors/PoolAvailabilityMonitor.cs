@@ -55,14 +55,19 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .Where(x => x.Pool.Availability != x.Availability)
                 .ToDictionary(
                     x => x.Pool, 
-                    x => (availability: x.Availability, 
+                    x => (availability: x.Availability == PoolAvailabilityState.NoResponse 
+                                       && x.Pool.Availability == PoolAvailabilityState.Available 
+                            ? PoolAvailabilityState.NoResponseAfterFirstAttempt
+                            : x.Availability,
                         date: x.Availability == PoolAvailabilityState.Available ? (DateTime?) null : now));
             results.ForEach(x =>
             {
                 switch (x.Value.availability)
                 {
                     case PoolAvailabilityState.Available:
-                        m_Notifier.SendMessage($"Pool {x.Key.Name} is now responding normally");
+                        // do not notify if connection restored after first attempt
+                        if (x.Key.Availability != PoolAvailabilityState.NoResponseAfterFirstAttempt)
+                            m_Notifier.SendMessage($"Pool {x.Key.Name} is now responding normally");
                         break;
                     case PoolAvailabilityState.AuthenticationFailed:
                         m_Notifier.SendMessage(
@@ -72,6 +77,8 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         m_Notifier.SendMessage(
                             $"Warning: Pool {x.Key.Name} has stopped responding. Please check that it's still alive.");
                         break;
+                    case PoolAvailabilityState.NoResponseAfterFirstAttempt:
+                        break; //do not notify if connection failed after first attempt
                 }
             });
             m_Storage.SavePoolAvailabilities(results);

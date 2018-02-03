@@ -10,6 +10,9 @@ namespace Msv.AutoMiner.Common.Enums
         NoResponse = 1,
 
         [EnumCaption("Authentication failed")]
-        AuthenticationFailed = 2
+        AuthenticationFailed = 2,
+
+        [EnumCaption("No response (first attempt)")]
+        NoResponseAfterFirstAttempt = 3
     }
 }

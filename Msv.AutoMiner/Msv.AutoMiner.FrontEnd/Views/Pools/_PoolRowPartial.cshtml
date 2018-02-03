@@ -85,7 +85,8 @@
                 {
                     <span class="label label-warning">Longish TTF</span>
                 }
-                @if (Model.Availability != PoolAvailabilityState.Available)
+                @if (Model.Availability != PoolAvailabilityState.Available
+                    && Model.Availability != PoolAvailabilityState.NoResponseAfterFirstAttempt)
                 {
                     <span class="label label-danger">@availabilities[Model.Availability]</span>
                 }
