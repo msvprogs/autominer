@@ -24,7 +24,12 @@ namespace Msv.AutoMiner.Common.Infrastructure
             if (maxTargetDouble <= 0)
                 return null;
 
-            return TimeSpan.FromSeconds(difficulty * M_32ByteHashesCount / (maxTargetDouble * hashrate));
+            var ttfSeconds = difficulty * M_32ByteHashesCount / (maxTargetDouble * hashrate);
+            if (double.IsNaN(ttfSeconds) 
+                || double.IsInfinity(ttfSeconds)
+                || ttfSeconds > TimeSpan.MaxValue.TotalSeconds)
+                return null;
+            return TimeSpan.FromSeconds(ttfSeconds);
         }
 
         private static double ParseMaxTarget(string maxTarget)
