@@ -31,7 +31,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
         private static bool IsValidFormat(string address)
             => !string.IsNullOrEmpty(address)
                && HexHelper.IsHex(address)
-               && HexHelper.CutPrefix(address).Length == 40*2;
+               && HexHelper.CutPrefix(address).Length == 40;
 
         private static byte[] CalculateKeccak(string str)
         {
