@@ -33,9 +33,10 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         public void Dispose()
             => m_Subscription.Dispose();
 
+        // Skip first 20 seconds to wait until miner initializes the API server.
         private IDisposable CreateSubscription()
-            => Observable.Timer(TimeSpan.FromSeconds(4))
-                .Repeat()
+            => Observable.Timer(TimeSpan.FromSeconds(20))
+                .Concat(Observable.Timer(TimeSpan.FromSeconds(4)).Repeat())
                 .Subscribe(x =>
                 {
                     try
@@ -65,8 +66,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 .ToArray();
 
             CurrentHashRate = resultData[0] * 1000;
-            AcceptedShares += resultData[1];
-            RejectedShares += resultData[2];
+            AcceptedShares = resultData[1];
+            RejectedShares = resultData[2];
         }
     }
 }
