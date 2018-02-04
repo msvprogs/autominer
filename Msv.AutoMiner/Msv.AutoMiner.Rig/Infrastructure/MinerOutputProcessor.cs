@@ -10,12 +10,13 @@ using NLog;
 namespace Msv.AutoMiner.Rig.Infrastructure
 {
     public class MinerOutputProcessor : IMinerOutputProcessor
-    {
-        private readonly string m_ProcessName;
+    {        
+        private static readonly ILogger M_MinerOutputLogger = LogManager.GetLogger("MinerOutput");
+
+        private readonly Miner m_Miner;
         private readonly string m_PrimaryCurrency;
         private readonly string m_SecondaryCurrency;
         private readonly bool m_BenchmarkMode;
-        private static readonly ILogger M_MinerOutputLogger = LogManager.GetLogger("MinerOutput");
 
         private readonly Regex m_SpeedRegex;
         private readonly Regex m_BenchmarkSpeedRegex;
@@ -27,13 +28,9 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         public int AcceptedShares { get; private set; }
         public int RejectedShares { get; private set; }
 
-        public MinerOutputProcessor(
-            string processName, Miner miner, string primaryCurrency, string secondaryCurrency, bool benchmarkMode)
+        public MinerOutputProcessor(Miner miner, string primaryCurrency, string secondaryCurrency, bool benchmarkMode)
         {
-            if (miner == null)
-                throw new ArgumentNullException(nameof(miner));
-
-            m_ProcessName = processName ?? throw new ArgumentNullException(nameof(processName));
+            m_Miner = miner ?? throw new ArgumentNullException(nameof(miner));
             m_PrimaryCurrency = primaryCurrency;
             m_SecondaryCurrency = secondaryCurrency;
             m_BenchmarkMode = benchmarkMode;
@@ -50,7 +47,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
         public void Write(string output)
         {
-            M_MinerOutputLogger.Debug($"{m_ProcessName}: {output}");
+            M_MinerOutputLogger.Debug($"{m_Miner.Name}: {output}");
             if (string.IsNullOrWhiteSpace(output))
                 return;
             if (m_ValidShareRegex != null)
@@ -81,7 +78,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             if (!matches.Any())
                 return;
             var primaryHashRate = matches.TryGetValue(m_PrimaryCurrency)
-                                  ?? matches.TryGetValue("ETH") // Claymore states primary currency as ETH, even if it is a fork
                                   ?? matches.TryGetValue(string.Empty);
             if (!string.IsNullOrEmpty(primaryHashRate))
                 CurrentHashRate = ParsingHelper.ParseHashRate(primaryHashRate);
@@ -91,5 +87,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             if (!string.IsNullOrEmpty(secondaryHashRate))
                 CurrentSecondaryHashRate = ParsingHelper.ParseHashRate(secondaryHashRate);
         }
+
+        public void Dispose()
+        { }
     }
 }

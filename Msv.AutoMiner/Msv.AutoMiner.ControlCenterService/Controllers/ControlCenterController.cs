@@ -237,7 +237,10 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                         IntensityArgument = x.IntensityArgument,
                         ValidShareRegex = x.ValidShareRegex,
                         UserArgument = x.UserArgument,
-                        PortArgument = x.PortArgument
+                        PortArgument = x.PortArgument,
+                        ApiPort = x.ApiPort,
+                        ApiPortArgument = x.ApiPortArgument,
+                        ApiType = x.ApiType
                     })
                     .ToArray()
             };

@@ -598,6 +598,26 @@ $(function () {
     // ** Miners index
     bindDisableButton($("tbody#miners-table"), "miner-name", "miner");
     bindDeleteButton($("tbody#miners-table"), "miner-name", "miner");
+
+    // ** Miner Versions Edit
+    $("select#MinerApiType").change(function() {
+        if (this.selectedIndex < 0)
+            return;
+
+        var portEnabled = false, regexesEnabled = false;
+        switch (this.options[this.selectedIndex].value) {
+            case "Stdout":
+                regexesEnabled = true;
+                break;
+            default:
+                portEnabled = true;
+                break;
+        }
+
+        $("input#MinerApiPort").prop("disabled", !portEnabled);
+        $("input#SpeedRegex, input#BenchmarkResultRegex, input#ValidShareRegex, input#InvalidShareRegex")
+            .prop("disabled", !regexesEnabled);
+    }).change();
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

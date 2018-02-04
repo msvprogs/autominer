@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
@@ -63,6 +64,12 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public string BenchmarkArgument { get; set; }
 
         public string BenchmarkResultRegex { get; set; }
+
+        public string ApiPortArgument { get; set; }
+
+        public MinerApiType ApiType { get; set; }
+
+        public int? ApiPort { get; set; }
 
         public bool OmitUrlSchema { get; set; }
 

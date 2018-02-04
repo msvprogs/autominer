@@ -1,4 +1,6 @@
-﻿namespace Msv.AutoMiner.Common.Models.ControlCenterService
+﻿using Msv.AutoMiner.Common.Enums;
+
+namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {
     public interface IMinerModel
     {
@@ -37,6 +39,12 @@
         string InvalidShareRegex { get; }
 
         string BenchmarkResultRegex { get; }
+
+        string ApiPortArgument { get; }
+
+        MinerApiType ApiType { get; }
+
+        int? ApiPort { get; }
 
         bool OmitUrlSchema { get; }
     }

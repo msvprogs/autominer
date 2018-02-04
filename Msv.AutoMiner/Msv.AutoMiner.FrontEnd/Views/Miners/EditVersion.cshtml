@@ -1,4 +1,6 @@
-﻿@using Msv.AutoMiner.FrontEnd.Models.Miners
+﻿@using Msv.AutoMiner.Common.Enums
+@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Models.Miners
 @model MinerVersionModel
 
 @{ ViewBag.Title = "Edit miner version details"; }
@@ -30,7 +32,7 @@ else
         <div class="form-group">
             <label asp-for="ZipFile">Select ZIP archive with the miner:</label>
             <div>
-                <input asp-for="ZipFile" accept=".zip"/>
+                <input asp-for="ZipFile" accept=".zip" />
             </div>
         </div>
         <div class="form-group">
@@ -38,12 +40,16 @@ else
             <input asp-for="Version" class="form-control" />
         </div>
     }
+    else
+    {
+        <input type="hidden" asp-for="Version" />
+    }
 
     <h3>Miner executable file names/paths</h3>
     <div class="form-group">
         <label asp-for="ExeFilePath">Executable file name (path):</label>
         <p class="small">
-            For <strong>uploaded archives</strong>, specify the <strong>name</strong> of the miner's main executable. 
+            For <strong>uploaded archives</strong>, specify the <strong>name</strong> of the miner's main executable.
             <strong>It should be stored in the root directory of the archive.</strong>
             <br />
             For <strong>already existing files</strong>, specify the <strong>absolute path</strong> of the miner's main executable.
@@ -122,6 +128,13 @@ else
         <input asp-for="BenchmarkArgument" class="form-control text-monospace" />
     </div>
     <div class="form-group">
+        <label asp-for="ApiPortArgument">API port argument:</label>
+        <p class="small">
+            Specify the argument for port number the program will open for API access
+        </p>
+        <input asp-for="ApiPortArgument" class="form-control text-monospace" />
+    </div>
+    <div class="form-group">
         <label asp-for="AdditionalArguments">Additional arguments:</label>
         <p class="small">
             Specify the other arguments which must be passed to command line
@@ -129,7 +142,23 @@ else
         <input asp-for="AdditionalArguments" class="form-control text-monospace" />
     </div>
 
-    <h3>Output data regexes</h3>
+    <h3>Miner status feedback</h3>
+    <div class="form-group">
+        <label asp-for="MinerApiType">Feedback API type:</label>
+        <select asp-for="MinerApiType" class="form-control">
+            @foreach (var apiType in EnumHelper.GetCaptionsCached<MinerApiType>().OrderBy(x => x.Value))
+            {
+                <option value="@apiType.Key">@apiType.Value</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="MinerApiPort">API port:</label>
+        <p class="small">
+            Specify the <b>local</b> port the miner will open API access on and the controller will query it.
+        </p>
+        <input asp-for="MinerApiPort" class="form-control" />
+    </div>
     <div class="form-group">
         <label asp-for="SpeedRegex">Hashrate regex:</label>
         <p class="small">

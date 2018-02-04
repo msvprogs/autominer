@@ -49,6 +49,12 @@ namespace Msv.AutoMiner.Data
 
         public string BenchmarkResultRegex { get; set; }
 
+        public string ApiPortArgument { get; set; }
+
+        public MinerApiType ApiType { get; set; }
+
+        public int? ApiPort { get; set; }
+
         public bool OmitUrlSchema { get; set; }
 
         public string ZipPath { get; set; }

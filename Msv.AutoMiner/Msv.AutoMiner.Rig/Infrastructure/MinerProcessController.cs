@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Rig.Data;
 using Msv.AutoMiner.Rig.Infrastructure.Contracts;
+using Msv.AutoMiner.Rig.Remote;
 using Msv.AutoMiner.Rig.Storage.Model;
 using Msv.AutoMiner.Rig.System.Contracts;
 using NLog;
@@ -20,10 +21,10 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             => m_CurrentMiningData == null
                 ? null
                 : new MiningState(m_CurrentMiningData, 
-                    m_MinerOutputProcessor?.CurrentHashRate,
+                    m_MinerStatusProvider?.CurrentHashRate,
                     m_AlgorithmDatas.FirstOrDefault(x => x.AlgorithmId == m_CurrentMiningData.MinerSettings.AlgorithmId)?.SpeedInHashes,
-                    m_MinerOutputProcessor?.AcceptedShares,
-                    m_MinerOutputProcessor?.RejectedShares);
+                    m_MinerStatusProvider?.AcceptedShares,
+                    m_MinerStatusProvider?.RejectedShares);
 
         public DateTime StateChanged { get; private set; }
 
@@ -38,8 +39,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly object m_SyncRoot = new object();
         private readonly SerialDisposable m_CurrentProcessDisposable = new SerialDisposable();
 
-        private long m_LastLogPosition;
-        private IMinerOutputProcessor m_MinerOutputProcessor;
+        private IMinerStatusProvider m_MinerStatusProvider;
         private CoinMiningData m_CurrentMiningData;
 
         public event EventHandler ProcessExited;
@@ -100,30 +100,25 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 var outputLogFile = miner.ReadOutputFromLog && !string.IsNullOrEmpty(miningData.MinerSettings.LogFile)
                     ? miningData.MinerSettings.LogFile
                     : null;
-                m_MinerOutputProcessor = new MinerOutputProcessor(
-                    Path.GetFileNameWithoutExtension(file.Name), miner, miningData.CoinSymbol, null, miningData.BenchmarkMode);
+
+                IMinerOutputProcessor minerOutputProcessor = null;
+                if (miningData.MinerSettings.Miner.ApiType == MinerApiType.Stdout)
+                    m_MinerStatusProvider = minerOutputProcessor = new MinerOutputProcessor(
+                        miner, miningData.CoinSymbol, null, miningData.BenchmarkMode);
+                else
+                    m_MinerStatusProvider = CreateMinerStatusProvider(miningData.MinerSettings.Miner);
+                newDisposable.Add(m_MinerStatusProvider);
                 if (outputLogFile != null)
                 {
-                    var directory = Path.GetDirectoryName(outputLogFile);
-                    if (directory == null)
-                        throw new ArgumentException("Invalid path to log file. It must be absolute.");
                     M_Logger.Debug($"Starting to listen to log file \"{outputLogFile}\"");
-                    var outputFile = new FileInfo(outputLogFile);
-                    m_LastLogPosition = outputFile.Exists ? outputFile.Length : 0;
-                    var fileSystemWatcher = new FileSystemWatcher(directory)
-                    {
-                        EnableRaisingEvents = true
-                    };
-                    var watcherSubscription = CreateLogFileWatcherSubscription(outputLogFile, fileSystemWatcher);
-                    newDisposable.Add(watcherSubscription);
-                    newDisposable.Add(fileSystemWatcher);
+                    newDisposable.Add(new LogFileReader(outputLogFile, minerOutputProcessor));
                 }
 
                 var arguments = GetMinerArgumentString(miningData);
                 M_Logger.Debug($"Running new miner process: \"{file.FullName}\" {arguments}");
                 var process = new ProcessWrapper(
                     file, arguments, m_VariableCreator, m_ProcessStopper,
-                    outputLogFile == null ? m_MinerOutputProcessor : null, m_ProcessTracker);
+                    outputLogFile == null ? minerOutputProcessor : null, m_ProcessTracker);
                 newDisposable.Add(process);
                 if (!miningData.BenchmarkMode)
                     newDisposable.Add(Observable.FromEventPattern(x => process.Exited += x, x => process.Exited -= x)
@@ -139,7 +134,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     && !string.IsNullOrEmpty(miner.ValidShareRegex)
                     && miningData.PoolData?.Protocol == PoolProtocol.Stratum) //TODO: disable share checking for solomining & benchmark mode
                     newDisposable.Add(Observable.Interval(TimeSpan.FromSeconds(10))
-                        .Select(x => m_MinerOutputProcessor.AcceptedShares)
+                        .Select(x => m_MinerStatusProvider.AcceptedShares)
                         .DistinctUntilChanged()
                         .Throttle(m_ShareTimeout)
                         .Take(1)
@@ -158,38 +153,21 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             }
         }
 
-        private IDisposable CreateLogFileWatcherSubscription(
-            string outputLogFile, 
-            FileSystemWatcher fileSystemWatcher)
+        private IMinerStatusProvider CreateMinerStatusProvider(Miner miner)
         {
-            var shortFileName = Path.GetFileName(outputLogFile);
-            return Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                    x => fileSystemWatcher.Changed += x, x => fileSystemWatcher.Changed -= x)
-                .Merge(Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                    x => fileSystemWatcher.Created += x, x => fileSystemWatcher.Created -= x))
-                .Where(x => x.EventArgs.Name == shortFileName)
-                .Throttle(TimeSpan.FromMilliseconds(50))
-                .Subscribe(x =>
-                {
-                    try
-                    {
-                        using (var logFile = new FileStream(outputLogFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        using (var reader = new StreamReader(logFile))
+            switch (miner.ApiType)
+            {
+                case MinerApiType.ClaymoreDual:
+                    return new ClaymoreDualMinerStatusProvider(
+                        new WebRequestWebClient(), new UriBuilder
                         {
-                            if (m_LastLogPosition > logFile.Length)
-                                m_LastLogPosition = 0;
-                            logFile.Seek(m_LastLogPosition, SeekOrigin.Begin);
-                            var log = reader.ReadToEnd().Trim();
-                            m_LastLogPosition = logFile.Length;
-                            if (!string.IsNullOrEmpty(log))
-                                m_MinerOutputProcessor.Write(log);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        M_Logger.Error(ex, "Log file I/O error");
-                    }
-                });
+                            Scheme = Uri.UriSchemeHttp,
+                            Host = "localhost",
+                            Port = Math.Abs(miner.ApiPort.GetValueOrDefault())
+                        }.Uri);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(miner.ApiType));
+            }
         }
 
         private static string GetMinerArgumentString(CoinMiningData miningData)
@@ -209,6 +187,10 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 argumentValues.Add(GetArgumentValuePair(
                     miner.IntensityArgument,
                     miningData.MinerSettings.Intensity.Value.ToString("F2", CultureInfo.InvariantCulture)));
+            if (miner.ApiType != MinerApiType.Stdout
+                && miner.ApiPortArgument != null
+                && miner.ApiPort != null)
+                argumentValues.Add(GetArgumentValuePair(miner.ApiPortArgument, miner.ApiPort.ToString()));
 
             var logFile = miningData.MinerSettings.LogFile?.Trim('"');
             if (miner.LogFileArgument != null && !string.IsNullOrEmpty(logFile))

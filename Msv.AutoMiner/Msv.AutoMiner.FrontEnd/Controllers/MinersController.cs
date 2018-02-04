@@ -9,7 +9,6 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Miners;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
@@ -98,6 +97,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         [DisableRequestSizeLimit]
         public async Task<IActionResult> SaveVersion(MinerVersionModel versionModel)
         {
+            if (versionModel.MinerApiType != MinerApiType.Stdout && versionModel.MinerApiPort == null)
+                ModelState.AddModelError(nameof(versionModel.MinerApiPort), "API port isn't specified");
+
             if (!ModelState.IsValid)
                 return View("EditVersion", versionModel);
 
@@ -148,6 +150,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             version.ExeSecondaryFilePath = versionModel.ExeSecondaryFilePath;
             version.IntensityArgument = versionModel.IntensityArgument;
             version.InvalidShareRegex = versionModel.InvalidShareRegex;
+            version.ApiType = versionModel.MinerApiType;
+            version.ApiPort = versionModel.MinerApiPort;
+            version.ApiPortArgument = versionModel.ApiPortArgument;
             version.OmitUrlSchema = versionModel.OmitUrlSchema;
 
             await m_Context.SaveChangesAsync();
@@ -237,7 +242,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 ServerArgument = version.ServerArgument,
                 SpeedRegex = version.SpeedRegex,
                 UserArgument = version.UserArgument,
-                ValidShareRegex = version.ValidShareRegex
+                ValidShareRegex = version.ValidShareRegex,
+                MinerApiType = version.ApiType,
+                MinerApiPort = version.ApiPort,
+                ApiPortArgument = version.ApiPortArgument
             };
     }
 }

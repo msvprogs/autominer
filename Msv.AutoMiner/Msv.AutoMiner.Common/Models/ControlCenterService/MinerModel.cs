@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {
@@ -39,6 +40,12 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
         public string InvalidShareRegex { get; set; }
 
         public string BenchmarkResultRegex { get; set; }
+
+        public string ApiPortArgument { get; set; }
+
+        public MinerApiType ApiType { get; set; }
+
+        public int? ApiPort { get; set; }
 
         public bool OmitUrlSchema { get; set; }
 

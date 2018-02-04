@@ -43,7 +43,14 @@ namespace Msv.AutoMiner.FrontEnd.Models.Miners
 
         public string BenchmarkArgument { get; set; }
 
+        public string ApiPortArgument { get; set; }
+
         public string AdditionalArguments { get; set; }
+
+        public MinerApiType MinerApiType { get; set; }
+
+        [Range(-65535, 65535, ErrorMessage = "Invalid port number")]
+        public int? MinerApiPort { get; set; }
 
         [RegexPattern(GroupNames = new[] {"speed"}, ErrorMessage = "Incorrect hashrate regex")]
         public string SpeedRegex { get; set; }

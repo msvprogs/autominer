@@ -52,6 +52,9 @@
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.6.16.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.6.16\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -116,8 +119,10 @@
     <Compile Include="Data\ProfitabilityTableBuilderParams.cs" />
     <Compile Include="DllMapConfigurationSection.cs" />
     <Compile Include="Infrastructure\AutomaticMinerChanger.cs" />
+    <Compile Include="Infrastructure\ClaymoreDualMinerStatusProvider.cs" />
     <Compile Include="Infrastructure\ConfigurationUpdater.cs" />
     <Compile Include="Infrastructure\Contracts\IAutomaticMinerChanger.cs" />
+    <Compile Include="Infrastructure\Contracts\IMinerStatusProvider.cs" />
     <Compile Include="Infrastructure\Contracts\IPeriodicTaskDelayProvider.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerProcessController.cs" />
@@ -131,6 +136,7 @@
     <Compile Include="Data\MinerChangingOptions.cs" />
     <Compile Include="Infrastructure\HeartbeatSender.cs" />
     <Compile Include="Infrastructure\Contracts\IMinerFileStorage.cs" />
+    <Compile Include="Infrastructure\LogFileReader.cs" />
     <Compile Include="Infrastructure\MinerOutputProcessor.cs" />
     <Compile Include="Infrastructure\MinerProcessController.cs" />
     <Compile Include="Infrastructure\MinerTester.cs" />
