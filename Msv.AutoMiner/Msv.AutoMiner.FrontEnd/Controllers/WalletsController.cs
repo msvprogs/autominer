@@ -76,7 +76,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public async Task<IActionResult> Create()
             => View("Edit", new WalletEditModel
             {
-                AvailableCoins = await GetAvailableCoins()
+                AvailableCoins = await GetAvailableCoins(),
+                AvailableExchanges = await GetAvailableExchanges()
             });
 
         public async Task<IActionResult> Edit(int id)
@@ -92,7 +93,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 CoinId = wallet.CoinId,
                 ExchangeType = wallet.ExchangeType,
                 Address = wallet.Address,
-                AvailableCoins = await GetAvailableCoins()
+                AvailableCoins = await GetAvailableCoins(),
+                AvailableExchanges = await GetAvailableExchanges()
             };
             return View(poolModel);
         }
@@ -115,6 +117,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             if (!ModelState.IsValid)
             {
                 walletModel.AvailableCoins = await GetAvailableCoins();
+                walletModel.AvailableExchanges = await GetAvailableExchanges();
                 return View("Edit", walletModel);
             }
             var wallet = await m_Context.Wallets.FirstOrDefaultAsync(x => x.Id == walletModel.Id)
@@ -231,6 +234,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Name = x.Name,
                     Symbol = x.Symbol
                 })
+                .ToArrayAsync();
+
+        private Task<ExchangeType[]> GetAvailableExchanges()
+            => m_Context.Exchanges
+                .Where(x => x.Activity != ActivityState.Deleted)
+                .Select(x => x.Type)
                 .ToArrayAsync();
     }
 }

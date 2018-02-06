@@ -33,7 +33,7 @@
         <select asp-for="ExchangeType" class="form-control">
             <option value="">&lt;Local node&gt;</option>
             @foreach (var exchangeType in EnumHelper.GetCaptionsCached<ExchangeType>()
-                .Where(x => x.Key != ExchangeType.Unknown)
+                .Where(x => Model.AvailableExchanges.Contains(x.Key))
                 .OrderBy(x => x.Value))
             {
                 <option value="@exchangeType.Key">@exchangeType.Value</option>
