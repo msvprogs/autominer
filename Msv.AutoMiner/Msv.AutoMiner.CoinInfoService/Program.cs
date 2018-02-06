@@ -7,7 +7,6 @@ using Msv.AutoMiner.CoinInfoService.External;
 using Msv.AutoMiner.CoinInfoService.Logic.Monitors;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
-using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Log;
@@ -37,9 +36,6 @@ namespace Msv.AutoMiner.CoinInfoService
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {
-                using (var context = scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>().Create())
-                    DbInitializer.InitializeIfNotExist(context);
-
                 using (new FiatValueMonitor(
                     new FiatValueProviderFactory(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))
