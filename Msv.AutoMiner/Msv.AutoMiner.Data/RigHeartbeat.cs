@@ -13,8 +13,10 @@ namespace Msv.AutoMiner.Data
 
         public DateTime Received { get; set; }
 
+        [MaxLength(32768)]
         public string ContentsJson { get; set; }
 
+        [MaxLength(64)]
         public string RemoteAddress { get; set; }
     }
 }

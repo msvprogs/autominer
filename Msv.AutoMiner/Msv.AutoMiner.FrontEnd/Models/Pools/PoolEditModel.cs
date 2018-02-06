@@ -10,10 +10,13 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
         public PoolApiProtocol PoolApiProtocol { get; set; }
 
         [Url(ErrorMessage = "Invalid API URL")]
+        [MaxLength(256)]
         public string ApiUrl { get; set; }
 
+        [MaxLength(256)]
         public string ApiKey { get; set; }
 
+        [MaxLength(64)]
         public string ApiPoolName { get; set; }
 
         public int? ApiPoolUserId { get; set; }
@@ -25,8 +28,10 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
 
         public int Priority { get; set; }
 
+        [MaxLength(128)]
         public string WorkerLogin { get; set; }
 
+        [MaxLength(64)]
         public string WorkerPassword { get; set; }
 
         public double TimeZoneCorrectionHours { get; set; }

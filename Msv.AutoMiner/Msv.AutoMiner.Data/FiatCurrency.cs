@@ -8,10 +8,10 @@ namespace Msv.AutoMiner.Data
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(32)]
         public string Name { get; set; }
 
-        [Required]
+        [Required, MaxLength(32)]
         public string Symbol { get; set; }
     }
 }

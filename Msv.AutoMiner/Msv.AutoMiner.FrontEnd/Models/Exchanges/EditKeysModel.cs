@@ -10,9 +10,11 @@ namespace Msv.AutoMiner.FrontEnd.Models.Exchanges
         public ExchangeType Exchange { get; set; }
 
         [Required(ErrorMessage = "Public key is required")]
+        [MaxLength(256)]
         public string PublicKey { get; set; }
 
         [Required(ErrorMessage = "Private key is required")]
+        [MaxLength(256)]
         public string PrivateKey { get; set; }
     }
 }

@@ -13,13 +13,14 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public AlgorithmBaseModel Algorithm { get; set; }
 
         [Required(ErrorMessage = "Coin name is required")]
-        [MaxLength(128, ErrorMessage = "Coin name is too long. Max 128 characters")]
+        [MaxLength(256, ErrorMessage = "Coin name is too long")]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Coin symbol is required")]
-        [MaxLength(16, ErrorMessage = "Coin symbol is too long. Max 16 characters")]
+        [MaxLength(32, ErrorMessage = "Coin symbol is too long")]
         public string Symbol { get; set; }
 
+        [MaxLength(32768, ErrorMessage = "Logo size is too big")]
         public byte[] Logo { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Msv.AutoMiner.Data
 {
@@ -10,12 +11,15 @@ namespace Msv.AutoMiner.Data
 
         public DateTime DateTime { get; set; }
 
+        [MaxLength(64)]
         public string ExternalId { get; set; }
 
         public double Amount { get; set; }
 
+        [MaxLength(256)]
         public string TargetAddress { get; set; }
 
+        [MaxLength(256)]
         public string Transaction { get; set; }
     }
 }

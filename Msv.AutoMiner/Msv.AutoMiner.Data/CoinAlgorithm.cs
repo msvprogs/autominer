@@ -11,7 +11,7 @@ namespace Msv.AutoMiner.Data
         [Key]
         public Guid Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(64)]
         public string Name { get; set; }
 
         public ActivityState Activity { get; set; }
@@ -26,8 +26,10 @@ namespace Msv.AutoMiner.Data
 
         public double? Intensity { get; set; }
 
+        [MaxLength(32)]
         public string AlgorithmArgument { get; set; }
         
+        [MaxLength(128)]
         public string AdditionalArguments { get; set; }
 
         [NotMapped]

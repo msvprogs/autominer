@@ -9,6 +9,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Miners
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Name isn't filled")]
+        [MaxLength(64)]
         public string Name { get; set; }
     }
 }

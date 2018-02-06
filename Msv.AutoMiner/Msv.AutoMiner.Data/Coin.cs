@@ -10,10 +10,10 @@ namespace Msv.AutoMiner.Data
         [Key]
         public Guid Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(256)]
         public string Name { get; set; }
 
-        [Required]
+        [Required, MaxLength(32)]
         public string Symbol { get; set; }
 
         public ActivityState Activity { get; set; }
@@ -24,30 +24,39 @@ namespace Msv.AutoMiner.Data
 
         public CoinNetworkInfoApiType NetworkInfoApiType { get; set; }
 
+        [MaxLength(512)]
         public string NetworkInfoApiUrl { get; set; }
 
+        [MaxLength(64)]
         public string NetworkInfoApiName { get; set; }
 
         public bool GetDifficultyFromLastPoWBlock { get; set; }
 
+        [MaxLength(128)]
         public string MaxTarget { get; set; }
 
+        [MaxLength(512)]
         public string NodeHost { get; set; }
 
         public int NodePort { get; set; }
 
+        [MaxLength(64)]
         public string NodeLogin { get; set; }
 
+        [MaxLength(64)]
         public string NodePassword { get; set; }
 
+        [MaxLength(16384)]
         public string RewardCalculationJavaScript { get; set; }
 
+        [MaxLength(32768)]
         public byte[] LogoImageBytes { get; set; }
 
         public virtual ICollection<Wallet> Wallets { get; set; }
 
         public AddressFormat AddressFormat { get; set; }
 
+        [MaxLength(64)]
         public string AddressPrefixes { get; set; }
     }
 }

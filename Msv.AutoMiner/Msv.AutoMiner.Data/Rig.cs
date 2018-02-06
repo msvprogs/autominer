@@ -10,15 +10,18 @@ namespace Msv.AutoMiner.Data
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(64)]
         public string Name { get; set; }
 
+        [MaxLength(32)]
         public string RegistrationPassword { get; set; }
 
         public DateTime Created { get; set; }
 
+        [MaxLength(256)]
         public byte[] ClientCertificateSerial { get; set; }
 
+        [MaxLength(256)]
         public byte[] ClientCertificateThumbprint { get; set; }
 
         public ValueAggregationType DifficultyAggregationType { get; set; }

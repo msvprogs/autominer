@@ -13,7 +13,7 @@ namespace Msv.AutoMiner.Data
 
         public DateTime DateTime { get; set; }
 
-        [Required]
+        [Required, MaxLength(64)]
         public string RemoteAddress { get; set; }
     }
 }

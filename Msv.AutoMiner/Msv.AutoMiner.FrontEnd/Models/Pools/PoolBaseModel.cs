@@ -10,10 +10,12 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Pool name is required")]
+        [MaxLength(128)]
         public string Name { get; set; }
 
         [PoolUrl(ErrorMessage = "Pool URL is invalid")]
         [Required(ErrorMessage = "Pool URL is required")]
+        [MaxLength(128)]
         public string Url { get; set; }
      
         public bool UseBtcWallet { get; set; }

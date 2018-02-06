@@ -1,4 +1,5 @@
-﻿using Msv.AutoMiner.FrontEnd.Models.Miners;
+﻿using System.ComponentModel.DataAnnotations;
+using Msv.AutoMiner.FrontEnd.Models.Miners;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Algorithms
 {
@@ -10,6 +11,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Algorithms
 
         public double? Intensity { get; set; }
 
+        [MaxLength(128)]
         public string AdditionalArguments {get; set; }
 
         public MinerBaseModel[] AvailableMiners { get; set; }

@@ -10,7 +10,7 @@ namespace Msv.AutoMiner.Data
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(128)]
         public string Name { get; set; }
 
         public Guid CoinId { get; set; }
@@ -23,14 +23,16 @@ namespace Msv.AutoMiner.Data
 
         public PoolProtocol Protocol { get; set; }
 
-        [Required]
+        [Required, MaxLength(128)]
         public string Host { get; set; }
 
         [Required, Range(1, 65535)]
         public int Port { get; set; }
 
+        [MaxLength(128)]
         public string WorkerLogin { get; set; }
 
+        [MaxLength(64)]
         public string WorkerPassword { get; set; }
 
         public bool IsAnonymous { get; set; }
@@ -41,10 +43,13 @@ namespace Msv.AutoMiner.Data
 
         public int? PoolUserId { get; set; }
 
+        [MaxLength(256)]
         public string ApiKey { get; set; }
 
+        [MaxLength(256)]
         public string ApiUrl { get; set; }
 
+        [MaxLength(64)]
         public string ApiPoolName { get; set; }
 
         public double TimeZoneCorrectionHours { get; set; }

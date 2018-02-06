@@ -22,6 +22,7 @@ namespace Msv.AutoMiner.Data
 
         public virtual Exchange Exchange { get; set; }
 
+        [MaxLength(256)]
         public string Address { get; set; }
 
         public bool IsMiningTarget { get; set; }

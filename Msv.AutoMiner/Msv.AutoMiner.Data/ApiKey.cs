@@ -6,7 +6,7 @@ namespace Msv.AutoMiner.Data
 {
     public class ApiKey
     {
-        [Key]
+        [Key, MaxLength(128)]
         public string Key { get; set; }
 
         public ApiKeyType Type { get; set; }

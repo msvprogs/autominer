@@ -11,11 +11,13 @@ namespace Msv.AutoMiner.FrontEnd.Models.Algorithms
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Name isn't filled")]
+        [MaxLength(64)]
         public string Name { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         public KnownCoinAlgorithm? KnownValue { get; set; }
 
+        [MaxLength(32)]
         public string MinerAlgorithmArgument { get; set; }
     }
 }

@@ -6,10 +6,13 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
     public class CoinEditModel : CoinExportModel
     {
         [Url(ErrorMessage = "Invalid node URL")]
+        [MaxLength(512)]
         public string NodeUrl { get; set; }
 
+        [MaxLength(64)]
         public string NodeLogin { get; set; }
 
+        [MaxLength(64)]
         public string NodePassword { get; set; }
 
         public AlgorithmBaseModel[] AvailableAlgorithms { get; set; }
@@ -23,6 +26,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public double? LastTotalSupply { get; set; }
 
         [Url(ErrorMessage = "Invalid logo URL")]
+        [MaxLength(512)]
         public string NewLogoUrl { get; set; }
 
         public bool DeleteLogo { get; set; }

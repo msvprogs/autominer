@@ -11,9 +11,10 @@ namespace Msv.AutoMiner.Data
 
         public ActivityState Activity { get; set; }
 
-        [Required]
+        [Required, MaxLength(64)]
         public string Login { get; set; }
 
+        [MaxLength(64)]
         public string Name { get; set; }
 
         [MaxLength(32)]
