@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity;
+using SQLite.CodeFirst;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
@@ -22,7 +23,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
             modelBuilder.Entity<ManualDeviceMapping>()
                 .HasKey(x => new {x.DeviceId, x.DeviceType});
 
-            Database.SetInitializer(new DbInitializer(modelBuilder));
+            Database.SetInitializer(new SqliteCreateDatabaseIfNotExists<AutoMinerRigDbContext>(modelBuilder));
         }
     }
 }

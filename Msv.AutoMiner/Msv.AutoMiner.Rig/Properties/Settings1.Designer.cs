@@ -44,15 +44,6 @@ namespace Msv.AutoMiner.Rig.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("00:03:00")]
-        public global::System.TimeSpan TestModeMiningDuration {
-            get {
-                return ((global::System.TimeSpan)(this["TestModeMiningDuration"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:03:00")]
         public global::System.TimeSpan ShareTimeout {
             get {
                 return ((global::System.TimeSpan)(this["ShareTimeout"]));
@@ -88,15 +79,6 @@ namespace Msv.AutoMiner.Rig.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:6284")]
-        public string ControlCenterServiceUrl {
-            get {
-                return ((string)(this["ControlCenterServiceUrl"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("20")]
         public double LowestAverageGpuUsage {
             get {
@@ -119,6 +101,24 @@ namespace Msv.AutoMiner.Rig.Properties {
         public global::System.TimeSpan ProfitabilityQueryDispersion {
             get {
                 return ((global::System.TimeSpan)(this["ProfitabilityQueryDispersion"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:03:00")]
+        public global::System.TimeSpan TestModeMiningDuration {
+            get {
+                return ((global::System.TimeSpan)(this["TestModeMiningDuration"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://localhost:6284")]
+        public string ControlCenterServiceUrl {
+            get {
+                return ((string)(this["ControlCenterServiceUrl"]));
             }
         }
     }
