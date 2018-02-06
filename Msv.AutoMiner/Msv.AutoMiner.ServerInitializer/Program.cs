@@ -11,7 +11,7 @@ namespace Msv.AutoMiner.ServerInitializer
         private static void Main(string[] args)
         {
             Console.WriteLine("Initializing AutoMiner server...");
-            var factory = new AutoMinerDbContextFactory("Server=localhost;Database=autominer;Uid=root;Pwd=root;");
+            var factory = new AutoMinerDbContextFactory("Server=localhost;Database=autominer;Uid=miner;Pwd=hnvutibh6giwf4q;");
             Console.WriteLine("Checking DB...");
             using (var context = factory.Create())
             {
