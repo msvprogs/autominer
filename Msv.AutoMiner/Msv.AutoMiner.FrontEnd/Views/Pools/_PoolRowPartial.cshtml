@@ -23,10 +23,11 @@
         rowClass = "danger";
         title = "There is no API providing state information for this pool";
     }
-    else if (Model.ResponsesStoppedDate != null)
+    else if (Model.Availability != PoolAvailabilityState.Available
+        && Model.Availability != PoolAvailabilityState.NoResponseAfterFirstAttempt)
     {
         rowClass = "danger";
-        title = "Pool stopped responding " + DateTimeHelper.ToRelativeTime(Model.ResponsesStoppedDate.Value);
+        title = "Pool stopped responding " + DateTimeHelper.ToRelativeTime(Model.ResponsesStoppedDate.GetValueOrDefault());
     }
     else if (Model.LastUpdated == null || Model.LastUpdated < DateTime.UtcNow - TimeSpan.FromMinutes(40))
     {

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.ServiceContracts;
+using Msv.AutoMiner.ControlCenterService.Configuration;
 using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
 using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage;
@@ -43,7 +44,8 @@ namespace Msv.AutoMiner.ControlCenterService
             if (module != null)
                 services.Remove(module);
 
-            services.AddSingleton(x => Configuration);
+            var config = Configuration.Get<ControlCenterConfiguration>();
+            services.AddSingleton(config);
             services.AddSingleton<ICertificateServiceStorage, CertificateServiceStorage>();
             services.AddSingleton<IControlCenterControllerStorage, ControlCenterControllerStorage>();
             services.AddSingleton<IWalletInfoProviderFactoryStorage, WalletInfoProviderFactoryStorage>();
@@ -55,33 +57,29 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
 
             services.AddSingleton<ITelegramBotClient>(
-                x => new TelegramBotClient(Configuration.GetValue<string>("Notifications:Telegram:Token")));
+                x => new TelegramBotClient(config.Notifications.Telegram.Token));
             services.AddSingleton(x => new HeartbeatAnalyzerParams
             {
-                SamplesCount = Configuration.GetValue<int>("NormalRigStateCriteria:SamplesCount"),
-                MaxInvalidSharesRate = Configuration.GetValue<int>("NormalRigStateCriteria:MaxInvalidSharesRate"),
-                MaxHashrateDifference = Configuration.GetValue<int>("NormalRigStateCriteria:MaxHashrateDifference"),
-                MinVideoUsage = Configuration.GetValue<int>("NormalRigStateCriteria:MinVideoUsage"),
-                MaxVideoTemperature = Configuration.GetValue<int>("NormalRigStateCriteria:MaxVideoTemperature")
+                SamplesCount = config.NormalRigStateCriteria.SamplesCount,
+                MaxInvalidSharesRate = config.NormalRigStateCriteria.MaxInvalidSharesRate,
+                MaxHashrateDifference = config.NormalRigStateCriteria.MaxHashrateDifference,
+                MinVideoUsage = config.NormalRigStateCriteria.MinVideoUsage,
+                MaxVideoTemperature = config.NormalRigStateCriteria.MaxVideoTemperature
             });
             //@autominer_test
             services.AddSingleton<INotifier>(
                 x => new TelegramNotifier(
                     x.GetRequiredService<ITelegramBotClient>(),
                     x.GetRequiredService<INotifierStorage>(),
-                    Configuration.GetSection("Notifications:Telegram:Subscribers")
-                        .GetChildren()
-                        .Select(y => y.Value)
-                        .ToArray()));
+                    config.Notifications.Telegram.Subscribers));
             services.AddSingleton<IHeartbeatAnalyzer, HeartbeatAnalyzer>();
 
             services.AddSingleton<ICertificateService, CertificateService>();
-            services.AddSingleton<IUploadedFileStorage>(new PhysicalUploadedFileStorage(
-                Configuration["FileStorage:Miners"]));
+            services.AddSingleton<IUploadedFileStorage>(new PhysicalUploadedFileStorage(config.FileStorage.Miners));
             services.AddSingleton<IConfigurationHasher, Sha256ConfigurationHasher>();
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
-                new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
-                Configuration["Services:CoinInfo:ApiKey"]));
+                new AsyncRestClient(new Uri(config.Services.CoinInfo.Url)),
+                    config.Services.CoinInfo.ApiKey));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

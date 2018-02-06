@@ -16,6 +16,7 @@ using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.FrontEnd.Configuration;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Providers;
@@ -67,6 +68,8 @@ namespace Msv.AutoMiner.FrontEnd
             services.Configure<GzipCompressionProviderOptions>(x => x.Level = CompressionLevel.Optimal);
             services.AddResponseCompression();
 
+            var config = Configuration.Get<FrontEndConfiguration>();
+            services.AddSingleton(config);
             services.AddSingleton<IStoredFiatValueProvider, StoredFiatValueProvider>();
             services.AddSingleton<ICoinValueProvider, CoinValueProvider>();
             services.AddSingleton<ICoinNetworkInfoProvider, CoinNetworkInfoProvider>();
@@ -87,13 +90,13 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
             services.AddSingleton<IOverallProfitabilityCalculator, OverallProfitabilityCalculator>();
-            services.AddSingleton<IUploadedFileStorage>(new PhysicalUploadedFileStorage(
-                Configuration["FileStorage:Miners"]));
+            services.AddSingleton<IUploadedFileStorage>(
+                new PhysicalUploadedFileStorage(config.FileStorage.Miners));
             services.AddSingleton<IControlCenterService>(x => new ControlCenterServiceClient(
-                new AsyncRestClient(new Uri(Configuration["Services:ControlCenter:Url"]))));
+                new AsyncRestClient(new Uri(config.Services.ControlCenter.Url))));
             services.AddSingleton<ICoinInfoService>(x => new CoinInfoServiceClient(
-                new AsyncRestClient(new Uri(Configuration["Services:CoinInfo:Url"])),
-                Configuration["Services:CoinInfo:ApiKey"]));
+                new AsyncRestClient(new Uri(config.Services.CoinInfo.Url)),
+                config.Services.CoinInfo.ApiKey));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

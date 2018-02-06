@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Msv.AutoMiner.CoinInfoService.Configuration;
 using Msv.AutoMiner.CoinInfoService.External;
 using Msv.AutoMiner.CoinInfoService.Logic.Monitors;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
@@ -64,6 +65,13 @@ namespace Msv.AutoMiner.CoinInfoService
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseKestrel(x =>
+                {
+                    var config = (CoinInfoConfiguration) x.ApplicationServices.GetService(
+                        typeof(CoinInfoConfiguration));
+                    if (config.Endpoints.Http != null && config.Endpoints.Http.Enabled)
+                        x.Listen(IPAddress.Any, config.Endpoints.Http.Port);
+                })
                 .UseStartup<Startup>()
                 .Build();
     }

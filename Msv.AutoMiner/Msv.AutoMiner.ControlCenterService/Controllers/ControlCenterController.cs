@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.Common;
@@ -12,6 +13,7 @@ using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Common.ServiceContracts;
+using Msv.AutoMiner.ControlCenterService.Configuration;
 using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
 using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
@@ -35,6 +37,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
         private readonly IConfigurationHasher m_ConfigurationHasher;
         private readonly IUploadedFileStorage m_UploadedFileStorage;
         private readonly IControlCenterControllerStorage m_Storage;
+        private readonly ControlCenterConfiguration m_Configuration;
 
         public ControlCenterController(
             ICertificateService certificateService,
@@ -43,7 +46,8 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             IMiningWorkBuilder miningWorkBuilder,
             IConfigurationHasher configurationHasher,
             IUploadedFileStorage uploadedFileStorage,
-            IControlCenterControllerStorage storage)
+            IControlCenterControllerStorage storage,
+            ControlCenterConfiguration configuration)
         {
             m_CertificateService = certificateService;
             m_CoinInfoService = coinInfoService;
@@ -52,6 +56,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             m_ConfigurationHasher = configurationHasher;
             m_UploadedFileStorage = uploadedFileStorage;
             m_Storage = storage;
+            m_Configuration = configuration;
         }
 
         [HttpPost("registerRig")]
@@ -85,8 +90,11 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                 return new RegisterRigResponseModel();
             }
             M_Logger.Info($"Creating certificate for rig {request.Name}...");
+            var endpoint = m_Configuration.Endpoints.EndpointFromPort(HttpContext.Connection.LocalPort);
+            var endpointCertificate = new X509Certificate2(
+                endpoint.Certificate.File, endpoint.Certificate.Password, X509KeyStorageFlags.Exportable);
             var certificate = m_CertificateService.CreateCertificate(
-                rig, SiteCertificates.PortCertificates[HttpContext.Connection.LocalPort], request.X509CertificateRequest);
+                rig, endpointCertificate, request.X509CertificateRequest);
             if (certificate == null)
             {
                 M_Logger.Warn($"Rig {request.Name}: certificate creation failed");
@@ -100,7 +108,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
             {
                 IsSuccess = true,
                 X509ClientCertificate = certificate.RawData,
-                CaCertificate = SiteCertificates.PortCertificates[HttpContext.Connection.LocalPort].RawData
+                CaCertificate = endpointCertificate.RawData
             };
         }
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Msv.AutoMiner.CoinInfoService.Configuration;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
@@ -35,6 +36,8 @@ namespace Msv.AutoMiner.CoinInfoService
             if (module != null)
                 services.Remove(module);
 
+            services.AddSingleton(Configuration.Get<CoinInfoConfiguration>());
+
             services.AddSingleton<IProfitabilityCalculator, ProfitabilityCalculator>();
             services.AddSingleton<IProfitabilityTableBuilder, ProfitabilityTableBuilder>();
 
@@ -48,8 +51,6 @@ namespace Msv.AutoMiner.CoinInfoService
             services.AddSingleton<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
             services.AddSingleton<IStoredFiatValueProvider, StoredFiatValueProvider>();
             services.AddSingleton<IMasternodeInfoStorage, MasternodeInfoMemoryStorage>();
-
-
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
