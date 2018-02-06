@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 
@@ -26,7 +27,31 @@ namespace Msv.AutoMiner.ServerInitializer
                     InitializeCoins(context);
                 if (!context.FiatCurrencies.Any())
                     InitializeFiatCurrencies(context);
+                if (!context.Users.Any())
+                    InitializeUsers(context);
             }
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+        }
+
+        private static void InitializeUsers(AutoMinerDbContext context)
+        {
+            Console.WriteLine("Initializing users...");
+
+            var rng = new CryptoRandomGenerator();
+            var hasher = new Sha256PasswordHasher();
+            var newPassword = Base58.Encode(rng.GenerateRandom(10));
+            var salt = rng.GenerateRandom(32);
+            var admin = context.Users.Add(new User
+            {
+                Login = "admin",
+                Salt = salt,
+                PasswordHash = hasher.CalculateHash(newPassword, salt)
+            });
+            context.SaveChanges();
+            Console.WriteLine($"ADMIN CREDENTIALS - login: {admin.Entity.Login}, password: {newPassword}");
+            Console.WriteLine("Do not lose them, or you won't be able to login to the frontend.");
+            Console.WriteLine("Users initialized");
         }
 
         private static void InitializeCoins(AutoMinerDbContext context)

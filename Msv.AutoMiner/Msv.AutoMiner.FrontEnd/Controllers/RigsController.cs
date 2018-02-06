@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;

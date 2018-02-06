@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using JetBrains.Annotations;
 using Msv.AutoMiner.Common.Helpers;
+using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure

@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 
-namespace Msv.AutoMiner.FrontEnd.Infrastructure
+namespace Msv.AutoMiner.Common.Infrastructure
 {
     public class Sha256PasswordHasher : IPasswordHasher
     {

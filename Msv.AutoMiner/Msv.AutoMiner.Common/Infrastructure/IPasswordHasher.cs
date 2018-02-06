@@ -1,4 +1,4 @@
-﻿namespace Msv.AutoMiner.FrontEnd.Infrastructure.Contracts
+﻿namespace Msv.AutoMiner.Common.Infrastructure
 {
     public interface IPasswordHasher
     {

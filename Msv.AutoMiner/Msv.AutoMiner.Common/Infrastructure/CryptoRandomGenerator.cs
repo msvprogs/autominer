@@ -1,7 +1,6 @@
 ﻿using System.Security.Cryptography;
-using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 
-namespace Msv.AutoMiner.FrontEnd.Infrastructure
+namespace Msv.AutoMiner.Common.Infrastructure
 {
     public class CryptoRandomGenerator : ICryptoRandomGenerator
     {

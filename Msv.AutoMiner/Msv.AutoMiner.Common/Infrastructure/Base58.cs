@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
-using Msv.AutoMiner.Common;
 
-namespace Msv.AutoMiner.FrontEnd.Infrastructure
+namespace Msv.AutoMiner.Common.Infrastructure
 {
     public static class Base58
     {        
         private const string Symbols = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-        private const char ZeroSymbol = '1';
+        private const string ZeroSymbol = "1";
         private const int Base = 58;
 
         private static readonly Dictionary<char, int> M_SymbolIndexes = Symbols
@@ -32,7 +31,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
                 .ToByteArray();
             if (value.StartsWith(ZeroSymbol))
             {
-                var zeroBytes = value.TakeWhile(x => x == ZeroSymbol).Count();
+                var zeroBytes = value.TakeWhile(x => x == ZeroSymbol[0]).Count();
                 Array.Resize(ref resultBytes, resultBytes.Length + zeroBytes);
             }
             Array.Reverse(resultBytes);
@@ -55,7 +54,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
 
             var leadingZeroes = bytes.TakeWhile(x => x == 0).Count();
             if (leadingZeroes > 0)
-                resultSymbols.AddRange(Enumerable.Repeat(ZeroSymbol, leadingZeroes));
+                resultSymbols.AddRange(Enumerable.Repeat(ZeroSymbol[0], leadingZeroes));
 
             resultSymbols.Reverse();
             return new string(resultSymbols.ToArray());
