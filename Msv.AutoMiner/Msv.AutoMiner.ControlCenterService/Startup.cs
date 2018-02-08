@@ -56,8 +56,10 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
 
-            services.AddSingleton<ITelegramBotClient>(
-                x => new TelegramBotClient(config.Notifications.Telegram.Token));
+            if (config.Notifications.Telegram.Enabled)
+                services.AddSingleton<ITelegramBotClient>(
+                    x => new TelegramBotClient(config.Notifications.Telegram.Token));
+
             services.AddSingleton(x => new HeartbeatAnalyzerParams
             {
                 SamplesCount = config.NormalRigStateCriteria.SamplesCount,
@@ -66,12 +68,16 @@ namespace Msv.AutoMiner.ControlCenterService
                 MinVideoUsage = config.NormalRigStateCriteria.MinVideoUsage,
                 MaxVideoTemperature = config.NormalRigStateCriteria.MaxVideoTemperature
             });
-            //@autominer_test
-            services.AddSingleton<INotifier>(
-                x => new TelegramNotifier(
-                    x.GetRequiredService<ITelegramBotClient>(),
-                    x.GetRequiredService<INotifierStorage>(),
-                    config.Notifications.Telegram.Subscribers));
+
+            if (config.Notifications.Telegram.Enabled)
+                services.AddSingleton<INotifier>(
+                    x => new TelegramNotifier(
+                        x.GetRequiredService<ITelegramBotClient>(),
+                        x.GetRequiredService<INotifierStorage>(),
+                        config.Notifications.Telegram.Subscribers));
+            else
+                services.AddSingleton<INotifier>(new DummyNotifier());
+
             services.AddSingleton<IHeartbeatAnalyzer, HeartbeatAnalyzer>();
 
             services.AddSingleton<ICertificateService, CertificateService>();

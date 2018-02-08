@@ -14,7 +14,6 @@ using Msv.AutoMiner.ControlCenterService.Configuration;
 using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces;
 using Msv.AutoMiner.ControlCenterService.Logic.Monitors;
-using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
@@ -59,14 +58,17 @@ namespace Msv.AutoMiner.ControlCenterService
                     scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 using (new PoolAvailabilityMonitor(
                     new PoolAvailabilityChecker(new LoggedWebClient()),
-                    scope.ServiceProvider.GetRequiredService<INotifier>(),
                     scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
-                using (new TelegramCommandInterface(
-                    new TelegramBotClient(config.Notifications.Telegram.Token),
-                    new TelegramCommandInterfaceStorage(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()),
-                    new PoolInfoProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()),
-                    new RigHeartbeatProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()), 
-                    config.Notifications.Telegram.Subscribers))
+                using (config.Notifications.Telegram.Enabled
+                    ? new TelegramCommandInterface(
+                        new TelegramBotClient(config.Notifications.Telegram.Token),
+                        new TelegramCommandInterfaceStorage(scope.ServiceProvider
+                            .GetRequiredService<IAutoMinerDbContextFactory>()),
+                        new PoolInfoProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()),
+                        new RigHeartbeatProvider(scope.ServiceProvider
+                            .GetRequiredService<IAutoMinerDbContextFactory>()),
+                        config.Notifications.Telegram.Subscribers)
+                    : null)
                 {
                     host.Run();
                 }
