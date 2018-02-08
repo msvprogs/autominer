@@ -23,8 +23,7 @@
         rowClass = "danger";
         title = "There is no API providing state information for this pool";
     }
-    else if (Model.Availability != PoolAvailabilityState.Available
-        && Model.Availability != PoolAvailabilityState.NoResponseAfterFirstAttempt)
+    else if (Model.Availability != PoolAvailabilityState.Available)
     {
         rowClass = "danger";
         title = "Pool stopped responding " + DateTimeHelper.ToRelativeTime(Model.ResponsesStoppedDate.GetValueOrDefault());
@@ -86,8 +85,7 @@
                 {
                     <span class="label label-warning">Longish TTF</span>
                 }
-                @if (Model.Availability != PoolAvailabilityState.Available
-                    && Model.Availability != PoolAvailabilityState.NoResponseAfterFirstAttempt)
+                @if (Model.Availability != PoolAvailabilityState.Available)
                 {
                     <span class="label label-danger">@availabilities[Model.Availability]</span>
                 }

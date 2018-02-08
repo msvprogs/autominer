@@ -45,6 +45,11 @@ namespace Msv.AutoMiner.ControlCenterService
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {
+                // Apply all pending migrations to DB
+                new CrossProcessDbMigrationApplier(
+                        scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>())
+                    .ApplyIfAny();
+
                 var config = scope.ServiceProvider.GetRequiredService<ControlCenterConfiguration>();
                 using (new PoolInfoMonitor(
                     new PoolInfoProviderFactory(

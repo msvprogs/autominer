@@ -37,6 +37,11 @@ namespace Msv.AutoMiner.CoinInfoService
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {
+                // Apply all pending migrations to DB
+                new CrossProcessDbMigrationApplier(
+                        scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>())
+                    .ApplyIfAny();
+
                 using (new FiatValueMonitor(
                     new FiatValueProviderFactory(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))

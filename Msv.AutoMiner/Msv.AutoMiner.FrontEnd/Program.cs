@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.FrontEnd.Configuration;
 using NLog.Web;
 
@@ -8,8 +10,17 @@ namespace Msv.AutoMiner.FrontEnd
 {
     public class Program
     {
-        public static void Main(string[] args) 
-            => BuildWebHost(args).Run();
+        public static void Main(string[] args)
+        {
+            var host = BuildWebHost(args);
+
+            using (var scope = host.Services.CreateScope())
+                new CrossProcessDbMigrationApplier(
+                        scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>())
+                    .ApplyIfAny();
+
+            host.Run();
+        }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
