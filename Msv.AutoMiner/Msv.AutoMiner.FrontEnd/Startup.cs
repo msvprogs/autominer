@@ -1,12 +1,10 @@
 ﻿using System;
-using System.IO.Compression;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,9 +62,6 @@ namespace Msv.AutoMiner.FrontEnd
 
             services.AddDistributedMemoryCache();
             services.AddSession(x => x.IdleTimeout = TimeSpan.MaxValue);
-
-            services.Configure<GzipCompressionProviderOptions>(x => x.Level = CompressionLevel.Optimal);
-            services.AddResponseCompression();
 
             var config = Configuration.Get<FrontEndConfiguration>();
             services.AddSingleton(config);
