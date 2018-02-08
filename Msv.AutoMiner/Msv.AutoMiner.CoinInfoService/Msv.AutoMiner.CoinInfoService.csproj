@@ -5,6 +5,7 @@
     <Platforms>AnyCPU;x64</Platforms>
 	  <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
     <LangVersion>7.1</LangVersion>
+    <MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
