@@ -1,5 +1,4 @@
 ﻿using System.Data.Entity;
-using SQLite.CodeFirst;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
@@ -10,6 +9,10 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         public DbSet<MinerAlgorithmSetting> MinerAlgorithmSettings { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<ManualDeviceMapping> ManualDeviceMappings { get; set; }
+
+        static AutoMinerRigDbContext()
+            => Database.SetInitializer(
+                new MigrateDatabaseToLatestVersion<AutoMinerRigDbContext, ContextMigrationConfiguration>(true));
 
         public AutoMinerRigDbContext() 
             => Configuration.LazyLoadingEnabled = false;
@@ -22,8 +25,6 @@ namespace Msv.AutoMiner.Rig.Storage.Model
                 .HasKey(x => new {x.MinerId, x.AlgorithmId});
             modelBuilder.Entity<ManualDeviceMapping>()
                 .HasKey(x => new {x.DeviceId, x.DeviceType});
-
-            Database.SetInitializer(new SqliteCreateDatabaseIfNotExists<AutoMinerRigDbContext>(modelBuilder));
         }
     }
 }
