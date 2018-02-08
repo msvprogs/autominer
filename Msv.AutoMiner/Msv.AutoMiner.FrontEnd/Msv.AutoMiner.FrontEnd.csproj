@@ -9,11 +9,12 @@
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.6.362" />
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.1" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0.1" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.5.0-rc2" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0002" />
   </ItemGroup>
@@ -26,6 +27,12 @@
     <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.Data\Msv.AutoMiner.Data.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.NetworkInfo\Msv.AutoMiner.NetworkInfo.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

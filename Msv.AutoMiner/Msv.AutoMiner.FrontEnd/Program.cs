@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Msv.AutoMiner.FrontEnd.Configuration;
+using NLog.Web;
 
 namespace Msv.AutoMiner.FrontEnd
 {
@@ -23,6 +24,7 @@ namespace Msv.AutoMiner.FrontEnd
                         x.Listen(IPAddress.Any, https.Port, y => y.UseHttps(https.Certificate.File, https.Certificate.Password));
                 })
                 .UseStartup<Startup>()
+                .UseNLog()
                 .Build();
     }
 }

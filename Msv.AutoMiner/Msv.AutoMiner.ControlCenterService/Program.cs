@@ -21,6 +21,7 @@ using Msv.AutoMiner.Data.Logic;
 using Msv.HttpTools;
 using NLog;
 using NLog.Targets;
+using NLog.Web;
 using Telegram.Bot;
 using ILogger = NLog.ILogger;
 // ReSharper disable AccessToDisposedClosure
@@ -110,6 +111,7 @@ namespace Msv.AutoMiner.ControlCenterService
                         }));
                 })
                 .UseStartup<Startup>()
+                .UseNLog()
                 .Build();
     }
 }

@@ -15,6 +15,7 @@ using Msv.AutoMiner.NetworkInfo;
 using Msv.HttpTools;
 using NLog;
 using NLog.Targets;
+using NLog.Web;
 
 // ReSharper disable AccessToDisposedClosure
 
@@ -69,6 +70,7 @@ namespace Msv.AutoMiner.CoinInfoService
                         x.Listen(IPAddress.Any, config.Endpoints.Http.Port);
                 })
                 .UseStartup<Startup>()
+                .UseNLog()
                 .Build();
     }
 }
