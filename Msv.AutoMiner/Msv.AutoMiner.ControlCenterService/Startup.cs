@@ -92,14 +92,14 @@ namespace Msv.AutoMiner.ControlCenterService
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseMiddleware<TypeLoadExceptionHandlingMiddleware>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
             app.UseMvc();
-
-            app.UseMiddleware<TypeLoadExceptionHandlingMiddleware>();
         }
     }
 }
