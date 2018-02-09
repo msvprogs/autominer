@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.CoinInfoService.Storage;
@@ -12,6 +13,7 @@ using Msv.AutoMiner.Data.Logic;
 namespace Msv.AutoMiner.CoinInfoService.Controllers
 {
     [Route("api/[controller]")]
+    [Obfuscation(Exclude = true)]
     public class CoinInfoController : Controller, ICoinInfoService
     {
         private readonly IProfitabilityTableBuilder m_TableBuilder;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ using NLog;
 namespace Msv.AutoMiner.ControlCenterService.Controllers
 {
     [Route("api/[controller]")]
+    [Obfuscation(Exclude = true)]
     public class ControlCenterController : Controller, IControlCenterService
     {
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
