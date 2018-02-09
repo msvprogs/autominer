@@ -13,8 +13,8 @@ namespace Msv.AutoMiner.Common.Infrastructure
         private static readonly IDictionary<Type, PropertyInfo[]> M_ModelProperties =
             new Dictionary<Type, PropertyInfo[]>
             {
-                [typeof(IMinerModel)] = typeof(IMinerModel).GetProperties().OrderBy(x => x.Name).ToArray(),
-                [typeof(IAlgorithmMinerModel)] = typeof(IAlgorithmMinerModel).GetProperties().OrderBy(x => x.Name).ToArray()
+                [typeof(IMinerModel)] = typeof(IMinerModel).GetProperties(),
+                [typeof(IAlgorithmMinerModel)] = typeof(IAlgorithmMinerModel).GetProperties()
             };
 
         public byte[] Calculate(IMinerModel[] miners, IAlgorithmMinerModel[] algorithms)
@@ -37,6 +37,6 @@ namespace Msv.AutoMiner.Common.Infrastructure
         }
 
         private static void AppendData<T>(StringBuilder builder, T data) 
-            => M_ModelProperties[typeof(T)].ForEach(x => builder.Append(x.GetValue(data)));
+            => M_ModelProperties[typeof(T)].ForEach(y => builder.Append(y.GetValue(data)));
     }
 }
