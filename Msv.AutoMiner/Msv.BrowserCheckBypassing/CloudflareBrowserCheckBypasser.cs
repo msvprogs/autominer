@@ -23,7 +23,7 @@ namespace Msv.BrowserCheckBypassing
         static CloudflareBrowserCheckBypasser()
         {
             using (var jsStream = typeof(CloudflareBrowserCheckBypasser).Assembly
-                .GetManifestResourceStream("Msv.BrowserCheckBypassing.cloudflare.js"))
+                .GetManifestResourceStream(typeof(CloudflareBrowserCheckBypasser), "cloudflare.js"))
             using (var reader = new StreamReader(jsStream))
                 M_InitJs = reader.ReadToEnd();
         }

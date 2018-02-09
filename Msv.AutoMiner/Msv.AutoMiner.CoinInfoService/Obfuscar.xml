@@ -10,6 +10,7 @@
     <SkipNamespace name="Msv.AutoMiner.CoinInfoService.Configuration" />
     <SkipType name="Msv.AutoMiner.CoinInfoService.Startup" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
     <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
+    <SkipType name="*NLog*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
   </Module>
 
   <Module file="$(InPath)\Msv.AutoMiner.Data.dll">
