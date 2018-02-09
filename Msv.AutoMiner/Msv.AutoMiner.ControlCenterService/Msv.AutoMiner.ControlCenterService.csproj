@@ -38,7 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Msv.AutoMiner.CoinInfoService\Msv.AutoMiner.CoinInfoService.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.Data\Msv.AutoMiner.Data.csproj" />
   </ItemGroup>
