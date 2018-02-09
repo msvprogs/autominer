@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Msv.AutoMiner.ControlCenterService
 {
-    [Obfuscation(Exclude = true)]
     public class TypeLoadExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
