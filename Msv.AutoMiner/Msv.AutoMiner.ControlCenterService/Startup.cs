@@ -98,6 +98,8 @@ namespace Msv.AutoMiner.ControlCenterService
             }
 
             app.UseMvc();
+
+            app.UseMiddleware<TypeLoadExceptionHandlingMiddleware>();
         }
     }
 }
