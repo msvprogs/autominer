@@ -7,11 +7,13 @@ namespace Msv.AutoMiner.FrontEnd.ViewComponents
 {
     public class HideZeroButtonViewComponent : ViewComponent
     {
-        public Task<IViewComponentResult> InvokeAsync(string sessionKey) 
-            => Task.FromResult<IViewComponentResult>(View(new HideZeroButtonModel
+        public Task<IViewComponentResult> InvokeAsync(string sessionKey)
+        {
+            return Task.FromResult<IViewComponentResult>(View(new HideZeroButtonModel
             {
                 CurrentState = HttpContext.Session.GetBool(sessionKey).GetValueOrDefault(true),
                 ActionUri = Url.Action("ToggleShowZero", null)
             }));
+        }
     }
 }

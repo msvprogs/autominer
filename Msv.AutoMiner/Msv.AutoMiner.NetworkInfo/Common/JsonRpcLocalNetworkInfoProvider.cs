@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -69,7 +68,6 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             };
         }
 
-        [Obfuscation(Exclude = true)]
         private static double ParseDifficulty(dynamic miningInfoJson)
         {
             var difficulty = miningInfoJson.difficulty is JObject difficultyObj

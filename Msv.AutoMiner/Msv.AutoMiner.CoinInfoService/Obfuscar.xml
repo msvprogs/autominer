@@ -8,6 +8,7 @@
 
   <Module file="$(InPath)\Msv.AutoMiner.CoinInfoService.dll">
     <SkipNamespace name="Msv.AutoMiner.CoinInfoService.Configuration" />
+    <SkipType name="Msv.AutoMiner.CoinInfoService.Startup" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
     <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
   </Module>
 
@@ -24,6 +25,12 @@
   </Module>
 
   <Module file="$(InPath)\Msv.AutoMiner.NetworkInfo.dll">
+    <!-- All methods that are called from dynamic context should be skipped :( -->
+    <SkipMethod type="Msv.AutoMiner.NetworkInfo.Common.InsightInfoProvider" rx="GetDifficulty" />
+    <SkipMethod type="Msv.AutoMiner.NetworkInfo.Common.IquidusInfoProvider" rx="GetDifficulty|GetRealHashRate" />
+    <SkipMethod type="Msv.AutoMiner.NetworkInfo.Common.JsonRpcLocalNetworkInfoProvider" rx="ParseDifficulty" />
+    <SkipMethod type="Msv.AutoMiner.NetworkInfo.Common.SwaggerInfoProviderBase" rx="GetBlockReward" />
+    <SkipMethod type="Msv.AutoMiner.NetworkInfo.Common.TheCryptoChatInfoProvider" rx="GetBlockReward|GetApiResponse" />
     <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
   </Module>
   <Module file="$(InPath)\Msv.BrowserCheckBypassing.dll" />

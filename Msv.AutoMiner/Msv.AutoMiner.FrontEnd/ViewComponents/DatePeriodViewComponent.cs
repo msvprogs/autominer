@@ -6,7 +6,9 @@ namespace Msv.AutoMiner.FrontEnd.ViewComponents
 {
     public class DatePeriodViewComponent : ViewComponent
     {
-        public Task<IViewComponentResult> InvokeAsync(DatePeriodModel model) 
-            => Task.FromResult<IViewComponentResult>(View(model));
+        public Task<IViewComponentResult> InvokeAsync(DatePeriodModel model)
+        {
+            return Task.FromResult<IViewComponentResult>(View(model));
+        }
     }
 }

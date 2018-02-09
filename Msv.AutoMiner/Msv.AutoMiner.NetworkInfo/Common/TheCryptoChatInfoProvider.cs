@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -53,7 +52,6 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         public override Uri CreateBlockUrl(string blockHash)
             => new Uri(m_BaseUri, $"/block.php?hash={blockHash}");
 
-        [Obfuscation(Exclude = true)]
         private static double? GetBlockReward(dynamic miningInfo)
         {
             if (miningInfo.data?.blockvalue != null)
@@ -61,7 +59,6 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             return null;
         }
 
-        [Obfuscation(Exclude = true)]
         private dynamic GetApiResponse(string requestType)
             => JsonConvert.DeserializeObject(m_WebClient.DownloadString(
                 new Uri(m_BaseUri, $"/api_fetch.php?method={requestType}")));

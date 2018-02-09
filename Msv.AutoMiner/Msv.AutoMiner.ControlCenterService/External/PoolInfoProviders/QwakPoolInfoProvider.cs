@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -113,7 +112,6 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
         private string ExecuteApiMethod(string method)
             => m_WebClient.DownloadString(GetActionUri(method), M_Headers);
 
-        [Obfuscation(Exclude = true)]
         private long NormalizeHashRate(dynamic hashRateItem)
         {
             if (hashRateItem == null)

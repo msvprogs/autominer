@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,7 +22,6 @@ using Telegram.Bot;
 
 namespace Msv.AutoMiner.ControlCenterService
 {
-    [Obfuscation(Exclude = true)]
     public class Startup
     {
         public Startup(IConfiguration configuration) 

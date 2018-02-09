@@ -8,7 +8,9 @@
 
   <Module file="$(InPath)\Msv.AutoMiner.ControlCenterService.dll">
     <SkipNamespace name="Msv.AutoMiner.ControlCenterService.Configuration" />
+    <SkipType name="Msv.AutoMiner.ControlCenterService.Startup" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
     <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
+    <SkipMethod type="Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders.QwakPoolInfoProvider" rx="NormalizeHashRate" />
   </Module>
 
   <Module file="$(InPath)\Msv.AutoMiner.Data.dll">
