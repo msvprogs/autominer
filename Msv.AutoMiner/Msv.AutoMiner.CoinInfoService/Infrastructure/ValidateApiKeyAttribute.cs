@@ -10,8 +10,10 @@ namespace Msv.AutoMiner.CoinInfoService.Infrastructure
     public class ValidateApiKeyAttribute : TypeFilterAttribute
     {
         public ValidateApiKeyAttribute(ApiKeyType type, bool decreaseCounter = true)
-            : base(typeof(ValidateApiKeyFilter)) 
-            => Arguments = new object[] {type, decreaseCounter};
+            : base(typeof(ValidateApiKeyFilter))
+        {
+            Arguments = new object[] {type, decreaseCounter};
+        }
 
         private class ValidateApiKeyFilter : IAsyncActionFilter
         {

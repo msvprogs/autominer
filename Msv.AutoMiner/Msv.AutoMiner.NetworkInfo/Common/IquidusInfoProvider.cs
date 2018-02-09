@@ -35,14 +35,13 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var lastBlockInfo = JsonConvert.DeserializeObject<BlockHeader>(m_WebClient.DownloadString(
                 new Uri(m_BaseUrl, "/api/getblock?hash=" + lastBlockHash)));
 
-            var difficulty = m_Options.GetDifficultyFromLastPoWBlock
-                ? new BlockChainSearcher(x => JsonConvert.DeserializeObject<BlockHeader>(
-                        m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x))))
-                    .SearchPoWBlock(lastBlockInfo).Difficulty
-                : GetDifficulty(stats.data[0].difficulty);
             return new CoinNetworkStatistics
             {
-                Difficulty = difficulty,
+                Difficulty = m_Options.GetDifficultyFromLastPoWBlock
+                    ? new BlockChainSearcher(x => JsonConvert.DeserializeObject<BlockHeader>(
+                            m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x))))
+                        .SearchPoWBlock(lastBlockInfo).Difficulty
+                    : GetDifficulty(stats.data[0].difficulty),
                 NetHashRate = double.TryParse(
                     (string) stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
                     ? GetRealHashRate(hashRate)

@@ -27,10 +27,9 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             dynamic blockJson = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(m_BaseUrl + "/blocks?limit=1"));
 
-            var difficulty = GetDifficulty(infoJson.info);
             return new CoinNetworkStatistics
             {
-                Difficulty = difficulty,
+                Difficulty = GetDifficulty(infoJson.info),
                 Height = (long)infoJson.info.blocks,
                 LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)blockJson.blocks[0].time)
             };

@@ -12,8 +12,7 @@ namespace Msv.AutoMiner.Common.External
 {
     public class LoggedWebClient : IWebClient
     {
-        // Do not use the GetCurrentClassLogger() method - logger name will be obfuscated
-        private static readonly ILogger M_Logger = LogManager.GetLogger(nameof(LoggedWebClient));
+        private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public virtual string DownloadString(
             string url, Encoding encoding = null, Dictionary<string, string> headers = null)
