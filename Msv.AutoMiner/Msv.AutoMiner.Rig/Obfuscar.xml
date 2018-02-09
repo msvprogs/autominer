@@ -9,13 +9,13 @@
     <SkipNamespace name="Msv.AutoMiner.Rig.Properties" />
     <SkipNamespace name="Msv.AutoMiner.Rig.Storage.Model" />
     <!-- Skip anonymous type properties to preserve Entity Framework code-first processing -->
-    <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
+    <SkipType name="*AnonymousType*" skipProperties="true" />
   </Module>
 
   <Module file="$(InPath)\Msv.AutoMiner.Common.dll">
     <SkipNamespace name="Msv.AutoMiner.Common.Configuration" />
     <SkipNamespace name="Msv.AutoMiner.Common.Models*" />
-    <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
+    <SkipType name="*AnonymousType*" skipProperties="true" />
   </Module>
 
   <Module file="$(InPath)\Msv.BrowserCheckBypassing.dll" />
