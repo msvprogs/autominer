@@ -6,8 +6,6 @@ using Msv.AutoMiner.NetworkInfo.Common;
 using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 
-// ReSharper disable ArgumentsStyleLiteral
-
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     public class LbryInfoProvider : NetworkInfoProviderBase

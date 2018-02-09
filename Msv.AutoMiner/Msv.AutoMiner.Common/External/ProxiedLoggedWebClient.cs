@@ -9,7 +9,8 @@ namespace Msv.AutoMiner.Common.External
 {
     public class ProxiedLoggedWebClient : LoggedWebClient, IProxiedWebClient
     {
-        private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
+        // Do not use the GetCurrentClassLogger() method - logger name will be obfuscated
+        private static readonly ILogger M_Logger = LogManager.GetLogger(nameof(ProxiedLoggedWebClient));
 
         private static readonly Dictionary<string, string> M_Headers =
             new Dictionary<string, string>

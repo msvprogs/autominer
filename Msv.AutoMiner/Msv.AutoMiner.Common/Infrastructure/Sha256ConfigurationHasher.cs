@@ -34,9 +34,9 @@ namespace Msv.AutoMiner.Common.Infrastructure
 
             using (var sha256 = new SHA256CryptoServiceProvider())
                 return sha256.ComputeHash(Encoding.ASCII.GetBytes(configurationBuilder.ToString()));
-        }
 
-        private static void AppendData<T>(StringBuilder builder, T data) 
-            => M_ModelProperties[typeof(T)].ForEach(x => builder.Append(x.GetValue(data)));
+            void AppendData<T>(StringBuilder builder, T data) 
+                => M_ModelProperties[typeof(T)].ForEach(x => builder.Append(x.GetValue(data)));
+        }
     }
 }
