@@ -1,11 +1,9 @@
-﻿using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Msv.AutoMiner.Common.Data;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 
 namespace Msv.AutoMiner.Common.ServiceContracts
 {
-    [Obfuscation(Exclude = true)]
     public interface ICoinInfoService
     {
         Task<AlgorithmInfo[]> GetAlgorithms();
