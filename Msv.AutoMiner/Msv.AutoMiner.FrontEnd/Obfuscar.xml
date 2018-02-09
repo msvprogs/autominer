@@ -6,8 +6,12 @@
   <Var name="HidePrivateApi" value="true" />
   <Var name="HideStrings" value="true" />
 
-  <Module file="$(InPath)\Msv.AutoMiner.ControlCenterService.dll">
-    <SkipNamespace name="Msv.AutoMiner.ControlCenterService.Configuration" />
+  <Module file="$(InPath)\Msv.AutoMiner.FrontEnd.dll">
+    <SkipNamespace name="Msv.AutoMiner.FrontEnd.Configuration" />
+    <SkipNamespace name="Msv.AutoMiner.FrontEnd.Models*" />
+    <SkipType name="Msv.AutoMiner.FrontEnd.Controllers.*" skipMethods="true" />
+    <SkipType name="Msv.AutoMiner.FrontEnd.Infrastructure.*TagHelper" skipProperties="true" />
+    <SkipType name="Msv.AutoMiner.FrontEnd.ViewComponents.*" skipMethods="true" />
     <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
   </Module>
 
@@ -18,11 +22,14 @@
 
   <Module file="$(InPath)\Msv.AutoMiner.Common.dll">
     <SkipNamespace name="Msv.AutoMiner.Common.Configuration" />
-    <SkipType name="Msv.AutoMiner.Common.Log.MemoryBufferTarget" skipProperties="true" />
     <SkipNamespace name="Msv.AutoMiner.Common.Models*" />
+    <SkipNamespace name="Msv.AutoMiner.Common.Enums" />
+    <SkipNamespace name="Msv.AutoMiner.Common.Helpers" />
+    <SkipType name="Msv.AutoMiner.Common.Extensions" skipMethods="true" />
     <SkipType name="*AnonymousType*" skipProperties="true" skipMethods="true" skipFields="true" skipEvents="true" />
   </Module>
 
+  <Module file="$(InPath)\Msv.AutoMiner.NetworkInfo.dll" />
   <Module file="$(InPath)\Msv.BrowserCheckBypassing.dll" />
   <Module file="$(InPath)\Msv.HttpTools.dll" />
 </Obfuscator>

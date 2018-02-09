@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Reflection;
 using Msv.AutoMiner.Common.Enums;
 
 namespace Msv.AutoMiner.Data.Logic
 {
+    [Obfuscation(Exclude = true)]
     public class CoinExchangePrice
     {
         public ExchangeType Exchange { get; set; }

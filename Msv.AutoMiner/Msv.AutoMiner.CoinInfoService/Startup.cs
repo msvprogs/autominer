@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +15,7 @@ using Msv.AutoMiner.Data.Logic;
 
 namespace Msv.AutoMiner.CoinInfoService
 {
+    [Obfuscation(Exclude = true)]
     public class Startup
     {
         public Startup(IConfiguration configuration) 

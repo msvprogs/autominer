@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -22,6 +23,7 @@ using Msv.AutoMiner.NetworkInfo;
 
 namespace Msv.AutoMiner.FrontEnd
 {
+    [Obfuscation(Exclude = true)]
     public class Startup
     {        
         public IConfiguration Configuration { get; }

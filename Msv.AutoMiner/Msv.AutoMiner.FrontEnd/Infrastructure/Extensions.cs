@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {
+    [Obfuscation(Exclude = true)]
     public static class Extensions
     {
         public static double? GetDouble(this ISession session, string key)

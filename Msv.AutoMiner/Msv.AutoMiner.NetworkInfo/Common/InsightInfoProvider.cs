@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -45,6 +46,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         public override Uri CreateBlockUrl(string blockHash)
             => new Uri(m_BaseUrl, $"/block/{blockHash}");
 
+        [Obfuscation(Exclude = true)]
         protected virtual double GetDifficulty(dynamic statsInfo) 
             => (double) statsInfo.difficulty;
     }

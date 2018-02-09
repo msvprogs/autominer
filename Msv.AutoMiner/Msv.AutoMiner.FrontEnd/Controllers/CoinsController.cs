@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -385,6 +386,7 @@ rpcallowip={allowIpMask}
                 })
                 .ToArrayAsync();
 
+        [Obfuscation(Exclude = true)]
         private class TimestampedValue
         {
             public object Value { get; set; }
