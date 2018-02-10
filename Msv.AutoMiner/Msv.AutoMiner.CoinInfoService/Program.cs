@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.CoinInfoService.Configuration;
 using Msv.AutoMiner.CoinInfoService.External;
@@ -56,7 +57,8 @@ namespace Msv.AutoMiner.CoinInfoService
                     scope.ServiceProvider.GetRequiredService<ICoinNetworkInfoProvider>(),
                     new NetworkInfoProviderFactory(
                         new LoggedWebClient(),
-                        new ProxiedLoggedWebClient(new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
+                        new ProxiedLoggedWebClient(
+                            new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
                     scope.ServiceProvider.GetRequiredService<IMasternodeInfoStorage>(),
                     scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {
@@ -65,8 +67,13 @@ namespace Msv.AutoMiner.CoinInfoService
             }
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHost BuildWebHost(string[] args)
+            => WebHost.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(x =>
+                {
+                    x.AddJsonFile("Msv.AutoMiner.CoinInfoService.runtimeconfig.json");
+                    x.AddJsonFile("Msv.AutoMiner.CoinInfoService.deps.json");
+                })
                 .UseKestrel(x =>
                 {
                     var config = (CoinInfoConfiguration) x.ApplicationServices.GetService(

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Copyright>Copyright (c) MSV 2017-2018</Copyright>
   </PropertyGroup>
 
 </Project>

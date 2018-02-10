@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Msv.AutoMiner.Rig")]
+[assembly: AssemblyTitle("Msv.Licensing.Starter.DotNet")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Msv.AutoMiner.Rig")]
+[assembly: AssemblyProduct("Msv.Licensing.Starter.DotNet")]
 [assembly: AssemblyCopyright("Copyright (c) MSV 2017-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("84da405e-8947-4dfd-9e92-0cb5e7cfdfa7")]
+[assembly: Guid("bdfa42f6-8d70-494c-bbb0-d7a989009a37")]
 
 // Version information for an assembly consists of the following four values:
 //

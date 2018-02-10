@@ -6,6 +6,7 @@
 	  <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
     <LangVersion>7.1</LangVersion>
     <MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
+    <Copyright>Copyright (c) MSV 2017-2018</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

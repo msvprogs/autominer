@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
     <LangVersion>7.1</LangVersion>
+    <Copyright>Copyright (c) MSV 2017-2018</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
