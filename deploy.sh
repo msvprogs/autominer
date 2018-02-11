@@ -10,6 +10,9 @@ readonly TEAMCITY_PROJECT=AutoMiner
 # Download artifacts list
 artifacts=$(curl $TEAMCITY_URL/app/rest/builds/project:$TEAMCITY_PROJECT/artifacts/children -s --basic -u $TEAMCITY_LOGIN:$TEAMCITY_PASSWORD | xpath -q -e "//file[contains(@name,'.zip')]/content/@href" | awk -F\" '{WORD=split($2,a,"\"");print a[1]}') 
 
+echo Disabling watchdog...
+echo V > /dev/watchdog
+
 # Kill 'em all
 echo Stopping services...
 killall dotnet
@@ -40,12 +43,12 @@ done
 # Restart all services
 echo Restarting services...
 cd coin-info
-screen -S CoinInfo -d -m dotnet Msv.AutoMiner.CoinInfoService.dll
+screen -S CoinInfo -d -m dotnet Msv.Licensing.Starter.DotNetCore.dll
 cd ../control-center
-screen -S ControlCenter -d -m dotnet Msv.AutoMiner.ControlCenterService.dll
+screen -S ControlCenter -d -m dotnet Msv.Licensing.Starter.DotNetCore.dll
 cd ../frontend
-screen -S FrontEnd -d -m dotnet Msv.AutoMiner.FrontEnd.dll
+screen -S FrontEnd -d -m dotnet Msv.Licensing.Starter.DotNetCore.dll
 cd ../rig
-screen -S Rig -d -m mono Msv.AutoMiner.Rig.exe
+screen -S Rig -d -m mono Msv.Licensing.Starter.DotNet.exe
 
 echo Deploy completed!
