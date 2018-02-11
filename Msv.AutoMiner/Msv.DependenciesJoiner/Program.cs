@@ -9,14 +9,15 @@ namespace Msv.DependenciesJoiner
     {
         private static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length < 2)
             {
-                Console.WriteLine("Usage: Joiner.exe <deps.json_path> <target_library_name>");
+                Console.WriteLine("Usage: Joiner.exe <deps.json_path1> ...<deps.json_pathn>  <target_library_name>");
                 return;
             }
 
-            var targetContext = new DirectoryInfo(args[0])
-                .GetFiles("*.deps.json", SearchOption.TopDirectoryOnly)
+            var targetContext =  args.Take(args.Length - 1)
+                .Select(x => new DirectoryInfo(x))
+                .SelectMany(x => x.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly))
                 .Select(x =>
                 {
                     using (var reader = new DependencyContextJsonReader())

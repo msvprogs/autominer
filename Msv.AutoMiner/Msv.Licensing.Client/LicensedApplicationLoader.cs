@@ -86,7 +86,7 @@ namespace Msv.Licensing.Client
                 using (m_AssemblyLoader.CreateResolver(assemblies))
                     ((IEnumerable<dynamic>)assemblies)
                         .Single(x => x.EntryPoint != null)
-                        .EntryPoint.Invoke(null, new object[] {m_Args});
+                        .EntryPoint.Invoke(null, new object[] {(dynamic)m_Args});
 
                 return new ApplicationLoadResult(ApplicationLoadStatus.Success, null);
             }
@@ -115,9 +115,9 @@ namespace Msv.Licensing.Client
         [Obfuscation(Exclude = true)]
         private dynamic PerVal(dynamic applicationName, dynamic licenseFileName)
         {
-            dynamic random = new Random(GetType().GetHashCode());
-            dynamic standardCheckInterval = TimeSpan.FromSeconds(double.Parse("10800")); //3 hours
-            dynamic maxIntervalDispersion = int.Parse("3600"); //1 hour
+            dynamic random = new Random((dynamic)GetType().GetHashCode());
+            var standardCheckInterval = TimeSpan.FromSeconds(double.Parse((dynamic)"10800")); //3 hours
+            var maxIntervalDispersion = int.Parse((dynamic)"3600"); //1 hour
             return Observable.Generate(Unit.Default, x => true, x => x, x => x,
                     x => (TimeSpan) (standardCheckInterval
                                      + TimeSpan.FromSeconds(random.Next(-maxIntervalDispersion, maxIntervalDispersion))),
@@ -126,14 +126,14 @@ namespace Msv.Licensing.Client
                 {
                     try
                     {
-                        new LicenseVerifier(null, new PublicKeyProvider()).Verify(applicationName, licenseFileName);
+                        new LicenseVerifier(null, (dynamic)new PublicKeyProvider()).Verify(applicationName, licenseFileName);
                     }
                     catch
                     {
                         // License expired or corrupted - exiting with Environment.Exit(1)
-                        dynamic exitMethod = typeof(Environment).GetMethod(nameof(Environment.Exit),
-                            BindingFlags.Public | BindingFlags.Static);
-                        exitMethod.Invoke(null, new object[] {int.Parse("1")});
+                        var exitMethod = ((dynamic)typeof(Environment))
+                            .GetMethod(nameof(Environment.Exit), BindingFlags.Public | BindingFlags.Static);
+                        exitMethod.Invoke(null, new object[] {int.Parse((dynamic)"1")});
                     }
                 });
         }
