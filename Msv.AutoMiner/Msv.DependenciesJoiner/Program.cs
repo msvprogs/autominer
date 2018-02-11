@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Extensions.DependencyModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -39,17 +40,14 @@ namespace Msv.DependenciesJoiner
             {
                 var writer = new DependencyContextWriter();
                 writer.Write(targetContext, targetMemoryStream);
-                targetMemoryStream.Position = 0;
-                using (var reader = new StreamReader(targetMemoryStream))
-                {
-                    var json = JsonConvert.DeserializeObject<JObject>(reader.ReadToEnd());
-                    ((JObject)json["libraries"])
-                        .Properties()
-                        .Where(y => y.Name.StartsWith("Msv."))
-                        .ToList()
-                        .ForEach(y => y.Remove());
-                    File.WriteAllText(targetFileName, JsonConvert.SerializeObject(json));
-                }
+                var json = JsonConvert.DeserializeObject<JObject>(
+                    Encoding.UTF8.GetString(targetMemoryStream.ToArray()));
+                ((JObject)json["libraries"])
+                    .Properties()
+                    .Where(y => y.Name.StartsWith("Msv."))
+                    .ToList()
+                    .ForEach(y => y.Remove());
+                File.WriteAllText(targetFileName, JsonConvert.SerializeObject(json));
             }
 
             Console.WriteLine("Dependencies merged, target file: " + targetFileName);
