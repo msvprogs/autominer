@@ -56,5 +56,8 @@
             string[] algorithms,
             [CommandParameter("-c", Description = "coins to test", Example = "xcn,zcash")]
             string[] coinNames);
+
+        [CommandAction("--config-env", Description = "Configure .NET runtime to run this program properly")]
+        void ConfigureEnvironment();
     }
 }

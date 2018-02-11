@@ -9,6 +9,7 @@ using Msv.AutoMiner.Rig.Infrastructure.Contracts;
 using Msv.AutoMiner.Rig.Remote;
 using Msv.AutoMiner.Rig.Storage.Contracts;
 using Msv.AutoMiner.Rig.Storage.Model;
+using Msv.AutoMiner.Rig.System.Contracts;
 using Msv.AutoMiner.Rig.System.Video;
 
 namespace Msv.AutoMiner.Rig.Commands
@@ -19,6 +20,7 @@ namespace Msv.AutoMiner.Rig.Commands
         private readonly IControlCenterService m_Service;
         private readonly IControlCenterRegistrator m_Registrator;
         private readonly IMinerTester m_Tester;
+        private readonly IEnvironmentConfigurator m_EnvironmentConfigurator;
         private readonly ICommandProcessorStorage m_Storage;
 
         public CommandProcessor(
@@ -26,12 +28,14 @@ namespace Msv.AutoMiner.Rig.Commands
             IControlCenterService service,
             IControlCenterRegistrator registrator,
             IMinerTester tester,
+            IEnvironmentConfigurator environmentConfigurator,
             ICommandProcessorStorage storage)
         {
             m_VideoStateProvider = videoStateProvider ?? throw new ArgumentNullException(nameof(videoStateProvider));
             m_Service = service ?? throw new ArgumentNullException(nameof(service));
             m_Registrator = registrator ?? throw new ArgumentNullException(nameof(registrator));
             m_Tester = tester ?? throw new ArgumentNullException(nameof(tester));
+            m_EnvironmentConfigurator = environmentConfigurator ?? throw new ArgumentNullException(nameof(environmentConfigurator));
             m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
         }
 
@@ -224,5 +228,12 @@ Copyright: {info.LegalCopyright}");
 
         public void Test(string[] algorithms, string[] coinNames)
             => m_Tester.Test(algorithms, coinNames);
+
+        public void ConfigureEnvironment()
+        {
+            Console.WriteLine("Configuring runtime environment...");
+            m_EnvironmentConfigurator.Configure();
+            Console.WriteLine("Configuration completed!");
+        }
     }
 }

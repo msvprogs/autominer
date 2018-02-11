@@ -1,1 +1,1 @@
-﻿dotnet Msv.Licensing.Starter.DotNetCore.dll
+dotnet Msv.Licensing.Starter.DotNetCore.dll

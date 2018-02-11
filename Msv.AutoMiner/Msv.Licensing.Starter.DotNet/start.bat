@@ -1,1 +1,1 @@
-﻿Msv.Licensing.Starter.DotNet.exe
+Msv.Licensing.Starter.DotNet.exe

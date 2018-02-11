@@ -39,6 +39,14 @@ namespace Msv.AutoMiner.Rig
                     e.SetObserved();
                 };
 
+            var environmentConfigurator = new EnvironmentConfiguratorFactory().Create();
+            var environmentCheckResult = environmentConfigurator.Check();
+            if (environmentCheckResult != null && !args.Contains("--config-env"))
+            {
+                Console.WriteLine(environmentCheckResult);
+                return;
+            }
+
             //TODO: temporary
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
@@ -79,6 +87,7 @@ namespace Msv.AutoMiner.Rig
                             controlCenterClient,
                             new MinerTesterStorage(),
                             Settings.Default.TestModeMiningDuration),
+                        environmentConfigurator,
                         new CommandProcessorStorage()));
                 if (interpreter.Interpret(args))
                     return;

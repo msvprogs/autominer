@@ -122,7 +122,6 @@
     <Compile Include="Commands\ICommandProcessor.cs" />
     <Compile Include="Commands\TableStringBuilder.cs" />
     <Compile Include="Data\ProfitabilityTableBuilderParams.cs" />
-    <Compile Include="DllMapConfigurationSection.cs" />
     <Compile Include="Infrastructure\AutomaticMinerChanger.cs" />
     <Compile Include="Infrastructure\ClaymoreDualMinerStatusProvider.cs" />
     <Compile Include="Infrastructure\ConfigurationUpdater.cs" />
@@ -169,8 +168,10 @@
     <Compile Include="Storage\Model\ContextMigrationConfiguration.cs" />
     <Compile Include="Storage\Model\DeviceType.cs" />
     <Compile Include="Storage\Model\ManualDeviceMapping.cs" />
+    <Compile Include="System\Contracts\IEnvironmentConfigurator.cs" />
     <Compile Include="System\Contracts\ISystemStateProvider.cs" />
     <Compile Include="System\Data\CpuState.cs" />
+    <Compile Include="System\EnvironmentConfiguratorFactory.cs" />
     <Compile Include="System\PlatformSpecificFactoryBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -201,7 +202,9 @@
     <Compile Include="System\EnvironmentVariableCreatorFactory.cs" />
     <Compile Include="System\ProcessStopperFactory.cs" />
     <Compile Include="System\SystemStateProviderFactory.cs" />
+    <Compile Include="System\Unix\FileReader.cs" />
     <Compile Include="System\Unix\MonoApi.cs" />
+    <Compile Include="System\Unix\MonoEnvironmentConfigurator.cs" />
     <Compile Include="System\Unix\PosixApi.cs" />
     <Compile Include="System\Unix\Signals.cs" />
     <Compile Include="System\Unix\UnixSoftwareWatchdog.cs" />
@@ -220,6 +223,7 @@
     <Compile Include="System\Video\VideoAdapterState.cs" />
     <Compile Include="System\Video\VideoSystemState.cs" />
     <Compile Include="System\WatchdogFactory.cs" />
+    <Compile Include="System\Windows\DummyEnvironmentConfigurator.cs" />
     <Compile Include="System\Windows\MockWatchdog.cs" />
     <Compile Include="System\Windows\StandardEnvironmentVariableCreator.cs" />
     <Compile Include="System\Windows\WinApi\CtrlEvents.cs" />

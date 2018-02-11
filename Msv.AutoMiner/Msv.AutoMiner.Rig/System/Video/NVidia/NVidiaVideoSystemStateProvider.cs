@@ -9,10 +9,17 @@ namespace Msv.AutoMiner.Rig.System.Video.NVidia
 
         public NVidiaVideoSystemStateProvider()
         {
-            if (NativeNvml.Initialize() != NvmlReturnValue.Success)
-                return;
-            CanUse = true;
-            NativeNvml.Shutdown();
+            try
+            {
+                if (NativeNvml.Initialize() != NvmlReturnValue.Success)
+                    return;
+                CanUse = true;
+                NativeNvml.Shutdown();
+            }
+            catch
+            {
+                CanUse = false;
+            }
         }
 
         public VideoSystemState GetState()
