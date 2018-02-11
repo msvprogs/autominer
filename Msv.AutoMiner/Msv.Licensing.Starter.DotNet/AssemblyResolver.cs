@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Msv.Licensing.Starter.DotNet
@@ -17,6 +19,6 @@ namespace Msv.Licensing.Starter.DotNet
             => AppDomain.CurrentDomain.AssemblyResolve -= OnAssemblyResolve;
 
         private Assembly OnAssemblyResolve(dynamic sender, dynamic args)
-            => Array.Find((Assembly[])m_Assemblies, x => x.GetName().Name == args.Name);
+            => Array.Find(((IEnumerable<dynamic>)m_Assemblies).Cast<Assembly>().ToArray(), x => x.GetName().Name == args.Name);
     }
 }
