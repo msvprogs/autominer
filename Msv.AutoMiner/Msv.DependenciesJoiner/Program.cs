@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.Extensions.DependencyModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,28 +22,9 @@ namespace Msv.DependenciesJoiner
                 .SelectMany(x => x.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly))
                 .Select(x =>
                 {
-                    // Delete all encrypted libraries (Msv.*.dll) from .deps.json
-                    using (var fileStream = x.OpenRead())
-                    using (var reader = new StreamReader(fileStream))
-                    {
-                        var json = JsonConvert.DeserializeObject<JObject>(reader.ReadToEnd());
-                        ((JObject)json["libraries"])
-                            .Properties()
-                            .Where(y => y.Name.StartsWith("Msv."))
-                            .ToList()
-                            .ForEach(y =>
-                            {
-                                y["runtime"].Remove();
-                                y["compile"].Remove();
-                            });
-                        return new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(json)));
-                    }
-                })
-                .Select(x =>
-                {
                     using (var reader = new DependencyContextJsonReader())
-                    using (x)
-                        return reader.Read(x);
+                    using (var depsJsonStream = x.OpenRead())
+                        return reader.Read(depsJsonStream);
                 })
                 .Aggregate((x, y) => x.Merge(y));
 
@@ -55,10 +35,21 @@ namespace Msv.DependenciesJoiner
             }
 
             var targetFileName = Path.Combine(args[0], args[1] + ".deps.json");
-            using (var targetStream = new FileStream(targetFileName, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (var targetMemoryStream = new MemoryStream())
             {
                 var writer = new DependencyContextWriter();
-                writer.Write(targetContext, targetStream);
+                writer.Write(targetContext, targetMemoryStream);
+                targetMemoryStream.Position = 0;
+                using (var reader = new StreamReader(targetMemoryStream))
+                {
+                    var json = JsonConvert.DeserializeObject<JObject>(reader.ReadToEnd());
+                    ((JObject)json["libraries"])
+                        .Properties()
+                        .Where(y => y.Name.StartsWith("Msv."))
+                        .ToList()
+                        .ForEach(y => y.Remove());
+                    File.WriteAllText(targetFileName, JsonConvert.SerializeObject(json));
+                }
             }
 
             Console.WriteLine("Dependencies merged, target file: " + targetFileName);
