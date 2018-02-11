@@ -44,10 +44,10 @@ namespace Msv.DependenciesJoiner
                     Encoding.UTF8.GetString(targetMemoryStream.ToArray()));
                 ((JObject)json["libraries"])
                     .Properties()
-                    .Where(y => y.Name.StartsWith("Msv."))
+                    .Where(y => y.Name.StartsWith("Msv.") && !y.Name.StartsWith("Msv.Licensing."))
                     .ToList()
                     .ForEach(y => y.Remove());
-                File.WriteAllText(targetFileName, JsonConvert.SerializeObject(json));
+                File.WriteAllText(targetFileName, JsonConvert.SerializeObject(json, Formatting.Indented));
             }
 
             Console.WriteLine("Dependencies merged, target file: " + targetFileName);
