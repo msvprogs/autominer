@@ -33,10 +33,11 @@ namespace Msv.AutoMiner.ControlCenterService
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
-        {
-            UnhandledExceptionHandler.RegisterLogger(M_Logger);
-
+        {            
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
+            NLogBuilder.ConfigureNLog("NLog.config");
+
+            UnhandledExceptionHandler.RegisterLogger(M_Logger);
 
             var certificateStorage = new X509CertificateStorage(
                 StoreLocation.CurrentUser, new X509Certificate2(File.ReadAllBytes("rootCa.cer")));

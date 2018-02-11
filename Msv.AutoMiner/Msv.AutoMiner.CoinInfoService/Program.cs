@@ -29,6 +29,7 @@ namespace Msv.AutoMiner.CoinInfoService
         public static void Main(string[] args)
         {
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
+            NLogBuilder.ConfigureNLog("NLog.config");
 
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
 
