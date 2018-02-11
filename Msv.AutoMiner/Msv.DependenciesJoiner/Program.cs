@@ -28,12 +28,15 @@ namespace Msv.DependenciesJoiner
                     using (var reader = new StreamReader(fileStream))
                     {
                         var json = JsonConvert.DeserializeObject<JObject>(reader.ReadToEnd());
-                        var msvLibs = ((JObject)json["libraries"])
+                        ((JObject)json["libraries"])
                             .Properties()
                             .Where(y => y.Name.StartsWith("Msv."))
-                            .ToArray();
-                        foreach (var msvLib in msvLibs)
-                            msvLib.Remove();
+                            .ToList()
+                            .ForEach(y =>
+                            {
+                                y["runtime"].Remove();
+                                y["compile"].Remove();
+                            });
                         return new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(json)));
                     }
                 })
