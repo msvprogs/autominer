@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Extensions.DependencyModel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Msv.DependenciesJoiner
 {
@@ -15,14 +18,30 @@ namespace Msv.DependenciesJoiner
                 return;
             }
 
-            var targetContext =  args.Take(args.Length - 1)
+            var targetContext = args.Take(args.Length - 1)
                 .Select(x => new DirectoryInfo(x))
                 .SelectMany(x => x.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly))
                 .Select(x =>
                 {
-                    using (var reader = new DependencyContextJsonReader())
+                    // Delete all encrypted libraries (Msv.*.dll) from .deps.json
                     using (var fileStream = x.OpenRead())
-                        return reader.Read(fileStream);
+                    using (var reader = new StreamReader(fileStream))
+                    {
+                        var json = JsonConvert.DeserializeObject<JObject>(reader.ReadToEnd());
+                        var msvLibs = ((JObject)json["libraries"])
+                            .Properties()
+                            .Where(y => y.Name.StartsWith("Msv."))
+                            .ToArray();
+                        foreach (var msvLib in msvLibs)
+                            msvLib.Remove();
+                        return new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(json)));
+                    }
+                })
+                .Select(x =>
+                {
+                    using (var reader = new DependencyContextJsonReader())
+                    using (x)
+                        return reader.Read(x);
                 })
                 .Aggregate((x, y) => x.Merge(y));
 
