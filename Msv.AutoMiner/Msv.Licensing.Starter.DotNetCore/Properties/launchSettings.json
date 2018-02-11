@@ -2,7 +2,7 @@
   "profiles": {
     "Msv.Licensing.Starter.DotNetCore": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Autominer2\\autominer\\Msv.AutoMiner\\Msv.AutoMiner.CoinInfoService\\bin\\Release\\PublishOutput"
+      "commandLineArgs": "D:\\Autominer2\\autominer\\Msv.AutoMiner\\Msv.AutoMiner.FrontEnd\\bin\\Release\\PublishOutput"
     }
   }
 }

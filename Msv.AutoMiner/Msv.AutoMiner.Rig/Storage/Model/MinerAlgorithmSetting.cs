@@ -16,12 +16,15 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
         public virtual Miner Miner { get; set; }
 
+        [MaxLength(32)]
         public string AlgorithmArgument { get; set; }
 
         public double? Intensity { get; set; }
 
+        [MaxLength(512)]
         public string LogFile { get; set; }
 
+        [MaxLength(128)]
         public string AdditionalArguments { get; set; }
 
         [NotMapped]

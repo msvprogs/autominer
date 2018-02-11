@@ -8,7 +8,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         [Key, MaxLength(64)]
         public string AlgorithmId { get; set; }
 
-        [Required]
+        [Required, MaxLength(64)]
         public string AlgorithmName { get; set; }
 
         public KnownCoinAlgorithm? KnownValue { get; set; }

@@ -12,7 +12,7 @@ namespace Msv.Licensing.Starter.DotNetCore
         public dynamic Load(MemoryStream[] streams)
             => streams
                 .Cast<dynamic>()
-                .Select(x =>  AssemblyLoadContext.Default.LoadFromStream(x))
+                .Select(x => AssemblyLoadContext.Default.LoadFromStream(x))
                 .ToArray();
 
         [Obfuscation(Exclude = true)]

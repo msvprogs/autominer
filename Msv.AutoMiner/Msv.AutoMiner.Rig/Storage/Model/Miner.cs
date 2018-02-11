@@ -12,59 +12,79 @@ namespace Msv.AutoMiner.Rig.Storage.Model
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        [Required]
+        [Required, MaxLength(64)]
         public string Name { get; set; }
 
         public int VersionId { get; set; }
 
+        [MaxLength(32)]
         public string Version { get; set; }
 
-        [Required]
+        [Required, MaxLength(512)]
         public string FileName { get; set; }
 
+        [MaxLength(512)]
         public string SecondaryFileName { get; set; }
 
         public bool IsDownloaded { get; set; }
 
-        [Required]
+        [Required, MaxLength(32)]
         public string ServerArgument { get; set; }
 
+        [MaxLength(32)]
         public string PortArgument { get; set; }
 
+        [MaxLength(32)]
         public string UserArgument { get; set; }
 
+        [MaxLength(32)]
         public string PasswordArgument { get; set; }
 
+        [MaxLength(128)]
         public string AdditionalArguments { get; set; }
 
+        [MaxLength(32)]
         public string LogFileArgument { get; set; }
 
+        [MaxLength(32)]
         public string IntensityArgument { get; set; }
 
+        [MaxLength(32)]
         public string AlgorithmArgument { get; set; }
 
+        [MaxLength(32)]
         public string DeviceListArgument { get; set; }
 
+        [MaxLength(32)]
         public string DeviceListSeparator { get; set; }
 
+        [MaxLength(32)]
         public string AlternativeServerArgument { get; set; }
 
+        [MaxLength(32)]
         public string AlternativeUserArgument { get; set; }
         
+        [MaxLength(32)]
         public string AlternativePasswordArgument { get; set; }
 
         public bool ReadOutputFromLog { get; set; }
 
+        [MaxLength(256)]
         public string SpeedRegex { get; set; }
 
+        [MaxLength(256)]
         public string ValidShareRegex { get; set; }
 
+        [MaxLength(256)]
         public string InvalidShareRegex { get; set; }
 
+        [MaxLength(32)]
         public string BenchmarkArgument { get; set; }
 
+        [MaxLength(256)]
         public string BenchmarkResultRegex { get; set; }
 
+        [MaxLength(32)]
         public string ApiPortArgument { get; set; }
 
         public MinerApiType ApiType { get; set; }

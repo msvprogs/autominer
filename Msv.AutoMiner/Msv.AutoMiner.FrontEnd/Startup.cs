@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Infrastructure;
@@ -57,8 +60,19 @@ namespace Msv.AutoMiner.FrontEnd
             var requireAuthPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build();
-            services.AddMvc(x => x.Filters.Add(new AuthorizeFilter(requireAuthPolicy)))
-                .AddMvcOptions(x => x.ModelBinderProviders.Insert(0, new TrimmingModelBinderProvider()));
+            services
+                .AddMvc(x =>
+                {
+                    x.Filters.Add(new AuthorizeFilter(requireAuthPolicy));
+                    x.ModelBinderProviders.Insert(0, new TrimmingModelBinderProvider());
+                })
+                .ConfigureApplicationPartManager(x =>
+                {
+                    x.FeatureProviders.OfType<ViewsFeatureProvider>()
+                        .ToArray()
+                        .ForEach(y => x.FeatureProviders.Remove(y));
+                    x.FeatureProviders.Add(new CorrectViewsFeatureProvider());
+                });
 
             services.AddDistributedMemoryCache();
             services.AddSession(x => x.IdleTimeout = TimeSpan.MaxValue);
