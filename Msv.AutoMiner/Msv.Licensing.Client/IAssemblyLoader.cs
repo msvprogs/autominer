@@ -7,5 +7,8 @@ namespace Msv.Licensing.Client
     {
         [Obfuscation(Exclude = true)]
         dynamic Load(MemoryStream[] streams);
+
+        [Obfuscation(Exclude = true)]
+        dynamic CreateResolver(dynamic assemblies);
     }
 }

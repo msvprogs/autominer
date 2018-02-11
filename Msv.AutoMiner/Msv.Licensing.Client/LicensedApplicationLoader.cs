@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Msv.Licensing.Common;
@@ -38,7 +42,7 @@ namespace Msv.Licensing.Client
             {
                 dynamic verifier = new LicenseVerifier(new EncryptionKeyDeriver(), new PublicKeyProvider());
                 dynamic assembliesCode = new List<MemoryStream>();
-                var decryptionKey = verifier.Verify(applicationName, licenseFileName);
+                var decryptionKey = verifier.VerifyAndDerive(applicationName, licenseFileName);
                 dynamic iv;
                 using (dynamic sha256 = new SHA256CryptoServiceProvider())
                     iv = sha256.ComputeHash(sha256.ComputeHash((byte[]) decryptionKey));
@@ -74,11 +78,16 @@ namespace Msv.Licensing.Client
                     }
                 }
 
-                var entryPoint = m_AssemblyLoader.Load(assembliesCode.ToArray());
+                var assemblies = m_AssemblyLoader.Load(assembliesCode.ToArray());
                 foreach (var stream in assembliesCode)
                     stream.Dispose();
-                
-                entryPoint.Invoke(null, new object[] {m_Args});
+
+                using (PerVal(applicationName, licenseFileName))
+                using (m_AssemblyLoader.CreateResolver(assemblies))
+                    ((IEnumerable<dynamic>)assemblies)
+                        .Single(x => x.EntryPoint != null)
+                        .EntryPoint.Invoke(null, new object[] {m_Args});
+
                 return new ApplicationLoadResult(ApplicationLoadStatus.Success, null);
             }
             catch (LicenseCorruptException)
@@ -101,6 +110,32 @@ namespace Msv.Licensing.Client
             {
                 return new ApplicationLoadResult(ApplicationLoadStatus.UnknownError, ex);
             }
+        }
+
+        [Obfuscation(Exclude = true)]
+        private dynamic PerVal(dynamic applicationName, dynamic licenseFileName)
+        {
+            dynamic random = new Random(GetType().GetHashCode());
+            dynamic standardCheckInterval = TimeSpan.FromSeconds(double.Parse("10800")); //3 hours
+            dynamic maxIntervalDispersion = int.Parse("3600"); //1 hour
+            return Observable.Generate(Unit.Default, x => true, x => x, x => x,
+                    x => (TimeSpan) (standardCheckInterval
+                                     + TimeSpan.FromSeconds(random.Next(-maxIntervalDispersion, maxIntervalDispersion))),
+                    TaskPoolScheduler.Default)
+                .Subscribe(x =>
+                {
+                    try
+                    {
+                        new LicenseVerifier(null, new PublicKeyProvider()).Verify(applicationName, licenseFileName);
+                    }
+                    catch
+                    {
+                        // License expired or corrupted - exiting with Environment.Exit(1)
+                        dynamic exitMethod = typeof(Environment).GetMethod(nameof(Environment.Exit),
+                            BindingFlags.Public | BindingFlags.Static);
+                        exitMethod.Invoke(null, new object[] {int.Parse("1")});
+                    }
+                });
         }
     }
 }

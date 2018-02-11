@@ -15,12 +15,18 @@ namespace Msv.Licensing.Client
 
         public LicenseVerifier(IEncryptionKeyDeriver deriver, IPublicKeyProvider publicKeyProvider)
         {
-            m_Deriver = deriver ?? throw new ArgumentNullException(nameof(deriver));
+            m_Deriver = deriver;
             m_PublicKeyProvider = publicKeyProvider;
         }
 
         [Obfuscation(Exclude = true)]
-        public dynamic Verify(string appName, string filename)
+        public dynamic VerifyAndDerive(dynamic appName, dynamic filename)
+        {
+            Verify(appName, filename);
+            return m_Deriver.Derive(m_PublicKeyProvider.Provide());
+        }
+
+        public void Verify(dynamic appName, dynamic filename)
         {
             dynamic xmlDocument = new XmlDocument();
             using (dynamic fileReader = new StreamReader(filename))
@@ -52,8 +58,6 @@ namespace Msv.Licensing.Client
 
             if (licenseData.Expires != null && licenseData.Expires < now)
                 throw new LicenseExpiredException();
-
-            return m_Deriver.Derive(m_PublicKeyProvider.Provide());
         }
     }
 }
