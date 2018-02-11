@@ -19,6 +19,7 @@ namespace Msv.Licensing.Starter.DotNet
             => AppDomain.CurrentDomain.AssemblyResolve -= OnAssemblyResolve;
 
         private Assembly OnAssemblyResolve(dynamic sender, dynamic args)
-            => Array.Find(((IEnumerable<dynamic>)m_Assemblies).Cast<Assembly>().ToArray(), x => x.GetName().Name == args.Name);
+            => Array.Find(((IEnumerable<dynamic>) m_Assemblies).Cast<Assembly>().ToArray(),
+                x => x.GetName().Name == new AssemblyName(args.Name).Name);
     }
 }
