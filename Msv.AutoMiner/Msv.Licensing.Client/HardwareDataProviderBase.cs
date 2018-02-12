@@ -22,6 +22,7 @@ namespace Msv.Licensing.Client
                     Arguments = arguments,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     UseShellExecute = false
                 }
             })
