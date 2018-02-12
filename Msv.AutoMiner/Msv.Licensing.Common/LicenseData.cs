@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Msv.Licensing.Common
 {
-    [DataContract(Name = nameof(LicenseData))]
+    [DataContract(Name = nameof(LicenseData), Namespace = "")]
     public class LicenseData
     {
         [DataMember(Name = nameof(ApplicationName))]
