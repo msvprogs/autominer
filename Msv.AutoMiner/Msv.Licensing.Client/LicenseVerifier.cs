@@ -62,7 +62,7 @@ namespace Msv.Licensing.Client
                 }
             }
 
-            dynamic licenseData = LicenseData.Serializer.Deserialize((string)xmlDocument.InnerXml);
+            var licenseData = LicenseData.Serializer.Deserialize((string)xmlDocument.InnerXml);
             if (licenseData.ApplicationName != appName)
             {
                 M_Logger.Warn("License file cannot be used, it has been issued for the other application: " + licenseData.ApplicationName);
@@ -94,7 +94,7 @@ namespace Msv.Licensing.Client
                     null, 
                     new[] {typeof(string), typeof(string)}, 
                     null)
-                .Invoke(null, new object[] {"MSVAUTOMINER_LICENSE_QJCBLF", licenseData});
+                .Invoke(null, new object[] {"MSVAUTOMINER_LICENSE_QJCBLF", xmlDocument.InnerXml});
 
             M_Logger.Info($"License verified. {licenseData.ApplicationName}, licensed to {licenseData.Owner}, " 
                           + $"expires on {(licenseData.Expires != null ? licenseData.Expires.Value.ToLongDateString() + " GMT" : "<never>")}");
