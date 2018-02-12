@@ -7,11 +7,16 @@ namespace Msv.AutoMiner.Common.Infrastructure
     public class ProfitabilityCalculator : IProfitabilityCalculator
     {
         private const int SecondsInDay = 60 * 60 * 24;
+
+        // Assuming that probability of finding the longer chain for PrimeChain is 0.0285 (from statistical data)
+        private const double LongerChainProbability = 0.0285;
+
         private static readonly double M_32ByteHashesCount = Math.Pow(256, 32);
         private static readonly double M_BtcMaxTarget = (double) CompactHelper.FromCompact(0x1d00ffff);
 
         public double CalculateCoinsPerDay(
-            KnownCoinAlgorithm? knownAlgorithm, double difficulty, double blockReward, string maxTarget, double yourHashRate)
+            KnownCoinAlgorithm? knownAlgorithm, double difficulty, double blockReward, string maxTarget,
+            double yourHashRate)
         {
             if (difficulty <= 0)
                 return 0;
@@ -21,7 +26,8 @@ namespace Msv.AutoMiner.Common.Infrastructure
             // Longer chains will be accepted with 100% probability.
             if (knownAlgorithm == KnownCoinAlgorithm.PrimeChain)
                 return blockReward * yourHashRate * CalculatePrimeChainFindingProbability(difficulty);
-            return SecondsInDay * blockReward * yourHashRate * ParseMaxTarget(maxTarget) / (difficulty * M_32ByteHashesCount);
+            return SecondsInDay * blockReward * yourHashRate * ParseMaxTarget(maxTarget) /
+                   (difficulty * M_32ByteHashesCount);
         }
 
         public TimeSpan? CalculateTimeToFind(
@@ -39,17 +45,17 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 return null;
 
             var ttfSeconds = difficulty * M_32ByteHashesCount / (maxTargetDouble * hashrate);
-            if (double.IsNaN(ttfSeconds) 
+            if (double.IsNaN(ttfSeconds)
                 || double.IsInfinity(ttfSeconds)
                 || ttfSeconds > TimeSpan.MaxValue.TotalSeconds)
                 return null;
             return TimeSpan.FromSeconds(ttfSeconds);
         }
 
-        // Assuming that probability of finding the longer chain is 0.0285 (from statistical data)
+
         // Probability = current_length_probability + longer_length_probability
         private static double CalculatePrimeChainFindingProbability(double difficulty)
-            => Math.Min(1, 1 - (difficulty - Math.Truncate(difficulty)) + 0.0285);
+            => (1 - (difficulty - Math.Truncate(difficulty))) * (1 - LongerChainProbability) + LongerChainProbability;
 
         private static double ParseMaxTarget(string maxTarget)
         {
@@ -57,8 +63,8 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 return M_BtcMaxTarget;
             var parsedTarget = HexHelper.HexToBigInteger(maxTarget);
             return CompactHelper.IsCompact(parsedTarget)
-                ? (double)CompactHelper.FromCompact((uint) parsedTarget)
-                : (double)parsedTarget;
+                ? (double) CompactHelper.FromCompact((uint) parsedTarget)
+                : (double) parsedTarget;
         }
     }
 }
