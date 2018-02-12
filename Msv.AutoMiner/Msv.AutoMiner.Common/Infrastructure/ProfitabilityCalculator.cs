@@ -20,7 +20,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
             // We assume that the output of failed Ferma probability test of the 11-th element is uniformely distributed.
             // Longer chains will be accepted with 100% probability.
             if (knownAlgorithm == KnownCoinAlgorithm.PrimeChain)
-                return blockReward * yourHashRate * (1 - (difficulty - Math.Truncate(difficulty)));
+                return blockReward * yourHashRate * CalculatePrimeChainFindingProbability(difficulty);
             return SecondsInDay * blockReward * yourHashRate * ParseMaxTarget(maxTarget) / (difficulty * M_32ByteHashesCount);
         }
 
@@ -32,7 +32,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
 
             // PrimeChain hashrate time units is Days (Chains Per Day)
             if (knownAlgorithm == KnownCoinAlgorithm.PrimeChain)
-                return TimeSpan.FromDays(1 / (hashrate * (1 - (difficulty - Math.Truncate(difficulty)))));
+                return TimeSpan.FromDays(1 / (hashrate * CalculatePrimeChainFindingProbability(difficulty)));
 
             var maxTargetDouble = ParseMaxTarget(maxTarget);
             if (maxTargetDouble <= 0)
@@ -45,6 +45,11 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 return null;
             return TimeSpan.FromSeconds(ttfSeconds);
         }
+
+        // Assuming that probability of finding the longer chain is 0.0275 (from statistical data)
+        // Probability = current_length_probability + longer_length_probability
+        private static double CalculatePrimeChainFindingProbability(double difficulty)
+            => 1 - (difficulty - Math.Truncate(difficulty)) + 0.0275;
 
         private static double ParseMaxTarget(string maxTarget)
         {
