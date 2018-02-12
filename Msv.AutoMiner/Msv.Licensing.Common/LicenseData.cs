@@ -1,30 +1,30 @@
 ﻿using System;
-using System.Xml.Serialization;
+using System.Runtime.Serialization;
 
 namespace Msv.Licensing.Common
 {
-    [XmlRoot(nameof(LicenseData))]
+    [DataContract(Name = nameof(LicenseData))]
     public class LicenseData
     {
-        [XmlElement(nameof(ApplicationName))]
+        [DataMember(Name = nameof(ApplicationName))]
         public string ApplicationName { get; set; }
 
-        [XmlElement(nameof(HardwareId))]
+        [DataMember(Name = nameof(HardwareId))]
         public string HardwareId { get; set; }
 
-        [XmlElement(nameof(LicenseId))]
+        [DataMember(Name = nameof(LicenseId))]
         public string LicenseId { get; set; }
 
-        [XmlElement(nameof(Owner))]
+        [DataMember(Name = nameof(Owner))]
         public string Owner { get; set; }
 
-        [XmlElement(nameof(Issued))]
+        [DataMember(Name = nameof(Issued))]
         public DateTime Issued { get; set; }
 
-        [XmlElement(nameof(Expires))]
+        [DataMember(Name = nameof(Expires))]
         public DateTime? Expires { get; set; }
 
-        [XmlElement(nameof(SkipHardwareIdValidation))]
+        [DataMember(Name = nameof(SkipHardwareIdValidation))]
         public bool SkipHardwareIdValidation { get; set; }
 
         public static ISerializer<LicenseData> Serializer 
