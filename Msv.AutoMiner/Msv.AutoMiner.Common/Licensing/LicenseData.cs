@@ -5,28 +5,28 @@ using Msv.AutoMiner.Common.Infrastructure;
 
 namespace Msv.AutoMiner.Common.Licensing
 {
-    [DataContract(Name = nameof(LicenseData), Namespace = "")]
+    [DataContract(Namespace = "")]
     public class LicenseData
     {
-        [DataMember(Name = nameof(ApplicationName), Order = 0)]
+        [DataMember(Order = 0)]
         public string ApplicationName { get; set; }
 
-        [DataMember(Name = nameof(HardwareId), Order = 1)]
+        [DataMember(Order = 1)]
         public string HardwareId { get; set; }
 
-        [DataMember(Name = nameof(LicenseId), Order = 2)]
+        [DataMember(Order = 2)]
         public string LicenseId { get; set; }
 
-        [DataMember(Name = nameof(Owner), Order = 3)]
+        [DataMember(Order = 3)]
         public string Owner { get; set; }
 
-        [DataMember(Name = nameof(Issued), Order = 4)]
+        [DataMember(Order = 4)]
         public DateTime Issued { get; set; }
 
-        [DataMember(Name = nameof(Expires), Order = 5)]
+        [DataMember(Order = 5)]
         public DateTime? Expires { get; set; }
 
-        [DataMember(Name = nameof(SkipHardwareIdValidation), Order = 6)]
+        [DataMember(Order = 6)]
         public bool SkipHardwareIdValidation { get; set; }
 
         [IgnoreDataMember]

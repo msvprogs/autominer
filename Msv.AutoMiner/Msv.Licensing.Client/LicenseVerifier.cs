@@ -37,6 +37,8 @@ namespace Msv.Licensing.Client
 
         public void Verify(dynamic appName, dynamic filename)
         {
+            M_Logger.Info("Verifying license...");
+
             dynamic xmlDocument = new XmlDocument();
             using (dynamic fileReader = new StreamReader(filename))
             using (dynamic reader = new XmlTextReader(fileReader))
