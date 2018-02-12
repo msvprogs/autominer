@@ -234,6 +234,12 @@ namespace Msv.AutoMiner.ServerInitializer
                 },
                 new CoinAlgorithm
                 {
+                    Id = Guid.Parse("F2BBF34F-01F0-42C1-A6C6-9998ED0E8AD9"),
+                    Name = "PrimeChain",
+                    KnownValue = KnownCoinAlgorithm.PrimeChain
+                },
+                new CoinAlgorithm
+                {
                     Id = Guid.Parse("15c2848a-e3de-6a93-d97e-7e58968810fd"),
                     Name = "Scrypt",
                     KnownValue = (KnownCoinAlgorithm?) 1
