@@ -365,7 +365,7 @@ rpcallowip={allowIpMask}
                     MasternodeCount = x.network.MasternodeCount,
                     TotalSupply = x.network.TotalSupply,
                     SoloMiningTtf = m_ProfitabilityCalculator.CalculateTimeToFind(
-                        x.network.Coin.Algorithm.KnownValue,
+                        x.coin.Algorithm.KnownValue,
                         x.network.Difficulty,
                         x.coin.MaxTarget, 
                         overallHashrates.TryGetValue(x.coin.AlgorithmId)),

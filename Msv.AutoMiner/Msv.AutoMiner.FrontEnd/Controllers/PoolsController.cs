@@ -221,7 +221,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Fee = x.pool.FeeRatio,
                     Url = x.pool.GetUrl().ToString(),
                     TimeToFind = m_ProfitabilityCalculator.CalculateTimeToFind(
-                        x.networkInfo.Coin.Algorithm.KnownValue,
+                        x.networkInfo.Coin?.Algorithm.KnownValue,
                         x.networkInfo.Difficulty, 
                         x.pool.Coin.MaxTarget,
                         x.state.PoolHashRate),
