@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Msv.Licensing.Client;
+using Msv.Licensing.Client.Data;
 
 namespace Msv.Licensing.Starter.DotNetCore
 {
@@ -28,9 +29,10 @@ namespace Msv.Licensing.Starter.DotNetCore
                 return;
             }
 
-            var loader = new LicensedApplicationLoader(new AssemblyLoader(), new string[0]);
+            dynamic loader = new LicensedApplicationLoader(new AssemblyLoader(), new string[0]);
 
-            dynamic result = loader.Load(Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
+            ApplicationLoadResult result = loader.Load(
+                Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
             if (result.Status == ApplicationLoadStatus.Success)
                 return;
             

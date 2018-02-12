@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Msv.Licensing.Client;
+using Msv.Licensing.Client.Data;
 
 namespace Msv.Licensing.Starter.DotNet
 {
@@ -36,7 +37,8 @@ namespace Msv.Licensing.Starter.DotNet
             #endif
             );
 
-            var result = loader.Load(Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
+            ApplicationLoadResult result = loader.Load(
+                Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
             if (result.Status == ApplicationLoadStatus.Success)
                 return;
             
