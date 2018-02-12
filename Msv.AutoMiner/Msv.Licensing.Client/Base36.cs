@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Msv.Licensing.Client
 {
@@ -21,6 +22,7 @@ namespace Msv.Licensing.Client
             return new string(chars, i, chars.Length - i);
         }
 
+        [Obfuscation(Exclude = true)]
         public static string EncodeDelimited(byte[] bytes, int groups, int groupLength = 5) 
             => string.Join(GroupDelimiter, Enumerable.Range(0, groups)
                 .Select(x => x * sizeof(uint))
