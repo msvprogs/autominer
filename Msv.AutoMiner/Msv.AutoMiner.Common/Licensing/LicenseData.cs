@@ -1,33 +1,29 @@
 ﻿using System;
 using System.Xml.Serialization;
+using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Infrastructure;
 
-namespace Msv.Licensing.Common
+namespace Msv.AutoMiner.Common.Licensing
 {
-    [XmlRoot(nameof(LicenseData))]
     public class LicenseData
     {
-        [XmlElement(nameof(ApplicationName))]
         public string ApplicationName { get; set; }
-
-        [XmlElement(nameof(HardwareId))]
         public string HardwareId { get; set; }
-
-        [XmlElement(nameof(LicenseId))]
         public string LicenseId { get; set; }
-
-        [XmlElement(nameof(Owner))]
         public string Owner { get; set; }
-
-        [XmlElement(nameof(Issued))]
         public DateTime Issued { get; set; }
-
-        [XmlElement(nameof(Expires))]
         public DateTime? Expires { get; set; }
-
-        [XmlElement(nameof(SkipHardwareIdValidation))]
         public bool SkipHardwareIdValidation { get; set; }
+
+        [XmlIgnore]
+        public bool IsEmpty => LicenseId == null;
 
         public static ISerializer<LicenseData> Serializer 
             => new CorrectXmlSerializer<LicenseData>();
+
+        public static LicenseData Current
+            => Environment.GetEnvironmentVariable(Constants.LicenseEnvVariableName) != null
+                ? Serializer.Deserialize(Environment.GetEnvironmentVariable(Constants.LicenseEnvVariableName))
+                : new LicenseData();
     }
 }

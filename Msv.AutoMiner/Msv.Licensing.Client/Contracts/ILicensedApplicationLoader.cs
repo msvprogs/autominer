@@ -1,4 +1,6 @@
-﻿namespace Msv.Licensing.Client
+﻿using Msv.Licensing.Client.Data;
+
+namespace Msv.Licensing.Client.Contracts
 {
     public interface ILicensedApplicationLoader
     {

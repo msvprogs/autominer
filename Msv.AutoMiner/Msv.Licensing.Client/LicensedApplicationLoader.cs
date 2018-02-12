@@ -9,6 +9,8 @@ using System.Reactive.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using Msv.Licensing.Client.Contracts;
+using Msv.Licensing.Client.Data;
 using Msv.Licensing.Common;
 
 namespace Msv.Licensing.Client
@@ -28,19 +30,22 @@ namespace Msv.Licensing.Client
         {
             if (applicationName == null) 
                 throw new ArgumentNullException(nameof(applicationName));
-            if (licenseFileName == null) 
-                throw new ArgumentNullException(nameof(licenseFileName));
 
+            if (string.IsNullOrWhiteSpace(licenseFileName))
+                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseNotFound, CreateNewLicenseIdsMessage());
             dynamic licenseFile = new FileInfo(licenseFileName);
             if (!licenseFile.Exists)
-                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseNotFound, null);
+                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseNotFound, CreateNewLicenseIdsMessage());
             var appFiles = licenseFile.Directory.GetFiles($"{applicationName}.msvenc");
             if (appFiles.Length == 0)
-                return new ApplicationLoadResult(ApplicationLoadStatus.ApplicationNotFound, null);
+                return new ApplicationLoadResult(ApplicationLoadStatus.ApplicationNotFound);
 
             try
             {
-                dynamic verifier = new LicenseVerifier(new EncryptionKeyDeriver(), new PublicKeyProvider());
+                dynamic verifier = new LicenseVerifier(
+                    new EncryptionKeyDeriver(),
+                    new PublicKeyProvider(),
+                    new HardwareIdProvider(new HardwareDataProviderFactory()));
                 dynamic assembliesCode = new List<MemoryStream>();
                 var decryptionKey = verifier.VerifyAndDerive(applicationName, licenseFileName);
                 dynamic iv;
@@ -66,7 +71,7 @@ namespace Msv.Licensing.Client
                     dynamic appNameBuffer = new byte[appNameLength];
                     decompressStream.Read(appNameBuffer, 0, appNameBuffer.Length);
                     if (Encoding.UTF8.GetString(appNameBuffer) != applicationName)
-                        return new ApplicationLoadResult(ApplicationLoadStatus.LicenseIsForOtherApplication, null);
+                        return new ApplicationLoadResult(ApplicationLoadStatus.LicenseIsForOtherApplication);
 
                     while (fileStream.Position < fileStream.Length)
                     {
@@ -88,27 +93,36 @@ namespace Msv.Licensing.Client
                         .Single(x => x.EntryPoint != null)
                         .EntryPoint.Invoke(null, new object[] {(dynamic)m_Args});
 
-                return new ApplicationLoadResult(ApplicationLoadStatus.Success, null);
+                return new ApplicationLoadResult(ApplicationLoadStatus.Success);
             }
             catch (LicenseCorruptException)
             {
-                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseCorrupt, null);
+                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseCorrupt, CreateNewLicenseIdsMessage());
             }
             catch (LicenseExpiredException)
             {
-                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseExpired, null);
+                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseExpired, CreateNewLicenseIdsMessage());
             }
             catch (LicenseIsForDifferentApplicationException)
             {
-                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseIsForOtherApplication, null);
+                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseIsForOtherApplication, CreateNewLicenseIdsMessage());
             }
             catch (CryptographicException cex)
             {
-                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseCorrupt, cex);
+                return new ApplicationLoadResult(ApplicationLoadStatus.LicenseCorrupt, CreateNewLicenseIdsMessage(), cex);
             }
             catch (Exception ex)
             {
-                return new ApplicationLoadResult(ApplicationLoadStatus.UnknownError, ex);
+                return new ApplicationLoadResult(ApplicationLoadStatus.UnknownError, null, ex);
+            }
+
+            dynamic CreateNewLicenseIdsMessage()
+            {
+                dynamic generator = new LicenseIdGenerator();
+                dynamic hwIdProvider = new HardwareIdProvider((dynamic)new HardwareDataProviderFactory());
+                return $@"To request a new license, please provide the following information:
+License ID: {generator.Generate()}
+Hardware key: {hwIdProvider.GetHardwareId()}";
             }
         }
 
@@ -126,7 +140,11 @@ namespace Msv.Licensing.Client
                 {
                     try
                     {
-                        new LicenseVerifier(null, (dynamic)new PublicKeyProvider()).Verify(applicationName, licenseFileName);
+                        new LicenseVerifier(
+                                null, 
+                                (dynamic) new PublicKeyProvider(), 
+                                (dynamic) new HardwareIdProvider(new HardwareDataProviderFactory()))
+                            .Verify(applicationName, licenseFileName);
                     }
                     catch
                     {

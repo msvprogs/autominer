@@ -60,6 +60,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
         }
 
         [HttpPost("registerRig")]
+        [CheckLicense]
         public RegisterRigResponseModel RegisterRig([FromBody] RegisterRigRequestModel request)
         {
             M_Logger.Info($"Received registration request for rig {request.Name}");
@@ -156,6 +157,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
 
         [HttpPost("getMiningWork")]
         [AuthenticateRigByCertificate]
+        [CheckLicense]
         public async Task<MiningWorkModel[]> GetMiningWork([FromBody] GetMiningWorkRequestModel request)
         {
             var rigId = (int)ControllerContext.RouteData.Values["rigId"];
@@ -192,6 +194,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
 
         [HttpPost("checkConfiguration")]
         [AuthenticateRigByCertificate]
+        [CheckLicense]
         public CheckConfigurationResponseModel CheckConfiguration(
             [FromBody] GetConfigurationRequestModel request)
         {
@@ -206,6 +209,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
 
         [HttpPost("getConfiguration")]
         [AuthenticateRigByCertificate]
+        [CheckLicense]
         public GetConfigurationResponseModel GetConfiguration(
             [FromBody] GetConfigurationRequestModel request)
         {

@@ -5,9 +5,6 @@
         [CommandAction("--list-algorithms", Description = "List all algorithms known by rig")]
         void ListAlgorithms();
 
-        [CommandAction("--update-algorithms", Description = "Update algorithm list from server")]
-        void UpdateAlgorithms();
-
         [CommandAction("--list-miners", Description = "List all miners known by rig")]
         void ListMiners();
 

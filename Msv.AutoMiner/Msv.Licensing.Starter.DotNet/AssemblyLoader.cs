@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Msv.Licensing.Client;
+using Msv.Licensing.Client.Contracts;
 
 namespace Msv.Licensing.Starter.DotNet
 {

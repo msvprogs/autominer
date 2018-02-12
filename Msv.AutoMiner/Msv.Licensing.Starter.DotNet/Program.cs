@@ -28,7 +28,7 @@ namespace Msv.Licensing.Starter.DotNet
                 return;
             }
 
-            var loader = new LicensedApplicationLoader(new AssemblyLoader(),
+            dynamic loader = new LicensedApplicationLoader(new AssemblyLoader(),
             #if DEBUG
                 new string[0]
             #else 
@@ -36,7 +36,7 @@ namespace Msv.Licensing.Starter.DotNet
             #endif
             );
 
-            var result = loader.Load(Path.GetFileNameWithoutExtension(appFile.Name), "license.dat");
+            var result = loader.Load(Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
             if (result.Status == ApplicationLoadStatus.Success)
                 return;
             

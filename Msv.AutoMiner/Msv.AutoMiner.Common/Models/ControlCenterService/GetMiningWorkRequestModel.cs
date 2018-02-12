@@ -2,7 +2,7 @@
 
 namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {
-    public class GetMiningWorkRequestModel
+    public class GetMiningWorkRequestModel : LicensedRequestBase
     {
         public AlgorithmPowerData[] AlgorithmDatas { get; set; }
 

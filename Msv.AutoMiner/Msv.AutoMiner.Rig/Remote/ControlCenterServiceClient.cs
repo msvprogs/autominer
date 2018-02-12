@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Msv.AutoMiner.Common.Models.CoinInfoService;
+using Msv.AutoMiner.Common.Licensing;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 
 namespace Msv.AutoMiner.Rig.Remote
@@ -15,10 +15,7 @@ namespace Msv.AutoMiner.Rig.Remote
         public RegisterRigResponseModel RegisterRig(RegisterRigRequestModel request)
             => m_RestClient.Post<RegisterRigRequestModel, RegisterRigResponseModel>(
                 "/api/controlCenter/registerRig",
-                request);
-
-        public AlgorithmInfo[] GetAlgorithms()
-            => m_RestClient.Get<AlgorithmInfo[]>("/api/controlCenter/getAlgorithms");
+                AddLicenseId(request));
 
         public SendHeartbeatResponseModel SendHeartbeat(Heartbeat heartbeat)
             => m_RestClient.Post<Heartbeat, SendHeartbeatResponseModel>(
@@ -28,19 +25,26 @@ namespace Msv.AutoMiner.Rig.Remote
         public MiningWorkModel[] GetMiningWork(GetMiningWorkRequestModel request)
             => m_RestClient.Post<GetMiningWorkRequestModel, MiningWorkModel[]>(
                 "/api/controlCenter/getMiningWork",
-                request);
+                AddLicenseId(request));
 
         public CheckConfigurationResponseModel CheckConfiguration(GetConfigurationRequestModel request)
             => m_RestClient.Post<GetConfigurationRequestModel, CheckConfigurationResponseModel>(
                 "/api/controlCenter/checkConfiguration",
-                request);
+                AddLicenseId(request));
 
         public GetConfigurationResponseModel GetConfiguration(GetConfigurationRequestModel request)
             => m_RestClient.Post<GetConfigurationRequestModel, GetConfigurationResponseModel>(
                 "/api/controlCenter/getConfiguration",
-                request);
+                AddLicenseId(request));
 
         public Stream DownloadMiner(int versionId)
             => m_RestClient.GetStream($"/api/controlCenter/downloadMiner/{versionId}");
+
+        private static T AddLicenseId<T>(T request)
+            where T : LicensedRequestBase
+        {
+            request.LicenseId = LicenseData.Current.LicenseId;
+            return request;
+        }
     }
 }

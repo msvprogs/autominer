@@ -30,7 +30,7 @@ namespace Msv.Licensing.Starter.DotNetCore
 
             var loader = new LicensedApplicationLoader(new AssemblyLoader(), new string[0]);
 
-            var result = loader.Load(Path.GetFileNameWithoutExtension(appFile.Name), "license.dat");
+            dynamic result = loader.Load(Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
             if (result.Status == ApplicationLoadStatus.Success)
                 return;
             

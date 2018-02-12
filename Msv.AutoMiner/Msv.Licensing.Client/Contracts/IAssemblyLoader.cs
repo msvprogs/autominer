@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 
-namespace Msv.Licensing.Client
+namespace Msv.Licensing.Client.Contracts
 {
     public interface IAssemblyLoader
     {

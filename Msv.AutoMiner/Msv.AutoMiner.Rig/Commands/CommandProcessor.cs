@@ -17,7 +17,6 @@ namespace Msv.AutoMiner.Rig.Commands
     public class CommandProcessor : ICommandProcessor
     {
         private readonly IVideoSystemStateProvider m_VideoStateProvider;
-        private readonly IControlCenterService m_Service;
         private readonly IControlCenterRegistrator m_Registrator;
         private readonly IMinerTester m_Tester;
         private readonly IEnvironmentConfigurator m_EnvironmentConfigurator;
@@ -25,14 +24,12 @@ namespace Msv.AutoMiner.Rig.Commands
 
         public CommandProcessor(
             IVideoSystemStateProvider videoStateProvider,
-            IControlCenterService service,
             IControlCenterRegistrator registrator,
             IMinerTester tester,
             IEnvironmentConfigurator environmentConfigurator,
             ICommandProcessorStorage storage)
         {
             m_VideoStateProvider = videoStateProvider ?? throw new ArgumentNullException(nameof(videoStateProvider));
-            m_Service = service ?? throw new ArgumentNullException(nameof(service));
             m_Registrator = registrator ?? throw new ArgumentNullException(nameof(registrator));
             m_Tester = tester ?? throw new ArgumentNullException(nameof(tester));
             m_EnvironmentConfigurator = environmentConfigurator ?? throw new ArgumentNullException(nameof(environmentConfigurator));
@@ -52,29 +49,6 @@ namespace Msv.AutoMiner.Rig.Commands
                     ConversionHelper.ToHashRateWithUnits(x.algorithm.SpeedInHashes, x.algorithm.KnownValue), 
                     $"{x.algorithm.Power:F2} W"));
             Console.WriteLine(builder);
-        }
-
-        public void UpdateAlgorithms()
-        {
-            Console.WriteLine("Requesting algorithms from server...");
-            var serverAlgorithms = m_Service.GetAlgorithms();
-            var localAlgorithms = m_Storage.GetAlgorithms();
-            var newAlgorithms = serverAlgorithms.LeftOuterJoin(localAlgorithms,
-                    x => x.Id, x => Guid.Parse(x.AlgorithmId), (x, y) => y == null ? x : null)
-                .Where(x => x != null)
-                .ToArray();
-            Console.WriteLine(
-                $"Got {serverAlgorithms.Length} algorithms, already have {localAlgorithms.Length}, {newAlgorithms.Length} new");
-            if (!newAlgorithms.Any())
-                return;
-            m_Storage.StoreAlgorithms(newAlgorithms.Select(x =>
-                    new AlgorithmData
-                    {
-                        AlgorithmId = x.Id.ToString(),
-                        AlgorithmName = x.Name,
-                        KnownValue = x.KnownValue
-                    })
-                .ToArray());
         }
 
         public void ListMiners()

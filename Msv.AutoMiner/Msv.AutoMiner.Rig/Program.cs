@@ -39,6 +39,13 @@ namespace Msv.AutoMiner.Rig
                     e.SetObserved();
                 };
 
+#if !DEBUG
+            if (Msv.AutoMiner.Common.Licensing.LicenseData.Current.IsEmpty)
+            {
+                M_Logger.Error("License not found, exiting");
+                return;
+            }
+#endif
             var environmentConfigurator = new EnvironmentConfiguratorFactory().Create();
             var environmentCheckResult = environmentConfigurator.Check();
             if (environmentCheckResult != null && !args.Contains("--config-env"))
@@ -77,7 +84,6 @@ namespace Msv.AutoMiner.Rig
                 var interpreter = new CommandInterpreter(
                     new CommandProcessor(
                         videoStateProvider,
-                        controlCenterClient,
                         new ControlCenterRegistrator(
                             certificateProvider,
                             controlCenterClient),

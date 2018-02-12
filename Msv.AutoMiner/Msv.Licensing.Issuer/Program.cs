@@ -6,7 +6,7 @@ namespace Msv.Licensing.Issuer
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             Console.WriteLine("License issuing software for Msv.AutoMiner");
             Console.Write("Enter license ID: ");
@@ -43,9 +43,14 @@ namespace Msv.Licensing.Issuer
                 LicenseId = licenseId,
                 Owner = ownerName
             };
+            var signer = new LicenseDataSigner();
+            File.WriteAllBytes($"license_service_{ownerName}_{licenseData.Issued:yyyyMMdd}.msvlic", signer.Sign(licenseData));
 
-            File.WriteAllBytes("license.dat", new LicenseDataSigner().Sign(licenseData));
-            Console.WriteLine("License file created successfully.");
+            licenseData.ApplicationName = "Msv.AutoMiner.Rig";
+            licenseData.SkipHardwareIdValidation = true;
+            File.WriteAllBytes($"license_rig_{ownerName}_{licenseData.Issued:yyyyMMdd}.msvlic", signer.Sign(licenseData));
+
+            Console.WriteLine("License files created successfully.");
             Console.ReadKey();
         }
     }
