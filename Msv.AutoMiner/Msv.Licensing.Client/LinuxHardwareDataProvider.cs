@@ -53,7 +53,7 @@ namespace Msv.Licensing.Client
                     contents.Last().Value.AppendLine(line);
                 else if (line.StartsWith(Indent))
                 {
-                    var parts = line.Split(M_KeyValueSeparator, 2);
+                    string[] parts = line.Split(M_KeyValueSeparator, 2);
                     contents.Add(new KeyValuePair<string, StringBuilder>(
                         parts[0].Trim(), new StringBuilder(parts.ElementAtOrDefault(1)?.Trim())));
                 }
