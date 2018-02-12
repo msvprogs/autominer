@@ -15,7 +15,7 @@ namespace Msv.AutoMiner.FrontEnd
 #if !DEBUG
             if (Msv.AutoMiner.Common.Licensing.LicenseData.Current.IsEmpty)
             {
-                M_Logger.Error("License not found, exiting");
+                System.Console.WriteLine("License not found, exiting");
                 return;
             }
 #endif
