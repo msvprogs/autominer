@@ -46,10 +46,10 @@ namespace Msv.AutoMiner.Common.Infrastructure
             return TimeSpan.FromSeconds(ttfSeconds);
         }
 
-        // Assuming that probability of finding the longer chain is 0.0275 (from statistical data)
+        // Assuming that probability of finding the longer chain is 0.0285 (from statistical data)
         // Probability = current_length_probability + longer_length_probability
         private static double CalculatePrimeChainFindingProbability(double difficulty)
-            => 1 - (difficulty - Math.Truncate(difficulty)) + 0.0275;
+            => 1 - (difficulty - Math.Truncate(difficulty)) + 0.0285;
 
         private static double ParseMaxTarget(string maxTarget)
         {
