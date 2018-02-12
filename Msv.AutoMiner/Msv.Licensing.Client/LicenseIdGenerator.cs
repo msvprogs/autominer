@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Reflection;
+using System.Security.Cryptography;
 using Msv.Licensing.Client.Contracts;
 
 namespace Msv.Licensing.Client
@@ -7,6 +8,7 @@ namespace Msv.Licensing.Client
     {
         private const int Groups = 4;
 
+        [Obfuscation(Exclude = true)]
         public string Generate()
         {
             using (var prng = new RNGCryptoServiceProvider())
