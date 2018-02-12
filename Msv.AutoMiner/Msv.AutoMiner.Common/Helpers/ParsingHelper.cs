@@ -8,9 +8,8 @@ namespace Msv.AutoMiner.Common.Helpers
         private static readonly CultureInfo M_AmericanCulture = new CultureInfo("en-US");
 
         private static readonly Regex M_HashRateRegex = new Regex(
-            @"(?<value>(\d+[\s,'])*\d+(\.\d+)?)\s*(?<unit>[kmgtp]?[hscd])?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex M_GenerationRewardRegex = new Regex(
-            @"Generation:?\s*(?<reward>\d+(\.\d+)?)\s*\+\s*(?<fee>-?\d+(\.\d+)?) total fee", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            @"(?<value>(\d+[\s,'])*\d+(\.\d+)?)\s*(?<unit>[kmgtp]?[hscd])?",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public static double ParseValueWithUnits(string str)
             => ParseDouble(str.Trim().Split()[0]);
@@ -35,16 +34,7 @@ namespace Msv.AutoMiner.Common.Helpers
                 M_AmericanCulture);
         }
 
-        public static double? ParseGenerationReward(string str)
-        {
-            var match = M_GenerationRewardRegex.Match(str);
-            if (!match.Success)
-                return null;
-            return ParseDouble(match.Groups["reward"].Value)
-                   + ParseDouble(match.Groups["fee"].Value);
-        }
-
-        public static long ParseHashRate(string str, bool commaIsDecimalPoint = false)
+        public static double ParseHashRate(string str, bool commaIsDecimalPoint = false)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return 0;
@@ -54,7 +44,7 @@ namespace Msv.AutoMiner.Common.Helpers
             var value = match.Groups["value"].Value;
             var unit = match.Groups["unit"].Value.ToLowerInvariant();
             if (unit == string.Empty)
-                return (long) ParseDouble(value, commaIsDecimalPoint);
+                return ParseDouble(value, commaIsDecimalPoint);
             double multiplier;
             if (unit.StartsWith("h") || unit.StartsWith("s"))
                 multiplier = 1;
@@ -70,7 +60,7 @@ namespace Msv.AutoMiner.Common.Helpers
                 multiplier = 1e15;
             else
                 multiplier = 1;
-            return (long) (ParseDouble(value) * multiplier);
+            return ParseDouble(value) * multiplier;
         }
 
         private static string NormalizeNumber(string str)

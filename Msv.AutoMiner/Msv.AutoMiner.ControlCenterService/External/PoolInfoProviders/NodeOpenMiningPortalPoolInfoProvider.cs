@@ -50,14 +50,14 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             dynamic worker = ((JToken)stats.pools[m_PoolName].workers)[m_Wallet];
             if (worker != null)
             {
-                accountInfo.HashRate = ParsingHelper.ParseHashRate((string) worker.hashrateString);
+                accountInfo.HashRate = (long) ParsingHelper.ParseHashRate((string) worker.hashrateString);
                 accountInfo.ValidShares = (int) (double) worker.shares;
                 accountInfo.InvalidShares = (int) (double) worker.invalidshares;
             }
             var algorithmString = (string) stats.pools[m_PoolName].algorithm;
             var state = new PoolState
             {
-                TotalHashRate = ParsingHelper.ParseHashRate(
+                TotalHashRate = (long) ParsingHelper.ParseHashRate(
                     (string) stats.algos[algorithmString].hashrateString),
                 TotalWorkers = (int) stats.algos[algorithmString].workers
             };

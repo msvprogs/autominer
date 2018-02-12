@@ -59,7 +59,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 var benchmarkMatch = m_BenchmarkSpeedRegex.Match(output);
                 if (benchmarkMatch.Success)
                 {
-                    CurrentHashRate = ParsingHelper.ParseHashRate(benchmarkMatch.Groups["speed"].Value);
+                    CurrentHashRate = (long)ParsingHelper.ParseHashRate(benchmarkMatch.Groups["speed"].Value);
                     return;
                 }
             }
@@ -80,12 +80,12 @@ namespace Msv.AutoMiner.Rig.Infrastructure
             var primaryHashRate = matches.TryGetValue(m_PrimaryCurrency)
                                   ?? matches.TryGetValue(string.Empty);
             if (!string.IsNullOrEmpty(primaryHashRate))
-                CurrentHashRate = ParsingHelper.ParseHashRate(primaryHashRate);
+                CurrentHashRate = (long)ParsingHelper.ParseHashRate(primaryHashRate);
             if (string.IsNullOrEmpty(m_SecondaryCurrency))
                 return;
             var secondaryHashRate = matches.TryGetValue(m_SecondaryCurrency);
             if (!string.IsNullOrEmpty(secondaryHashRate))
-                CurrentSecondaryHashRate = ParsingHelper.ParseHashRate(secondaryHashRate);
+                CurrentSecondaryHashRate = (long)ParsingHelper.ParseHashRate(secondaryHashRate);
         }
 
         public void Dispose()

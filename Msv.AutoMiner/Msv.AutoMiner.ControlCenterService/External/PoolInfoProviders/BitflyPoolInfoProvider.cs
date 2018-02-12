@@ -41,7 +41,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             var accountInfo = accountJson.hashRate != null
                 ? new PoolAccountInfo
                 {
-                    HashRate = ParsingHelper.ParseHashRate((string) accountJson.hashRate),
+                    HashRate = (long)ParsingHelper.ParseHashRate((string) accountJson.hashRate),
                     ConfirmedBalance = (double) accountJson.unpaid / 1e8
                 }
                 : new PoolAccountInfo();
@@ -50,7 +50,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             var stateInfo = new PoolState
             {
                 LastBlock = (long) stateJson.data.block,
-                TotalHashRate = ParsingHelper.ParseHashRate((string) stateJson.data.hashRate),
+                TotalHashRate = (long)ParsingHelper.ParseHashRate((string) stateJson.data.hashRate),
                 TotalWorkers = (int) stateJson.data.minerCount
             };
             var page = new HtmlDocument();
