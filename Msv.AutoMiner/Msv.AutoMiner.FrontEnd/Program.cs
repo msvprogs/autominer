@@ -12,13 +12,13 @@ namespace Msv.AutoMiner.FrontEnd
     {
         public static void Main(string[] args)
         {
-#if !DEBUG
+//#if !DEBUG
             if (Msv.AutoMiner.Common.Licensing.LicenseData.Current.IsEmpty)
             {
                 System.Console.WriteLine("License not found, exiting");
                 return;
             }
-#endif
+//#endif
             var host = BuildWebHost(args);
 
             using (var scope = host.Services.CreateScope())

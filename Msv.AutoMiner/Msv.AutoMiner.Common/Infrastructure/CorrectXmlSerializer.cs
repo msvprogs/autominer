@@ -1,22 +1,25 @@
 ﻿using System;
 using System.IO;
-using System.Xml.Serialization;
+using System.Runtime.Serialization;
+using System.Xml;
 
 namespace Msv.AutoMiner.Common.Infrastructure
 {
     public class CorrectXmlSerializer<T> : ISerializer<T>
     {
-        private readonly XmlSerializer m_Serializer = new XmlSerializer(typeof(T));
+        // XmlSerializer doesn't work properly - it throws 'Invalid path' exception on the internal call
+        private readonly DataContractSerializer m_Serializer = new DataContractSerializer(typeof(T));
 
         public string Serialize(T value)
         {
             if (value == null) 
                 throw new ArgumentNullException(nameof(value));
 
-            using (var writer = new StringWriter())
+            using (var stringWriter = new StringWriter())
+            using (var writer = new XmlTextWriter(stringWriter))
             {
-                m_Serializer.Serialize(writer, value);
-                return writer.ToString();
+                m_Serializer.WriteObject(writer, value);
+                return stringWriter.ToString();
             }
         }
 
@@ -25,8 +28,9 @@ namespace Msv.AutoMiner.Common.Infrastructure
             if (serialized == null) 
                 throw new ArgumentNullException(nameof(serialized));
 
-            using (var reader = new StringReader(serialized))
-                return (T)m_Serializer.Deserialize(reader);
+            using (var stringReader = new StringReader(serialized))
+            using (var reader = new XmlTextReader(stringReader))
+                return (T)m_Serializer.ReadObject(reader);
         }
     }
 }
