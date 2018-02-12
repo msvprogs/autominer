@@ -8,6 +8,7 @@ namespace Msv.AutoMiner.Common.Infrastructure
     public class CorrectXmlSerializer<T> : ISerializer<T>
     {
         // XmlSerializer doesn't work properly - it throws 'Invalid path' exception on the internal call
+        // But we should use it only here (not in the license checking library), because it is field order sensitive
         private readonly DataContractSerializer m_Serializer = new DataContractSerializer(typeof(T));
 
         public string Serialize(T value)

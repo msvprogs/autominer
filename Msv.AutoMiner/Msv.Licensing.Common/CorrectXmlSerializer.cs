@@ -1,25 +1,22 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Xml;
+using System.Xml.Serialization;
 
 namespace Msv.Licensing.Common
 {
     public class CorrectXmlSerializer<T> : ISerializer<T>
     {
-        // XmlSerializer doesn't work properly - it throws 'Invalid path' exception on the internal call
-        private readonly DataContractSerializer m_Serializer = new DataContractSerializer(typeof(T));
+        private readonly XmlSerializer m_Serializer = new XmlSerializer(typeof(T));
 
         public string Serialize(T value)
         {
             if (value == null) 
                 throw new ArgumentNullException(nameof(value));
 
-            using (var stringWriter = new StringWriter())
-            using (var writer = new XmlTextWriter(stringWriter))
+            using (var writer = new StringWriter())
             {
-                m_Serializer.WriteObject(writer, value);
-                return stringWriter.ToString();
+                m_Serializer.Serialize(writer, value);
+                return writer.ToString();
             }
         }
 
@@ -28,9 +25,8 @@ namespace Msv.Licensing.Common
             if (serialized == null) 
                 throw new ArgumentNullException(nameof(serialized));
 
-            using (var stringReader = new StringReader(serialized))
-            using (var reader = new XmlTextReader(stringReader))
-                return (T)m_Serializer.ReadObject(reader);
+            using (var reader = new StringReader(serialized))
+                return (T)m_Serializer.Deserialize(reader);
         }
     }
 }
