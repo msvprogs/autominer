@@ -142,6 +142,8 @@
             var rigSelector = document.getElementById("rigSelector");
             var selectedAlgorithm = getSelectedOption(algorithmSelector);
             var selectedRig = getSelectedOption(rigSelector);
+            if (selectedAlgorithm != null)
+                $("#knownAlgorithm").val(selectedAlgorithm.data("known-algorithm"));
             if (selectedAlgorithm == null || selectedRig == null)
                 return;
             for (var i = 0; i < rigHashrates.length; i++)
@@ -150,8 +152,7 @@
                         var hashRateItem = rigHashrates[i].hashRates[j];
                         if (hashRateItem.algorithmId == selectedAlgorithm.val()) {
                             $("#hashRate").val(hashRateItem.netHashRate + " H/s");
-                            $("#clientPowerUsage").val(hashRateItem.power);
-                            $("#knownAlgorithm").val(selectedAlgorithm.data("known-algorithm"));
+                            $("#clientPowerUsage").val(hashRateItem.power); 
                         }
                     }
         }
