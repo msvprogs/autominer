@@ -26,6 +26,7 @@ namespace Msv.Licensing.Client
             m_Args = args ?? throw new ArgumentNullException(nameof(args));
         }
 
+        [Obfuscation(Exclude = true)]
         public ApplicationLoadResult Load(string applicationName, string licenseFileName)
         {
             if (applicationName == null) 
