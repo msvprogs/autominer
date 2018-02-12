@@ -8,6 +8,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     public class PrimeCoinInfoProvider : INetworkInfoProvider
     {
+        private static readonly Uri M_ExplorerBaseUri = new Uri("https://bchain.info/XPM/");
+
         private readonly IWebClient m_WebClient;
 
         public PrimeCoinInfoProvider(IWebClient webClient)
@@ -28,12 +30,12 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         }
 
         public Uri CreateTransactionUrl(string hash)
-            => null;
+            => new Uri(M_ExplorerBaseUri, $"tx/{hash}");
 
         public Uri CreateAddressUrl(string address)
-            => null;
+            => new Uri(M_ExplorerBaseUri, $"addr/{address}");
 
         public Uri CreateBlockUrl(string blockHash)
-            => null;
+            => new Uri(M_ExplorerBaseUri, $"block/{blockHash}");
     }
 }

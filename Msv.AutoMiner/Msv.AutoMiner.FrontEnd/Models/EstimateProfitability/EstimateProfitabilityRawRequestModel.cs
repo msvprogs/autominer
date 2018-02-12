@@ -1,4 +1,4 @@
-﻿namespace Msv.AutoMiner.FrontEnd.Models.Tools
+﻿namespace Msv.AutoMiner.FrontEnd.Models.EstimateProfitability
 {
     public class EstimateProfitabilityRawRequestModel
     {
@@ -15,5 +15,7 @@
         public string ClientPowerUsage { get; set; }
 
         public string ElectricityCostUsd { get; set; }
+
+        public string KnownAlgorithm { get; set; }
     }
 }

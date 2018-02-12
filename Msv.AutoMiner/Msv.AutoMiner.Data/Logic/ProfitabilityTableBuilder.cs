@@ -43,6 +43,7 @@ namespace Msv.AutoMiner.Data.Logic
                 : m_CoinValueProvider.GetAggregatedCoinValues(true, GetMinDateTime(request.PriceAggregationType));
 
             var btcUsdValue = m_FiatProvider.GetLastBtcUsdValue();
+
             return request.AlgorithmDatas
                 .Join(networkInfos, x => x.AlgorithmId, x => x.Coin.AlgorithmId,
                     (x, y) => (networkInfo: y, algorithmInfo: x))
@@ -53,6 +54,7 @@ namespace Msv.AutoMiner.Data.Logic
                         AlgorithmInfo = x.algorithmInfo,
                         MarketPrices = (y?.ExchangePrices).EmptyIfNull(),
                         CoinsPerDay = Math.Round(m_Calculator.CalculateCoinsPerDay(
+                                x.networkInfo.Coin.Algorithm.KnownValue,
                                 x.networkInfo.Difficulty, x.networkInfo.BlockReward,
                                 x.networkInfo.Coin.MaxTarget, x.algorithmInfo.NetHashRate),
                             CryptoCurrencyDecimalPlaces)
@@ -91,6 +93,7 @@ namespace Msv.AutoMiner.Data.Logic
 
             var btcUsdValue = m_FiatProvider.GetLastBtcUsdValue();
             var coinsPerDay = m_Calculator.CalculateCoinsPerDay(
+                request.KnownAlgorithm,
                 request.Difficulty,
                 request.BlockReward,
                 request.MaxTarget,

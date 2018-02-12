@@ -111,6 +111,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             return PartialView("_EstimatedProfitPartial", m_TableBuilder.EstimateProfitability(
                 new EstimateProfitabilityRequest
                 {
+                    KnownAlgorithm = !string.IsNullOrEmpty(request.KnownAlgorithm)
+                        ? EnumHelper.Parse<KnownCoinAlgorithm>(request.KnownAlgorithm)
+                        : (KnownCoinAlgorithm?) null,
                     BlockReward = ParsingHelper.ParseDouble(request.BlockReward, true),
                     BtcPrice = ParsingHelper.ParseDouble(request.BtcPrice, true),
                     ClientHashRate = ParsingHelper.ParseHashRate(request.HashRate, true),

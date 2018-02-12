@@ -58,7 +58,7 @@
                     <option value="" disabled="disabled" selected="selected">Select...</option>
                     @foreach (var algorithm in Model.Algorithms)
                     {
-                        <option value="@algorithm.Id">@algorithm.Name</option>
+                        <option value="@algorithm.Id" data-known-algorithm="@algorithm.KnownValue">@algorithm.Name</option>
                     }
                 </select>
             </div>
@@ -92,6 +92,7 @@
         <div class="text-center">
             <button id="estimateProfitSubmit" class="btn btn-lg btn-primary" type="button">Calculate</button>
         </div>
+        <input type="hidden" id="knownAlgorithm" name="knownAlgorithm" />
     </form>
     <div id="estimationResult" class="padded"></div>
 </div>
@@ -150,6 +151,7 @@
                         if (hashRateItem.algorithmId == selectedAlgorithm.val()) {
                             $("#hashRate").val(hashRateItem.netHashRate + " H/s");
                             $("#clientPowerUsage").val(hashRateItem.power);
+                            $("#knownAlgorithm").val(selectedAlgorithm.data("known-algorithm"));
                         }
                     }
         }
