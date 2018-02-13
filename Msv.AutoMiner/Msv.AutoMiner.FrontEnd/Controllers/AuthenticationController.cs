@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Msv.AutoMiner.Common.Enums;
-using Msv.AutoMiner.Common.Infrastructure;
+using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Models.Authentication;
 

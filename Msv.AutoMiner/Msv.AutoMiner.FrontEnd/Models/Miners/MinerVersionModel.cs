@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Miners

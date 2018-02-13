@@ -37,7 +37,7 @@ namespace Msv.AutoMiner.ControlCenterService
         {            
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
             NLogBuilder.ConfigureNLog("NLog.config");
-
+            UnhandledExceptionHandler.RegisterLogger(M_Logger);
 #if !DEBUG
             if (Msv.AutoMiner.Common.Licensing.LicenseData.Current.IsEmpty)
             {
@@ -45,13 +45,6 @@ namespace Msv.AutoMiner.ControlCenterService
                 return;
             }
 #endif
-
-            UnhandledExceptionHandler.RegisterLogger(M_Logger);
-
-            var certificateStorage = new X509CertificateStorage(
-                StoreLocation.CurrentUser, new X509Certificate2(File.ReadAllBytes("rootCa.cer")));
-            certificateStorage.InstallRootCertificateIfNotExist();
-
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {
@@ -61,6 +54,7 @@ namespace Msv.AutoMiner.ControlCenterService
                     .ApplyIfAny();
 
                 var config = scope.ServiceProvider.GetRequiredService<ControlCenterConfiguration>();
+
                 using (new PoolInfoMonitor(
                     new PoolInfoProviderFactory(
                         new LoggedWebClient(),
@@ -97,6 +91,12 @@ namespace Msv.AutoMiner.ControlCenterService
                 {
                     var config = (ControlCenterConfiguration)x.ApplicationServices.GetService(
                         typeof(ControlCenterConfiguration));
+
+                    new X509CertificateStorage(
+                        StoreLocation.CurrentUser, new X509Certificate2(
+                            File.ReadAllBytes(config.RootCertificateFileName)))
+                        .InstallRootCertificateIfNotExist();
+
                     var http = config.Endpoints.Http;
                     if (http != null && http.Enabled)
                         x.Listen(IPAddress.Any, http.Port);

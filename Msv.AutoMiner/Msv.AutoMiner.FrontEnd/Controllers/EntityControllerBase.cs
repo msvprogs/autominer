@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers

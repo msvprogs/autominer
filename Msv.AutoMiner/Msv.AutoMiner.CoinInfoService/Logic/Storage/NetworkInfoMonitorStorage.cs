@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;

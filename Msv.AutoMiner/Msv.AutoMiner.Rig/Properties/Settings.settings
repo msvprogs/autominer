@@ -35,5 +35,8 @@
     <Setting Name="ControlCenterServiceUrl" Type="System.String" Scope="Application">
       <Value Profile="(Default)">https://localhost:6284</Value>
     </Setting>
+    <Setting Name="RootCertificateFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">rootCa.cer</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

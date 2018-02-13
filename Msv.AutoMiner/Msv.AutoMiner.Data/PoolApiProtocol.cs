@@ -1,4 +1,4 @@
-﻿using Msv.AutoMiner.Common.Infrastructure;
+﻿using Msv.AutoMiner.Common.Data;
 
 namespace Msv.AutoMiner.Data
 {

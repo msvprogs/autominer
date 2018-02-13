@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.NetworkInfo.Common;
 

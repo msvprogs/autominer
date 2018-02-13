@@ -256,6 +256,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Msv.AutoMiner.Common.Data\Msv.AutoMiner.Common.Data.csproj">
+      <Project>{a103b566-f1d1-4d06-9708-3bebd2d0e185}</Project>
+      <Name>Msv.AutoMiner.Common.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj">
       <Project>{797e8ea0-eac0-416a-a5eb-74a79802c7dd}</Project>
       <Name>Msv.AutoMiner.Common</Name>

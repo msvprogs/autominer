@@ -121,5 +121,14 @@ namespace Msv.AutoMiner.Rig.Properties {
                 return ((string)(this["ControlCenterServiceUrl"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("rootCa.cer")]
+        public string RootCertificateFileName {
+            get {
+                return ((string)(this["RootCertificateFileName"]));
+            }
+        }
     }
 }

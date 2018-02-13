@@ -27,7 +27,7 @@ namespace Msv.AutoMiner.Rig.Remote
             if (password == null)
                 throw new ArgumentNullException(nameof(password));
 
-            M_Logger.Info($"Creating certification request for {name}...");
+            M_Logger.Info($"Creating keypair and certification request for {name}...");
             var request = m_CertificateProvider.CreateNewKeys(name);
             M_Logger.Info("Sending certification request to server...");
             var result = m_ControlCenterService.RegisterRig(new RegisterRigRequestModel

@@ -1,6 +1,4 @@
-﻿using Msv.AutoMiner.Common.Infrastructure;
-
-namespace Msv.AutoMiner.Common.Enums
+﻿namespace Msv.AutoMiner.Common.Data.Enums
 {
     public enum MinerApiType : byte
     {

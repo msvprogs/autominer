@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Data;

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Msv.AutoMiner.CoinInfoService.Storage;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 
 namespace Msv.AutoMiner.CoinInfoService.Infrastructure
 {

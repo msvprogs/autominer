@@ -1,4 +1,5 @@
-﻿using Msv.AutoMiner.Common.Infrastructure;
+﻿using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Infrastructure;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Coins
 {

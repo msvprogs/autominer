@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Msv.AutoMiner.Common.Enums;
-using Msv.AutoMiner.Common.Models.ControlCenterService;
+using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Data.Enums;
 
 namespace Msv.AutoMiner.Data
 {

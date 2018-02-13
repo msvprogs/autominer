@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Msv.AutoMiner.Common.Data;
 using Msv.AutoMiner.Common.Infrastructure;
 
 namespace Msv.AutoMiner.Common.Helpers

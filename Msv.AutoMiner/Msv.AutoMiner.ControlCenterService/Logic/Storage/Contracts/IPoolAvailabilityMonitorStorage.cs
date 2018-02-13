@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts

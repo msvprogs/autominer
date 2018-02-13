@@ -1,7 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using System.Collections.Generic;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Rig.Storage.Model;
 
 namespace Msv.AutoMiner.Rig.Data

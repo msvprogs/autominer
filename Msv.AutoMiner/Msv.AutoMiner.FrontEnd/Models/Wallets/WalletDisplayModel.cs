@@ -1,5 +1,5 @@
 ﻿using System;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Wallets

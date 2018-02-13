@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Msv.AutoMiner.Common.Enums
+namespace Msv.AutoMiner.Common.Data.Enums
 {
     [Flags]
     public enum UserRole

@@ -5,7 +5,7 @@ using System.Text;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;

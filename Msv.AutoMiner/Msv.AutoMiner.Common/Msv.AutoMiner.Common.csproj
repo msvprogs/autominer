@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Msv.AutoMiner.Common.Data\Msv.AutoMiner.Common.Data.csproj" />
     <ProjectReference Include="..\Msv.BrowserCheckBypassing\Msv.BrowserCheckBypassing.csproj" />
     <ProjectReference Include="..\Msv.HttpTools\Msv.HttpTools.csproj" />
   </ItemGroup>

@@ -1,4 +1,4 @@
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 
 namespace Msv.AutoMiner.CoinInfoService.External.Contracts
 {

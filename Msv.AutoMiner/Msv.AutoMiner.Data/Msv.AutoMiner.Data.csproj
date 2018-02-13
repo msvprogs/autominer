@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj" />
+    <ProjectReference Include="..\Msv.AutoMiner.Common.Data\Msv.AutoMiner.Common.Data.csproj" />
   </ItemGroup>
 
 </Project>

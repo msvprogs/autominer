@@ -1,4 +1,4 @@
-﻿using Msv.AutoMiner.Common.Enums;
+﻿using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure

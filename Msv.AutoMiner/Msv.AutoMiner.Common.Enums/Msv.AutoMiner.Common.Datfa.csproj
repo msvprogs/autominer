@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Copyright>Copyright (c) MSV 2017-2018</Copyright>
+    <PackageId>Msv.AutoMiner.Common.Data</PackageId>
+    <Authors>Msv.AutoMiner.Common.Data</Authors>
+    <Company>Msv.AutoMiner.Common.Data</Company>
+    <Product>Msv.AutoMiner.Common.Data</Product>
+    <AssemblyName>Msv.AutoMiner.Common.Data</AssemblyName>
+    <RootNamespace>Msv.AutoMiner.Common.Data</RootNamespace>
+  </PropertyGroup>
+
+</Project>

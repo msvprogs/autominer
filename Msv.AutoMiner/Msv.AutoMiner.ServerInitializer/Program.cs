@@ -1,48 +1,119 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
-using Msv.AutoMiner.Common.Enums;
-using Msv.AutoMiner.Common.Helpers;
-using Msv.AutoMiner.Common.Infrastructure;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.ServerInitializer.Configuration;
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Security;
 
 namespace Msv.AutoMiner.ServerInitializer
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
-            Console.WriteLine("Initializing AutoMiner server...");
-            var factory = new AutoMinerDbContextFactory("Server=localhost;Database=autominer;Uid=miner;Pwd=hnvutibh6giwf4q;");
-            Console.WriteLine("Checking DB...");
-            using (var context = factory.Create())
+            try
             {
-                if (context.Database.EnsureCreated())
-                    Console.WriteLine("DB created");
-                else
-                    Console.WriteLine("DB exists");
-
-                if (!context.CoinAlgorithms.Any())
-                    InitializeAlgorithms(context);
-                if (!context.Coins.Any())
-                    InitializeCoins(context);
-                if (!context.FiatCurrencies.Any())
-                    InitializeFiatCurrencies(context);
-                if (!context.Users.Any())
-                    InitializeUsers(context);
+                Initialize();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error!");
+                Console.WriteLine(ex);
             }
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
+        }
+
+        private static void Initialize()
+        {
+            Console.WriteLine("AutoMiner server initialization program");
+            Console.WriteLine("Press any key to start the initialization...");
+            Console.ReadKey();
+
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
+
+            var configurationRoot = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            var configuration = configurationRoot.Get<ServerInitializerConfiguration>().Initialization;
+
+            Console.WriteLine("Initializing AutoMiner server...");
+            if (configuration.CreateDatabase)
+                using (var context = new AutoMinerDbContext(configurationRoot.GetConnectionString("AutoMinerDb")))
+                {
+                    Console.WriteLine("Creating/migrating DB...");
+                    context.Database.Migrate();
+
+                    Console.WriteLine("Adding initial data...");
+                    if (!context.CoinAlgorithms.Any())
+                        InitializeAlgorithms(context);
+                    if (!context.Coins.Any())
+                        InitializeCoins(context);
+                    if (!context.FiatCurrencies.Any())
+                        InitializeFiatCurrencies(context);
+                    if (!context.Users.Any())
+                        InitializeUsers(context);
+                }
+
+            var certificateCreator = new CertificateCreator();
+            X509Certificate2 rootCertificate;
+            if (configuration.RootCertificate.Create)
+            {
+                Console.WriteLine($"Creating root certificate for {configuration.RootCertificate.CommonName}...");
+                rootCertificate = certificateCreator.CreateRoot(configuration.RootCertificate.CommonName);
+                File.WriteAllBytes(configuration.RootCertificate.FileName,
+                    rootCertificate.Export(X509ContentType.Pfx, configuration.RootCertificate.Password));
+                Console.WriteLine($"Root certificate saved in file {configuration.RootCertificate.FileName}");
+            }
+            else
+                rootCertificate = new X509Certificate2(
+                    File.ReadAllBytes(configuration.RootCertificate.FileName),
+                    configuration.RootCertificate.Password);
+            File.WriteAllBytes(Path.GetFileNameWithoutExtension(configuration.RootCertificate.FileName) + ".cer",
+                rootCertificate.RawData);
+
+            if (configuration.ControlCenterCertificate.Create)
+            {
+                Console.WriteLine(
+                    $"Creating control center service certificate for {configuration.ControlCenterCertificate.CommonName}...");
+                var controlCenterCertificate = certificateCreator.CreateDerived(
+                    rootCertificate, configuration.ControlCenterCertificate.CommonName);
+                File.WriteAllBytes(configuration.ControlCenterCertificate.FileName,
+                    controlCenterCertificate.Export(X509ContentType.Pfx, configuration.ControlCenterCertificate.Password));
+                Console.WriteLine($"Control center certificate saved in file {configuration.ControlCenterCertificate.FileName}");
+            }
+            if (configuration.FrontEndCertificate.Create)
+            {
+                Console.WriteLine(
+                    $"Creating frontend certificate for {configuration.FrontEndCertificate.CommonName}...");
+                var frontendCertificate = certificateCreator.CreateDerived(
+                    rootCertificate, configuration.FrontEndCertificate.CommonName);
+                File.WriteAllBytes(configuration.FrontEndCertificate.FileName,
+                    frontendCertificate.Export(X509ContentType.Pfx, configuration.FrontEndCertificate.Password));
+                Console.WriteLine($"Frontend certificate saved in file {configuration.FrontEndCertificate.FileName}");
+            }
         }
 
         private static void InitializeUsers(AutoMinerDbContext context)
         {
             Console.WriteLine("Initializing users...");
 
-            var rng = new CryptoRandomGenerator();
+            var rng = new SecureRandom(new CryptoApiRandomGenerator());
             var hasher = new Sha256PasswordHasher();
-            var newPassword = Base58.Encode(rng.GenerateRandom(10));
-            var salt = rng.GenerateRandom(32);
+            var salt = new byte[32];
+            rng.NextBytes(salt);
+            var passwordBytes = new byte[32];
+            rng.NextBytes(passwordBytes);
+            var newPassword = Convert.ToBase64String(passwordBytes)
+                .Replace("=", "").Replace("+", "").Replace("/", "");
             var admin = context.Users.Add(new User
             {
                 Login = "admin",
@@ -50,9 +121,11 @@ namespace Msv.AutoMiner.ServerInitializer
                 PasswordHash = hasher.CalculateHash(newPassword, salt)
             });
             context.SaveChanges();
+            Console.WriteLine("Users initialized");
             Console.WriteLine($"ADMIN CREDENTIALS - login: {admin.Entity.Login}, password: {newPassword}");
             Console.WriteLine("Do not lose them, or you won't be able to login to the frontend.");
-            Console.WriteLine("Users initialized");
+            Console.WriteLine("Write them down and press any key to continue...");
+            Console.ReadKey();
         }
 
         private static void InitializeCoins(AutoMinerDbContext context)
@@ -67,7 +140,7 @@ namespace Msv.AutoMiner.ServerInitializer
                 Symbol = "BTC",
                 AlgorithmId = sha256.Id,
                 NetworkInfoApiType = CoinNetworkInfoApiType.Special,
-                LogoImageBytes = HexHelper.FromHex("0x89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF61000002DE49444154789C65934D689C5514869F73EFFDBEF9B169126934263525A08876634BA0C6142776A514DC683711172E4C68DABA5170A7B8D74517B65A114154B028085A44C1DA598848DD087621FED406994A2AFD49279999FBDD7B8E8B41545C1C388BF3F0C2797904C00C11C100E2878F2E78EF9755ADA5D9A600C44BA77072AECAF9CDF289CFBEFE37237F2F17DF6ED5778E345E1164C517122C2A292B98128A1229849C7232B353E166FF3979BADD3743C44E1FF24CAC17D595E24CB1AD3C30B83E304C1570E28210EA58EFAA214EF135571B2BA5EAC6B3C54475902BB75502D07F77F1446DBC767870B51F45280975883791C9BDB89987B1CBE721F5C99D6FC1D7636DBC2CE38D78A2B6F4D51189EFEFDF07EE1B5353C379AA2EEECE87087B57413C36B88ED44649DF1D477FFB129A132696559C38D079A7D98E15C1447302AD2034D0B536BAD646C6660181C6ADF8FB97913BE620764555193276CCA1A9A5B10253876530C5AA4DA88F43EA113F3E44FCE011DC8EDD140B2F8246B0EC3456A0D56240F364A520302C520C2947709373E0CB2194FA90FAE8FAF7A00931952A296636E94C930C9333006CAD23E508B27D9AFCEBE7D86003BF7B092C932FBC0766C35B1D8E13CB7F14A298A9516DE2A6E7F17B56401CF98777A83E3D4AFCE429080DFC7D4B506D61AA5688E2D0CB01D3732EF0247D53F2C0CBF43C6EE77E40080FBC80BFEB31DCED7B401C76ED673005CDEA4AF3D6D7B6C4B7EEDD87D9B04609CEBA1DF1F73C4E987B168B5D646C16BBF60BF6E705D2F9E3C31F3897C5E12AE54101D87AFDEED71AA37EB577234752AFF4332D084DFC4C8BFCE347E48B5F20B5ED109A18121B63A1EC6DE493CD959F56C54EE3D9DC55C418CE94DBE4406FC38CD4574C9D347708A987190628A6AE31EA2476ED6C59A683DC72A9FA47A69776D5A7A6ED55672C87E0434E90AA0AC411BCE00B21254BC01BBF77787EF6E54B4399FEA7F3C99905EFF5999459D4CC1418DE4B471C6D5377AA3CBCF61F9DFF02C871950CDB36E8640000000049454E44AE426082")
+                LogoImageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAC3klEQVR4nGWTTWicVRSGn3Pv/b75sWkSaTQmNSWgiHZjS6DGFCd2pRTcaDcRFy5MaNq6UXCnuNdFF7ZaEUFUsCgIWkTB2lmISN0IdiH+1AaZSir9SSeZmfvde46LQVRcHDiL8/DCeXkEwAwRwQDih48ueO+XVa2l2aYAxEuncHKuyvnN8onPvv43I38vF99u1XeONF4RZMUXEiwqKSuYEooSKYSccjKzU+Fm/zl5ut03Q8ROH/JMrBfVleJMsa08MLg+MEwVcOKCEOpY76ohTvE1VxsrperGs8VEdZArt1UC0H938URtvHZ4cLUfRSgJdYg3kcm9uJmHscvnIfXJnW/B12NtvCzjjXiitvTVEYnv798H7htTU8N5qi7uzocIe1dBPDa4jtRGSd8dR3/7EpoTJpZVnDjQeafZjhXBRHMCrSA00LU2utZGxmYBgcat+PuXkTvmIHZFVRkydsyhqaWxAlOHZTDFqk2oj0PqET8+RPzgEdyO3RQLL4JGsOw0VqDVYkDzZKUgMCxSDClHcJNz4MshlPqQ+uj696AJMZUqKWY26UyTDJMzAGytI+UIsn2a/Ovn2GADv3sJLJMvvAdmw1sdjhPLfxSimKlRbeKm5/F7VkAc+Yd3qD49SvzkKQgN/H1LUG1hqlaI4tDLAdNzLvAkfVPywMv0PG7nfkAID7yAv+sx3O17QBx27WcwBc3qSvPW17bEt+7dh9mwRgnOuh3x9zxOmHsWi11kbBa79gv25wXS+ePDHziXxeEq5UEB2Hr97tcao361dyNHUq/0My0ITfxMi/zjR+SLXyC17RCaGBIbY6HsbeSTzZWfVsVO49ncVcQYzpTb5EBvw4zUV0ydNHcIqYcZBiimrjHqJHbtbFmmg9xyqfpHppd21aem7VVnLIfgQ06QqgrEEbzgCyElS8Abv3d4fvblS0OZ/qfzyZkF7/WZlFnUzBQY3ktHHG1Td6o8vPYfnf8CyHGVDNs26GQAAAAASUVORK5CYII=")
             });
             context.SaveChanges();
 

@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;

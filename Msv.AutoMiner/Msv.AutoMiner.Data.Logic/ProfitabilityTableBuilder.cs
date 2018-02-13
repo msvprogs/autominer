@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Data.Logic.Contracts;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Msv.AutoMiner.Common.Infrastructure
+namespace Msv.AutoMiner.Common.Data
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class EnumCaptionAttribute : Attribute

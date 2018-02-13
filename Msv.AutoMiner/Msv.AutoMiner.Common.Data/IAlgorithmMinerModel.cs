@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Msv.AutoMiner.Common.Models.ControlCenterService
+namespace Msv.AutoMiner.Common.Data
 {
     public interface IAlgorithmMinerModel
     {

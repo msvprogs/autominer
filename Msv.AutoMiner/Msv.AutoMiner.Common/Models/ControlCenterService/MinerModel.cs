@@ -1,5 +1,6 @@
 ﻿using System.IO;
-using Msv.AutoMiner.Common.Enums;
+using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Data.Enums;
 
 namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {

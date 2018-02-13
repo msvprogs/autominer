@@ -1,4 +1,4 @@
-﻿namespace Msv.AutoMiner.Common.Enums
+﻿namespace Msv.AutoMiner.Common.Data.Enums
 {
     public enum RigCommandType
     {

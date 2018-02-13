@@ -16,7 +16,7 @@ namespace Msv.AutoMiner.Rig.Security
     public class ClientCertificateProvider : IClientCertificateProvider
     {
         private const string KeyAlgorithm = "SHA512withRSA";
-        private const int KeyStrength = 1024;
+        private const int KeyStrength = 2048;
         private const StoreName ClientCertificateStore = StoreName.My;
 
         private readonly ICertificateStorage m_Storage;

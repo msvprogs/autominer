@@ -58,7 +58,8 @@ namespace Msv.AutoMiner.Rig
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
             var certificateStorage = new X509CertificateStorageFactory(
-                StoreLocation.CurrentUser, new X509Certificate2(File.ReadAllBytes("rootCa.cer"))).Create();
+                StoreLocation.CurrentUser, new X509Certificate2(
+                    File.ReadAllBytes(Settings.Default.RootCertificateFileName))).Create();
             certificateStorage.InstallRootCertificateIfNotExist();
 
             var certificateProvider = new ClientCertificateProvider(certificateStorage, new StoredSettings());

@@ -1,4 +1,5 @@
 ﻿using System;
+using Msv.AutoMiner.Common.Data;
 
 namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {

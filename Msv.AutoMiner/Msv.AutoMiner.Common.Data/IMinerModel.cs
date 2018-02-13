@@ -1,6 +1,6 @@
-﻿using Msv.AutoMiner.Common.Enums;
+﻿using Msv.AutoMiner.Common.Data.Enums;
 
-namespace Msv.AutoMiner.Common.Models.ControlCenterService
+namespace Msv.AutoMiner.Common.Data
 {
     public interface IMinerModel
     {

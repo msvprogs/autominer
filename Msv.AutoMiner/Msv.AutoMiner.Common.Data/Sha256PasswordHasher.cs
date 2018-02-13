@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Msv.AutoMiner.Common.Infrastructure
+namespace Msv.AutoMiner.Common.Data
 {
     public class Sha256PasswordHasher : IPasswordHasher
     {
