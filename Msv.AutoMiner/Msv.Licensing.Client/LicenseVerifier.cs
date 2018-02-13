@@ -39,19 +39,25 @@ namespace Msv.Licensing.Client
         {
             M_Logger.Info("Verifying license...");
 
-            dynamic xmlDocument = new XmlDocument();
+            dynamic sourceLicenseXml = new XmlDocument();
             using (dynamic fileReader = new StreamReader(filename))
             using (dynamic reader = new XmlTextReader(fileReader))
-                xmlDocument.Load(reader);
+                sourceLicenseXml.Load(reader);
 
-            var signatureNodes = xmlDocument.GetElementsByTagName("Signature");
+            var signatureNodes = sourceLicenseXml.GetElementsByTagName("Signature");
             if (signatureNodes.Count != 1)
             {
                 M_Logger.Warn("License is corrupt! Invalid license file");
                 throw new LicenseCorruptException();
             }
 
-            dynamic signedXml = new SignedXml(xmlDocument);
+            var licenseData = LicenseData.Serializer.Deserialize((string)sourceLicenseXml.InnerXml);
+            dynamic reserializedLicenseXml = new XmlDocument();
+            using (dynamic stringReader = new StringReader(LicenseData.Serializer.Serialize(licenseData)))
+            using (dynamic reader = new XmlTextReader(stringReader))
+                reserializedLicenseXml.Load(reader);
+
+            dynamic signedXml = new SignedXml(reserializedLicenseXml);
             signedXml.LoadXml(signatureNodes.Item(0));
 
             using (dynamic rsa = new RSACryptoServiceProvider())
@@ -64,7 +70,6 @@ namespace Msv.Licensing.Client
                 }
             }
 
-            var licenseData = LicenseData.Serializer.Deserialize((string)xmlDocument.InnerXml);
             if (licenseData.ApplicationName != appName)
             {
                 M_Logger.Warn("License file cannot be used, it has been issued for the other application: " + licenseData.ApplicationName);
@@ -96,7 +101,7 @@ namespace Msv.Licensing.Client
                     null, 
                     new[] {typeof(string), typeof(string)}, 
                     null)
-                .Invoke(null, new object[] {"MSVAUTOMINER_LICENSE_QJCBLF", xmlDocument.InnerXml});
+                .Invoke(null, new object[] {"MSVAUTOMINER_LICENSE_QJCBLF", sourceLicenseXml.InnerXml});
 
             M_Logger.Info($"License verified. {licenseData.ApplicationName}, licensed to {licenseData.Owner}, " 
                           + $"expires on {(licenseData.Expires != null ? licenseData.Expires.Value.ToLongDateString() + " GMT" : "<never>")}");
