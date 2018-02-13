@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 
-namespace Msv.AutoMiner.Data.Logic
+namespace Msv.AutoMiner.Data.Logic.Contracts
 {
     public interface IRigHeartbeatProvider
     {

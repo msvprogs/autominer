@@ -1,6 +1,7 @@
 ﻿using System;
+using Msv.AutoMiner.Data.Logic.Data;
 
-namespace Msv.AutoMiner.Data.Logic
+namespace Msv.AutoMiner.Data.Logic.Contracts
 {
     public interface ICoinValueProvider
     {

@@ -12,6 +12,7 @@ using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using NLog;
 using Telegram.Bot;
 using Telegram.Bot.Args;

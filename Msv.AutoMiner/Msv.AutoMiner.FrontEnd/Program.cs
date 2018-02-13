@@ -3,6 +3,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.FrontEnd.Configuration;
 using NLog.Web;
 

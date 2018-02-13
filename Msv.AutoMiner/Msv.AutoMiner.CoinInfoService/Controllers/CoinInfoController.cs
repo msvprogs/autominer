@@ -8,6 +8,7 @@ using Msv.AutoMiner.Common.Log;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 
 namespace Msv.AutoMiner.CoinInfoService.Controllers
 {

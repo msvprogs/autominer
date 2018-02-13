@@ -1,6 +1,6 @@
 ﻿using Msv.AutoMiner.Common.Models.CoinInfoService;
 
-namespace Msv.AutoMiner.Data.Logic
+namespace Msv.AutoMiner.Data.Logic.Contracts
 {
     public interface IProfitabilityTableBuilder
     {

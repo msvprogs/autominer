@@ -2,20 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
     <Copyright>Copyright (c) MSV 2017-2018</Copyright>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.1" />
-    <PackageReference Include="NLog" Version="4.5.0-rc04" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj" />
+    <ProjectReference Include="..\Msv.AutoMiner.Data\Msv.AutoMiner.Data.csproj" />
   </ItemGroup>
 
 </Project>

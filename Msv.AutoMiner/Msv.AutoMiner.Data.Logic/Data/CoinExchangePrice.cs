@@ -1,7 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Enums;
 
-namespace Msv.AutoMiner.Data.Logic
+namespace Msv.AutoMiner.Data.Logic.Data
 {
     public class CoinExchangePrice
     {

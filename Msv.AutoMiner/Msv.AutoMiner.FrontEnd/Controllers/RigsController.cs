@@ -11,6 +11,7 @@ using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Rigs;
 using Newtonsoft.Json;

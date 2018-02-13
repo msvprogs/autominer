@@ -18,6 +18,7 @@ using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.HttpTools;
 using NLog;
 using NLog.Targets;

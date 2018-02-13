@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.ServiceContracts;
@@ -18,6 +19,7 @@ using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Telegram.Bot;
 
 namespace Msv.AutoMiner.ControlCenterService
@@ -74,7 +76,7 @@ namespace Msv.AutoMiner.ControlCenterService
                     x => new TelegramNotifier(
                         x.GetRequiredService<ITelegramBotClient>(),
                         x.GetRequiredService<INotifierStorage>(),
-                        config.Notifications.Telegram.Subscribers));
+                        config.Notifications.Telegram.Subscribers.EmptyIfNull()));
             else
                 services.AddSingleton<INotifier>(new DummyNotifier());
 

@@ -6,6 +6,7 @@ using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.EstimateProfitability;

@@ -10,6 +10,7 @@ using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.NetworkInfo;
 using Msv.AutoMiner.NetworkInfo.Data;
 

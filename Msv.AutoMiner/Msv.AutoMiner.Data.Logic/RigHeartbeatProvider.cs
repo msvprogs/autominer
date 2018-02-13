@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.Data.Logic

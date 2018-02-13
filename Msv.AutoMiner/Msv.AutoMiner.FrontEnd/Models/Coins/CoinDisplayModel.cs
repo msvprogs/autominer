@@ -1,6 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Data;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Coins
 {

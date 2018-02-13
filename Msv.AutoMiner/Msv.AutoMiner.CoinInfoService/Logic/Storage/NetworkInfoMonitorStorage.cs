@@ -5,6 +5,7 @@ using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
 {

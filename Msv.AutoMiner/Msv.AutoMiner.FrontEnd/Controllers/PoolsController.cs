@@ -8,6 +8,8 @@ using Msv.AutoMiner.Common.Enums;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
+using Msv.AutoMiner.Data.Logic.Data;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;

@@ -1,4 +1,6 @@
-﻿namespace Msv.AutoMiner.Data.Logic
+﻿using Msv.AutoMiner.Data.Logic.Contracts;
+
+namespace Msv.AutoMiner.Data.Logic
 {
     public class AutoMinerDbContextFactory : IAutoMinerDbContextFactory
     {

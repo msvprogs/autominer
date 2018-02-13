@@ -17,6 +17,7 @@ using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.FrontEnd.Configuration;
 using Msv.AutoMiner.FrontEnd.Infrastructure;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;

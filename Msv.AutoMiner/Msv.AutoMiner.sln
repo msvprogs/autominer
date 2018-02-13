@@ -33,9 +33,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.Licensing.Starter.DotNe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.Licensing.Issuer", "Msv.Licensing.Issuer\Msv.Licensing.Issuer.csproj", "{DC961344-3623-4791-A21F-91B95B80AC73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.Licensing.Starter.DotNetCore", "Msv.Licensing.Starter.DotNetCore\Msv.Licensing.Starter.DotNetCore.csproj", "{352547C6-439F-4164-8341-F5CF29FDE501}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.Licensing.Starter.DotNetCore", "Msv.Licensing.Starter.DotNetCore\Msv.Licensing.Starter.DotNetCore.csproj", "{352547C6-439F-4164-8341-F5CF29FDE501}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.DependenciesJoiner", "Msv.DependenciesJoiner\Msv.DependenciesJoiner.csproj", "{3BC74C0C-5D8E-4B20-BDE2-076F7E4E88E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.DependenciesJoiner", "Msv.DependenciesJoiner\Msv.DependenciesJoiner.csproj", "{3BC74C0C-5D8E-4B20-BDE2-076F7E4E88E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.Data.Logic", "Msv.AutoMiner.Data.Logic\Msv.AutoMiner.Data.Logic.csproj", "{794AD0EA-4E01-4274-80DB-D00D7AB556B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -181,6 +183,14 @@ Global
 		{3BC74C0C-5D8E-4B20-BDE2-076F7E4E88E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3BC74C0C-5D8E-4B20-BDE2-076F7E4E88E3}.Release|x64.ActiveCfg = Release|Any CPU
 		{3BC74C0C-5D8E-4B20-BDE2-076F7E4E88E3}.Release|x64.Build.0 = Release|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Debug|x64.Build.0 = Debug|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Release|x64.ActiveCfg = Release|Any CPU
+		{794AD0EA-4E01-4274-80DB-D00D7AB556B2}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

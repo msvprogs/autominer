@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common.Models.CoinInfoService;
+using Msv.AutoMiner.Data.Logic.Contracts;
 
 namespace Msv.AutoMiner.Data.Logic
 {

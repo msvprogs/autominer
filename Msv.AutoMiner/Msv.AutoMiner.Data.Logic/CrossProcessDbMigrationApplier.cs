@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using NLog;
 
 namespace Msv.AutoMiner.Data.Logic

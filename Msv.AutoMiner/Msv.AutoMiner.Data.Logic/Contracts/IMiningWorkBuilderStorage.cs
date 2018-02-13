@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Msv.AutoMiner.Data.Logic
+namespace Msv.AutoMiner.Data.Logic.Contracts
 {
     public interface IMiningWorkBuilderStorage
     {

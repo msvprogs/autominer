@@ -11,6 +11,7 @@ using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data.Logic.Contracts;
 
 namespace Msv.AutoMiner.CoinInfoService
 {
