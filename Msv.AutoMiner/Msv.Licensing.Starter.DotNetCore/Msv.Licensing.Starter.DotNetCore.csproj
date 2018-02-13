@@ -10,11 +10,15 @@
 
   <ItemGroup>
     <None Remove="Obfuscar.xml" />
+    <None Remove="runtimeconfig.template.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Obfuscar.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="runtimeconfig.template.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 

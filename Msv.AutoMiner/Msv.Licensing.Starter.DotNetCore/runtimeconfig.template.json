@@ -1,0 +1,5 @@
+﻿{
+  "runtimeOptions": {
+    "additionalProbingPaths": [ "~/bin" ]
+  }
+}
