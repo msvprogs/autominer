@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using Msv.AutoMiner.Common.Data;
 using Msv.AutoMiner.Common.Data.Enums;
-using Msv.AutoMiner.Common.Models.ControlCenterService;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
@@ -29,7 +28,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
         public bool IsDownloaded { get; set; }
 
-        [Required, MaxLength(32)]
+        [MaxLength(32)]
         public string ServerArgument { get; set; }
 
         [MaxLength(32)]

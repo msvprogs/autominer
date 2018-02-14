@@ -206,17 +206,19 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 args.Add(benchmarkKey);
                 return;
             }
-            args.Add(miningData.MinerSettings.Miner.OmitUrlSchema
-                ? GetArgumentValuePair(serverKey,
-                    portKey == null
-                        ? $"{miningData.PoolData.Url.Host}:{miningData.PoolData.Url.Port}"
-                        : miningData.PoolData.Url.Host)
-                : GetArgumentValuePair(serverKey, miningData.PoolData.Url.ToString().TrimEnd('/')));
+            if (serverKey != null)
+                args.Add(miningData.MinerSettings.Miner.OmitUrlSchema
+                    ? GetArgumentValuePair(serverKey,
+                        portKey == null
+                            ? $"{miningData.PoolData.Url.Host}:{miningData.PoolData.Url.Port}"
+                            : miningData.PoolData.Url.Host)
+                    : GetArgumentValuePair(serverKey, miningData.PoolData.Url.ToString().TrimEnd('/')));
 
             if (portKey != null)
                 args.Add(GetArgumentValuePair(portKey, miningData.PoolData.Url.Port.ToString()));
 
-            args.Add(GetArgumentValuePair(userKey, miningData.PoolData.Login));
+            if (userKey != null)
+                args.Add(GetArgumentValuePair(userKey, miningData.PoolData.Login));
             if (passwordKey != null)
                 args.Add(GetArgumentValuePair(passwordKey, miningData.PoolData.Password));
         }
