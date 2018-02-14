@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.CoinInfoService.Configuration;
 using Msv.AutoMiner.CoinInfoService.External;
@@ -79,11 +78,6 @@ namespace Msv.AutoMiner.CoinInfoService
 
         public static IWebHost BuildWebHost(string[] args)
             => WebHost.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration(x =>
-                {
-                    x.AddJsonFile("Msv.AutoMiner.CoinInfoService.runtimeconfig.json");
-                    x.AddJsonFile("Msv.AutoMiner.CoinInfoService.deps.json");
-                })
                 .UseKestrel(x =>
                 {
                     var config = (CoinInfoConfiguration) x.ApplicationServices.GetService(
