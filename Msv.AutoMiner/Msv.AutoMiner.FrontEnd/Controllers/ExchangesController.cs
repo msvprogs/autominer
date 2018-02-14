@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Exchanges;
 using Msv.AutoMiner.FrontEnd.Providers;
@@ -32,7 +31,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 [ExchangeType.TradeSatoshi] = new Uri("https://tradesatoshi.com"),
                 [ExchangeType.YoBit] = new Uri("https://yobit.net"),
                 [ExchangeType.BtcAlpha] = new Uri("https://btc-alpha.com"),
-                [ExchangeType.CryptoBridge] = new Uri("https://wallet.crypto-bridge.org")
+                [ExchangeType.CryptoBridge] = new Uri("https://wallet.crypto-bridge.org"),
+                [ExchangeType.SouthXchange] = new Uri("https://www.southxchange.com")
             };
 
         private readonly ICoinValueProvider m_CoinValueProvider;
