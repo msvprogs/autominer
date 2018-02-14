@@ -10,13 +10,13 @@ namespace Msv.AutoMiner.Rig.Data
         public int PoolId { get; }
         public string Name { get; }
         public string Algorithm { get; }
-        public long CurrentHashRate { get; }
-        public long StoredHashRate { get; }
+        public double CurrentHashRate { get; }
+        public double StoredHashRate { get; }
         public int? AcceptedShares { get; }
         public int? RejectedShares { get; }
 
         public MiningState(
-            CoinMiningData miningData, long? currentHashRate, long? storedHashRate, int? acceptedShares, int? rejectedShares)
+            CoinMiningData miningData, double? currentHashRate, double? storedHashRate, int? acceptedShares, int? rejectedShares)
         {
             Currency = miningData.CoinSymbol;
             CoinId = miningData.CoinId;

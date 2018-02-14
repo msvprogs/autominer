@@ -13,7 +13,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
         public KnownCoinAlgorithm? KnownValue { get; set; }
 
-        public long SpeedInHashes { get; set; }
+        public double SpeedInHashes { get; set; }
 
         public double Power { get; set; }
     }

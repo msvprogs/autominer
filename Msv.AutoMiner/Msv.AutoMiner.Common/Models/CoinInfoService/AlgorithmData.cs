@@ -6,6 +6,6 @@ namespace Msv.AutoMiner.Common.Models.CoinInfoService
     {
         public Guid AlgorithmId { get; set; }
 
-        public long NetHashRate { get; set; }
+        public double NetHashRate { get; set; }
     }
 }

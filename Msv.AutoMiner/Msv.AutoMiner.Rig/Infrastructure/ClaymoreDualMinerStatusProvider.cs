@@ -14,8 +14,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
         private static readonly ILogger M_MinerOutputLogger = LogManager.GetLogger("MinerOutput");
 
-        public long CurrentHashRate { get; private set; }
-        public long CurrentSecondaryHashRate { get; } = 0;
+        public double CurrentHashRate { get; private set; }
         public int AcceptedShares { get; private set; }
         public int RejectedShares { get; private set; }
 

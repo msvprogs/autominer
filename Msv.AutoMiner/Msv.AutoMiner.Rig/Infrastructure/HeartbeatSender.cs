@@ -56,7 +56,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     Duration = DateTime.UtcNow - m_MinerProcessController.StateChanged,
                     ValidShares = currentState.AcceptedShares.GetValueOrDefault(),
                     InvalidShares = currentState.RejectedShares.GetValueOrDefault(),
-                    HashRate = new Heartbeat.ValueWithReference<long>
+                    HashRate = new Heartbeat.ValueWithReference<double>
                     {
                         Current = currentState.CurrentHashRate,
                         Reference = currentState.StoredHashRate

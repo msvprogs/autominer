@@ -166,6 +166,8 @@ else
             <br />The hashrate string (for example, <samp>152 Kh/s</samp>) must be captured with <var>speed</var> named group.
             <br /><i>Do not forget to capture hashrate units too.</i>
             <br />Example: <samp>Total hashrate: <b>(?&lt;speed&gt;\d+ [kmg]h/s)</b></samp>
+            <br />For miners that don't return total speed but rather only one for each GPU, use <var>gpu</var> named group to capture GPU number.
+            <br />Example: <samp>GPU #(?&lt;gpu&gt;\d+) hashrate: <b>(?&lt;speed&gt;\d+ [kmg]h/s)</b></samp>
         </p>
         <input asp-for="SpeedRegex" class="form-control text-monospace" />
     </div>

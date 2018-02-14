@@ -142,7 +142,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 var hashRate = m_Controller.CurrentState.CurrentHashRate;
                 m_Controller.Stop();
 
-                if (hashRate == 0)
+                if (hashRate <= 0)
                 {
                     M_Logger.Error("FAIL: Something is wrong, because hashrate is zero");
                     result.IsSuccess = false;
@@ -154,8 +154,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 result.HashRate = hashRate;
                 result.PowerUsage = Math.Round((double) powerUsages.DefaultIfEmpty().Average(), 2);
                 M_Logger.Info("Storing hashrate in DB");
-                m_Storage.StoreAlgorithmData(Guid.Parse(algorithm.AlgorithmId), algorithm.AlgorithmName, hashRate,
-                    result.PowerUsage);
+                m_Storage.StoreAlgorithmData(Guid.Parse(algorithm.AlgorithmId),
+                    algorithm.AlgorithmName, hashRate, result.PowerUsage);
             }
             catch (Exception ex)
             {
@@ -168,7 +168,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private class TestResult
         {
             public bool IsSuccess { get; set; }
-            public long HashRate { get; set; }
+            public double HashRate { get; set; }
             public double PowerUsage { get; set; }
             public AlgorithmData Algorithm { get; set; }
         }

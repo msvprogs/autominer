@@ -19,7 +19,6 @@ using Msv.AutoMiner.ControlCenterService.Security;
 using Msv.AutoMiner.ControlCenterService.Security.Contracts;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
 using Newtonsoft.Json;
 using NLog;
@@ -141,7 +140,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                     RigId = rigId,
                     InvalidShares = x.InvalidShares,
                     ValidShares = x.ValidShares,
-                    HashRate = x.HashRate.Current
+                    HashRate = (long)x.HashRate.Current
                 })
                 .ToArray());
             m_HeartbeatAnalyzer.Analyze(rigId, heartbeat);

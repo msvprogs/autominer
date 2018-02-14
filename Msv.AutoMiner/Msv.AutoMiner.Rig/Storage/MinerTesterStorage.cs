@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Rig.Storage.Contracts;
 using Msv.AutoMiner.Rig.Storage.Model;
 
@@ -18,7 +19,7 @@ namespace Msv.AutoMiner.Rig.Storage
                     .ToArray();
         }
 
-        public void StoreAlgorithmData(Guid algorithmId, string algorithmName, long hashRate, double power)
+        public void StoreAlgorithmData(Guid algorithmId, string algorithmName, double hashRate, double power)
         {
             using (var context = new AutoMinerRigDbContext())
             {
@@ -29,8 +30,8 @@ namespace Msv.AutoMiner.Rig.Storage
                                AlgorithmId = idString,
                                AlgorithmName = algorithmName
                            });
-                data.SpeedInHashes = hashRate;
-                data.Power = power;
+                data.SpeedInHashes = hashRate.ZeroIfNaN();
+                data.Power = power.ZeroIfNaN();
                 context.SaveChanges();
             }
         }

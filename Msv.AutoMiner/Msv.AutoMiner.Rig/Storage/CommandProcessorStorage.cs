@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Rig.Storage.Contracts;
 using Msv.AutoMiner.Rig.Storage.Model;
 
@@ -81,7 +82,7 @@ namespace Msv.AutoMiner.Rig.Storage
                              ?? context.MinerAlgorithmSettings.Add(setting);
                 entity.MinerId = setting.MinerId;
                 entity.AlgorithmArgument = setting.AlgorithmArgument;
-                entity.Intensity = setting.Intensity;
+                entity.Intensity = setting.Intensity.NullIfNaN();
                 entity.LogFile = setting.LogFile;
                 entity.AdditionalArguments = setting.AdditionalArguments;
                 context.SaveChanges();

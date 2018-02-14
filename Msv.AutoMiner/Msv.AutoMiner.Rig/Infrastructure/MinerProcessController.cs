@@ -103,8 +103,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
 
                 IMinerOutputProcessor minerOutputProcessor = null;
                 if (miningData.MinerSettings.Miner.ApiType == MinerApiType.Stdout)
-                    m_MinerStatusProvider = minerOutputProcessor = new MinerOutputProcessor(
-                        miner, miningData.CoinSymbol, null, miningData.BenchmarkMode);
+                    m_MinerStatusProvider = minerOutputProcessor = new MinerOutputProcessor(miner, miningData.BenchmarkMode);
                 else
                     m_MinerStatusProvider = CreateMinerStatusProvider(miningData.MinerSettings.Miner);
                 newDisposable.Add(m_MinerStatusProvider);

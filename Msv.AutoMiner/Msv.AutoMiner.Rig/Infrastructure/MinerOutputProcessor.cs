@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Msv.AutoMiner.Common;
@@ -14,8 +15,6 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private static readonly ILogger M_MinerOutputLogger = LogManager.GetLogger("MinerOutput");
 
         private readonly Miner m_Miner;
-        private readonly string m_PrimaryCurrency;
-        private readonly string m_SecondaryCurrency;
         private readonly bool m_BenchmarkMode;
 
         private readonly Regex m_SpeedRegex;
@@ -23,16 +22,16 @@ namespace Msv.AutoMiner.Rig.Infrastructure
         private readonly Regex m_ValidShareRegex;
         private readonly Regex m_InvalidShareRegex;
 
-        public long CurrentHashRate { get; private set; }
-        public long CurrentSecondaryHashRate { get; private set; }
+        public double CurrentHashRate => m_IndividualHashrates.Select(x => x.Value).DefaultIfEmpty(0).Sum();
         public int AcceptedShares { get; private set; }
         public int RejectedShares { get; private set; }
 
-        public MinerOutputProcessor(Miner miner, string primaryCurrency, string secondaryCurrency, bool benchmarkMode)
+        private readonly Dictionary<string, double> m_IndividualHashrates =
+            new Dictionary<string, double>();
+
+        public MinerOutputProcessor(Miner miner, bool benchmarkMode)
         {
             m_Miner = miner ?? throw new ArgumentNullException(nameof(miner));
-            m_PrimaryCurrency = primaryCurrency;
-            m_SecondaryCurrency = secondaryCurrency;
             m_BenchmarkMode = benchmarkMode;
 
             if (!string.IsNullOrWhiteSpace(miner.SpeedRegex))
@@ -59,33 +58,20 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                 var benchmarkMatch = m_BenchmarkSpeedRegex.Match(output);
                 if (benchmarkMatch.Success)
                 {
-                    CurrentHashRate = (long)ParsingHelper.ParseHashRate(benchmarkMatch.Groups["speed"].Value);
+                    m_IndividualHashrates[string.Empty] = ParsingHelper.ParseHashRate(benchmarkMatch.Groups["speed"].Value);
                     return;
                 }
             }
 
-            if (m_SpeedRegex == null)
-                return;
-            var matches = m_SpeedRegex.Matches(output)
+            m_SpeedRegex?.Matches(output)
                 .Cast<Match>()
                 .Select(x => new
                 {
-                    Speed = x.Groups["speed"].Value,
-                    Currency = x.Groups["currency"].Value.ToUpperInvariant()
+                    Gpu = x.Groups["gpu"].Value,
+                    Speed = x.Groups["speed"].Value
                 })
-                .GroupBy(x => x.Currency)
-                .ToDictionary(x => x.Key, x => x.Last().Speed);
-            if (!matches.Any())
-                return;
-            var primaryHashRate = matches.TryGetValue(m_PrimaryCurrency)
-                                  ?? matches.TryGetValue(string.Empty);
-            if (!string.IsNullOrEmpty(primaryHashRate))
-                CurrentHashRate = (long)ParsingHelper.ParseHashRate(primaryHashRate);
-            if (string.IsNullOrEmpty(m_SecondaryCurrency))
-                return;
-            var secondaryHashRate = matches.TryGetValue(m_SecondaryCurrency);
-            if (!string.IsNullOrEmpty(secondaryHashRate))
-                CurrentSecondaryHashRate = (long)ParsingHelper.ParseHashRate(secondaryHashRate);
+                .GroupBy(x => x.Gpu)
+                .ForEach(x => m_IndividualHashrates[x.Key] = ParsingHelper.ParseHashRate(x.Last().Speed));
         }
 
         public void Dispose()

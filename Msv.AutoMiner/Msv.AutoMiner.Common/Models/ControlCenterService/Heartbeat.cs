@@ -51,7 +51,7 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
 
             public int InvalidShares { get; set; }
 
-            public ValueWithReference<long> HashRate { get; set; }
+            public ValueWithReference<double> HashRate { get; set; }
         }
 
         public class CpuState
