@@ -14,6 +14,7 @@
         LiveCoin = 9,
         StocksExchange = 10,
         BtcAlpha = 11,
-        CryptoBridge = 12
+        CryptoBridge = 12,
+        SouthXchange = 13
     }
 }
