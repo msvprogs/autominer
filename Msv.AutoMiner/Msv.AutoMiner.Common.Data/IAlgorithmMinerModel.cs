@@ -1,4 +1,5 @@
 ﻿using System;
+using Msv.AutoMiner.Common.Data.Enums;
 
 namespace Msv.AutoMiner.Common.Data
 {
@@ -7,6 +8,8 @@ namespace Msv.AutoMiner.Common.Data
         Guid AlgorithmId { get; }
 
         string AlgorithmName { get; }
+
+        KnownCoinAlgorithm? KnownValue { get; }
 
         int MinerId { get; }
 

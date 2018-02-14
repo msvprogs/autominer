@@ -224,6 +224,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                         AlgorithmArgument = x.AlgorithmArgument,
                         AlgorithmId = x.Id,
                         AlgorithmName = x.Name,
+                        KnownValue = x.KnownValue,
                         Intensity = x.Intensity,
                         MinerId = x.MinerId.Value
                     })

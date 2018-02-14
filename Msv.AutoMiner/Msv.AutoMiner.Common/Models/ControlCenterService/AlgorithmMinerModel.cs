@@ -1,5 +1,6 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Data;
+using Msv.AutoMiner.Common.Data.Enums;
 
 namespace Msv.AutoMiner.Common.Models.ControlCenterService
 {
@@ -8,6 +9,8 @@ namespace Msv.AutoMiner.Common.Models.ControlCenterService
         public Guid AlgorithmId { get; set; }
 
         public string AlgorithmName { get; set; }
+
+        public KnownCoinAlgorithm? KnownValue { get; set; }
 
         public int MinerId { get;set; }
 

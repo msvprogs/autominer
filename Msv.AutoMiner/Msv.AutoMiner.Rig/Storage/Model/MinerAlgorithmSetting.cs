@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Msv.AutoMiner.Common.Data;
-using Msv.AutoMiner.Common.Models.ControlCenterService;
+using Msv.AutoMiner.Common.Data.Enums;
 
 namespace Msv.AutoMiner.Rig.Storage.Model
 {
@@ -35,5 +35,7 @@ namespace Msv.AutoMiner.Rig.Storage.Model
 
         [NotMapped] 
         string IAlgorithmMinerModel.AlgorithmName => Algorithm?.AlgorithmName;
+
+        [NotMapped] public KnownCoinAlgorithm? KnownValue => Algorithm?.KnownValue;
     }
 }

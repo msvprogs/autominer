@@ -88,7 +88,8 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                     .Select(x => new AlgorithmData
                     {
                         AlgorithmId = x.AlgorithmId.ToString(),
-                        AlgorithmName = x.AlgorithmName
+                        AlgorithmName = x.AlgorithmName,
+                        KnownValue = x.KnownValue
                     })
                     .ToArray());
                 m_Storage.SaveMinerAlgorithmSettings(

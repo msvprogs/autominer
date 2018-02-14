@@ -70,7 +70,11 @@ namespace Msv.AutoMiner.Rig.Storage
                     .ToArray();
                 existingAlgorithms.Join(algorithmDatas, x => x.AlgorithmId, x => x.AlgorithmId, 
                     (x, y) => (existing:x, newOne: y))
-                    .ForEach(x => x.existing.AlgorithmName = x.newOne.AlgorithmName);
+                    .ForEach(x =>
+                    {
+                        x.existing.AlgorithmName = x.newOne.AlgorithmName;
+                        x.existing.KnownValue = x.newOne.KnownValue;
+                    });
                 context.AlgorithmDatas.AddRange(newAlgorithms);
                 context.SaveChanges();
             }
