@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
@@ -10,9 +11,15 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
         [HtmlAttributeName("asp-for")]
         public ModelExpression For { get; set; }
 
+        [HtmlAttributeName("msv-required-marker-disabled")]
+        public bool Disabled { get; set; }
+
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            if (For == null || !For.Metadata.IsRequired || For.Metadata.ModelType == typeof(bool))
+            if (Disabled || For == null || !For.Metadata.IsRequired)
+                return;
+            if (For.Metadata.ModelType.IsValueType
+                && Nullable.GetUnderlyingType(For.Metadata.ModelType) == null)
                 return;
 
             var asteriskSpan = new TagBuilder("span")

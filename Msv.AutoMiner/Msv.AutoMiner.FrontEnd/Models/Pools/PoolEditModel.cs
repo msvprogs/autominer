@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 
@@ -40,5 +42,9 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
         public Guid? CoinId { get; set; }
 
         public CoinBaseModel[] AvailableCoins { get; set; }
+
+        public PoolProtocol PoolProtocol { get; set; }
+
+        public bool ChooseProtocol { get; set; }
     }
 }

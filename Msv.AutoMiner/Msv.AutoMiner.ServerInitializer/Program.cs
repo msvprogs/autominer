@@ -110,7 +110,7 @@ namespace Msv.AutoMiner.ServerInitializer
             var hasher = new Sha256PasswordHasher();
             var salt = new byte[32];
             rng.NextBytes(salt);
-            var passwordBytes = new byte[32];
+            var passwordBytes = new byte[8];
             rng.NextBytes(passwordBytes);
             var newPassword = Convert.ToBase64String(passwordBytes)
                 .Replace("=", "").Replace("+", "").Replace("/", "");

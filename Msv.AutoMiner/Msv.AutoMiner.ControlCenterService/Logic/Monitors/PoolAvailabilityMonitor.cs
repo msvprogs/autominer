@@ -33,7 +33,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                 .AsParallel()
                 .WithDegreeOfParallelism(ParallelismDegree)
                 .Select(x => (pool:x, login: x.GetLogin(x.UseBtcWallet ? btcMiningTarget : x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget))))
-                .Where(x => x.login != null)
+                .Where(x => x.pool.Protocol != PoolProtocol.JsonRpc 
+                            && x.pool.Protocol != PoolProtocol.Stratum 
+                            || x.login != null)
                 .Select(x => new
                 {
                     Pool = x.pool,

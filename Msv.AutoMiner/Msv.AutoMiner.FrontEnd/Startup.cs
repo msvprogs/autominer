@@ -57,6 +57,9 @@ namespace Msv.AutoMiner.FrontEnd
                     x.LoginPath = "/Authentication/Login";
                     x.LogoutPath = "/Authentication/Logout";
                     x.AccessDeniedPath = "/Authentication/AccessDenied";
+                    // To distinguish authentication between multiple instances of the frontend
+                    // (for example, debug and release versions)
+                    x.Cookie.Name = $"MsvAutoMinerAuth_{(uint)GetType().GetHashCode():X}";
                 });
 
             var requireAuthPolicy = new AuthorizationPolicyBuilder()

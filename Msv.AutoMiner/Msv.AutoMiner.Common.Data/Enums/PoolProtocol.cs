@@ -6,6 +6,9 @@
         Stratum = 0,
 
         [EnumCaption("JSON-RPC (wallet solo-mining)")]
-        JsonRpc = 1
+        JsonRpc = 1,
+
+        [EnumCaption("XpmForAll.org")]
+        XpmForAll = 2
     }
 }

@@ -50,6 +50,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             => View("Edit", new PoolEditModel
             {
                 PoolApiProtocol = PoolApiProtocol.None,
+                PoolProtocol = PoolProtocol.Stratum,
                 Url = "stratum+tcp://",
                 AvailableCoins = await GetAvailableCoins()
             });
@@ -58,8 +59,17 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             => View("Edit", new PoolEditModel
             {
                 PoolApiProtocol = PoolApiProtocol.JsonRpcWallet,
+                PoolProtocol = PoolProtocol.JsonRpc,
                 Url = "http://localhost:",
                 AvailableCoins = await GetAvailableCoins()
+            });
+
+        public async Task<IActionResult> CreateCustom()
+            => View("Edit", new PoolEditModel
+            {
+                PoolApiProtocol = PoolApiProtocol.None,
+                AvailableCoins = await GetAvailableCoins(),
+                ChooseProtocol = true
             });
 
         public async Task<IActionResult> Edit(int id)
@@ -87,6 +97,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 WorkerPassword = pool.WorkerPassword,
                 TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
                 UseBtcWallet = pool.UseBtcWallet,
+                PoolProtocol = pool.Protocol,
                 AvailableCoins = await GetAvailableCoins()
             };
             return View(poolModel);
@@ -102,6 +113,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var poolModel = new PoolEditModel
             {
                 Url = pool.GetUrl().Scheme + "://",
+                PoolProtocol = pool.Protocol,
                 ApiKey = pool.ApiKey,
                 ApiPoolName = pool.ApiPoolName,
                 ApiPoolUserId = pool.PoolUserId,
@@ -158,9 +170,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var poolUrl = new Uri(poolModel.Url);
             pool.Host = poolUrl.Host;
             pool.Port = poolUrl.Port;
-            pool.Protocol = poolUrl.Scheme.Equals("stratum+tcp", StringComparison.CurrentCultureIgnoreCase)
-                ? PoolProtocol.Stratum
-                : PoolProtocol.JsonRpc;
+            pool.Protocol = poolModel.PoolProtocol;
 
             await m_Context.SaveChangesAsync();
             TempData[PoolsMessageKey] = $"Pool {pool.Name} has been successfully saved";
@@ -221,7 +231,6 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         ? x.state.PoolWorkers
                         : (int?)null,
                     Fee = x.pool.FeeRatio,
-                    Url = x.pool.GetUrl().ToString(),
                     TimeToFind = m_ProfitabilityCalculator.CalculateTimeToFind(
                         x.networkInfo.Coin?.Algorithm.KnownValue,
                         x.networkInfo.Difficulty, 

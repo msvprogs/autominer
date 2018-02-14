@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Msv.AutoMiner.Common.Data;
 
 namespace Msv.AutoMiner.FrontEnd.Infrastructure
 {
@@ -17,9 +18,7 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             if (!Uri.IsWellFormedUriString(urlString, UriKind.Absolute))
                 return false;
             var uri = new Uri(urlString, UriKind.Absolute);
-            return uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.CurrentCultureIgnoreCase)
-                   || uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.CurrentCultureIgnoreCase)
-                   || uri.Scheme.Equals("stratum+tcp", StringComparison.CurrentCultureIgnoreCase);
+            return PoolProtocolUriSchemes.HasScheme(uri.Scheme);
         }
     }
 }
