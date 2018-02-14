@@ -1,9 +1,9 @@
 ﻿using System;
-using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
 using Msv.AutoMiner.NetworkInfo.Data;
+using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
@@ -18,23 +18,15 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            var html = new HtmlDocument();
-            html.LoadHtml(m_WebClient.DownloadString(M_BaseUri));
-            var lastBlockLink = html.DocumentNode.SelectSingleNode(
-                "//div[@id='blocks']//a[starts-with(@href, '/block/')]");
+            dynamic json = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString("https://api.straks.info/v2/statistics/latest"));
             return new CoinNetworkStatistics
             {
-                BlockReward = 9.5, //constant
-                NetHashRate = ParsingHelper.ParseHashRate(
-                    html.DocumentNode.SelectSingleNode("//p[@id='hashrate']").InnerText),
-                Difficulty = ParsingHelper.ParseDouble(
-                    html.DocumentNode.SelectSingleNode("//p[@id='difficulty']").InnerText),
-                Height = (long) ParsingHelper.ParseDouble(lastBlockLink.InnerText),
-                LastBlockTime = DateTimeHelper.ToDateTimeUtc(
-                    long.Parse(lastBlockLink.SelectSingleNode(".//ancestor::div/following-sibling::div")
-                    .GetAttributeValue("data-time", null))),
-                TotalSupply = ParsingHelper.ParseDouble(
-                    html.DocumentNode.SelectSingleNode("//p[@id='supply']").InnerText)
+                NetHashRate = (double) json.hashrate,
+                Difficulty = (double) json.difficulty,
+                Height = (long) json.block_height,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long) json.last_block),
+                TotalSupply = (double) json.total_coins
             };
         }
 

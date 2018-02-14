@@ -6,5 +6,8 @@ namespace Msv.AutoMiner.NetworkInfo
     {
         INetworkInfoProvider Create(Coin coin);
         IMultiNetworkInfoProvider CreateMulti(Coin[] coins);
+
+        string[] GetHardcodedCoins();
+        string[] GetHardcodedMultiAlgoCoins();
     }
 }

@@ -136,6 +136,10 @@
                 <option value="@apiType.Key">@apiType.Value</option>
             }
         </select>
+        <div class="small text-muted">
+            You can use special (hardcoded) network info provider for the following coins: <b>@string.Join(", ", Model.HardcodedCoins)</b>
+            <br />and special (hardcoded) multi-algo network info provider for the following coins: <b>@string.Join(", ", Model.HardcodedMultiAlgoCoins)</b>
+        </div>
     </div>
     <div class="form-group">
         <label asp-for="NetworkApiUrl">API URL:</label>

@@ -12,12 +12,12 @@ using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.Data.Logic.Data;
 using Msv.AutoMiner.FrontEnd.Infrastructure.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.Algorithms;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
+using Msv.AutoMiner.NetworkInfo;
 using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 
@@ -33,6 +33,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         private readonly IImageProcessor m_ImageProcessor;
         private readonly IOverallProfitabilityCalculator m_OverallProfitabilityCalculator;
         private readonly IProfitabilityCalculator m_ProfitabilityCalculator;
+        private readonly INetworkInfoProviderFactory m_NetworkInfoProviderFactory;
         private readonly AutoMinerDbContext m_Context;
 
         public CoinsController(
@@ -42,6 +43,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             IImageProcessor imageProcessor,
             IOverallProfitabilityCalculator overallProfitabilityCalculator,
             IProfitabilityCalculator profitabilityCalculator,
+            INetworkInfoProviderFactory networkInfoProviderFactory,
             AutoMinerDbContext context)
             : base("_CoinRowPartial", context)
         {
@@ -51,6 +53,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             m_ImageProcessor = imageProcessor;
             m_OverallProfitabilityCalculator = overallProfitabilityCalculator;
             m_ProfitabilityCalculator = profitabilityCalculator;
+            m_NetworkInfoProviderFactory = networkInfoProviderFactory;
             m_Context = context;
         }
 
@@ -70,7 +73,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             => View("Edit", new CoinEditModel
             {
                 Id = Guid.NewGuid(),
-                AvailableAlgorithms = await GetAvailableAlgorithms()
+                AvailableAlgorithms = await GetAvailableAlgorithms(),
+                HardcodedMultiAlgoCoins = m_NetworkInfoProviderFactory.GetHardcodedMultiAlgoCoins(),
+                HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins()
             });
 
         public async Task<IActionResult> Edit(Guid id)
@@ -111,7 +116,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 LastMasternodeCount = lastNetworkInfo?.MasternodeCount,
                 AddressFormat = coin.AddressFormat,
                 AddressPrefixes = coin.AddressPrefixes,
-                GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock
+                GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock,
+                HardcodedMultiAlgoCoins = m_NetworkInfoProviderFactory.GetHardcodedMultiAlgoCoins(),
+                HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins()
             };
             return View(coinModel);
         }
@@ -172,6 +179,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             if (!ModelState.IsValid)
             {
                 coinModel.AvailableAlgorithms = await GetAvailableAlgorithms();
+                coinModel.HardcodedMultiAlgoCoins = m_NetworkInfoProviderFactory.GetHardcodedMultiAlgoCoins();
+                coinModel.HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins();
                 return View("Edit", coinModel);
             }
 

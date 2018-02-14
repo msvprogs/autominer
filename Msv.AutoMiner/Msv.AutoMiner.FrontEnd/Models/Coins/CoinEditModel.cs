@@ -30,5 +30,9 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public string NewLogoUrl { get; set; }
 
         public bool DeleteLogo { get; set; }
+
+        public string[] HardcodedCoins { get; set; }
+
+        public string[] HardcodedMultiAlgoCoins { get; set; }
     }
 }
