@@ -37,9 +37,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.Licensing.Starter.DotNe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.DependenciesJoiner", "Msv.DependenciesJoiner\Msv.DependenciesJoiner.csproj", "{3BC74C0C-5D8E-4B20-BDE2-076F7E4E88E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.Data.Logic", "Msv.AutoMiner.Data.Logic\Msv.AutoMiner.Data.Logic.csproj", "{794AD0EA-4E01-4274-80DB-D00D7AB556B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.Data.Logic", "Msv.AutoMiner.Data.Logic\Msv.AutoMiner.Data.Logic.csproj", "{794AD0EA-4E01-4274-80DB-D00D7AB556B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.Common.Data", "Msv.AutoMiner.Common.Data\Msv.AutoMiner.Common.Data.csproj", "{A103B566-F1D1-4D06-9708-3BEBD2D0E185}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Msv.AutoMiner.Common.Data", "Msv.AutoMiner.Common.Data\Msv.AutoMiner.Common.Data.csproj", "{A103B566-F1D1-4D06-9708-3BEBD2D0E185}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4BBC03D-CA39-4FA8-B4D9-6627003B5DD5}"
+	ProjectSection(SolutionItems) = preProject
+		Installation_ReadMe.txt = Installation_ReadMe.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
