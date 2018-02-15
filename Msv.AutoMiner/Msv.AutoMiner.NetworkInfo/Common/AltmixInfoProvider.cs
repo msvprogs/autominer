@@ -31,14 +31,21 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var lastBlockInfo = mainPage.DocumentNode
                 .SelectSingleNode("//table[@class='table blocksTable']/tr[contains(.,'PoW')]");
             var lastBlockLink = lastBlockInfo.SelectSingleNode(".//td[1]/a");
-            
+
+            var infoHas5Cols = infoNodes.Count == 5;
             return new CoinNetworkStatistics
             {
-                BlockTimeSeconds = 60 * ParsingHelper.ParseValueWithUnits(infoNodes[2].InnerText),
-                NetHashRate = ParsingHelper.ParseHashRate(infoNodes[3].InnerText),
+                BlockTimeSeconds = 60 * ParsingHelper.ParseValueWithUnits(infoHas5Cols 
+                                       ? infoNodes[2].InnerText
+                                       : infoNodes[1].InnerText),
+                NetHashRate = infoHas5Cols 
+                    ? ParsingHelper.ParseHashRate(infoNodes[3].InnerText) 
+                    : 0,
                 Difficulty = ParsingHelper.ParseDouble(lastBlockInfo.SelectSingleNode(".//td[3]").InnerText),
                 Height = long.Parse(lastBlockLink.InnerText),
-                TotalSupply = ParsingHelper.ParseDouble(infoNodes[0].InnerText),
+                TotalSupply = infoHas5Cols 
+                    ? ParsingHelper.ParseDouble(infoNodes[0].InnerText) 
+                    : (double?)null,
                 LastBlockTime = DateTimeHelper.FromIso8601(
                     lastBlockInfo.SelectSingleNode(".//td[2]/span")?.GetAttributeValue("title", null))
             };
