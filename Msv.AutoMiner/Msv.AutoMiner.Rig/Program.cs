@@ -104,13 +104,13 @@ namespace Msv.AutoMiner.Rig
                     Console.WriteLine("This rig isn't registered! Register it at control center.");
                     return;
                 }
-               
+
                 var delayProvider = new PeriodicTaskDelayProvider(certificateProvider);
                 var configurationUpdater = new ConfigurationUpdater(
                     delayProvider,
                     controlCenterClient,
                     new Sha256ConfigurationHasher(), 
-                    new PhysicalMinerFileStorage("Miners"),
+                    new PhysicalMinerFileStorage(Path.GetFullPath("Miners")),
                     new ConfigurationUpdaterStorage());
                 try
                 {
