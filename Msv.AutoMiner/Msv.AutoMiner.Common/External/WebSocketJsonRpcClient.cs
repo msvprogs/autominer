@@ -27,6 +27,14 @@ namespace Msv.AutoMiner.Common.External
         {
             m_WebSocketUrl = webSocketUrl;
             m_WebSocket = new WebSocket(webSocketUrl.ToString())
+                {
+                    Security =
+                    {
+                        AllowCertificateChainErrors = true,
+                        AllowNameMismatchCertificate = true,
+                        AllowUnstrustedCertificate = true
+                    }
+                }
                 .ConcatDispose(m_Disposable);
             Observable.FromEventPattern<ErrorEventArgs>(
                     x => m_WebSocket.Error += x, x => m_WebSocket.Error -= x)
