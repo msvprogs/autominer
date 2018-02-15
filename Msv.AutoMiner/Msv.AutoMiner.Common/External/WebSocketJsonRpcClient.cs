@@ -30,6 +30,7 @@ namespace Msv.AutoMiner.Common.External
                 .ConcatDispose(m_Disposable);
             Observable.FromEventPattern<ErrorEventArgs>(
                     x => m_WebSocket.Error += x, x => m_WebSocket.Error -= x)
+                .Select(x => x.EventArgs.Exception)
                 .Subscribe(M_Logger.Error)
                 .ConcatDispose(m_Disposable);
         }
