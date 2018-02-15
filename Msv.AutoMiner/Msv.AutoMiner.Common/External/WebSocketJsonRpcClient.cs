@@ -36,10 +36,10 @@ namespace Msv.AutoMiner.Common.External
 
         public void StartSession()
         {
-            M_Logger.Info($"Opening WebSocket {m_WebSocketUrl}...");
+            M_Logger.Debug($"Opening WebSocket {m_WebSocketUrl}...");
             if (!m_WebSocket.OpenAsync().GetAwaiter().GetResult())
                 throw new ExternalDataUnavailableException("Websocket opening failed");
-            M_Logger.Info($"WebSocket {m_WebSocketUrl} opened");
+            M_Logger.Debug($"WebSocket {m_WebSocketUrl} opened");
         }
 
         public TResponse Execute<TResponse>(string method, params object[] args)
@@ -48,7 +48,7 @@ namespace Msv.AutoMiner.Common.External
             var responseObservable = Observable.FromEventPattern<MessageReceivedEventArgs>(
                     x => m_WebSocket.MessageReceived += x,
                     x => m_WebSocket.MessageReceived -= x)
-                .Do(x => M_Logger.Info($"Received from {m_WebSocketUrl}: {x.EventArgs.Message}"))
+                .Do(x => M_Logger.Debug($"Received from {m_WebSocketUrl}: {x.EventArgs.Message}"))
                 .Select(x => JsonConvert.DeserializeObject<dynamic>(x.EventArgs.Message))
                 .Where(x => (int?) x.id == requestId)
                 .Take(1)
@@ -60,7 +60,7 @@ namespace Msv.AutoMiner.Common.External
                 @params = args,
                 id = requestId
             });
-            M_Logger.Info($"Sent to {m_WebSocketUrl}: {request}");
+            M_Logger.Debug($"Sent to {m_WebSocketUrl}: {request}");
             m_WebSocket.Send(request);
             var response = responseObservable.Wait();
             return ((JToken) response.result).ToObject<TResponse>();
