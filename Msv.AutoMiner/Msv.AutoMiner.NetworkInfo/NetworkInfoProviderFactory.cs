@@ -78,7 +78,7 @@ namespace Msv.AutoMiner.NetworkInfo
             var externalProvider = CreateExternal(coin);
             if (coin.NodeHost != null && coin.NodeLogin != null && coin.NodePassword != null)
                 return new JsonRpcLocalNetworkInfoProvider(
-                    new JsonRpcClient(m_OrdinaryClient, coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword), coin, externalProvider);
+                    new HttpJsonRpcClient(m_OrdinaryClient, coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword), coin, externalProvider);
             return externalProvider;
         }
 

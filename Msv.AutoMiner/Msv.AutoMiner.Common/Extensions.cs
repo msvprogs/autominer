@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using JetBrains.Annotations;
 
 namespace Msv.AutoMiner.Common
@@ -111,6 +112,20 @@ namespace Msv.AutoMiner.Common
                 throw new ArgumentNullException(nameof(source));
 
             return string.Join("_", source.Split(Path.GetInvalidFileNameChars()));
+        }
+
+        public static T ConcatDispose<T>(
+            [NotNull] this T disposable, 
+            [NotNull] CompositeDisposable composite)
+            where T : IDisposable
+        {
+            if (disposable == null)
+                throw new ArgumentNullException(nameof(disposable));
+            if (composite == null) 
+                throw new ArgumentNullException(nameof(composite));
+
+            composite.Add(disposable);
+            return disposable;
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Msv.AutoMiner.ControlCenterService.External
                     return new NodeOpenMiningPortalPoolInfoProvider(m_WebClient, pool.ApiUrl, GetMiningWalletAddress(), pool.ApiPoolName);
                 case PoolApiProtocol.JsonRpcWallet:
                     return new JsonRpcLocalPoolInfoProvider(
-                        new JsonRpcClient(m_WebClient, pool.Coin.NodeHost, pool.Coin.NodePort, pool.Coin.NodeLogin, pool.Coin.NodePassword));
+                        new HttpJsonRpcClient(m_WebClient, pool.Coin.NodeHost, pool.Coin.NodePort, pool.Coin.NodeLogin, pool.Coin.NodePassword));
                 default:
                     return new DummyInfoProvider();
             }

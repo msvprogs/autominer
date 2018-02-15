@@ -7,7 +7,7 @@ using NLog;
 
 namespace Msv.AutoMiner.Common.External
 {
-    public class JsonRpcClient : IRpcClient
+    public class HttpJsonRpcClient : IRpcClient
     {
         private const int MaxLoggableLength = 256;
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
@@ -17,7 +17,7 @@ namespace Msv.AutoMiner.Common.External
         private readonly string m_Login;
         private readonly string m_Password;
 
-        public JsonRpcClient(IWebClient webClient, string address, int port, string login, string password)
+        public HttpJsonRpcClient(IWebClient webClient, string address, int port, string login, string password)
         {
             if (address == null)
                 throw new ArgumentNullException(nameof(address));

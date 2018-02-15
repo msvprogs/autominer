@@ -22,7 +22,7 @@ namespace Msv.AutoMiner.Common.Infrastructure.PoolClients
 
         public PoolAvailabilityState CheckAvailability()
         {
-            var client = new JsonRpcClient(m_WebClient, m_Pool.Url.Host, m_Pool.Url.Port, m_Pool.Login, m_Pool.Password);
+            var client = new HttpJsonRpcClient(m_WebClient, m_Pool.Url.Host, m_Pool.Url.Port, m_Pool.Login, m_Pool.Password);
             try
             {
                 if (!TryJsonRpc(client, "ping"))

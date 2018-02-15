@@ -13,11 +13,16 @@ namespace Msv.AutoMiner.ControlCenterService.External
     public class WalletInfoProviderFactory : IWalletInfoProviderFactory
     {
         private readonly IWebClient m_WebClient;
+        private readonly ISessionedRpcClientFactory m_SessionedRpcClientFactory;
         private readonly Func<IWalletInfoProviderFactoryStorage> m_StorageGetter;
 
-        public WalletInfoProviderFactory(IWebClient webClient, Func<IWalletInfoProviderFactoryStorage> storageGetter)
+        public WalletInfoProviderFactory(
+            IWebClient webClient,
+            ISessionedRpcClientFactory sessionedRpcClientFactory,
+            Func<IWalletInfoProviderFactoryStorage> storageGetter)
         {
             m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+            m_SessionedRpcClientFactory = sessionedRpcClientFactory ?? throw new ArgumentNullException(nameof(sessionedRpcClientFactory));
             m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
         }
 
@@ -27,7 +32,7 @@ namespace Msv.AutoMiner.ControlCenterService.External
                 throw new ArgumentNullException(nameof(coin));
 
             return new JsonRpcLocalWalletInfoProvider(
-                new JsonRpcClient(m_WebClient, coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword),
+                new HttpJsonRpcClient(m_WebClient, coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword),
                 coin);
         }
 
@@ -36,27 +41,28 @@ namespace Msv.AutoMiner.ControlCenterService.External
             var exchange = m_StorageGetter.Invoke().GetExchange(exchangeType);
             if (exchange?.PrivateKey == null || exchange.PublicKey == null)
                 return new DummyWalletInfoProvider();
-            var privateKey = exchange.PrivateKey;
             switch (exchangeType)
             {
                 case ExchangeType.Bittrex:
-                    return new BittrexWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new BittrexWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.Cryptopia:
-                    return new CryptopiaWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new CryptopiaWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.Poloniex:
-                    return new PoloniexWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new PoloniexWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.YoBit:
-                    return new YoBitWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new YoBitWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.TradeSatoshi:
-                    return new TradeSatoshiWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new TradeSatoshiWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.Novaexchange:
-                    return new NovaexchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new NovaexchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.StocksExchange:
-                    return new StocksExchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new StocksExchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.LiveCoin:
-                    return new LiveCoinWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new LiveCoinWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.BtcAlpha:
-                    return new BtcAlphaWalletInfoProvider(m_WebClient, exchange.PublicKey, privateKey);
+                    return new BtcAlphaWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                case ExchangeType.CryptoBridge:
+                    return new CryptoBridgeWalletInfoProvider(m_SessionedRpcClientFactory, exchange.PublicKey);
                 default:
                     return new DummyWalletInfoProvider();
             }

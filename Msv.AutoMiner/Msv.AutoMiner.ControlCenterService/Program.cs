@@ -34,7 +34,7 @@ namespace Msv.AutoMiner.ControlCenterService
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         public static void Main(string[] args)
-        {            
+        {
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
             NLogBuilder.ConfigureNLog("NLog.config");
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
@@ -64,6 +64,7 @@ namespace Msv.AutoMiner.ControlCenterService
                 using (new WalletInfoMonitor(
                     new WalletInfoProviderFactory(
                         new LoggedWebClient(),
+                        new SessionedRpcClientFactory(), 
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 using (new PoolAvailabilityMonitor(
