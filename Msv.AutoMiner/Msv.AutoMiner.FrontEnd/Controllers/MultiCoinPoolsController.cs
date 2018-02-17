@@ -31,6 +31,14 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     .Distinct()
                     .OrderBy(y => y)
                     .ToArray());
+            var currentCoinsWithPools = m_Context.Pools
+                .AsNoTracking()
+                .Include(x => x.Coin)
+                .Where(x => x.Activity == ActivityState.Active
+                            && x.Coin.Activity == ActivityState.Active)
+                .Select(x => x.Coin.Symbol)
+                .Distinct()
+                .ToArray();
 
             return View(new MultiCoinPoolIndexModel
             {
@@ -40,6 +48,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     .AsNoTracking()
                     .Where(x => !x.IsIgnored)
                     .Where(x => x.MultiCoinPool.Activity != ActivityState.Deleted)
+                    .Where(x => !currentCoinsWithPools.Contains(x.Symbol))
                     .AsEnumerable()
                     .Select(x => new MultiCoinPoolCurrencyModel
                     {
