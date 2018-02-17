@@ -74,7 +74,7 @@ namespace Msv.AutoMiner.Data.Logic
                     LastUpdatedUtc = x.NetworkInfo.Created,
                     ElectricityCostPerDay = GetElectricityCostPerDay(x.AlgorithmInfo.Power, request.ElectricityCostUsd),
                     MarketPrices = x.MarketPrices
-                        .Where(y => y.IsActive)
+                        .Where(y => x.NetworkInfo.Coin.IgnoreInactiveMarket || y.IsActive)
                         .Select(y => new MarketPriceData
                         {
                             Exchange = y.Exchange,

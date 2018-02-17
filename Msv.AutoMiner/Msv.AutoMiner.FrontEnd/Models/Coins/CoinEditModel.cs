@@ -34,5 +34,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public string[] HardcodedCoins { get; set; }
 
         public string[] HardcodedMultiAlgoCoins { get; set; }
+
+        public bool IgnoreInactiveMarket { get; set; }
     }
 }

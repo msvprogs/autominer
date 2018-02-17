@@ -118,7 +118,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 AddressPrefixes = coin.AddressPrefixes,
                 GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock,
                 HardcodedMultiAlgoCoins = m_NetworkInfoProviderFactory.GetHardcodedMultiAlgoCoins(),
-                HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins()
+                HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins(),
+                IgnoreInactiveMarket = coin.IgnoreInactiveMarket
             };
             return View(coinModel);
         }
@@ -200,6 +201,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.AddressFormat = coinModel.AddressFormat;
             coin.AddressPrefixes = coinModel.AddressPrefixes;
             coin.GetDifficultyFromLastPoWBlock = coinModel.GetDifficultyFromLastPoWBlock;
+            coin.IgnoreInactiveMarket = coinModel.IgnoreInactiveMarket;
             if (newLogoBytes != null)
                 coin.LogoImageBytes = m_ImageProcessor.Resize(newLogoBytes, 16, 16, ImageFormats.Png);
             else if (coinModel.DeleteLogo)

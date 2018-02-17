@@ -58,5 +58,7 @@ namespace Msv.AutoMiner.Data
 
         [MaxLength(64)]
         public string AddressPrefixes { get; set; }
+
+        public bool IgnoreInactiveMarket { get; set; }
     }
 }
