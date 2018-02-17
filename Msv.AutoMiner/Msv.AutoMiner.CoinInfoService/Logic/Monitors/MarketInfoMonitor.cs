@@ -5,7 +5,6 @@ using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
-using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
@@ -30,9 +29,9 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 .ToLookup(x => x.Symbol, x => x.Id);
             var coinSymbols = coins.Select(x => x.Key).ToArray();
             var now = DateTime.UtcNow;
-            var downloadedExchangeData = EnumHelper.GetValues<ExchangeType>()
-                .Join(m_Storage.GetExchanges().Where(x => x.Activity == ActivityState.Active), x => x, x => x.Type, (x, y) => x)
-                .Select(x => (type:x, provider: m_ProviderFactory.Create(x)))
+            var downloadedExchangeData = m_Storage.GetExchanges()
+                .Where(x => x.Activity == ActivityState.Active)
+                .Select(x => (type:x.Type, provider: m_ProviderFactory.Create(x.Type)))
                 .Select(x =>
                 {
                     try
@@ -52,8 +51,9 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     ExchangeCoins = x.currencies
                         .LeftOuterJoin(coins, y => y.Symbol, y => y.Key, (y, z) => 
-                            (currencyInfo:y, coins: z?.EmptyIfNull().Select(a => (coin:y, coinId:a))))
+                            (currencyInfo:y, coins: z?.Select(a => (coin:y, coinId:a))))
                         .SelectMany(y => y.coins
+                                .EmptyIfNull()
                                 .DefaultIfEmpty()
                                 .Select(z => new ExchangeCurrency
                                 {
