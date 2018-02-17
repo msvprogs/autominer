@@ -1,15 +1,12 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace Msv.Licensing.Client
 {
     public static class LicenseFile
     {
-        public static string GetNameOfNewest()
-            => new DirectoryInfo(
-                    Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                    ?? Directory.GetCurrentDirectory())
+        public static string GetNameOfNewest(string path)
+            => new DirectoryInfo(path)
                 .GetFiles("*.msvlic")
                 .OrderByDescending(x => x.CreationTime)
                 .FirstOrDefault()

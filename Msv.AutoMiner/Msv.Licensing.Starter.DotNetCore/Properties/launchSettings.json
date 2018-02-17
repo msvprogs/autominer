@@ -2,7 +2,7 @@
   "profiles": {
     "Msv.Licensing.Starter.DotNetCore": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\Autominer2\\autominer\\Msv.AutoMiner\\Msv.AutoMiner.ControlCenterService\\bin\\Release\\PublishOutput"
+      "commandLineArgs": "C:\\Users\\Yamamoto\\Desktop\\control-center-1.1.401"
     }
   }
 }

@@ -32,7 +32,7 @@ namespace Msv.Licensing.Starter.DotNetCore
             dynamic loader = new LicensedApplicationLoader(new AssemblyLoader(), new string[0]);
 
             ApplicationLoadResult result = loader.Load(
-                Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
+                Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest(currentDirectory));
             if (result.Status == ApplicationLoadStatus.Success)
                 return;
             

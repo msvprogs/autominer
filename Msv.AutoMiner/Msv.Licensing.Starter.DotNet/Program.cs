@@ -38,7 +38,7 @@ namespace Msv.Licensing.Starter.DotNet
             );
 
             ApplicationLoadResult result = loader.Load(
-                Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest());
+                Path.GetFileNameWithoutExtension(appFile.Name), LicenseFile.GetNameOfNewest(currentDirectory));
             if (result.Status == ApplicationLoadStatus.Success)
                 return;
             

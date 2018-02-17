@@ -37,32 +37,36 @@ namespace Msv.Licensing.Packer
                 iv = sha256.ComputeHash(sha256.ComputeHash(encryptionKey));
 
             var targetFilePath = Path.Combine(mainFolder.FullName, $"{appName}.msvenc");
-            using (var targetFileStream = new FileStream(targetFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
-            using (var aes = new RijndaelManaged
+            using (var targetFileStream =
+                new FileStream(targetFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                Key = encryptionKey,
-                IV = iv.Take(16).ToArray(),
-                Mode = CipherMode.CBC,
-                Padding = PaddingMode.Zeros
-            })
-            using (var encryptor = aes.CreateEncryptor())
-            using (var cryptoStream = new CryptoStream(targetFileStream, encryptor, CryptoStreamMode.Write))
-            using (var compressedStream = new GZipStream(cryptoStream, CompressionMode.Compress))
-            {
-                var appNameBytes = Encoding.UTF8.GetBytes(appName);
-                compressedStream.Write(BitConverter.GetBytes(appNameBytes.Length), 0, sizeof(int));
-                compressedStream.Write(appNameBytes, 0, appNameBytes.Length);
-                foreach (var fileInfo in filesToPack)
+                using (var aes = new RijndaelManaged
                 {
-                    Console.WriteLine($"Processing file {fileInfo.Name}...");
-                    using (var sourceFileStream = fileInfo.OpenRead())
+                    Key = encryptionKey,
+                    IV = iv.Take(16).ToArray(),
+                    Mode = CipherMode.CBC,
+                    Padding = PaddingMode.Zeros
+                })
+                using (var encryptor = aes.CreateEncryptor())
+                using (var cryptoStream = new CryptoStream(targetFileStream, encryptor, CryptoStreamMode.Write))
+                using (var compressedStream = new GZipStream(cryptoStream, CompressionMode.Compress))
+                {
+                    var appNameBytes = Encoding.UTF8.GetBytes(appName);
+                    compressedStream.Write(BitConverter.GetBytes(appNameBytes.Length), 0, sizeof(int));
+                    compressedStream.Write(appNameBytes, 0, appNameBytes.Length);
+                    foreach (var fileInfo in filesToPack)
                     {
-                        compressedStream.Write(BitConverter.GetBytes((int)fileInfo.Length), 0, sizeof(int));
-                        sourceFileStream.CopyTo(compressedStream);
+                        Console.WriteLine($"Processing file {fileInfo.Name}...");
+                        using (var sourceFileStream = fileInfo.OpenRead())
+                        {
+                            compressedStream.Write(BitConverter.GetBytes((int)fileInfo.Length), 0, sizeof(int));
+                            sourceFileStream.CopyTo(compressedStream);
+                        }
                     }
+                    compressedStream.Flush();
                 }
-                compressedStream.Flush();
-                Console.WriteLine($"Packing finished. Target file: {targetFilePath}, size {targetFileStream.Length:N0} bytes");
+                targetFileStream.Flush();
+                Console.WriteLine($"Packing finished. {filesToPack.Length} files packed, target file: {targetFilePath}, size {targetFileStream.Length:N0} bytes");
             }
         }
 
