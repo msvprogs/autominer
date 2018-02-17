@@ -59,6 +59,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                                 {
                                     IsActive = z.coin?.IsActive ?? true,
                                     CoinId = z.coinId != default ? z.coinId :(Guid?)null,
+                                    Symbol = y.currencyInfo.Symbol,
                                     Exchange = x.type,
                                     DateTime = now,
                                     MinWithdrawAmount = z.coin?.MinWithdrawAmount.ZeroIfNaN() ?? 0,
