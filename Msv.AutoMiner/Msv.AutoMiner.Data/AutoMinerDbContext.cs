@@ -22,7 +22,7 @@ namespace Msv.AutoMiner.Data
         public DbSet<CoinProfitability> CoinProfitabilities { get; set; }
         public DbSet<Exchange> Exchanges { get; set; }
         public DbSet<ExchangeMarketPrice> ExchangeMarketPrices { get; set; }
-        public DbSet<ExchangeCoin> ExchangeCoins { get; set; }
+        public DbSet<ExchangeCurrency> ExchangeCurrencies { get; set; }
         public DbSet<Coin> Coins { get; set; }
         public DbSet<CoinAlgorithm> CoinAlgorithms { get; set; }
         public DbSet<FiatCurrency> FiatCurrencies { get; set; }
@@ -42,6 +42,8 @@ namespace Msv.AutoMiner.Data
         public DbSet<WalletOperation> WalletOperations { get; set; }
         public DbSet<Miner> Miners { get; set; }
         public DbSet<MinerVersion> MinerVersions { get; set; }
+        public DbSet<MultiCoinPool> MultiCoinPools { get; set; }
+        public DbSet<MultiCoinPoolCurrency> MultiCoinPoolCurrencies { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -63,8 +65,8 @@ namespace Msv.AutoMiner.Data
                 .HasKey(x => new {x.SourceCoinId, x.TargetCoinId, Exchange = x.ExchangeType, x.DateTime});
             modelBuilder.Entity<ExchangeMarketPrice>()
                 .HasIndex(x => new {x.SourceCoinId, x.TargetCoinId, x.ExchangeType, x.DateTime});
-            modelBuilder.Entity<ExchangeCoin>()
-                .HasKey(x => new {x.CoinId, x.Exchange});
+            modelBuilder.Entity<ExchangeCurrency>()
+                .HasIndex(x => x.Symbol);
             modelBuilder.Entity<CoinFiatValue>()
                 .HasKey(x => new {x.CoinId, x.FiatCurrencyId, x.DateTime, x.Source});
             modelBuilder.Entity<PoolAccountState>()

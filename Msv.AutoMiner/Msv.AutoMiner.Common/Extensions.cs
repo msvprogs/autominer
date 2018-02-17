@@ -88,6 +88,33 @@ namespace Msv.AutoMiner.Common
                 (x, y) => resultSelector.Invoke(x, y.FirstOrDefault()));
         }
 
+        public static IEnumerable<TResult> FullOuterJoin<TLeft, TRight, TKey, TResult>(
+            this IEnumerable<TLeft> left,
+            IEnumerable<TRight> right,
+            Func<TLeft, TKey> leftKeySelector,
+            Func<TRight, TKey> rightKeySelector,
+            Func<TLeft, TRight, TResult> resultSelector)
+        {
+            if (left == null)
+                throw new ArgumentNullException(nameof(left));
+            if (right == null)
+                throw new ArgumentNullException(nameof(right));
+            if (leftKeySelector == null)
+                throw new ArgumentNullException(nameof(leftKeySelector));
+            if (rightKeySelector == null)
+                throw new ArgumentNullException(nameof(rightKeySelector));
+            if (resultSelector == null)
+                throw new ArgumentNullException(nameof(resultSelector));
+
+            var leftArray = left.ToArray();
+            var rightArray = right.ToArray();
+            return leftArray.LeftOuterJoin(rightArray, leftKeySelector, rightKeySelector, resultSelector)
+                .Concat(rightArray.GroupJoin(leftArray, rightKeySelector, leftKeySelector,
+                        (x, y) => (rightItem: x, hasLeftItem: y.Any()))
+                    .Where(x => !x.hasLeftItem)
+                    .Select(x => resultSelector.Invoke(default, x.rightItem)));
+        }
+
         public static string Truncate(this string source, int maxLength)
         {
             if (source == null)

@@ -21,7 +21,17 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
             => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
-            => new ExchangeCurrencyInfo[0];
+            => JsonConvert.DeserializeObject<JArray>(
+                    m_WebClient.DownloadString(new Uri(M_BaseUri, "coins")))
+                .Cast<dynamic>()
+                .Select(x => new ExchangeCurrencyInfo
+                {
+                    Name = (string) x.name,
+                    IsActive = (bool) x.depositAllowed && !(bool) x.restricted,
+                    Symbol = ((string) x.backingCoinType)?.ToUpperInvariant() ?? (string) x.symbol,
+                    WithdrawalFee = (double) x.transactionFee
+                })
+                .ToArray();
 
         public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
             => JsonConvert.DeserializeObject<JArray>(
@@ -33,16 +43,18 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     Data = x
                 })
                 .Where(x => x.PairSymbols.Length > 1)
+                .Join(currencyInfos, x => x.PairSymbols[0], x => x.Symbol, 
+                    (x, y) => (pair:x, currency:y))
                 .Select(x => new CurrencyMarketInfo
                 {
-                    IsActive = true,
-                    SourceSymbol = x.PairSymbols[0],
-                    TargetSymbol = x.PairSymbols[1],
-                    HighestBid = (double) x.Data.bid,
+                    IsActive = x.currency.IsActive,
+                    SourceSymbol = x.pair.PairSymbols[0],
+                    TargetSymbol = x.pair.PairSymbols[1],
+                    HighestBid = (double) x.pair.Data.bid,
                     //x.Data.volume is BTC volume
-                    LastDayVolume = (double) x.Data.volume / (double) x.Data.last,
-                    LowestAsk = (double) x.Data.ask,
-                    LastPrice = (double) x.Data.last
+                    LastDayVolume = (double) x.pair.Data.volume / (double) x.pair.Data.last,
+                    LowestAsk = (double) x.pair.Data.ask,
+                    LastPrice = (double) x.pair.Data.last
                 })
                 .ToArray();
     }

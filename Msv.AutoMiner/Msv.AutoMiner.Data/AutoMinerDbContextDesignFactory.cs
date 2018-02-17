@@ -5,7 +5,7 @@ namespace Msv.AutoMiner.Data
 {
     //Don't include this file in the release
     #if DEBUG
-    public class AutoMinerDbContextDesignFactory : IDesignTimeDbContextFactory<AutoMinerDbContext>
+    internal sealed class AutoMinerDbContextDesignFactory : IDesignTimeDbContextFactory<AutoMinerDbContext>
     {
         public AutoMinerDbContext CreateDbContext(string[] args)
         {

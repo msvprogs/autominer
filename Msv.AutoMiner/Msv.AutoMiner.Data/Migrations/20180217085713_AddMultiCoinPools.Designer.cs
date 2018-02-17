@@ -12,9 +12,10 @@ using System;
 namespace Msv.AutoMiner.Data.Migrations
 {
     [DbContext(typeof(AutoMinerDbContext))]
-    partial class AutoMinerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180217085713_AddMultiCoinPools")]
+    partial class AddMultiCoinPools
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -223,35 +224,23 @@ namespace Msv.AutoMiner.Data.Migrations
                     b.ToTable("Exchanges");
                 });
 
-            modelBuilder.Entity("Msv.AutoMiner.Data.ExchangeCurrency", b =>
+            modelBuilder.Entity("Msv.AutoMiner.Data.ExchangeCoin", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<Guid?>("CoinId");
-
-                    b.Property<DateTime>("DateTime");
+                    b.Property<Guid>("CoinId");
 
                     b.Property<int>("Exchange");
+
+                    b.Property<DateTime>("DateTime");
 
                     b.Property<bool>("IsActive");
 
                     b.Property<double>("MinWithdrawAmount");
 
-                    b.Property<string>("Symbol")
-                        .IsRequired()
-                        .HasMaxLength(16);
-
                     b.Property<double>("WithdrawalFee");
 
-                    b.HasKey("Id");
+                    b.HasKey("CoinId", "Exchange");
 
-                    b.HasIndex("CoinId");
-
-                    b.HasIndex("Symbol");
-
-                    b.ToTable("ExchangeCurrencies");
+                    b.ToTable("ExchangeCoins");
                 });
 
             modelBuilder.Entity("Msv.AutoMiner.Data.ExchangeMarketPrice", b =>
@@ -859,11 +848,12 @@ namespace Msv.AutoMiner.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Msv.AutoMiner.Data.ExchangeCurrency", b =>
+            modelBuilder.Entity("Msv.AutoMiner.Data.ExchangeCoin", b =>
                 {
                     b.HasOne("Msv.AutoMiner.Data.Coin", "Coin")
                         .WithMany()
-                        .HasForeignKey("CoinId");
+                        .HasForeignKey("CoinId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Msv.AutoMiner.Data.ExchangeMarketPrice", b =>

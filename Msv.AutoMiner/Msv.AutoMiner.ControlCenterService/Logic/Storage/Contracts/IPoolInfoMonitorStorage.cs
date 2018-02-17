@@ -7,6 +7,8 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts
     public interface IPoolInfoMonitorStorage
     {
         Pool[] GetActivePools();
+        MultiCoinPool[] GetActiveMultiCoinPools();
+        void StoreMultiCoinPoolCurrencies(MultiCoinPoolCurrency[] currencies);
         void StorePoolAccountStates(PoolAccountState[] poolAccountStates);
         void StorePoolPayments(PoolPayment[] poolPayments);
         void SavePools(Pool[] pools);

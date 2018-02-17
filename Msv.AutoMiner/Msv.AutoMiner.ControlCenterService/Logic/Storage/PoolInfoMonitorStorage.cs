@@ -6,7 +6,6 @@ using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
@@ -28,6 +27,40 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Storage
                     .Where(x => x.Activity != ActivityState.Deleted)
                     .Where(x => x.Coin.Activity != ActivityState.Deleted)
                     .ToArray();
+        }
+
+        public MultiCoinPool[] GetActiveMultiCoinPools()
+        {
+            using (var context = m_Factory.CreateReadOnly())
+                return context.MultiCoinPools
+                    .Where(x => x.Activity == ActivityState.Active)
+                    .ToArray();
+        }
+
+        public void StoreMultiCoinPoolCurrencies(MultiCoinPoolCurrency[] currencies)
+        {
+            if (currencies == null) 
+                throw new ArgumentNullException(nameof(currencies));
+
+            var poolIds = currencies.Select(x => x.MultiCoinPoolId)
+                .Distinct()
+                .ToArray();
+            using (var context = m_Factory.Create())
+            {
+                var existing = context.MultiCoinPoolCurrencies
+                    .Where(x => poolIds.Contains(x.MultiCoinPoolId))
+                    .ToArray();
+                context.MultiCoinPoolCurrencies
+                    .RemoveRange(existing.Where(x => !x.IsIgnored));
+                context.SaveChanges();
+
+                context.MultiCoinPoolCurrencies.AddRange(
+                    currencies.Except(existing.Where(x => x.IsIgnored),
+                        new DelegateEqualityComparer<MultiCoinPoolCurrency>(
+                            (x, y) => x.MultiCoinPoolId == y.MultiCoinPoolId && x.Symbol == y.Symbol,
+                            x => x.MultiCoinPoolId.GetHashCode() ^ x.Symbol.GetHashCode())));
+                context.SaveChanges();
+            }
         }
 
         public void StorePoolAccountStates(PoolAccountState[] poolAccountStates)

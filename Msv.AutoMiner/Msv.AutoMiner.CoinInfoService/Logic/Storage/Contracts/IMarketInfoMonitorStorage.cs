@@ -6,7 +6,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts
     {
         Coin[] GetCoins();
         Exchange[] GetExchanges();
-        void StoreExchangeCoins(ExchangeCoin[] coins);
+        void StoreExchangeCurrencies(ExchangeCurrency[] currencies);
         void StoreMarketPrices(ExchangeMarketPrice[] prices);
     }
 }

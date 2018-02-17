@@ -34,32 +34,64 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
 
             var now = DateTime.UtcNow;
             var startDate = now - M_LastOperationsPeriod;
-            var poolInfos = pools.Where(x => M_MultiPoolProtocols.Contains(x.ApiProtocol) && x.ApiUrl != null)
-                .GroupBy(x => new {x.ApiProtocol, ApiUrl = x.ApiUrl.ToLowerInvariant().Trim()})
-                .Select(x => new
-                {
-                    MultiKey = x.Key,
-                    Provider = m_ProviderFactory.CreateMulti(x.Key.ApiProtocol, x.Key.ApiUrl, x.ToArray(), btcMiningTarget)
-                })
+
+            var registeredMultiPools = pools
+                .Where(x => M_MultiPoolProtocols.Contains(x.ApiProtocol) && x.ApiUrl != null)
+                .GroupBy(x => new {x.ApiProtocol, ApiUrl = x.ApiUrl.ToLowerInvariant().Trim()});
+            var multiPoolInfos = m_Storage.GetActiveMultiCoinPools()
+                .Where(x => x.ApiUrl != null)
+                .FullOuterJoin(registeredMultiPools,
+                    x => new {x.ApiProtocol, ApiUrl = x.ApiUrl.ToLowerInvariant().Trim()},
+                    x => x.Key,
+                    (x, y) => new
+                    {
+                        MultiCoinPoolId = x?.Id,
+                        ApiProtocol = x?.ApiProtocol ?? y.Key.ApiProtocol,
+                        ApiUrl = x?.ApiUrl ?? y.Key.ApiUrl,
+                        Provider = m_ProviderFactory.CreateMulti(
+                            x?.ApiProtocol ?? y.Key.ApiProtocol,
+                            x?.ApiUrl ?? y.Key.ApiUrl, 
+                            y?.ToArray().EmptyIfNull(),
+                            btcMiningTarget)
+                    })
                 .AsParallel()
                 .WithDegreeOfParallelism(ParallelismDegree)
-                .SelectMany(x =>
+                .Select(x =>
                 {
                     try
                     {
-                        return x.Provider.GetInfo(startDate);
+                        var multiPoolInfo = x.Provider.GetInfo(startDate);
+                        Log.Info($"Multicoin pool {x.ApiUrl}: got {multiPoolInfo.CurrencyInfos.Length} active currencies");
+                        return new {x.MultiCoinPoolId, MultiPoolInfo = multiPoolInfo};
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex,
-                            $"Couldn't get data from pools with protocol {x.MultiKey.ApiProtocol}, URL {x.MultiKey.ApiUrl}");
-                        return new Dictionary<Pool, PoolInfo>();
+                        Log.Error(ex, $"Couldn't get data from {x.ApiProtocol} pools, URL {x.ApiUrl}");
+                        return new {MultiCoinPoolId = (int?)null, MultiPoolInfo = new MultiPoolInfo()};
                     }
                 })
+                .ToArray();
+            m_Storage.StoreMultiCoinPoolCurrencies(multiPoolInfos
+                    .Where(x => x.MultiCoinPoolId != null)
+                    .SelectMany(x => x.MultiPoolInfo.CurrencyInfos.Select(y => new MultiCoinPoolCurrency
+                    {
+                        Algorithm = y.Algorithm,
+                        Name = y.Name,
+                        Hashrate = y.Hashrate,
+                        MultiCoinPoolId = x.MultiCoinPoolId.Value,
+                        Port = y.Port,
+                        Symbol = y.Symbol,
+                        Workers = y.Workers
+                    }))
+                    .ToArray());
+
+            var poolInfos = multiPoolInfos
+                .SelectMany(x => x.MultiPoolInfo.PoolInfos.EmptyIfNull())
                 .Select(x => (pool:x.Key, info:x.Value))
                 .Concat(pools.Where(x => x.ApiProtocol != PoolApiProtocol.None && !M_MultiPoolProtocols.Contains(x.ApiProtocol))
                     .Select(x => (pool:x, provider:m_ProviderFactory.Create(x, btcMiningTarget)))
                     .AsParallel()
+                    .WithDegreeOfParallelism(ParallelismDegree)
                     .Select(x =>
                     {
                         try
@@ -73,7 +105,6 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         }
                     })
                     .Where(x => x.info != null))
-                .AsSequential()
                 .Do(x => Log.Info($"Pool {x.pool.Name}: Balance {x.info.AccountInfo.ConfirmedBalance:N6} {x.pool.Coin.Symbol}, "
                                   + $"Unconfirmed {x.info.AccountInfo.UnconfirmedBalance:N6} {x.pool.Coin.Symbol}, "
                                   + $"Hashrate {ConversionHelper.ToHashRateWithUnits(x.info.AccountInfo.HashRate, x.pool.Coin.Algorithm.KnownValue)},"

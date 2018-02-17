@@ -51,17 +51,19 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 .Select(x => new
                 {
                     ExchangeCoins = x.currencies
-                        .Join(coins, y => y.Symbol, y => y.Key, (y, z) => z.Select(a => (coin:y, coinId:a)))
-                        .SelectMany(y => y)
-                        .Select(y => new ExchangeCoin
-                        {
-                            IsActive = y.coin.IsActive,
-                            CoinId = y.coinId,
-                            Exchange = x.type,
-                            DateTime = now,
-                            MinWithdrawAmount = y.coin.MinWithdrawAmount.ZeroIfNaN(),
-                            WithdrawalFee = y.coin.WithdrawalFee.ZeroIfNaN()
-                        }),
+                        .LeftOuterJoin(coins, y => y.Symbol, y => y.Key, (y, z) => 
+                            (currencyInfo:y, coins: z.Select(a => (coin:y, coinId:a))))
+                        .SelectMany(y => y.coins
+                                .DefaultIfEmpty()
+                                .Select(z => new ExchangeCurrency
+                                {
+                                    IsActive = z.coin?.IsActive ?? true,
+                                    CoinId = z.coinId != default ? z.coinId :(Guid?)null,
+                                    Exchange = x.type,
+                                    DateTime = now,
+                                    MinWithdrawAmount = z.coin?.MinWithdrawAmount.ZeroIfNaN() ?? 0,
+                                    WithdrawalFee = z.coin?.WithdrawalFee.ZeroIfNaN() ?? 0
+                                })),
                     ExchangeMarketPrices = x.marketInfos
                         .Where(y => y.TargetSymbol == BtcSymbol)
                         .Join(coins, y => y.SourceSymbol, y => y.Key, (y, z) => z.Select(a => (coin: y, coinId: a)))
@@ -84,7 +86,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                         })
                 })
                 .ToArray();
-            m_Storage.StoreExchangeCoins(exchangeCurrenciesData.SelectMany(x => x.ExchangeCoins).ToArray());
+            m_Storage.StoreExchangeCurrencies(exchangeCurrenciesData.SelectMany(x => x.ExchangeCoins).ToArray());
             m_Storage.StoreMarketPrices(exchangeCurrenciesData.SelectMany(x => x.ExchangeMarketPrices).ToArray());
         }
 

@@ -3,7 +3,6 @@ using System.Linq;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
@@ -29,20 +28,20 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage
                 return context.Exchanges.ToArray();
         }
 
-        public void StoreExchangeCoins(ExchangeCoin[] coins)
+        public void StoreExchangeCurrencies(ExchangeCurrency[] currencies)
         {
-            if (coins == null)
-                throw new ArgumentNullException(nameof(coins));
+            if (currencies == null)
+                throw new ArgumentNullException(nameof(currencies));
 
             using (var context = m_Factory.Create())
             {
-                var exchanges = coins.Select(x => x.Exchange)
+                var exchanges = currencies.Select(x => x.Exchange)
                     .Distinct()
                     .ToArray();
-                context.ExchangeCoins
-                    .RemoveRange(context.ExchangeCoins.Where(x => exchanges.Contains(x.Exchange)).ToArray());
+                context.ExchangeCurrencies
+                    .RemoveRange(context.ExchangeCurrencies.Where(x => exchanges.Contains(x.Exchange)).ToArray());
                 context.SaveChanges();
-                context.ExchangeCoins.AddRange(coins);
+                context.ExchangeCurrencies.AddRange(currencies);
                 context.SaveChanges();
             }
         }

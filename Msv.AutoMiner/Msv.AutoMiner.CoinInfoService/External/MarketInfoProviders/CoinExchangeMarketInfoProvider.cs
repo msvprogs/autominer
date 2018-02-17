@@ -22,7 +22,16 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
             => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
-            => new ExchangeCurrencyInfo[0];
+            => DoRequest("getcurrencies")
+                .Cast<dynamic>()
+                .Select(x => new ExchangeCurrencyInfo
+                {
+                    Name = (string) x.Name,
+                    ExternalId = (string) x.CurrencyID,
+                    IsActive = (string) x.WalletStatus == "online",
+                    Symbol = (string) x.TickerCode
+                })
+                .ToArray();
 
         public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
             => DoRequest("getmarketsummaries")
@@ -35,26 +44,29 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                             Id = (int) x.MarketID,
                             SourceSymbol = (string) x.MarketAssetCode,
                             TargetSymbol = (string) x.BaseCurrencyCode,
-                            IsActive = (bool) x.Active
+                            IsActive = (bool) x.Active,
+                            SourceId = (string) x.MarketAssetID
                         }),
                     x => (int) x.MarketID,
                     x => x.Id,
                     (x, y) => new {Data = x, MarketInfo = y})
+                .Join(currencyInfos, x => x.MarketInfo.SourceId, x => x.ExternalId,
+                    (x, y) => new {x.MarketInfo, x.Data, CurrencyInfo = y})
                 .Select(x => new CurrencyMarketInfo
-                    {
-                        SourceSymbol = x.MarketInfo.SourceSymbol,
-                        TargetSymbol = x.MarketInfo.TargetSymbol,
-                        BuyFeePercent = 0,
-                        SellFeePercent = 0,
-                        LowestAsk = (double) x.Data.AskPrice,
-                        HighestBid = (double) x.Data.BidPrice,
-                        LastDayLow = (double) x.Data.LowPrice,
-                        LastDayHigh = (double) x.Data.HighPrice,
-                        // 'Volume' field returns the same BTC volume
-                        LastDayVolume = (double) x.Data.BTCVolume / (double) x.Data.LastPrice,
-                        LastPrice = (double) x.Data.LastPrice,
-                        IsActive = x.MarketInfo.IsActive
-                    })
+                {
+                    SourceSymbol = x.MarketInfo.SourceSymbol,
+                    TargetSymbol = x.MarketInfo.TargetSymbol,
+                    BuyFeePercent = 0,
+                    SellFeePercent = 0,
+                    LowestAsk = (double) x.Data.AskPrice,
+                    HighestBid = (double) x.Data.BidPrice,
+                    LastDayLow = (double) x.Data.LowPrice,
+                    LastDayHigh = (double) x.Data.HighPrice,
+                    // 'Volume' field returns the same BTC volume
+                    LastDayVolume = (double) x.Data.BTCVolume / (double) x.Data.LastPrice,
+                    LastPrice = (double) x.Data.LastPrice,
+                    IsActive = x.CurrencyInfo.IsActive && x.MarketInfo.IsActive
+                })
                 .ToArray();
 
         private JArray DoRequest(string command)
