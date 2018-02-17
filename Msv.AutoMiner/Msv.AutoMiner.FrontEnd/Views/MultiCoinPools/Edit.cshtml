@@ -20,8 +20,12 @@
         <input asp-for="SiteUrl" class="form-control" placeholder="For example, http://yiimp.eu/" />
     </div>
     <div class="form-group">
-        <label asp-for="SiteUrl">Mining URL (without port):</label>
-        <input asp-for="SiteUrl" class="form-control" placeholder="For example, stratum+tcp://yiimp.eu" />
+        <label asp-for="MiningUrl">Mining URL (without port):</label>
+        <p class="small">
+            Use <span class="text-monospace">_algo_</span> placeholder for URLs where explicit algorithm specification is required.
+            <br />For example, <samp>stratum+tcp://_algo_.mine.zpool.ca</samp> for Zpool.ca.
+        </p>
+        <input asp-for="MiningUrl" class="form-control" placeholder="For example, stratum+tcp://yiimp.eu" />
     </div>
     <div class="form-group">
         <label asp-for="ApiProtocol">API type:</label>

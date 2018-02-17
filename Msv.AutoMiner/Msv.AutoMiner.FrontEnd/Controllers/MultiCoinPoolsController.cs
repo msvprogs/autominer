@@ -26,7 +26,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .AsNoTracking()
                 .Where(x => x.IsActive)
                 .GroupBy(x => x.Symbol)
-                .ToDictionary(x => x.Key, x => x.Select(y => y.Exchange.ToString()).ToArray());
+                .ToDictionary(x => x.Key, x => x
+                    .Select(y => y.Exchange.ToString())
+                    .Distinct()
+                    .OrderBy(y => y)
+                    .ToArray());
+
             return View(new MultiCoinPoolIndexModel
             {
                 Pools = GetEntityModels(null),
@@ -44,14 +49,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Id = x.Id,
                         MultiCoinPoolId = x.MultiCoinPoolId,
                         MultiCoinPoolName = x.MultiCoinPool.Name,
-                        MiningUrl = new UriBuilder(new Uri(x.MultiCoinPool.MiningUrl))
-                        {
-                            Port = x.Port
-                        }.Uri.ToString(),
+                        MiningUrl = CreatMiningUrl(x.MultiCoinPool.MiningUrl, x.Port, x.Algorithm)?.ToString(),
                         Symbol = x.Symbol,
                         Workers = x.Workers,
                         Exchanges = currencyExchanges.TryGetValue(x.Symbol).EmptyIfNull()
                     })
+                    .Where(x => x.Exchanges.Any())
                     .ToArray()
             });
         }
@@ -115,5 +118,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 })
                 .ToArray();
         }
+
+        private static Uri CreatMiningUrl(string templateUri, int port, string algorithm) 
+            => templateUri != null 
+                ? new UriBuilder(templateUri.Replace("_algo_", algorithm)) { Port = port }.Uri
+                : null;
     }
 }
