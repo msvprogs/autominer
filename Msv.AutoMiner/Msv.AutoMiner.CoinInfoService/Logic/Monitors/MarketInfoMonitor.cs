@@ -52,7 +52,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 {
                     ExchangeCoins = x.currencies
                         .LeftOuterJoin(coins, y => y.Symbol, y => y.Key, (y, z) => 
-                            (currencyInfo:y, coins: z.Select(a => (coin:y, coinId:a))))
+                            (currencyInfo:y, coins: z?.EmptyIfNull().Select(a => (coin:y, coinId:a))))
                         .SelectMany(y => y.coins
                                 .DefaultIfEmpty()
                                 .Select(z => new ExchangeCurrency
