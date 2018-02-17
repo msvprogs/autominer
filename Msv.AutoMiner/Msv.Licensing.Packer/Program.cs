@@ -49,7 +49,7 @@ namespace Msv.Licensing.Packer
                 })
                 using (var encryptor = aes.CreateEncryptor())
                 using (var cryptoStream = new CryptoStream(targetFileStream, encryptor, CryptoStreamMode.Write))
-                using (var compressedStream = new GZipStream(cryptoStream, CompressionMode.Compress))
+                using (var compressedStream = new GZipStream(cryptoStream, CompressionMode.Compress, true))
                 {
                     var appNameBytes = Encoding.UTF8.GetBytes(appName);
                     compressedStream.Write(BitConverter.GetBytes(appNameBytes.Length), 0, sizeof(int));
