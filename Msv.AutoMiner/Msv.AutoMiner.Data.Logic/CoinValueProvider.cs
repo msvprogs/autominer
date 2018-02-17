@@ -61,7 +61,7 @@ namespace Msv.AutoMiner.Data.Logic
         AND source.DateTime = grouped.MaxDateTime
   JOIN (SELECT SourceCoinId, TargetCoinId, Exchange, AVG(HighestBid) as AvgHighestBid, AVG(LowestAsk) AS AvgLowestAsk, AVG(LastPrice) as AvgLastPrice 
     FROM ExchangeMarketPrices
-    WHERE DateTime > @p0 AND IsActive
+    WHERE DateTime > @p0
     GROUP BY SourceCoinId, TargetCoinId, Exchange) as aggregated
   ON source.SourceCoinId = aggregated.SourceCoinId 
         AND source.TargetCoinId = aggregated.TargetCoinId 
