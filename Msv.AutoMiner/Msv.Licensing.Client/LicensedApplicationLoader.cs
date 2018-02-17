@@ -74,9 +74,8 @@ namespace Msv.Licensing.Client
                     if (Encoding.UTF8.GetString(appNameBuffer) != applicationName)
                         return new ApplicationLoadResult(ApplicationLoadStatus.LicenseIsForOtherApplication);
 
-                    while (fileStream.Position < fileStream.Length)
+                    while (decompressStream.Read(lengthBuffer, 0, lengthBuffer.Length) > 0)
                     {
-                        decompressStream.Read(lengthBuffer, 0, lengthBuffer.Length);
                         var length = BitConverter.ToInt32(lengthBuffer, 0);
                         dynamic buffer = new byte[length];
                         decompressStream.Read(buffer, 0, length);
