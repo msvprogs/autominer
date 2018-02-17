@@ -1,0 +1,58 @@
+﻿@using Msv.AutoMiner.Common.Data.Enums
+@model Msv.AutoMiner.FrontEnd.Models.MultiCoinPools.MultiCoinPoolDisplayModel
+
+@{
+    string rowClass = null;
+    string title = null;
+    if (Model.Activity == ActivityState.Inactive)
+    {
+        rowClass = "text-muted";
+        title = "Pool is inactive";
+    }
+}
+
+<tr class="@rowClass" title="@title" data-multicoinpool-id="@Model.Id" data-multicoinpool-name="@Model.Name">
+    <td>@Model.Name</td>
+    <td>
+        @if (!string.IsNullOrEmpty(Model.SiteUrl))
+        {
+            <a href="@Model.SiteUrl">@Model.SiteUrl</a>
+        }
+    </td>
+    <td>@Model.ApiProtocol</td>
+    <td>
+        <ul class="list-inline">
+            <li>
+                <a class="btn btn-xs btn-primary" asp-action="Edit" asp-route-id="@Model.Id" title="Edit multicoin pool">
+                    <i class="glyphicon glyphicon-edit"></i>
+                </a>
+            </li>
+            <li>
+                @{
+                    var activationButtonTitle = Model.Activity == ActivityState.Active
+                        ? "Disable multicoin pool"
+                        : "Enable multicoin pool";
+                }
+                <button class="btn btn-xs btn-info"
+                        title="@activationButtonTitle"
+                        data-disable-url="@Url.Action("ToggleActive", new {id = Model.Id})">
+                    @if (Model.Activity == ActivityState.Active)
+                    {
+                        <i class="glyphicon glyphicon-remove"></i>
+                    }
+                    else if (Model.Activity == ActivityState.Inactive)
+                    {
+                        <i class="glyphicon glyphicon-flash"></i>
+                    }
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-xs btn-danger"
+                        title="Delete multicoin pool"
+                        data-delete-url="@Url.Action("Delete", new {id = Model.Id})">
+                    <i class="glyphicon glyphicon-trash"></i>
+                </button>
+            </li>
+        </ul>
+    </td>
+</tr>

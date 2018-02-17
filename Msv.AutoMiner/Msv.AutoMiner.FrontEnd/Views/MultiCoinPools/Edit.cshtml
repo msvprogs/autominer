@@ -1,0 +1,54 @@
+﻿@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.Data
+@model Msv.AutoMiner.FrontEnd.Models.MultiCoinPools.MultiCoinPoolEditModel
+
+@{ ViewBag.Title = "Edit multicoin pool details";}
+
+<h2 class="text-center">Edit multicoin pool details</h2>
+
+<div class="text-danger" asp-validation-summary="All"></div>
+
+<form asp-action="Save" method="post">
+    <input asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name">Name:</label>
+        <input asp-for="Name" class="form-control" placeholder="For example, Yiimp" />
+    </div>
+    <div class="form-group">
+        <label asp-for="SiteUrl">Pool site URL:</label>
+        <input asp-for="SiteUrl" class="form-control" placeholder="For example, http://yiimp.eu/" />
+    </div>
+    <div class="form-group">
+        <label asp-for="SiteUrl">Mining URL (without port):</label>
+        <input asp-for="SiteUrl" class="form-control" placeholder="For example, stratum+tcp://yiimp.eu" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiProtocol">API type:</label>
+        <p class="small">
+            Only <b>Yiimp</b> pools are supported at the current moment.
+        </p>
+        <select asp-for="ApiProtocol" class="form-control">
+            @foreach (var apiType in EnumHelper.GetCaptionsCached<PoolApiProtocol>()
+                .Where(x => x.Key == PoolApiProtocol.Yiimp)
+                .OrderBy(x => x.Value))
+            {
+                <option value="@apiType.Key">@apiType.Value</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="ApiUrl">API URL:</label>
+        <p class="small">
+            Reference pool API documentation to find it.
+        </p>
+        <input asp-for="ApiUrl" class="form-control" placeholder="For example, http://api.yiimp.eu/api" />
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Save
+    </button>
+    <a class="btn btn-default" asp-action="Index">
+        <i class="glyphicon glyphicon-chevron-left"></i> Return to multicoin pools list
+    </a>
+</form>

@@ -1,0 +1,76 @@
+﻿@using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.FrontEnd.Controllers
+@model Msv.AutoMiner.FrontEnd.Models.MultiCoinPools.MultiCoinPoolIndexModel
+
+
+@{ ViewBag.Title = "Multicoin pools & new coin candidates";}
+
+@if (TempData[MultiCoinPoolsController.MultiCoinPoolsMessageKey] != null)
+{
+    <div class="panel panel-success">
+        <div class="panel-body text-success">
+            @TempData[MultiCoinPoolsController.MultiCoinPoolsMessageKey]
+        </div>
+    </div>
+}
+
+<h2 class="text-center">Multicoin pools &amp; new coin candidates</h2>
+
+<h3 class="text-left">Multicoin pools where new coins will be searched</h3>
+<div class="pull-right div-table-actions">
+    <a class="btn btn-info" asp-action="Create">
+        <i class="glyphicon glyphicon-plus"></i> Add...
+    </a>
+</div>
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>URL</th>
+        <th>API type</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody id="multicoinpools-table">
+    @foreach (var pool in Model.Pools.OrderBy(x => x.Name))
+    {
+        @Html.Partial("_MultiCoinPoolRowPartial", pool)
+    }
+    </tbody>
+</table>
+
+<h3 class="text-left">New coin candidates</h3>
+<table class="table table-bordered table-striped sticky-header">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Symbol</th>
+            <th>Multicoin pool</th>
+            <th>Algorithm</th>
+            <th>Exchanges</th>
+            <th>Mining URL</th>
+            <th>Workers</th>
+            <th>Hashrate</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var currency in Model.Currencies
+            .OrderBy(x => x.Name)
+            .ThenBy(x => x.MultiCoinPoolName)
+            .ThenByDescending(x => x.Workers))
+        {
+        <tr>
+            <td>@currency.Name</td>
+            <td>@currency.Symbol</td>
+            <td>@currency.MultiCoinPoolName</td>
+            <td>@currency.Algorithm</td>
+            <td>@string.Join(", ", currency.Exchanges)</td>
+            <td>@currency.MiningUrl</td>
+            <td>@currency.Workers</td>
+            <td>@ConversionHelper.ToHashRateWithUnits(currency.Hashrate)</td>
+            <td>---</td>
+        </tr>
+        }
+    </tbody>
+</table>

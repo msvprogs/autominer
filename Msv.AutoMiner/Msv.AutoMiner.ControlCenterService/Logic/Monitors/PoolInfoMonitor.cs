@@ -51,7 +51,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         Provider = m_ProviderFactory.CreateMulti(
                             x?.ApiProtocol ?? y.Key.ApiProtocol,
                             x?.ApiUrl ?? y.Key.ApiUrl, 
-                            y?.ToArray().EmptyIfNull(),
+                            (y?.ToArray()).EmptyIfNull(),
                             btcMiningTarget)
                     })
                 .AsParallel()

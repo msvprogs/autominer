@@ -618,6 +618,10 @@ $(function () {
         $("input#SpeedRegex, input#BenchmarkResultRegex, input#ValidShareRegex, input#InvalidShareRegex")
             .prop("disabled", !regexesEnabled);
     }).change();
+
+    // ** MultiCoinPools Index
+    bindDisableButton($("tbody#multicoinpools-table"), "multicoinpool-name", "multicoin pool");
+    bindDeleteButton($("tbody#multicoinpools-table"), "multicoinpool-name", "multicoin pool");
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {
