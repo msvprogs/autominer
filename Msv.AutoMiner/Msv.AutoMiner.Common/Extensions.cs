@@ -66,6 +66,12 @@ namespace Msv.AutoMiner.Common
         public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> source)
             => source ?? Enumerable.Empty<T>();
 
+        public static string EmptyIfNull(this string str)
+            => str ?? string.Empty;
+
+        public static bool Contains(this string str, string substring, StringComparison comparison)
+            => str.IndexOf(substring, comparison) >= 0;
+
         public static IEnumerable<TResult> LeftOuterJoin<TLeft, TRight, TKey, TResult>(
             this IEnumerable<TLeft> left,
             IEnumerable<TRight> right,

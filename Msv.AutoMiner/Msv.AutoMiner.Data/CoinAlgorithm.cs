@@ -26,6 +26,9 @@ namespace Msv.AutoMiner.Data
 
         public double? Intensity { get; set; }
 
+        [MaxLength(256)]
+        public string Aliases { get; set; }
+
         [MaxLength(32)]
         public string AlgorithmArgument { get; set; }
         

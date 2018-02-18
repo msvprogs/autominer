@@ -84,6 +84,13 @@
         </p>
         <input asp-for="AdditionalArguments" class="form-control text-monospace" />
     </div>
+    <div class="form-group">
+        <label asp-for="Aliases">Aliases (comma-separated):</label>
+        <p class="small">
+            Algorithm name aliases, for example, ones that are used as Yiimp pool names. For example, <samp>Lyra2Rev2</samp> algorithm is refered as <samp>lyra2v2</samp>. Case insensitive.
+        </p>
+        <input asp-for="Aliases" class="form-control text-monospace" />
+    </div>
 
     <button type="submit" class="btn btn-success">
         <i class="glyphicon glyphicon-floppy-disk"></i> Save
@@ -99,6 +106,7 @@
             $("input#Id").val(importedData.Id);
             $("input#Name").val(importedData.Name);
             $("select#KnownValue").val(importedData.KnownValue).change();
+            $("input#Aliases").val(importedData.Aliases);
 
             new Notification("Algorithm settings have been imported successfully").success();
         }

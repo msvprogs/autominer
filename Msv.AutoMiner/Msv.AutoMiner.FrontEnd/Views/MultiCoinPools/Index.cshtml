@@ -39,7 +39,22 @@
     </tbody>
 </table>
 
+<hr />
+
 <h3 class="text-left">New coin candidates</h3>
+<form asp-action="ChangeIgnoredAlgorithms" class="small separate-textbox" method="post">
+    <label for="newAlgorithms">Ignoring algorithms (delimit with comma):</label>
+    <div class="input-group">
+        <input type="text" class="form-control" name="newAlgorithms" id="newAlgorithms"
+                value="@string.Join(", ", Model.IgnoredAlgorithms.OrderBy(x => x))" />
+        <span class="input-group-btn">
+            <button class="btn btn-primary" type="submit">
+                <i class="fa fa-pencil"></i> Change
+            </button>
+        </span>
+    </div>
+</form>
+
 <table class="table table-bordered table-striped sticky-header">
     <thead>
         <tr>
@@ -54,22 +69,65 @@
             <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="new-coins-table">
         @foreach (var currency in Model.Currencies
             .OrderBy(x => x.Name)
             .ThenBy(x => x.MultiCoinPoolName)
             .ThenByDescending(x => x.Workers))
         {
-        <tr>
-            <td>@currency.Name</td>
+        <tr data-coin-name="@currency.Name @@ @currency.MultiCoinPoolName">
+            <td>
+                @{
+                    var searchQuery = string.Join(" ", currency.Name, currency.Symbol, "bitcointalk").Replace(" ", "+");
+                }
+                <a href="https://www.google.com/search?q=@searchQuery" target="_blank" 
+                   title="Search Google and BitCoinTalk for this coin">
+                    @currency.Name
+                </a>
+            </td>
             <td>@currency.Symbol</td>
-            <td>@currency.MultiCoinPoolName</td>
+            <td>
+                <a href="@currency.MultiCoinPoolSiteUrl" target="_blank">@currency.MultiCoinPoolName</a>
+            </td>
             <td>@currency.Algorithm</td>
-            <td>@string.Join(", ", currency.Exchanges)</td>
-            <td>@currency.MiningUrl</td>
+            <td class="small">
+                <ul class="list-unstyled">
+                    @foreach (var exchange in currency.Exchanges)
+                    {
+                        <li>@exchange</li>
+                    }
+                </ul>
+            </td>
+            <td class="small">@currency.MiningUrl</td>
             <td>@currency.Workers</td>
             <td class="space-no-wrap">@ConversionHelper.ToHashRateWithUnits(currency.Hashrate)</td>
-            <td>---</td>
+            <td>
+                <ul class="list-inline">
+                    <li>
+                        <a class="btn btn-xs btn-info" asp-controller="Coins" asp-action="CreateFromTemplate" 
+                           asp-route-symbol="@currency.Symbol" asp-route-name="@currency.Name" asp-route-algorithm="@currency.Algorithm" 
+                           title="Create new coin">
+                            <i class="fa fa-plus"></i> <i class="fa fa-bitcoin"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn btn-xs btn-info" asp-controller="Pools" asp-action="CreateFromTemplate" 
+                           asp-route-coinSymbol="@currency.Symbol" asp-route-coinName="@currency.Name"
+                           asp-route-algorithm="@currency.Algorithm" asp-route-poolName="@currency.MultiCoinPoolName" 
+                           asp-route-miningUrl="@currency.MiningUrl" asp-route-apiUrl="@currency.MultiCoinPoolApiUrl"
+                           title="Create new pool">
+                            <i class="fa fa-plus"></i> <i class="fa fa-tasks"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <button class="btn btn-xs btn-danger"
+                                title="Ignore this coin"
+                                data-ignore-url="@Url.Action("IgnoreNewCurrency", new {id = currency.Id})">
+                            <i class="fa fa-minus-square"></i>
+                        </button>
+                    </li>
+                </ul>
+            </td>
         </tr>
         }
     </tbody>

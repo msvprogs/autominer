@@ -12,9 +12,10 @@ using System;
 namespace Msv.AutoMiner.Data.Migrations
 {
     [DbContext(typeof(AutoMinerDbContext))]
-    partial class AutoMinerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180218083635_AddSettingsAndAlgoAliases")]
+    partial class AddSettingsAndAlgoAliases
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

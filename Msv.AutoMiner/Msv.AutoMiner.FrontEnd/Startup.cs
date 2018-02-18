@@ -104,6 +104,7 @@ namespace Msv.AutoMiner.FrontEnd
             services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
             services.AddSingleton<IOverallProfitabilityCalculator, OverallProfitabilityCalculator>();
+            services.AddSingleton<IStoredSettings, StoredSettings>();
             services.AddSingleton<IUploadedFileStorage>(
                 new PhysicalUploadedFileStorage(config.FileStorage.Miners));
             services.AddSingleton<IControlCenterService>(x => new ControlCenterServiceClient(

@@ -44,6 +44,7 @@ namespace Msv.AutoMiner.Data
         public DbSet<MinerVersion> MinerVersions { get; set; }
         public DbSet<MultiCoinPool> MultiCoinPools { get; set; }
         public DbSet<MultiCoinPoolCurrency> MultiCoinPoolCurrencies { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -4,5 +4,6 @@
     {
         public MultiCoinPoolDisplayModel[] Pools { get; set; }
         public MultiCoinPoolCurrencyModel[] Currencies { get; set; }
+        public string[] IgnoredAlgorithms { get; set; }
     }
 }

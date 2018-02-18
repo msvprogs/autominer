@@ -15,7 +15,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         [MaxLength(64)]
         public string NodePassword { get; set; }
 
-        public AlgorithmBaseModel[] AvailableAlgorithms { get; set; }
+        public AlgorithmEditModel[] AvailableAlgorithms { get; set; }
 
         public long? LastHeight { get; set; }
 

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.FrontEnd.Models.MultiCoinPools;
 
 namespace Msv.AutoMiner.FrontEnd.Controllers
@@ -13,12 +14,17 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     public class MultiCoinPoolsController : EntityControllerBase<MultiCoinPool, MultiCoinPoolDisplayModel, int>
     {
         public const string MultiCoinPoolsMessageKey = "MultiCoinPoolsMessage";
+        private const string IgnoredAlgorithmsDelimiter = ",";
 
+        private readonly IStoredSettings m_Settings;
         private readonly AutoMinerDbContext m_Context;
 
-        public MultiCoinPoolsController(AutoMinerDbContext context) 
-            : base("_MultiCoinPoolRowPartial", context) 
-            => m_Context = context;
+        public MultiCoinPoolsController(IStoredSettings settings, AutoMinerDbContext context) 
+            : base("_MultiCoinPoolRowPartial", context)
+        {
+            m_Settings = settings;
+            m_Context = context;
+        }
 
         public IActionResult Index()
         {
@@ -39,16 +45,20 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .Select(x => x.Coin.Symbol)
                 .Distinct()
                 .ToArray();
+            var ignoredAlgorithms = m_Settings.MultiPoolIgnoreAlgorithms.EmptyIfNull()
+                .Split(IgnoredAlgorithmsDelimiter);
 
             return View(new MultiCoinPoolIndexModel
             {
                 Pools = GetEntityModels(null),
+                IgnoredAlgorithms = ignoredAlgorithms,
                 Currencies = m_Context.MultiCoinPoolCurrencies
                     .Include(x => x.MultiCoinPool)
                     .AsNoTracking()
                     .Where(x => !x.IsIgnored)
                     .Where(x => x.MultiCoinPool.Activity != ActivityState.Deleted)
                     .Where(x => !currentCoinsWithPools.Contains(x.Symbol))
+                    .Where(x => !ignoredAlgorithms.Contains(x.Algorithm, StringComparer.InvariantCultureIgnoreCase))
                     .AsEnumerable()
                     .Select(x => new MultiCoinPoolCurrencyModel
                     {
@@ -58,6 +68,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                         Id = x.Id,
                         MultiCoinPoolId = x.MultiCoinPoolId,
                         MultiCoinPoolName = x.MultiCoinPool.Name,
+                        MultiCoinPoolApiUrl = x.MultiCoinPool.ApiUrl,
+                        MultiCoinPoolSiteUrl = x.MultiCoinPool.SiteUrl,
                         MiningUrl = CreatMiningUrl(x.MultiCoinPool.MiningUrl, x.Port, x.Algorithm)?.ToString(),
                         Symbol = x.Symbol,
                         Workers = x.Workers,
@@ -88,7 +100,31 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 SiteUrl = pool.SiteUrl
             });
         }
-        
+
+        [HttpPost]
+        public IActionResult IgnoreNewCurrency(int id)
+        {
+            var currency = m_Context.MultiCoinPoolCurrencies
+                .FirstOrDefault(x => x.Id == id);
+            if (currency == null)
+                return NotFound();
+            currency.IsIgnored = true;
+            m_Context.SaveChanges();
+            return NoContent();
+        }
+
+        [HttpPost]
+        public IActionResult ChangeIgnoredAlgorithms(string newAlgorithms)
+        {
+            m_Settings.MultiPoolIgnoreAlgorithms =
+                string.Join(IgnoredAlgorithmsDelimiter, newAlgorithms
+                    .EmptyIfNull()
+                    .Split(IgnoredAlgorithmsDelimiter, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim()));
+            TempData[MultiCoinPoolsMessageKey] = "Now ignoring algorithms: " + newAlgorithms;
+            return RedirectToAction("Index");
+        }
+
         [HttpPost]
         public async Task<IActionResult> Save(MultiCoinPoolEditModel poolModel)
         {

@@ -248,3 +248,8 @@ tfoot {
     font-weight: bold;
     margin-right: 4px;
 }
+
+.separate-textbox {
+    margin-top: 2px;
+    margin-bottom: 5px;
+}

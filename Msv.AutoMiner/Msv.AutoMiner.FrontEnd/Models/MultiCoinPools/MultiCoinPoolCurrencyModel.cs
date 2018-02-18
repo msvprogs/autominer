@@ -5,6 +5,8 @@
         public int Id { get; set; }
         public int MultiCoinPoolId { get; set; }
         public string MultiCoinPoolName { get; set; }
+        public string MultiCoinPoolApiUrl { get; set; }
+        public string MultiCoinPoolSiteUrl { get; set; }
         public string Symbol { get; set; }
         public string Name { get; set; }
         public string Algorithm { get; set; }

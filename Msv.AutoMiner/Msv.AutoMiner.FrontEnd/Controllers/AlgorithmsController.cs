@@ -48,6 +48,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 MinerId = algorithm.MinerId,
                 MinerAlgorithmArgument = algorithm.AlgorithmArgument,
                 Intensity = algorithm.Intensity,
+                Aliases = algorithm.Aliases,
                 AvailableMiners = await GetAvailableMiners()
             });
         }
@@ -77,6 +78,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             algorithm.MinerId = algorithmModel.MinerId;
             algorithm.AlgorithmArgument = algorithmModel.MinerAlgorithmArgument;
             algorithm.Intensity = algorithmModel.Intensity.NullIfNaN();
+            algorithm.Aliases = algorithmModel.Aliases;
 
             await m_Context.SaveChangesAsync();
             TempData[AlgorithmsMessageKey] = $"Algorithm {algorithmModel.Name} has been successfully saved";
@@ -87,11 +89,12 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         {
             var algorithm = await m_Context.CoinAlgorithms.FirstAsync(x => x.Id == id);
             var exportedContent = JsonConvert.SerializeObject(
-                new AlgorithmBaseModel
+                new AlgorithmExportModel
                 {
                     Name = algorithm.Name,
                     Id = algorithm.Id,
-                    KnownValue = algorithm.KnownValue
+                    KnownValue = algorithm.KnownValue,
+                    Aliases = algorithm.Aliases
                 });
             return ReturnAsJsonFile($"{algorithm.Name}_algo_settings.json", exportedContent);
         }

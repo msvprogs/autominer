@@ -3,7 +3,7 @@ using Msv.AutoMiner.FrontEnd.Models.Miners;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Algorithms
 {
-    public class AlgorithmEditModel : AlgorithmBaseModel
+    public class AlgorithmEditModel : AlgorithmExportModel
     {
         public bool IsNewEntity { get; set; }
 
@@ -12,7 +12,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Algorithms
         public double? Intensity { get; set; }
 
         [MaxLength(128)]
-        public string AdditionalArguments {get; set; }
+        public string AdditionalArguments { get; set; }
 
         public MinerBaseModel[] AvailableMiners { get; set; }
     }

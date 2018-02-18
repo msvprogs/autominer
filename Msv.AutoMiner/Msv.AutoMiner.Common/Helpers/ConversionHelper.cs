@@ -35,6 +35,9 @@ namespace Msv.AutoMiner.Common.Helpers
 
         public static string ToHashRateWithUnits(double hashRate, KnownCoinAlgorithm? algorithm = KnownCoinAlgorithm.Unknown)
         {
+            if (hashRate <= 0)
+                return "N/A";
+
             var prefixKeyPair = M_Prefixes
                 .OrderByDescending(x => x.Key)
                 .FirstOrDefault(x => hashRate >= x.Key);

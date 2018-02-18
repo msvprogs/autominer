@@ -78,6 +78,23 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins()
             });
 
+        public async Task<IActionResult> CreateFromTemplate(string symbol, string name, string algorithm)
+        {
+            var algorithms = await GetAvailableAlgorithms();
+            return View("Edit", new CoinEditModel
+            {
+                Id = Guid.NewGuid(),
+                Symbol = symbol,
+                Name = name,
+                AvailableAlgorithms = algorithms,
+                AlgorithmId = algorithms.FirstOrDefault(
+                    x => x.Name.Equals(algorithm, StringComparison.InvariantCultureIgnoreCase)
+                    || x.Aliases.EmptyIfNull().Split(',').Contains(algorithm, StringComparer.InvariantCultureIgnoreCase))?.Id,
+                HardcodedMultiAlgoCoins = m_NetworkInfoProviderFactory.GetHardcodedMultiAlgoCoins(),
+                HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins()
+            });
+        }
+
         public async Task<IActionResult> Edit(Guid id)
         {
             var coin = await m_Context.Coins
@@ -390,14 +407,15 @@ rpcallowip={allowIpMask}
             
         }
 
-        private Task<AlgorithmBaseModel[]> GetAvailableAlgorithms()
+        private Task<AlgorithmEditModel[]> GetAvailableAlgorithms()
             => m_Context.CoinAlgorithms
                 .Where(x => x.Activity == ActivityState.Active)
-                .Select(x => new AlgorithmBaseModel
+                .Select(x => new AlgorithmEditModel
                 {
                     Id = x.Id,
                     KnownValue = x.KnownValue,
-                    Name = x.Name
+                    Name = x.Name,
+                    Aliases = x.Aliases
                 })
                 .ToArrayAsync();
 

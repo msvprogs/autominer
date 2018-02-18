@@ -622,6 +622,17 @@ $(function () {
     // ** MultiCoinPools Index
     bindDisableButton($("tbody#multicoinpools-table"), "multicoinpool-name", "multicoin pool");
     bindDeleteButton($("tbody#multicoinpools-table"), "multicoinpool-name", "multicoin pool");
+    bindButtonPostAction($("tbody#new-coins-table"),
+        "ignore-url",
+        function(button) {
+            var row = button.closest("tr");
+            new Notification(format("Coin {0} has been added to ignore list", row.data("coin-name")))
+                .success();
+            row.remove();
+        },
+        function(button, error) {
+            new Notification(format("Error while ignoring coin: {0}", error)).danger();
+        });
 });
 
 function bindDisableButton(table, rowNameKey, entityName) {

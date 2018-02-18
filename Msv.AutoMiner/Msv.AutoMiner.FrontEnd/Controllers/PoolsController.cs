@@ -72,6 +72,25 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 ChooseProtocol = true
             });
 
+        public async Task<IActionResult> CreateFromTemplate(
+            string coinSymbol, string coinName, string algorithm, string poolName, string miningUrl, string apiUrl)
+        {
+            var coins = await GetAvailableCoins();
+            return View("Edit", new PoolEditModel
+            {
+                AvailableCoins = coins,
+                CoinId = coins.FirstOrDefault(x => x.Symbol == coinSymbol)?.Id,
+                PoolProtocol = PoolProtocol.Stratum,
+                Name = $"{poolName}_{coinName}",
+                Url = miningUrl,
+                IsAnonymous = true,
+                WorkerPassword = $"c={coinSymbol}",
+                PoolApiProtocol = PoolApiProtocol.Yiimp,
+                ApiUrl = apiUrl,
+                ApiPoolName = algorithm
+            });
+        }
+
         public async Task<IActionResult> Edit(int id)
         {
             var pool = await m_Context.Pools
