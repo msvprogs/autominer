@@ -102,10 +102,10 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         [HttpPost]
-        public IActionResult IgnoreNewCurrency(int id)
+        public IActionResult IgnoreNewCurrency(int poolId, string coinSymbol)
         {
             var currency = m_Context.MultiCoinPoolCurrencies
-                .FirstOrDefault(x => x.Id == id);
+                .FirstOrDefault(x => x.MultiCoinPoolId == poolId && x.Symbol == coinSymbol);
             if (currency == null)
                 return NotFound();
             currency.IsIgnored = true;
