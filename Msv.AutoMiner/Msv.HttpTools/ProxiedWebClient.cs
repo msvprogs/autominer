@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace Msv.HttpTools
 {
     public class ProxiedWebClient : CorrectWebClient, IProxiedBaseWebClient
     {
-        private const int MaxAttempts = 10;
+        private const int MaxAttempts = 20;
 
         private readonly IRoundRobin<ProxyInfo> m_ProxyInfos;
         private WebProxy m_CurrentProxy;
@@ -35,20 +36,24 @@ namespace Msv.HttpTools
                     m_CurrentProxyInfo.RecordSuccess();
                     return result;
                 }
-                catch (HttpRequestException)
+                catch (HttpRequestException hRex)
                 {
+                    Debug.WriteLine($"Proxy {m_CurrentProxyInfo.Uri} - URI {uri} returned error: {hRex}");
                     m_CurrentProxyInfo.RecordFailure();
                 }
-                catch (CorrectHttpException)
+                catch (CorrectHttpException cHex)
                 {
+                    Debug.WriteLine($"Proxy {m_CurrentProxyInfo.Uri} - URI {uri} returned error: {cHex}");
                     m_CurrentProxyInfo.RecordFailure();
                 }
                 catch (TaskCanceledException) // HttpClient throws this exception
                 {
+                    Debug.WriteLine($"Proxy {m_CurrentProxyInfo.Uri} - URI {uri} returned error");
                     m_CurrentProxyInfo.RecordFailure();
                 }
-                catch (WebException)
+                catch (WebException wex)
                 {
+                    Debug.WriteLine($"Proxy {m_CurrentProxyInfo.Uri} - URI {uri} returned error: {wex}");
                     m_CurrentProxyInfo.RecordFailure();
                 }
             }
