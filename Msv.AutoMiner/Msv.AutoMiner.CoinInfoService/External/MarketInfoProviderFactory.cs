@@ -10,9 +10,13 @@ namespace Msv.AutoMiner.CoinInfoService.External
     public class MarketInfoProviderFactory : IMarketInfoProviderFactory
     {
         private readonly IWebClient m_WebClient;
+        private readonly IProxiedWebClient m_ProxiedWebClient;
 
-        public MarketInfoProviderFactory(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public MarketInfoProviderFactory(IWebClient webClient, IProxiedWebClient proxiedWebClient)
+        {
+            m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+            m_ProxiedWebClient = proxiedWebClient ?? throw new ArgumentNullException(nameof(proxiedWebClient));
+        }
 
         public IMarketInfoProvider Create(ExchangeType exchange)
         {
@@ -37,7 +41,7 @@ namespace Msv.AutoMiner.CoinInfoService.External
                 case ExchangeType.LiveCoin:
                     return new LiveCoinMarketInfoProvider(m_WebClient);
                 case ExchangeType.StocksExchange:
-                    return new StocksExchangeMarketInfoProvider(m_WebClient);
+                    return new StocksExchangeMarketInfoProvider(m_ProxiedWebClient);
                 case ExchangeType.BtcAlpha:
                     return new BtcAlphaMarketInfoProvider(m_WebClient);
                 case ExchangeType.CryptoBridge:

@@ -52,11 +52,13 @@ namespace Msv.AutoMiner.CoinInfoService
                         scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>())
                     .ApplyIfAny();
 
+                var proxiedWebClient = new ProxiedLoggedWebClient(
+                    new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")));
                 using (new FiatValueMonitor(
                     new FiatValueProviderFactory(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))
                 using (new MarketInfoMonitor(
-                    new MarketInfoProviderFactory(new LoggedWebClient()),
+                    new MarketInfoProviderFactory(new LoggedWebClient(), proxiedWebClient),
                     scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
                 using (new MasternodeInfoMonitor(
                     new MasternodeInfoProviderFactory(new LoggedWebClient()),
@@ -64,10 +66,7 @@ namespace Msv.AutoMiner.CoinInfoService
                 using (new NetworkInfoMonitor(
                     new JsBlockRewardCalculator(),
                     scope.ServiceProvider.GetRequiredService<ICoinNetworkInfoProvider>(),
-                    new NetworkInfoProviderFactory(
-                        new LoggedWebClient(),
-                        new ProxiedLoggedWebClient(
-                            new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
+                    new NetworkInfoProviderFactory(new LoggedWebClient(), proxiedWebClient),
                     scope.ServiceProvider.GetRequiredService<IMasternodeInfoStorage>(),
                     scope.ServiceProvider.GetRequiredService<INetworkInfoMonitorStorage>()))
                 {

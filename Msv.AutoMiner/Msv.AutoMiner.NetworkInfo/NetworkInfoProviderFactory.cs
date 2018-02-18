@@ -32,6 +32,7 @@ namespace Msv.AutoMiner.NetworkInfo
         private const string Xmy = "XMY";
         private const string Btg = "BTG";
         private const string Stak = "STAK";
+        private const string Elp = "ELP";
 
         //Multi-algo coins
         private const string Xvg = "XVG";
@@ -61,7 +62,7 @@ namespace Msv.AutoMiner.NetworkInfo
         }
 
         public string[] GetHardcodedCoins()
-            => new[] {Xcn, Ftc, Zec, Etc, Dgb, Lbc, Eth, Sc, Sib, Dcr, Btc, Xpm, Pasc, Max, Mnx, Hsr, Xmy, Btg, Stak}
+            => new[] {Xcn, Ftc, Zec, Etc, Dgb, Lbc, Eth, Sc, Sib, Dcr, Btc, Xpm, Pasc, Max, Mnx, Hsr, Xmy, Btg, Stak, Elp}
                 .OrderBy(x => x)
                 .ToArray();
 
@@ -167,6 +168,8 @@ namespace Msv.AutoMiner.NetworkInfo
                     return new BitCoinGoldInfoProvider(m_OrdinaryClient);
                 case Stak:
                     return new StraksInfoProvider(m_OrdinaryClient);
+                case Elp:
+                    return new ElleriumInfoProvider(m_OrdinaryClient);
                 default:
                     return new DummyInfoProvider();
             }
