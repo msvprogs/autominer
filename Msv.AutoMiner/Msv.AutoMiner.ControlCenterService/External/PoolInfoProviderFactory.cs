@@ -57,10 +57,15 @@ namespace Msv.AutoMiner.ControlCenterService.External
                 case PoolApiProtocol.Bitfly:
                     return new BitflyPoolInfoProvider(m_WebClient, pool.ApiUrl, GetMiningWalletAddress());
                 case PoolApiProtocol.NodeOpenMiningPortal:
-                    return new NodeOpenMiningPortalPoolInfoProvider(m_WebClient, pool.ApiUrl, GetMiningWalletAddress(), pool.ApiPoolName);
+                    return new NodeOpenMiningPortalPoolInfoProvider(
+                        m_WebClient, pool.ApiUrl, GetMiningWalletAddress(), pool.ApiPoolName);
                 case PoolApiProtocol.JsonRpcWallet:
-                    return new JsonRpcLocalPoolInfoProvider(
-                        new HttpJsonRpcClient(m_WebClient, pool.Coin.NodeHost, pool.Coin.NodePort, pool.Coin.NodeLogin, pool.Coin.NodePassword));
+                    if (!string.IsNullOrEmpty(pool.Coin.NodeHost)
+                        && !string.IsNullOrEmpty(pool.Coin.NodeLogin)
+                        && !string.IsNullOrEmpty(pool.Coin.NodePassword))
+                        return new JsonRpcLocalPoolInfoProvider(new HttpJsonRpcClient(
+                            m_WebClient, pool.Coin.NodeHost, pool.Coin.NodePort, pool.Coin.NodeLogin, pool.Coin.NodePassword));
+                    return new DummyInfoProvider();
                 default:
                     return new DummyInfoProvider();
             }
