@@ -14,6 +14,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
         private static readonly Uri M_BaseUri = new Uri("https://btc-alpha.com/api/");
 
         public bool HasMarketsCountLimit => true;
+        public TimeSpan? RequestInterval => null;
 
         private readonly IWebClient m_WebClient;
 

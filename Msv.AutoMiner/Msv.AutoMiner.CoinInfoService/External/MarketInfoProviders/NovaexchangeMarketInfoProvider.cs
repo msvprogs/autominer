@@ -24,6 +24,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
         };
 
         public bool HasMarketsCountLimit => false;
+        public TimeSpan? RequestInterval => null;
 
         private readonly IWebClient m_WebClient;
 

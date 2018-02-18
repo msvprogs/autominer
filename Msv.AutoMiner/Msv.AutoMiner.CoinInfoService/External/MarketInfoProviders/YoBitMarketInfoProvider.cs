@@ -17,6 +17,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
         private static readonly Uri M_BaseUri = new Uri("https://yobit.net");
 
         public bool HasMarketsCountLimit => true;
+        public TimeSpan? RequestInterval => null;
 
         private readonly IWebClient m_WebClient;
 

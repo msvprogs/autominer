@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
@@ -12,6 +13,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
     public class MarketInfoMonitor : MonitorBase
     {
         private const string BtcSymbol = "BTC";
+        private const int MarketParallelismDegree = 6;
 
         private readonly IMarketInfoProviderFactory m_ProviderFactory;
         private readonly IMarketInfoMonitorStorage m_Storage;
@@ -32,6 +34,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             var downloadedExchangeData = m_Storage.GetExchanges()
                 .Where(x => x.Activity == ActivityState.Active)
                 .Select(x => (type:x.Type, provider: m_ProviderFactory.Create(x.Type)))
+                .AsParallel()
+                .WithDegreeOfParallelism(MarketParallelismDegree)
                 .Select(x =>
                 {
                     try
@@ -99,6 +103,11 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             Log.Info($"{type} supports {currencies.Length} currencies");
             if (provider.HasMarketsCountLimit)
                 Log.Info($"{type} has market price request limit; requesting only registered coins");
+            if (provider.RequestInterval != null)
+            {
+                Log.Info($"{type} has request limit; waiting {provider.RequestInterval.Value.TotalSeconds:F0} seconds");
+                Thread.Sleep(provider.RequestInterval.Value);
+            }
             var marketPrices = provider.GetCurrencyMarkets(currencies
                 .Where(x => !provider.HasMarketsCountLimit || coinSymbols.Contains(x.Symbol))
                 .ToArray());

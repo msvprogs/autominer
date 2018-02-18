@@ -14,6 +14,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
         private static readonly Uri M_BaseUri = new Uri("https://api.crypto-bridge.org/api/v1/");
 
         public bool HasMarketsCountLimit => false;
+        public TimeSpan? RequestInterval => null;
 
         private readonly IWebClient m_WebClient;
 

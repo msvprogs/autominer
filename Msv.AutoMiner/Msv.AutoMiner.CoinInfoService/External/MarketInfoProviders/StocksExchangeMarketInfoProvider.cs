@@ -16,14 +16,16 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 
         public bool HasMarketsCountLimit => false;
 
-        private readonly IProxiedWebClient m_WebClient;
+        public TimeSpan? RequestInterval => TimeSpan.FromMinutes(1);
 
-        public StocksExchangeMarketInfoProvider(IProxiedWebClient webClient)
+        private readonly IWebClient m_WebClient;
+
+        public StocksExchangeMarketInfoProvider(IWebClient webClient)
             => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
 
         public ExchangeCurrencyInfo[] GetCurrencies() 
             => JsonConvert.DeserializeObject<JArray>(
-                m_WebClient.DownloadStringProxied(new Uri(M_BaseUri, "currencies").ToString()))
+                m_WebClient.DownloadString(new Uri(M_BaseUri, "currencies")))
             .Cast<dynamic>()
             .Select(x => new ExchangeCurrencyInfo
             {
@@ -38,7 +40,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
         public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
         {
             var marketData = JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadStringProxied(new Uri(M_BaseUri, "markets").ToString()))
+                    m_WebClient.DownloadString(new Uri(M_BaseUri, "markets")))
                 .Cast<dynamic>()
                 .Select(x => new
                 {
@@ -50,7 +52,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 .ToDictionary(x => x.Key, x => x.First().Data);
 
             return JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadStringProxied(new Uri(M_BaseUri, "ticker").ToString()))
+                    m_WebClient.DownloadString(new Uri(M_BaseUri, "ticker")))
                 .Cast<dynamic>()
                 .Select(x => new
                 {

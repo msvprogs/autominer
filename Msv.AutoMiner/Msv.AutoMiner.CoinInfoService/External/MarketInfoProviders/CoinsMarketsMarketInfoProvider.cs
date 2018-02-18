@@ -21,6 +21,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
             @"(?<name>\w+)\s*\(\s*(?<symbol>)\w+\s*\)", RegexOptions.Compiled);
 
         public bool HasMarketsCountLimit => false;
+        public TimeSpan? RequestInterval => null;
 
         private readonly IWebClient m_WebClient;
 

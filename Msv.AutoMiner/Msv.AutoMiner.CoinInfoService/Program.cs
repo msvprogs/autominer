@@ -58,7 +58,7 @@ namespace Msv.AutoMiner.CoinInfoService
                     new FiatValueProviderFactory(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))
                 using (new MarketInfoMonitor(
-                    new MarketInfoProviderFactory(new LoggedWebClient(), proxiedWebClient),
+                    new MarketInfoProviderFactory(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
                 using (new MasternodeInfoMonitor(
                     new MasternodeInfoProviderFactory(new LoggedWebClient()),
