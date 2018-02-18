@@ -65,9 +65,11 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     x => new {Source = x.PairSymbols[0], Target = x.PairSymbols[1]},
                     x => x.Key,
                     (x, y) => (ticker: x, market: y.Value))
+                .Join(currencyInfos, x => x.ticker.PairSymbols[0], x => x.Symbol, 
+                    (x, y) => (x.ticker, x.market, currency: y))
                 .Select(x => new CurrencyMarketInfo
                 {
-                    IsActive = x.market == null || (bool)x.market.active,
+                    IsActive = x.currency.IsActive && (x.market == null || (bool)x.market.active),
                     SourceSymbol = x.ticker.PairSymbols[0],
                     TargetSymbol = x.ticker.PairSymbols[1],
                     LastPrice = (double)x.ticker.Data.last,

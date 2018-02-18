@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common.External.Contracts;
@@ -65,6 +66,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 
         private JArray DoRequest(string command, string parameters = null)
         {
+            Thread.Sleep(TimeSpan.FromSeconds(1)); // will it prevent 429?
             var commandString = $"{command}/?format=json";
             if (parameters != null)
                 commandString += $"&{parameters}";
