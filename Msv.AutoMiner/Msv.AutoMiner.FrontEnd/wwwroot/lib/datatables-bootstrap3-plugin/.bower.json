@@ -1,0 +1,42 @@
+{
+  "name": "datatables-bootstrap3-plugin",
+  "main": [
+    "media/css/datatables-bootstrap3.css",
+    "media/css/datatables-bootstrap3.less",
+    "media/js/datatables-bootstrap3.js"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3",
+    "font-awesome": "^4.3",
+    "datatables": "^1.10",
+    "jquery": "^1.11"
+  },
+  "description": "jQuery DataTables plugin and Bootstrap 3 integration.",
+  "license": "MIT",
+  "keywords": [
+    "javascript",
+    "datatables",
+    "bootstrap",
+    "plugin"
+  ],
+  "ignore": [
+    "/.*",
+    "example",
+    "bower_components",
+    "composer.json",
+    "package.json",
+    "README.md"
+  ],
+  "homepage": "https://github.com/misantron/datatables-bootstrap3-plugin",
+  "version": "0.5.0",
+  "_release": "0.5.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.5.0",
+    "commit": "55860f737eec79275259e2f4faf78eb2c4be106f"
+  },
+  "_source": "https://github.com/misantron/datatables-bootstrap3-plugin.git",
+  "_target": "0.5.0",
+  "_originalSource": "datatables-bootstrap3-plugin",
+  "_direct": true
+}

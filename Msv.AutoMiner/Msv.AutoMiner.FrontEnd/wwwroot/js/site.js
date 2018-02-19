@@ -229,10 +229,15 @@ $(function () {
         e.preventDefault();
     });
 
-    // Enable sticky behavior of table headers
-    $("table.sticky-header").floatThead({
-        //useAbsolutePositioning: false,
-        scrollingTop: 48
+    // Enable data tables
+    $("table.data-table").DataTable({
+        fixedHeader: {
+            header: true,
+            headerOffset: 48
+        },
+        paging: false,
+        order: [],
+        searchDelay: 300
     });
 
     // Enable throbber on AJAX requests

@@ -228,8 +228,8 @@ a.hide-zero-button {
 }
 
 /* ReSharper disable once DeclarationIsEmpty */
-/* Dummy style for sticky table header logic */
-table.sticky-header { }
+/* Dummy style for datatable logic */
+table.data-table { }
 
 thead {
     background-color: #F9F9F9;
@@ -252,4 +252,8 @@ tfoot {
 .separate-textbox {
     margin-top: 2px;
     margin-bottom: 5px;
+}
+
+div.dataTables_filter {
+    text-align: left !important;
 }

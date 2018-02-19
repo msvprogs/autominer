@@ -1,6 +1,7 @@
 ﻿@using Msv.AutoMiner.Common.Data.Enums
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Models.Rigs
+@using Msv.AutoMiner.FrontEnd.Models.Shared
 @model RigDisplayModel
 
 @{
@@ -37,7 +38,12 @@
     <td>@Model.RemoteAddress</td>
     <td>@aggregationTypes[Model.DifficultyAggregationType]</td>
     <td>@aggregationTypes[Model.PriceAggregationType]</td>
-    <td class="text-monospace small">@Model.CertificateSerial</td>
+    <td>
+        @await Component.InvokeAsync("LongId", new LongIdModel
+        {
+            Id = Model.CertificateSerial
+        })
+    </td>
     <td msv-absolute-date="@Model.LastHeartbeat"></td>
     <td>
         <ul class="list-inline">

@@ -1,0 +1,14 @@
+{
+  "name": "DataTables-FixedHeader",
+  "homepage": "https://github.com/DataTables/FixedHeader",
+  "_release": "RELEASE_2_0_6",
+  "_resolution": {
+    "type": "tag",
+    "tag": "RELEASE_2_0_6",
+    "commit": "0de2a79e4df21acbe43d4cb76908dadf72ec9c47"
+  },
+  "_source": "https://github.com/DataTables/FixedHeader.git",
+  "_target": "RELEASE_2_0_6",
+  "_originalSource": "DataTables-FixedHeader",
+  "_direct": true
+}
