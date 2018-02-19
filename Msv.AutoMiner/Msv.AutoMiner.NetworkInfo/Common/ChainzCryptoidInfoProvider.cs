@@ -27,8 +27,6 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            var hashrate = m_WebClient.DownloadStringProxied(
-                new Uri(CreateCurrencyBaseUrl(), "api.dws?q=nethashps").ToString());
             dynamic blocksInfo = JsonConvert.DeserializeObject(m_WebClient.DownloadStringProxied(
                 new Uri(M_BaseUri, $"/explorer/index.data.dws?coin={m_CurrencySymbol}&n=20").ToString()));
 
@@ -48,7 +46,6 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             return new CoinNetworkStatistics
             {
                 Difficulty = bestBlock.Difficulty,
-                NetHashRate = ParsingHelper.ParseHashRate(hashrate),
                 Height = height,
                 LastBlockTime = DateTimeHelper.ToDateTimeUtc(bestBlock.Timestamp)
             };
