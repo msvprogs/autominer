@@ -3,16 +3,16 @@
 namespace Msv.AutoMiner.Data.Logic
 {
     public class AutoMinerDbContextFactory : IAutoMinerDbContextFactory
-    {
-        private readonly string m_ConnectionString;
+    { 
+        public string ConnectionString { get; }
 
         public AutoMinerDbContextFactory(string connectionString)
-            => m_ConnectionString = connectionString;
+            => ConnectionString = connectionString;
 
         public AutoMinerDbContext Create()
-            => new AutoMinerDbContext(m_ConnectionString);
+            => new AutoMinerDbContext(ConnectionString);
 
         public AutoMinerDbContext CreateReadOnly()
-            => new AutoMinerDbContext(m_ConnectionString, true);
+            => new AutoMinerDbContext(ConnectionString, true);
     }
 }

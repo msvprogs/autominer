@@ -2,6 +2,7 @@
 {
     public interface IAutoMinerDbContextFactory
     {
+        string ConnectionString { get; }
         AutoMinerDbContext Create();
         AutoMinerDbContext CreateReadOnly();
     }

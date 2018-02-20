@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Msv.AutoMiner.Data.Logic.Contracts;
+using MySql.Data.MySqlClient;
 using NLog;
 
 namespace Msv.AutoMiner.Data.Logic
@@ -24,6 +25,19 @@ namespace Msv.AutoMiner.Data.Logic
                 mutex.WaitOne();
                 try
                 {
+                    // Create DB manually to ensure that it will use UTF8 encoding
+                    var builder = new MySqlConnectionStringBuilder(m_ContextFactory.ConnectionString);
+                    var databaseName = builder.Database.Replace('`', ' ');
+                    builder.Database = null;
+                    using (var connection = new MySqlConnection(builder.ConnectionString))
+                    {
+                        connection.Open();
+                        using (var command = new MySqlCommand(
+                            $"CREATE DATABASE IF NOT EXISTS `{databaseName}` CHARACTER SET utf8 COLLATE utf8_unicode_ci;",
+                            connection))
+                            command.ExecuteNonQuery();
+                    }
+
                     using (var context = m_ContextFactory.Create())
                     {
                         var pendingMigrationsCount = context.Database.GetPendingMigrations().Count();
