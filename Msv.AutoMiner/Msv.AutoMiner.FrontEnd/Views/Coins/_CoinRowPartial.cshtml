@@ -25,7 +25,7 @@
 }
 
 <tr class="@rowClass" title="@title" data-coin-id="@Model.Id" data-coin-name="@Model.Name">
-    <td class="space-no-wrap small">
+    <td class="space-no-wrap small" data-order="@Model.Name" data-search="@Model.Name">
         @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Name, Model.Logo))
         @if (Model.MasternodeCount != null)
         {
@@ -42,7 +42,7 @@
     </td>
     <td>@Model.Symbol</td>
     <td>@Model.Algorithm.Name</td>
-    <td>
+    <td data-order="@Model.Height">
         <a asp-action="Graph" asp-route-type="@GraphType.Height" asp-route-id="@Model.Id" title="Show height graph">
             @Model.Height
         </a>
@@ -51,7 +51,7 @@
             <div class="secondary-info space-no-wrap" msv-absolute-date="@Model.LastBlockTime"></div>
         }
     </td>
-    <td>
+    <td data-order="@Model.Difficulty.ToDataOrder()">
         <a asp-action="Graph" asp-route-type="@GraphType.Difficulty" asp-route-id="@Model.Id" title="Show difficulty graph">
             @(Model.Difficulty > 1e10 ? Model.Difficulty.ToString("E") : Model.Difficulty.ToString("0.###"))
         </a>
@@ -79,7 +79,7 @@
             }
         </div>
     </td>
-    <td class="text-right">
+    <td class="text-right" data-order="@Model.BlockReward.ToDataOrder()">
         <a asp-action="Graph" asp-route-type="@GraphType.Reward" asp-route-id="@Model.Id" title="Show reward graph">
             @Model.BlockReward.ToString("N2")
         </a>
@@ -127,7 +127,7 @@
             }
         </table>
     </td>
-    <td class="small" msv-absolute-date="@Model.LastUpdated"></td>
+    <td class="small" data-order="@Model.LastUpdated.ToDataOrder()" msv-absolute-date="@Model.LastUpdated"></td>
     <td>
         @if (Model.Symbol != "BTC")
         {

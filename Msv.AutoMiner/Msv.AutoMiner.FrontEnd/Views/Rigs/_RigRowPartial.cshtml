@@ -44,7 +44,7 @@
             Id = Model.CertificateSerial
         })
     </td>
-    <td msv-absolute-date="@Model.LastHeartbeat"></td>
+    <td data-order="@Model.LastHeartbeat.ToDataOrder()" msv-absolute-date="@Model.LastHeartbeat"></td>
     <td>
         <ul class="list-inline">
             <li>

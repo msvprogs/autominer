@@ -43,7 +43,7 @@
 }
 
 <tr class="@rowClass" title="@title" data-pool-id="@Model.Id" data-pool-name="@Model.Name">
-    <td class="space-no-wrap">
+    <td class="space-no-wrap" data-order="@Model.Coin.Name" data-search="@Model.Coin.Name">
         <small>
             <a asp-controller="PoolPayments" asp-action="Index" asp-route-currencyId="@Model.Coin.Id"
                title="Show pool payments for this coin">
@@ -51,7 +51,7 @@
             </a>
         </small>
     </td>
-    <td>
+    <td data-order="@Model.Name" data-search="@Model.Name">
         @if (Model.UseBtcWallet)
         {
             <img src="~/images/bitcoin-exchange.png" 
@@ -92,13 +92,15 @@
             </div>
         }
     </td>
-    <td>@Model.Fee.ToString("F2")%</td>
-    <td msv-balance="@Model.ConfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
-    <td msv-balance="@Model.UnconfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
-    <td class="space-no-wrap">@(Model.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(Model.PoolHashRate, Model.Coin.Algorithm.KnownValue) : "N/A")</td>
-    <td>@Model.PoolWorkers</td>
-    <td class="space-no-wrap">@TimeSpanHelper.ToShortString(Model.TimeToFind)</td>
-    <td msv-absolute-date="@Model.LastUpdated"></td>
+    <td data-order="@Model.Fee.ToDataOrder()">@Model.Fee.ToString("F2")%</td>
+    <td data-order="@Model.ConfirmedBalance.ToDataOrder()" msv-balance="@Model.ConfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
+    <td data-order="@Model.UnconfirmedBalance.ToDataOrder()" msv-balance="@Model.UnconfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
+    <td data-order="@Model.PoolHashRate" class="space-no-wrap">
+        @(Model.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(Model.PoolHashRate, Model.Coin.Algorithm.KnownValue) : "N/A")
+    </td>
+    <td data-order="@Model.PoolWorkers">@Model.PoolWorkers</td>
+    <td data-order="@Model.TimeToFind.ToDataOrder()" class="space-no-wrap">@TimeSpanHelper.ToShortString(Model.TimeToFind)</td>
+    <td data-order="@Model.LastUpdated.ToDataOrder()" msv-absolute-date="@Model.LastUpdated"></td>
     <td>
         <ul class="list-inline">
             <li>

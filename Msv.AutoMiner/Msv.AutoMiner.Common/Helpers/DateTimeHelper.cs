@@ -11,6 +11,9 @@ namespace Msv.AutoMiner.Common.Helpers
 
         public static long NowTimestampMsec => ToTimestampMsec(DateTime.UtcNow);
 
+        public static long? ToTimestamp(DateTime? dateTime, TimeZoneInfo timeZone = null)
+            => dateTime != null ? ToTimestamp(dateTime.Value, timeZone) : (long?)null;
+
         public static long ToTimestamp(DateTime dateTime, TimeZoneInfo timeZone = null)
             => (long) (TimeZoneInfo.ConvertTimeToUtc(dateTime, timeZone ?? TimeZoneInfo.Utc) - M_EpochStart).TotalSeconds;
 

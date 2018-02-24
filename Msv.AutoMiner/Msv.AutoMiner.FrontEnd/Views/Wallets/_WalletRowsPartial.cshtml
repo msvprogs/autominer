@@ -28,7 +28,7 @@
     }
 
     <tr class="@rowClass" title="@title" data-wallet-name="@wallet.Address" data-coin-name="@wallet.Coin.Name" data-coin-id="@wallet.Coin.Id">
-        <td>
+        <td data-order="@wallet.Coin.Name" data-search="@wallet.Coin.Name">
             <a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
                title="Show all operations for @wallet.Coin.Name wallets">
                 @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Logo))
@@ -48,7 +48,7 @@
                 }
             </div>
         </td>
-        <td class="text-right">
+        <td data-search="@wallet.Address" class="text-right space-no-wrap">
             @if (wallet.IsMiningTarget)
             {
                 <img src="~/images/mining-icon.png" alt="Mining target" width="16" height="16"
@@ -84,10 +84,10 @@
                 </div>
             }
         </td>
-        <td msv-balance="@wallet.Available" msv-btc-price="@wallet.CoinBtcPrice"></td>
-        <td msv-balance="@wallet.Blocked" msv-btc-price="@wallet.CoinBtcPrice"></td>
-        <td msv-balance="@wallet.Unconfirmed" msv-btc-price="@wallet.CoinBtcPrice"></td>
-        <td msv-absolute-date="@wallet.LastUpdated"></td>
+        <td data-order="@wallet.Available.ToDataOrder()" msv-balance="@wallet.Available" msv-btc-price="@wallet.CoinBtcPrice"></td>
+        <td data-order="@wallet.Blocked.ToDataOrder()" msv-balance="@wallet.Blocked" msv-btc-price="@wallet.CoinBtcPrice"></td>
+        <td data-order="@wallet.Unconfirmed.ToDataOrder()" msv-balance="@wallet.Unconfirmed" msv-btc-price="@wallet.CoinBtcPrice"></td>
+        <td data-order="@wallet.LastUpdated.ToDataOrder()" msv-absolute-date="@wallet.LastUpdated"></td>
         <td>
             <ul class="list-inline">
                 <li>

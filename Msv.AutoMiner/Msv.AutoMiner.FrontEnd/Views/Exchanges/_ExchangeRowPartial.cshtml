@@ -18,15 +18,15 @@
             @Model.Type
         }
     </td>
-    <td class="text-center">
+    <td class="text-center" data-order="@Model.HasKeys">
         @if (Model.HasKeys)
         {
             <i class="glyphicon glyphicon-ok"></i>
         }
     </td>
     <td>@Model.WalletCount</td>
-    <td msv-absolute-date="@Model.LastPriceDate"></td>
-    <td msv-absolute-date="@Model.LastBalanceDate"></td>
+    <td data-order="@Model.LastPriceDate.ToDataOrder()" msv-absolute-date="@Model.LastPriceDate"></td>
+    <td data-order="@Model.LastBalanceDate.ToDataOrder()" msv-absolute-date="@Model.LastBalanceDate"></td>
     <td>
         <ul class="list-inline">
             <li>
