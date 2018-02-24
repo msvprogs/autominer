@@ -20,10 +20,8 @@ namespace Msv.AutoMiner.Common.External
 
         private readonly IRoundRobin<ProxyInfo> m_ProxyInfos;
 
-        public ProxiedLoggedWebClient(IRoundRobin<ProxyInfo> proxyInfos)
-        {
-            m_ProxyInfos = proxyInfos ?? throw new ArgumentNullException(nameof(proxyInfos));
-        }
+        public ProxiedLoggedWebClient(IRoundRobin<ProxyInfo> proxyInfos) 
+            => m_ProxyInfos = proxyInfos ?? throw new ArgumentNullException(nameof(proxyInfos));
 
         public string DownloadStringProxied(string url, Dictionary<string, string> headers = null)
         {

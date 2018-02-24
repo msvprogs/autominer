@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
@@ -20,6 +19,10 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
 
         [MaxLength(64)]
         public string ApiPoolName { get; set; }
+
+        [Url(ErrorMessage = "Invalid API URL")]
+        [MaxLength(256)]
+        public string ApiSecondaryUrl { get; set; }
 
         public int? ApiPoolUserId { get; set; }
 

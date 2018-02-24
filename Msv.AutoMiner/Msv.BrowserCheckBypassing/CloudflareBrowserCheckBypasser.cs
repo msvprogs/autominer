@@ -16,6 +16,8 @@ namespace Msv.BrowserCheckBypassing
         private const string IdCookieName = "__cfduid";
         private const string ClearanceCookieName = "cf_clearance";
 
+        private const string CloudFlareRayHeaderKey = "CF-RAY";
+
         private static readonly string M_InitJs;
 
         private readonly IWritableClearanceCookieStorage m_ClearanceCookieStorage;
@@ -30,7 +32,7 @@ namespace Msv.BrowserCheckBypassing
 
         public static bool IsCloudfareProtection(CorrectHttpException exception)
             => exception.Status == HttpStatusCode.ServiceUnavailable
-               && !string.IsNullOrWhiteSpace(exception.Headers["CF-RAY"]);
+               && exception.Headers.ContainsKey(CloudFlareRayHeaderKey);
 
         public CloudflareBrowserCheckBypasser(IWritableClearanceCookieStorage clearanceCookieStorage)
             => m_ClearanceCookieStorage = clearanceCookieStorage ?? throw new ArgumentNullException(nameof(clearanceCookieStorage));

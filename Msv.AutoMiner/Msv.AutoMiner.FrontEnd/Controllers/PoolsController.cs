@@ -73,7 +73,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             });
 
         public async Task<IActionResult> CreateFromTemplate(
-            string coinSymbol, string coinName, string algorithm, string poolName, string miningUrl, string apiUrl)
+            string coinSymbol, string coinName, string algorithm, string poolName, string miningUrl, string apiUrl, string apiSecondaryUrl)
         {
             var coins = await GetAvailableCoins();
             return View("Edit", new PoolEditModel
@@ -87,6 +87,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 WorkerPassword = $"c={coinSymbol}",
                 PoolApiProtocol = PoolApiProtocol.Yiimp,
                 ApiUrl = apiUrl,
+                ApiSecondaryUrl = apiSecondaryUrl,
                 ApiPoolName = algorithm
             });
         }
@@ -117,6 +118,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
                 UseBtcWallet = pool.UseBtcWallet,
                 PoolProtocol = pool.Protocol,
+                ApiSecondaryUrl = pool.ApiSecondaryUrl,
                 AvailableCoins = await GetAvailableCoins()
             };
             return View(poolModel);
@@ -144,6 +146,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 WorkerPassword = pool.WorkerPassword,
                 TimeZoneCorrectionHours = pool.TimeZoneCorrectionHours,
                 UseBtcWallet = pool.UseBtcWallet,
+                ApiSecondaryUrl = pool.ApiSecondaryUrl,
                 AvailableCoins = await GetAvailableCoins()
             };
             if (pool.ApiProtocol == PoolApiProtocol.Yiimp)
@@ -185,6 +188,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             pool.Name = poolModel.Name;
             pool.TimeZoneCorrectionHours = poolModel.TimeZoneCorrectionHours;
             pool.UseBtcWallet = poolModel.UseBtcWallet;
+            pool.ApiSecondaryUrl = poolModel.ApiSecondaryUrl;
 
             var poolUrl = new Uri(poolModel.Url);
             pool.Host = poolUrl.Host;

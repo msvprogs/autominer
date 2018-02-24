@@ -52,6 +52,9 @@ namespace Msv.AutoMiner.Data
         [MaxLength(64)]
         public string ApiPoolName { get; set; }
 
+        [MaxLength(256)]
+        public string ApiSecondaryUrl { get; set; }
+
         public double TimeZoneCorrectionHours { get; set; }
 
         public DateTime? ResponsesStoppedDate { get; set; }

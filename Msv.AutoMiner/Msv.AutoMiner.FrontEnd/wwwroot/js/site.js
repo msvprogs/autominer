@@ -445,16 +445,28 @@ $(function () {
         var apiPoolNameDescription = $("#poolApiPoolNameDescription");
         var apiUserIdField = $("input#ApiPoolUserId");
         var apiUserIdDescription = $("#poolApiUserIdDescription");
+        var apiSecondaryUrlField = $("input#ApiSecondaryUrl");
+        var secondaryUrlDescription = $("#poolApiSecondaryUrlDescription");
 
         urlDescription.empty();
         apiKeyDescription.empty();
         apiPoolNameDescription.empty();
         apiUserIdDescription.empty();
+        secondaryUrlDescription.empty();
         if (this.selectedIndex < 0)
             return;
 
-        var apiUrlEnabled = false, apiKeyEnabled = false, apiPoolNameEnabled = false, apiUserIdEnabled = false;
-        var urlDescriptionText = null, apiKeyDescriptionText = null, apiPoolNameDescriptionText = null, apiUserIdDescriptionText = null;
+        var apiUrlEnabled = false,
+            apiKeyEnabled = false,
+            apiPoolNameEnabled = false,
+            apiUserIdEnabled = false,
+            apiSecondaryUrlEnabled = false;
+        var urlDescriptionText = null,
+            apiKeyDescriptionText = null,
+            apiPoolNameDescriptionText = null,
+            apiUserIdDescriptionText = null,
+            apiSecondaryUrlDescriptionText = null;
+
         switch (this.options[this.selectedIndex].value) {
             case "None":
                 break;
@@ -493,9 +505,10 @@ $(function () {
                 urlDescriptionText = "Local node URL and credentials will be taken from coin options";
                 break;
             case "Yiimp":
-                apiUrlEnabled = apiPoolNameEnabled = true;
+                apiUrlEnabled = apiPoolNameEnabled = apiSecondaryUrlEnabled = true;
                 urlDescriptionText = "Reference the API documentation of the pool (Links section). Example for yiimp.eu pool: <i>http://api.yiimp.eu/api</i>";
                 apiPoolNameDescriptionText = "Coin algorithm name. Reference 'Algo' column on the main page. Example: <i>skein</i>";
+                apiSecondaryUrlDescriptionText = "The URL of the pool main page";
                 break;
             default:
                 break;
@@ -509,6 +522,8 @@ $(function () {
         apiPoolNameDescription.html(apiPoolNameDescriptionText);
         apiUserIdField.prop("disabled", !apiUserIdEnabled);
         apiUserIdDescription.html(apiUserIdDescriptionText);
+        apiSecondaryUrlField.prop("disabled", !apiSecondaryUrlEnabled);
+        secondaryUrlDescription.html(apiSecondaryUrlDescriptionText);
     });
     $("select#PoolApiProtocol").change();
 
