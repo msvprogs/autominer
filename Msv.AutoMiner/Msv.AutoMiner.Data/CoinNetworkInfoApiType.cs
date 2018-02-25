@@ -50,6 +50,9 @@ namespace Msv.AutoMiner.Data
         SpecialMulti = 15,
 
         [EnumCaption("ETC explorer (like etherhub.io)")]
-        EtcExplorer = 16
+        EtcExplorer = 16,
+
+        [EnumCaption("UExplorer")]
+        UExplorer = 17
     }
 }

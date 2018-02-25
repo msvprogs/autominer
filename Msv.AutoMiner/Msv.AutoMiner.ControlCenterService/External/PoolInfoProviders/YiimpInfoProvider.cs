@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Web;
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
@@ -258,7 +259,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     Amount = -ParseAmountOrDefault(x.SelectSingleNode(".//td[2]")?.InnerText),
                     DateTime = ParseDateTimeOrDefault(
                         x.SelectSingleNode(".//td[1]//span")?.GetAttributeValue("title", null)),
-                    Transaction = x.SelectSingleNode(".//td[3]")?.InnerText.TrimEnd('.')
+                    Transaction = GetTransaction(x.SelectSingleNode(".//td[3]"))
                 })
                 .Where(x => Math.Abs(x.Amount) > 0 && x.DateTime > default(DateTime))
                 .ToArray();
@@ -273,6 +274,19 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 => ParsingHelper.TryParseDouble(strValue, out var result)
                     ? result
                     : 0;
+
+            string GetTransaction(HtmlNode row)
+            {
+                var link = row?.SelectSingleNode(".//a[contains(@href,'txid')]");
+                var truncatedTxId = row?.InnerText.TrimEnd('.');
+                if (link == null)
+                    return truncatedTxId;
+                var txUrl = new Uri(link.GetAttributeValue("href", null), UriKind.RelativeOrAbsolute);
+                var txId = HttpUtility.ParseQueryString(txUrl.Query)["txid"];
+                return string.IsNullOrWhiteSpace(txId)
+                    ? truncatedTxId
+                    : txId;
+            }
         }
     }
 }

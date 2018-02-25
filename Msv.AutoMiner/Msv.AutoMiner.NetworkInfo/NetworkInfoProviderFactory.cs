@@ -121,6 +121,8 @@ namespace Msv.AutoMiner.NetworkInfo
                     return new AltmixInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiName);
                 case CoinNetworkInfoApiType.EtcExplorer:
                     return new EtcExplorerInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
+                case CoinNetworkInfoApiType.UExplorer:
+                    return new UExplorerInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 default:
                     return new DummyInfoProvider();
             }

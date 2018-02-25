@@ -388,6 +388,7 @@ $(function () {
                     "Last section of the explorer URL, example: <i>https://altmix.org/coins/<b>28-Scorecoin</b></i>";
                 break;
             case "EtcExplorer":
+            case "UExplorer":
                 apiUrlEnabled = true;
                 urlDescriptionText = "URL of the explorer's main page";
                 break;

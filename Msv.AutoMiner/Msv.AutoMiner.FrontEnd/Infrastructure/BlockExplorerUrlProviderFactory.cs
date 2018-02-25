@@ -40,16 +40,16 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             {
                 if (string.IsNullOrWhiteSpace(hash))
                     return null;
-                return m_SingleProvider.CreateTransactionUrl(hash)
-                       ?? m_MultiProvider.CreateTransactionUrl(hash);
+                return m_SingleProvider?.CreateTransactionUrl(hash)
+                       ?? m_MultiProvider?.CreateTransactionUrl(hash);
             }
 
             public Uri CreateAddressUrl(string address)
             {
                 if (string.IsNullOrWhiteSpace(address))
                     return null;
-                return m_SingleProvider.CreateAddressUrl(address)
-                       ?? m_MultiProvider.CreateAddressUrl(address);
+                return m_SingleProvider?.CreateAddressUrl(address)
+                       ?? m_MultiProvider?.CreateAddressUrl(address);
             }
 
 
@@ -57,8 +57,8 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
             {
                 if (string.IsNullOrWhiteSpace(blockHash))
                     return null;
-                return m_SingleProvider.CreateBlockUrl(blockHash)
-                       ?? m_MultiProvider.CreateBlockUrl(blockHash);
+                return m_SingleProvider?.CreateBlockUrl(blockHash)
+                       ?? m_MultiProvider?.CreateBlockUrl(blockHash);
             }
         }
     }
