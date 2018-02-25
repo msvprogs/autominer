@@ -5,6 +5,9 @@ namespace Msv.AutoMiner.Common.Helpers
 {
     public static class ParsingHelper
     {
+        private const NumberStyles DoubleNumberStyles =
+            NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign;
+
         private static readonly CultureInfo M_AmericanCulture = new CultureInfo("en-US");
 
         private static readonly Regex M_HashRateRegex = new Regex(
@@ -13,6 +16,9 @@ namespace Msv.AutoMiner.Common.Helpers
 
         public static double ParseValueWithUnits(string str)
             => ParseDouble(str.Trim().Split()[0]);
+
+        public static bool TryParseValueWithUnits(string str, out double result)
+            => TryParseDouble(str?.Trim().Split()[0], out result);
 
         public static long ParseLong(string str)
         {
@@ -29,9 +35,18 @@ namespace Msv.AutoMiner.Common.Helpers
                 return 0;
             if (commaIsDecimalPoint)
                 normalizedValue = normalizedValue.Replace(',', '.');
-            return double.Parse(normalizedValue,
-                NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands | NumberStyles.AllowLeadingSign,
-                M_AmericanCulture);
+            return double.Parse(normalizedValue, DoubleNumberStyles, M_AmericanCulture);
+        }
+
+        public static bool TryParseDouble(string str, out double result)
+        {
+            var normalizedValue = NormalizeNumber(str);
+            if (normalizedValue == string.Empty)
+            {
+                result = 0;
+                return true;
+            }
+            return double.TryParse(normalizedValue, DoubleNumberStyles, M_AmericanCulture, out result);
         }
 
         public static double ParseHashRate(string str, bool commaIsDecimalPoint = false)

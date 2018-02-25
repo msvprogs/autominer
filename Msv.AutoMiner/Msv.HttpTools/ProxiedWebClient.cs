@@ -10,7 +10,7 @@ namespace Msv.HttpTools
 {
     public class ProxiedWebClient : CorrectWebClient, IProxiedBaseWebClient
     {
-        private const int MaxAttempts = 20;
+        private const int MaxAttempts = 5;
 
         private readonly IRoundRobin<ProxyInfo> m_ProxyInfos;
         private WebProxy m_CurrentProxy;

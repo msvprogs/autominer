@@ -5,7 +5,6 @@ using System.Net;
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
-using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
@@ -42,10 +41,11 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         public MultiPoolInfo GetInfo(DateTime minPaymentDate)
         {
-            var currenciesJson = DownloadDirectlyOrViaProxy($"{m_ApiUrl}/currencies");
-            if (string.IsNullOrWhiteSpace(currenciesJson))
-                throw new ExternalDataUnavailableException("Currencies method returned an empty result");
-            var currenciesJObject = JsonConvert.DeserializeObject<JObject>(currenciesJson);
+            var currenciesJObject = TryGetJsonObject("currencies", "currencies");
+            var statusesJObject = m_Pools.Any() 
+                ? TryGetJsonObject("status", "coin statuses")
+                : new JObject();
+
             var currencies = currenciesJObject
                 .Properties()
                 .Cast<dynamic>()
@@ -66,7 +66,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
             try
             {
-                result.PoolInfos = GetRegisteredPoolInfos(currenciesJObject);
+                result.PoolInfos = GetRegisteredPoolInfos(currenciesJObject, statusesJObject);
                 return result;
             }
             catch (Exception ex)
@@ -76,13 +76,24 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             }
         }
 
-        private IReadOnlyDictionary<Pool, PoolInfo> GetRegisteredPoolInfos(JObject currencies)
-        {            
-            var statusesJson = DownloadDirectlyOrViaProxy($"{m_ApiUrl}/status");
-            dynamic statuses = string.IsNullOrWhiteSpace(statusesJson)
-                ? new JObject()
-                : JsonConvert.DeserializeObject<JObject>(statusesJson);
+        private JObject TryGetJsonObject(string request, string objectType)
+        {
+            try
+            {
+                var currenciesJson = DownloadDirectlyOrViaProxy($"{m_ApiUrl}/{request}");
+                return string.IsNullOrWhiteSpace(currenciesJson)
+                    ? new JObject()
+                    : JsonConvert.DeserializeObject<JObject>(currenciesJson);
+            }
+            catch (Exception ex)
+            {
+                M_Logger.Error(ex, $"Couldn't get {objectType} from Yiimp API {m_ApiUrl}");
+                return new JObject();
+            }
+        }
 
+        private IReadOnlyDictionary<Pool, PoolInfo> GetRegisteredPoolInfos(JObject currencies, dynamic statuses)
+        {            
             var poolStates = m_Pools
                 .Where(x => x.ApiPoolName != null && x.WorkerPassword != null)
                 .Select(x => new
@@ -111,41 +122,15 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
             var poolAccountInfos = m_Pools
                 .AsParallel()
-                .WithDegreeOfParallelism(4)
+                .WithDegreeOfParallelism(2)
                 .Select(x => (pool: x, wallet: x.IsAnonymous
                     ? x.UseBtcWallet
                         ? m_BtcMiningTarget.Address
                         : x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget)?.Address
                     : x.WorkerLogin))
                 .Where(x => !string.IsNullOrWhiteSpace(x.wallet))
-                .Select(x =>
-                {
-                    var accountInfoHtml = m_PoolUrl != null 
-                        ? m_WebClient.DownloadString(new Uri(new Uri(m_PoolUrl), "/site/wallet_results?address=" + x.wallet))
-                        : null;
-                    try
-                    {
-                        return new
-                        {
-                            Pool = x.pool,
-                            AccountInfo = ParseJsonAccountInfo(
-                                m_WebClient.DownloadStringProxied($"{m_ApiUrl}/wallet?address={x.wallet}")),
-                            Payments = ParsePoolPayments(accountInfoHtml)
-                        };
-                    }
-                    catch
-                    {
-                        // Server returns empty result when request limit is reached or wallet not found
-                        // Try to parse HTML page with wallet balance if API doesn't work
-                        return new
-                        {
-                            Pool = x.pool,
-                            AccountInfo = ParseHtmlAccountInfo(accountInfoHtml),
-                            Payments = ParsePoolPayments(accountInfoHtml)
-                        };
-                    }
-                })
-                .ToLookup(x => x.Pool);
+                .Select(GetPoolAccountAndPayments)
+                .ToLookup(x => x.pool);
 
             return m_Pools
                 .LeftOuterJoin(poolStates, x => x, x => x.Key,
@@ -156,19 +141,43 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                             .Aggregate(
                                 new PoolAccountInfo(), (z, a) =>
                                 {
-                                    z.ConfirmedBalance += a.AccountInfo.ConfirmedBalance;
-                                    z.UnconfirmedBalance += a.AccountInfo.UnconfirmedBalance;
-                                    z.InvalidShares += a.AccountInfo.InvalidShares;
-                                    z.ValidShares += a.AccountInfo.ValidShares;
+                                    z.ConfirmedBalance += a.accountInfo.ConfirmedBalance;
+                                    z.UnconfirmedBalance += a.accountInfo.UnconfirmedBalance;
+                                    z.InvalidShares += a.accountInfo.InvalidShares;
+                                    z.ValidShares += a.accountInfo.ValidShares;
                                     return z;
                                 }),
-                       payments: y.EmptyIfNull().SelectMany(z => z.Payments)))
+                       payments: y.EmptyIfNull().SelectMany(z => z.payments)))
                 .ToDictionary(x => x.pool, x => new PoolInfo
                 {
                     State = x.poolState,
                     AccountInfo = x.accountInfo,
                     PaymentsData = x.payments.ToArray()
                 });
+        }
+
+        private (Pool pool, PoolAccountInfo accountInfo, PoolPaymentData[] payments) GetPoolAccountAndPayments(
+            (Pool pool, string wallet) poolWallet)
+        {
+            var accountInfoHtml = m_PoolUrl != null
+                ? m_WebClient.DownloadString(new Uri(new Uri(m_PoolUrl), "/site/wallet_results?address=" + poolWallet.wallet))
+                : null;
+            var payments = ParsePoolPayments(accountInfoHtml);
+
+            var accountInfo = ParseHtmlAccountInfo(accountInfoHtml);
+            if (accountInfo != null) 
+                return (poolWallet.pool, accountInfo, payments);
+
+            try
+            {
+                accountInfo = ParseJsonAccountInfo(
+                    m_WebClient.DownloadStringProxied($"{m_ApiUrl}/wallet?address={poolWallet.wallet}"));
+            }
+            catch
+            {
+                accountInfo = new PoolAccountInfo();
+            }
+            return (poolWallet.pool, accountInfo, payments);
         }
 
         private string DownloadDirectlyOrViaProxy(string url)
@@ -207,11 +216,14 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
         private static PoolAccountInfo ParseHtmlAccountInfo(string accountInfoString)
         {
             if (string.IsNullOrWhiteSpace(accountInfoString))
-                return new PoolAccountInfo();
+                return null;
 
             var html = new HtmlDocument();
             html.LoadHtml(accountInfoString);
             var columns = html.DocumentNode.SelectNodes("//tr[@class='ssrow'][1]/td");
+            if (columns == null || columns.Count < 4)
+                return null;
+
             // Columns: 
             // 0 - logo, 1 - coin name, 2 - immature, 3 - confirmed, 4 - total, 5 - value
             return new PoolAccountInfo
@@ -221,7 +233,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             };
 
             double ParseColumnValue(string strValue)
-                => string.IsNullOrWhiteSpace(strValue) ? 0 : ParsingHelper.ParseValueWithUnits(strValue);
+                => ParsingHelper.TryParseValueWithUnits(strValue, out var result)
+                    ? result
+                    : 0;
         }
 
         private static PoolPaymentData[] ParsePoolPayments(string poolPaymentsHtml)
@@ -240,14 +254,25 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .Reverse()
                 .Select(x => new PoolPaymentData
                 {
-                    Type = PoolPaymentType.Reward,
-                    Amount = ParsingHelper.ParseDouble(x.SelectSingleNode(".//td[2]").InnerText),
-                    DateTime = DateTimeHelper.FromIso8601(
-                        x.SelectSingleNode(".//td[1]//span").GetAttributeValue("title", null)),
-                    Transaction = x.SelectSingleNode(".//td[3]").InnerText.TrimEnd('.')
+                    Type = PoolPaymentType.TransferToWallet,
+                    Amount = -ParseAmountOrDefault(x.SelectSingleNode(".//td[2]")?.InnerText),
+                    DateTime = ParseDateTimeOrDefault(
+                        x.SelectSingleNode(".//td[1]//span")?.GetAttributeValue("title", null)),
+                    Transaction = x.SelectSingleNode(".//td[3]")?.InnerText.TrimEnd('.')
                 })
+                .Where(x => Math.Abs(x.Amount) > 0 && x.DateTime > default(DateTime))
                 .ToArray();
             return payments;
+
+            DateTime ParseDateTimeOrDefault(string dateStr)
+                => DateTimeHelper.TryFromIso8601(dateStr, out var result)
+                    ? result
+                    : default;
+
+            double ParseAmountOrDefault(string strValue)
+                => ParsingHelper.TryParseDouble(strValue, out var result)
+                    ? result
+                    : 0;
         }
     }
 }

@@ -5,6 +5,8 @@ namespace Msv.AutoMiner.Common.Helpers
 {
     public static class DateTimeHelper
     {
+        private const string Iso8601Format = "yyyy-MM-dd HH:mm:ss";
+
         private static readonly DateTime M_EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static long NowTimestamp => ToTimestamp(DateTime.UtcNow);
@@ -49,7 +51,10 @@ namespace Msv.AutoMiner.Common.Helpers
         /// <param name="dateTimeStr">Datetime string in the ISO 8601 format (yyyy-MM-dd HH:mm:ss)</param>
         /// <returns>Converted DateTime value</returns>
         public static DateTime FromIso8601(string dateTimeStr)
-            => FromKnownStringFormat(dateTimeStr, "yyyy-MM-dd HH:mm:ss");
+            => FromKnownStringFormat(dateTimeStr, Iso8601Format);
+
+        public static bool TryFromIso8601(string dateTimeStr, out DateTime result)
+            => TryFromKnownStringFormat(dateTimeStr.EmptyIfNull(), Iso8601Format, out result);
 
         public static string ToRelativeTime(DateTime dateTime)
         {
@@ -84,5 +89,8 @@ namespace Msv.AutoMiner.Common.Helpers
 
         private static DateTime FromKnownStringFormat(string dateTimeStr, string format)
             => DateTime.ParseExact(dateTimeStr, format, CultureInfo.InvariantCulture);
+
+        private static bool TryFromKnownStringFormat(string dateTimeStr, string format, out DateTime result)
+            => DateTime.TryParseExact(dateTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 }
