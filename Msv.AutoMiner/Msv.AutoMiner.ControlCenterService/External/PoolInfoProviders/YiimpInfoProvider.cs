@@ -141,12 +141,12 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .LeftOuterJoin(poolStates, x => x, x => x.Key,
                     (x, y) => (pool: x, poolState: y.Value ?? new PoolState()))
                 .LeftOuterJoin(poolAccountInfos, x => x.pool, x => x.Key,
-                    (x, y) => (x.pool, x.poolState, y.Value.accountInfo, y.Value.payments))
+                    (x, y) => (x.pool, x.poolState, accountInfo: y.Value.accountInfo ?? new PoolAccountInfo(), y.Value.payments))
                 .ToDictionary(x => x.pool, x => new PoolInfo
                 {
                     State = x.poolState,
                     AccountInfo = x.accountInfo,
-                    PaymentsData = x.payments
+                    PaymentsData = x.payments.EmptyIfNull()
                 });
         }
 
