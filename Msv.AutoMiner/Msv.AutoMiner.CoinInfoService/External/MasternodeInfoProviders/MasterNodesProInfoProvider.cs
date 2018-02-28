@@ -28,9 +28,9 @@ namespace Msv.AutoMiner.CoinInfoService.External.MasternodeInfoProviders
                 {
                     CurrencySymbol = (string) x.coin,
                     MasternodesCount = (int) ParsingHelper.ParseLong((string) x.total_mn),
-                    // these total supply values are too strange...
-                    //TotalSupply = ParsingHelper.ParseDouble((string) x.coin_supply),
-                    Updated = DateTime.Parse(((string) x.last_communication).Replace(" UTC", ""), CultureInfo.InvariantCulture)
+                    Updated = x.last_communication != null 
+                        ? DateTime.Parse(((string) x.last_communication).Replace(" UTC", ""), CultureInfo.InvariantCulture)
+                        : default
                 })
                 .ToArray();
         }
