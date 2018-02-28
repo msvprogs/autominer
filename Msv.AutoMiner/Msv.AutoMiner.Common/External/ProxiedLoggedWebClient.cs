@@ -24,13 +24,16 @@ namespace Msv.AutoMiner.Common.External
             => m_ProxyInfos = proxyInfos ?? throw new ArgumentNullException(nameof(proxyInfos));
 
         public string DownloadStringProxied(string url, Dictionary<string, string> headers = null)
+            => DownloadStringProxied(new Uri(url), headers);
+
+        public string DownloadStringProxied(Uri url, Dictionary<string, string> headers = null)
         {
             var webClient = new ProxiedWebClient(m_ProxyInfos);
             M_Logger.Debug($"Proxied GET {url}...");
-            var response = webClient.DownloadStringProxiedAsync(new Uri(url), headers ?? M_Headers)
+            var response = webClient.DownloadStringProxiedAsync(url, headers ?? M_Headers)
                 .GetAwaiter().GetResult();
             M_Logger.Debug($"Proxied GET {url} response:{Environment.NewLine}{response}");
-            return response;         
+            return response;  
         }
     }
 }

@@ -33,5 +33,10 @@ namespace Msv.AutoMiner.FrontEnd.Infrastructure
         {
             throw new NotImplementedException();
         }
+
+        public string DownloadStringProxied(Uri url, Dictionary<string, string> headers = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

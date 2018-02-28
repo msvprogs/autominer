@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Web;
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.CustomExtensions;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -20,6 +20,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 {
     public class YiimpInfoProvider : IMultiPoolInfoProvider
     {
+        private const int WalletParallelismDegree = 3;
+
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
 
         private readonly IProxiedWebClient m_WebClient;
@@ -122,63 +124,64 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 });
 
             var poolAccountInfos = m_Pools
-                .AsParallel()
-                .WithDegreeOfParallelism(2)
                 .Select(x => (pool: x, wallet: x.IsAnonymous
                     ? x.UseBtcWallet
                         ? m_BtcMiningTarget.Address
                         : x.Coin.Wallets.FirstOrDefault(y => y.IsMiningTarget)?.Address
                     : x.WorkerLogin))
                 .Where(x => !string.IsNullOrWhiteSpace(x.wallet))
-                .Select(GetPoolAccountAndPayments)
-                .ToLookup(x => x.pool);
+                .ToLookup(x => x.wallet)
+                .AsParallel()
+                .WithDegreeOfParallelism(WalletParallelismDegree)
+                .Select(x => (pools: x.ToArray(), accountInfo: GetPoolAccountAndPayments(x.Key)))
+                .SelectMany(x => x.pools.Select(y => (y.pool, x.accountInfo)))
+                .ToDictionary(x => x.pool, x => x.accountInfo);
 
             return m_Pools
                 .LeftOuterJoin(poolStates, x => x, x => x.Key,
                     (x, y) => (pool: x, poolState: y.Value ?? new PoolState()))
                 .LeftOuterJoin(poolAccountInfos, x => x.pool, x => x.Key,
-                    (x, y) => (x.pool, x.poolState,
-                        accountInfo: y.EmptyIfNull()
-                            .Aggregate(
-                                new PoolAccountInfo(), (z, a) =>
-                                {
-                                    z.ConfirmedBalance += a.accountInfo.ConfirmedBalance;
-                                    z.UnconfirmedBalance += a.accountInfo.UnconfirmedBalance;
-                                    z.InvalidShares += a.accountInfo.InvalidShares;
-                                    z.ValidShares += a.accountInfo.ValidShares;
-                                    return z;
-                                }),
-                       payments: y.EmptyIfNull().SelectMany(z => z.payments)))
+                    (x, y) => (x.pool, x.poolState, y.Value.accountInfo, y.Value.payments))
                 .ToDictionary(x => x.pool, x => new PoolInfo
                 {
                     State = x.poolState,
                     AccountInfo = x.accountInfo,
-                    PaymentsData = x.payments.ToArray()
+                    PaymentsData = x.payments
                 });
         }
 
-        private (Pool pool, PoolAccountInfo accountInfo, PoolPaymentData[] payments) GetPoolAccountAndPayments(
-            (Pool pool, string wallet) poolWallet)
+        private (PoolAccountInfo accountInfo, PoolPaymentData[] payments) GetPoolAccountAndPayments(string wallet)
         {
-            var accountInfoHtml = m_PoolUrl != null
-                ? m_WebClient.DownloadString(new Uri(new Uri(m_PoolUrl), "/site/wallet_results?address=" + poolWallet.wallet))
-                : null;
-            var payments = ParsePoolPayments(accountInfoHtml);
-
-            var accountInfo = ParseHtmlAccountInfo(accountInfoHtml);
-            if (accountInfo != null) 
-                return (poolWallet.pool, accountInfo, payments);
-
+            var accountInfoUri = new Uri(new Uri(m_PoolUrl), $"/site/wallet_results?address={wallet}");
+            string accountInfoHtml;
             try
             {
-                accountInfo = ParseJsonAccountInfo(
-                    m_WebClient.DownloadStringProxied($"{m_ApiUrl}/wallet?address={poolWallet.wallet}"));
+                accountInfoHtml = m_PoolUrl != null
+                    ? m_WebClient.DownloadString(accountInfoUri)
+                    : null;
             }
-            catch
+            catch (Exception ex)
             {
+                M_Logger.Warn($"Couldn't download wallet info HTML from {accountInfoUri}: {ex.Message}");
+                accountInfoHtml = null;
+            }
+
+            var payments = ParsePoolPayments(accountInfoHtml);
+            var accountInfo = ParseHtmlAccountInfo(accountInfoHtml);
+            if (accountInfo != null) 
+                return (accountInfo, payments);
+
+            var apiAccountInfoUri = new Uri($"{m_ApiUrl}/wallet?address={wallet}");
+            try
+            {
+                accountInfo = ParseJsonAccountInfo(m_WebClient.DownloadStringProxied(apiAccountInfoUri));
+            }
+            catch (Exception ex)
+            {
+                M_Logger.Warn($"Couldn't download wallet info JSON from {apiAccountInfoUri}: {ex.Message}");
                 accountInfo = new PoolAccountInfo();
             }
-            return (poolWallet.pool, accountInfo, payments);
+            return (accountInfo, payments);
         }
 
         private string DownloadDirectlyOrViaProxy(string url)
@@ -222,15 +225,14 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             var html = new HtmlDocument();
             html.LoadHtml(accountInfoString);
             var columns = html.DocumentNode.SelectNodes("//tr[@class='ssrow'][1]/td");
-            if (columns == null || columns.Count < 4)
+            if (columns == null || columns.Count < 6)
                 return null;
 
-            // Columns: 
-            // 0 - logo, 1 - coin name, 2 - immature, 3 - confirmed, 4 - total, 5 - value
+            var balanceNode = html.DocumentNode.SelectSingleNode("//tr[@class='ssrow'][2]/td[4]");
             return new PoolAccountInfo
             {
-                ConfirmedBalance = ParseColumnValue(columns[3].InnerText),
-                UnconfirmedBalance = ParseColumnValue(columns[2].InnerText)
+                ConfirmedBalance = ParseColumnValue(balanceNode.InnerText),
+                UnconfirmedBalance = ParseColumnValue(columns[5].InnerText)
             };
 
             double ParseColumnValue(string strValue)
@@ -256,12 +258,12 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 .Select(x => new PoolPaymentData
                 {
                     Type = PoolPaymentType.TransferToWallet,
-                    Amount = -ParseAmountOrDefault(x.SelectSingleNode(".//td[2]")?.InnerText),
+                    Amount = ParseAmountOrDefault(x.SelectSingleNode(".//td[2]")?.InnerText),
                     DateTime = ParseDateTimeOrDefault(
                         x.SelectSingleNode(".//td[1]//span")?.GetAttributeValue("title", null)),
                     Transaction = GetTransaction(x.SelectSingleNode(".//td[3]"))
                 })
-                .Where(x => Math.Abs(x.Amount) > 0 && x.DateTime > default(DateTime))
+                .Where(x => x.Amount > 0 && x.DateTime > default(DateTime))
                 .ToArray();
             return payments;
 
@@ -281,9 +283,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 var truncatedTxId = row?.InnerText.TrimEnd('.');
                 if (link == null)
                     return truncatedTxId;
-                var txUrl = new Uri(link.GetAttributeValue("href", null), UriKind.RelativeOrAbsolute);
-                var txId = HttpUtility.ParseQueryString(txUrl.Query)["txid"];
-                return string.IsNullOrWhiteSpace(txId)
+                var txUrl = new Uri(link.GetAttributeValue("href", null), UriKind.RelativeOrAbsolute)
+                    .ParseQueryString();
+                return txUrl.TryGetValue("txid", out var txId)
                     ? truncatedTxId
                     : txId;
             }
