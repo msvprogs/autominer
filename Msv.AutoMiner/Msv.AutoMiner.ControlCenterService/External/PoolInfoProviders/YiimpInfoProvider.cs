@@ -286,8 +286,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                 var txUrl = new Uri(link.GetAttributeValue("href", null), UriKind.RelativeOrAbsolute)
                     .ParseQueryString();
                 return txUrl.TryGetValue("txid", out var txId)
-                    ? truncatedTxId
-                    : txId;
+                    ? txId
+                    : truncatedTxId;
             }
         }
     }
