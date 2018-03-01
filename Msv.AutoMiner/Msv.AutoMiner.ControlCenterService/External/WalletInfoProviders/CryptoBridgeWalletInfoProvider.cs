@@ -126,9 +126,9 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         private static DateTime BlockNumberToDate(long blockNumber)
         {
             //Assuming that block interval is exactly 3 seconds.
-            //We know that 24841542 block was generated at Thu Mar 01 2018 08:52:33 GMT.
+            //We know that 24841542 block was generated at Thu Mar 01 2018 07:19:39 GMT.
             var blockDifference = blockNumber - 24841542;
-            return new DateTime(2018, 3, 1, 8, 52, 33, DateTimeKind.Utc).AddSeconds(blockDifference * BlockIntervalSeconds);
+            return new DateTime(2018, 3, 1, 7, 19, 39, DateTimeKind.Utc).AddSeconds(blockDifference * BlockIntervalSeconds);
         }
     }
 }
