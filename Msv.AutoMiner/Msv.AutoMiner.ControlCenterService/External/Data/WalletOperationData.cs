@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Msv.AutoMiner.ControlCenterService.External.Data
 {
+    [DebuggerDisplay("{Amount} {CurrencySymbol} at {DateTime}, ID {ExternalId}")]
     public class WalletOperationData
     {
         public string ExternalId { get; set; }
