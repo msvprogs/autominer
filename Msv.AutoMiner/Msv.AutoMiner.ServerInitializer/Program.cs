@@ -47,7 +47,10 @@ namespace Msv.AutoMiner.ServerInitializer
 
             Console.WriteLine("Initializing AutoMiner server...");
             if (configuration.CreateDatabase)
-                using (var context = new AutoMinerDbContext(configurationRoot.GetConnectionString("AutoMinerDb")))
+            {
+                var connectionString = configurationRoot.GetConnectionString("AutoMinerDb");
+                DatabaseCreator.CreateIfNotExists(connectionString);                
+                using (var context = new AutoMinerDbContext(connectionString))
                 {
                     Console.WriteLine("Creating/migrating DB...");
                     context.Database.Migrate();
@@ -62,6 +65,7 @@ namespace Msv.AutoMiner.ServerInitializer
                     if (!context.Users.Any())
                         InitializeUsers(context);
                 }
+            }
 
             var certificateCreator = new CertificateCreator();
             X509Certificate2 rootCertificate;

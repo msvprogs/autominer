@@ -5,4 +5,8 @@
     <Copyright>Copyright (c) MSV 2017-2018</Copyright>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MySqlConnector" Version="0.32.0" />
+  </ItemGroup>
+
 </Project>
