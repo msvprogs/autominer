@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
-using Msv.AutoMiner.Common.Data;
 using Msv.AutoMiner.Data.Logic.Contracts;
 using NLog;
 
@@ -25,9 +24,9 @@ namespace Msv.AutoMiner.Data.Logic
                 mutex.WaitOne();
                 try
                 {
-                    DatabaseCreator.CreateIfNotExists(m_ContextFactory.ConnectionString);
                     using (var context = m_ContextFactory.Create())
                     {
+                        context.CreateIfNotExists();
                         var pendingMigrationsCount = context.Database.GetPendingMigrations().Count();
                         if (pendingMigrationsCount > 0)
                         {

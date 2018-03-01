@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 
 namespace Msv.AutoMiner.Data
 {
@@ -45,6 +47,25 @@ namespace Msv.AutoMiner.Data
         public DbSet<MultiCoinPool> MultiCoinPools { get; set; }
         public DbSet<MultiCoinPoolCurrency> MultiCoinPoolCurrencies { get; set; }
         public DbSet<Setting> Settings { get; set; }
+
+        public void CreateIfNotExists()
+        {
+            if (m_ConnectionString == null)
+                throw new InvalidOperationException("This operation requires connection string");
+
+            // Create DB manually to ensure that it will use UTF8 encoding
+            var builder = new MySqlConnectionStringBuilder(m_ConnectionString);
+            var databaseName = builder.Database.Replace('`', ' ');
+            builder.Database = null;
+            using (var connection = new MySqlConnection(builder.ConnectionString))
+            {
+                connection.Open();
+                using (var command = new MySqlCommand(
+                    $"CREATE DATABASE IF NOT EXISTS `{databaseName}` CHARACTER SET utf8 COLLATE utf8_unicode_ci;",
+                    connection))
+                    command.ExecuteNonQuery();
+            }
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

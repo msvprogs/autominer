@@ -48,11 +48,11 @@ namespace Msv.AutoMiner.ServerInitializer
             Console.WriteLine("Initializing AutoMiner server...");
             if (configuration.CreateDatabase)
             {
-                var connectionString = configurationRoot.GetConnectionString("AutoMinerDb");
-                DatabaseCreator.CreateIfNotExists(connectionString);                
+                var connectionString = configurationRoot.GetConnectionString("AutoMinerDb");             
                 using (var context = new AutoMinerDbContext(connectionString))
                 {
                     Console.WriteLine("Creating/migrating DB...");
+                    context.CreateIfNotExists();
                     context.Database.Migrate();
 
                     Console.WriteLine("Adding initial data...");
