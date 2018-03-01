@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
+using Msv.HttpTools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -27,10 +29,18 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic blocksInfo = JsonConvert.DeserializeObject(m_WebClient.DownloadStringProxied(
-                new Uri(M_BaseUri, $"/explorer/index.data.dws?coin={m_CurrencySymbol}&n=20").ToString()));
+            var blocksUri = new Uri(M_BaseUri, $"/explorer/index.data.dws?coin={m_CurrencySymbol}&n=20");
+            string blocksJsonString;
+            try
+            {
+                blocksJsonString = m_WebClient.DownloadString(blocksUri);
+            }
+            catch (CorrectHttpException ex) when (ex.Status == (HttpStatusCode) 429)
+            {
+                blocksJsonString = m_WebClient.DownloadStringProxied(blocksUri);
+            }
 
-            var blocks = ((JArray)blocksInfo.blocks)
+            var blocks = ((JArray)JsonConvert.DeserializeObject<dynamic>(blocksJsonString).blocks)
                 .Cast<dynamic>()
                 .Where(x => (int)x.miner_id != 0) //not PoS
                 .Select(x => new
