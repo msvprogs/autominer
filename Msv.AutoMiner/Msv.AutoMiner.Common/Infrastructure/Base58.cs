@@ -32,7 +32,9 @@ namespace Msv.AutoMiner.Common.Infrastructure
             if (value.StartsWith(ZeroSymbol))
             {
                 var zeroBytes = value.TakeWhile(x => x == ZeroSymbol[0]).Count();
-                Array.Resize(ref resultBytes, resultBytes.Length + zeroBytes);
+                var existingZeroBytes = resultBytes.Reverse().TakeWhile(x => x == 0).Count();
+                if (zeroBytes > existingZeroBytes)
+                    Array.Resize(ref resultBytes, resultBytes.Length + zeroBytes - existingZeroBytes);
             }
             Array.Reverse(resultBytes);
             return resultBytes;
