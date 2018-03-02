@@ -168,7 +168,13 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         {
             byte[] newLogoBytes = null;
             if (coinModel.NewLogoUrl != null)
-                using (var httpClient = new HttpClient {Timeout = TimeSpan.FromSeconds(20)})
+                using (var httpClient = new HttpClient(new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = delegate { return true; }
+                })
+                {
+                    Timeout = TimeSpan.FromSeconds(20)
+                })
                 using (var response = await httpClient.GetAsync(coinModel.NewLogoUrl))
                 {
                     if (!response.IsSuccessStatusCode)
