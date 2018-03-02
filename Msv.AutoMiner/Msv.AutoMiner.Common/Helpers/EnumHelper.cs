@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Msv.AutoMiner.Common.Data;
-using Msv.AutoMiner.Common.Infrastructure;
 
 namespace Msv.AutoMiner.Common.Helpers
 {
@@ -34,9 +33,9 @@ namespace Msv.AutoMiner.Common.Helpers
                     x => ((EnumCaptionAttribute) x.GetCustomAttribute(typeof(EnumCaptionAttribute)))?.Caption ?? x.Name);
         }
 
-        public static Dictionary<T, string> GetCaptionsCached<T>()
+        public static IReadOnlyDictionary<T, string> GetCaptionsCached<T>()
             where T : struct 
-            => (Dictionary<T, string>) M_EnumsCache.GetOrAdd(typeof(T), x => GetCaptions<T>());
+            => (IReadOnlyDictionary<T, string>) M_EnumsCache.GetOrAdd(typeof(T), x => GetCaptions<T>());
 
         public static T Parse<T>(string value, bool ignoreCase = false)
             where T : struct
