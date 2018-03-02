@@ -32,7 +32,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 [ExchangeType.YoBit] = new Uri("https://yobit.net"),
                 [ExchangeType.BtcAlpha] = new Uri("https://btc-alpha.com"),
                 [ExchangeType.CryptoBridge] = new Uri("https://wallet.crypto-bridge.org"),
-                [ExchangeType.SouthXchange] = new Uri("https://www.southxchange.com")
+                [ExchangeType.SouthXchange] = new Uri("https://www.southxchange.com"),
+                [ExchangeType.Graviex] = new Uri("https://graviex.net")
             };
 
         private readonly ICoinValueProvider m_CoinValueProvider;
