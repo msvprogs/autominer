@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http.Extensions;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -66,17 +67,14 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 ["apikey"] = ApiKey,
                 ["nonce"] = DateTime.Now.Ticks.ToString()
             };
-            var url = new UriBuilder($"https://bittrex.com/api/v1.1/{commandType}/{command}")
-            {
-                Query = string.Join("&", parameters.Select(x => $"{x.Key}={x.Value}"))
-            }.Uri;
+            var url = $"https://bittrex.com/api/v1.1/{commandType}/{command}" + new QueryBuilder(parameters);
             using (var hmac = new HMACSHA512(ApiSecret))
             {
                 var response = WebClient.DownloadString(
-                    url.ToString(),
+                    url,
                     new Dictionary<string, string>
                     {
-                        ["apisign"] = HexHelper.ToHex(hmac.ComputeHash(Encoding.UTF8.GetBytes(url.ToString())))
+                        ["apisign"] = HexHelper.ToHex(hmac.ComputeHash(Encoding.UTF8.GetBytes(url)))
                     });
                 var json = JsonConvert.DeserializeObject<JObject>(response);
                 if (!json["success"].Value<bool>())

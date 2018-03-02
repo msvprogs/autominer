@@ -72,14 +72,14 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         {
             using (var hmac = new HMACSHA256(ApiSecret))
             {
-                var query = new QueryBuilder((parameters ?? new Dictionary<string, string>()).OrderBy(x => x.Key));
+                var query = new QueryBuilder(parameters.EmptyIfNull().OrderBy(x => x.Key));
                 var response = WebClient.DownloadString(
                     new Uri(M_BaseUri, relativeUrl + query).ToString(),
                     new Dictionary<string, string>
                     {
                         ["Api-Key"] = ApiKey,
                         ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(
-                            Encoding.UTF8.GetBytes(query.ToString()))).ToUpperInvariant()
+                            Encoding.UTF8.GetBytes(query.ToStringWithoutPrefix()))).ToUpperInvariant()
                     });
                 return JsonConvert.DeserializeObject<dynamic>(response);
             }

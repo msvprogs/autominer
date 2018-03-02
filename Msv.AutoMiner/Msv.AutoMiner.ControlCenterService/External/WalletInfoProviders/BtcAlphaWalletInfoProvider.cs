@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Microsoft.AspNetCore.Http.Extensions;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Data;
@@ -65,7 +66,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         {
             using (var hmac = new HMACSHA256(ApiSecret))
             {
-                var query = new QueryBuilder((parameters ?? new Dictionary<string, string>()).OrderBy(x => x.Key));
+                var query = new QueryBuilder(parameters.EmptyIfNull().OrderBy(x => x.Key));
                 var response = WebClient.DownloadString(
                     new Uri(M_BaseUri, relativeUrl + query).ToString(),
                     new Dictionary<string, string>
