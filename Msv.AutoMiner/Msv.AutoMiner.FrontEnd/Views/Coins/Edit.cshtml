@@ -306,20 +306,34 @@
             // Configure JS code testbox
             var testFunction = function(success, error) {
                 try {
+                    $("#rewardCodeResult").text("");
                     var code = editor.getValue();
                     if ($.trim(code) === "")
                         return;
+
+                    var heightInput = $("#sampleHeightInput");
+                    var difficultyInput = $("#sampleDifficultyInput");
+                    var moneySupplyInput = $("#sampleMoneySupplyInput");
+                    var masternodeCountInput = $("#sampleMasternodeCountInput");
+
+                    if ([heightInput, difficultyInput, moneySupplyInput, masternodeCountInput]
+                        .some(function(element) {
+                            return !element.get()[0].checkValidity();
+                        })) {
+                        MessageBox.alert("Invalid values", "warning", "Some of the sample argument values are invalid");
+                        return;
+                    }
+
                     var rewardFunc = new Function(
                         "height,difficulty,moneySupply,masternodeCount",
                         code);
                     var result = rewardFunc(
-                        Number($("#sampleHeightInput").val()),
-                        Number($("#sampleDifficultyInput").val()),
-                        Number($("#sampleMoneySupplyInput").val()),
-                        Number($("#sampleMasternodeCountInput").val()));
+                        Number(heightInput.val()),
+                        Number(difficultyInput.val()),
+                        Number(moneySupplyInput.val()),
+                        Number(masternodeCountInput.val()));
                     success(result);
                 } catch (e) {
-                    $("#rewardCodeResult").text("");
                     MessageBox.alert("Error in reward calculation!",
                         "warning",
                         format("Error detected in the reward calculation function:\n{0} - {1}\n\nLine {2}, column {3}\n\nStack trace:\n{4}",
