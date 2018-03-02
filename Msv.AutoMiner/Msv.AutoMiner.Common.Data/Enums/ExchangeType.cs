@@ -15,6 +15,7 @@
         StocksExchange = 10,
         BtcAlpha = 11,
         CryptoBridge = 12,
-        SouthXchange = 13
+        SouthXchange = 13,
+        Graviex = 14
     }
 }

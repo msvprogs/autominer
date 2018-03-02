@@ -1,5 +1,8 @@
-﻿namespace Msv.AutoMiner.CoinInfoService.External.Data
+﻿using System.Diagnostics;
+
+namespace Msv.AutoMiner.CoinInfoService.External.Data
 {
+    [DebuggerDisplay("{Name} ({Symbol}) Id: {ExternalId} IsActive: {IsActive}")]
     public class ExchangeCurrencyInfo
     {
         public string Symbol { get; set; }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http.Extensions;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -72,7 +73,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         {
             parameters.Add("command", command);
             parameters.Add("nonce", DateTime.Now.Ticks.ToString());
-            var queryString = string.Join("&", parameters.Select(x => $"{x.Key}={x.Value}"));
+            var queryString = new QueryBuilder(parameters).ToStringWithoutPrefix();
             using (var hmac = new HMACSHA512(ApiSecret))
             {
                 var response = WebClient.UploadString(

@@ -63,6 +63,8 @@ namespace Msv.AutoMiner.ControlCenterService.External
                     return new BtcAlphaWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.CryptoBridge:
                     return new CryptoBridgeWalletInfoProvider(m_SessionedRpcClientFactory, exchange.PublicKey);
+                case ExchangeType.Graviex:
+                    return new GraviexWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
                 default:
                     return new DummyWalletInfoProvider();
             }

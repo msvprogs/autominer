@@ -44,6 +44,8 @@ namespace Msv.AutoMiner.CoinInfoService.External
                     return new CryptoBridgeMarketInfoProvider(m_WebClient);
                 case ExchangeType.SouthXchange:
                     return new SouthXchangeMarketInfoProvider(m_WebClient);
+                case ExchangeType.Graviex:
+                    return new GraviexMarketInfoProvider(m_WebClient);
                 default:
                     return new DummyMarketInfoProvider();
             }

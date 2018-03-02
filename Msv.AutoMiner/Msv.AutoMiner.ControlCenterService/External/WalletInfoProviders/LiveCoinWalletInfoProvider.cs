@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http.Extensions;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -71,17 +72,14 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         {
             using (var hmac = new HMACSHA256(ApiSecret))
             {
-                var queryString = string.Join("&", (parameters ?? new Dictionary<string, string>())
-                    .OrderBy(x => x.Key)
-                    .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));
-                if (queryString != string.Empty)
-                    relativeUrl += "?" + queryString;
+                var query = new QueryBuilder((parameters ?? new Dictionary<string, string>()).OrderBy(x => x.Key));
                 var response = WebClient.DownloadString(
-                    new Uri(M_BaseUri, relativeUrl).ToString(),
+                    new Uri(M_BaseUri, relativeUrl + query).ToString(),
                     new Dictionary<string, string>
                     {
                         ["Api-Key"] = ApiKey,
-                        ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(Encoding.UTF8.GetBytes(queryString))).ToUpperInvariant()
+                        ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(
+                            Encoding.UTF8.GetBytes(query.ToString()))).ToUpperInvariant()
                     });
                 return JsonConvert.DeserializeObject<dynamic>(response);
             }

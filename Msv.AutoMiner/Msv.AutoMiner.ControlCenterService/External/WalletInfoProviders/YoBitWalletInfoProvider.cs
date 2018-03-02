@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http.Extensions;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -43,8 +44,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         private dynamic DoRequest(string command, IDictionary<string, string> parameters)
         {
             parameters.Add("method", command);
-            parameters.Add("nonce", ((long)(DateTime.UtcNow - M_StartDateForNonce).TotalSeconds).ToString());
-            var queryString = string.Join("&", parameters.Select(x => $"{x.Key}={x.Value}"));
+            parameters.Add("nonce", ((long)(DateTime.UtcNow - M_StartDateForNonce).TotalSeconds).ToString());         
+            var queryString = new QueryBuilder(parameters).ToStringWithoutPrefix();
             using (var hmac = new HMACSHA512(ApiSecret))
             {
                 var response = WebClient.UploadString(

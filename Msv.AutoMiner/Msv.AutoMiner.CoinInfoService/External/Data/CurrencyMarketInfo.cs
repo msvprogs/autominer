@@ -1,5 +1,8 @@
-﻿namespace Msv.AutoMiner.CoinInfoService.External.Data
+﻿using System.Diagnostics;
+
+namespace Msv.AutoMiner.CoinInfoService.External.Data
 {
+    [DebuggerDisplay("{SourceSymbol} -> {TargetSymbol} Bid: {HighestBid} Ask: {LowestAsk} Last: {LastPrice} Vol: {LastDayVolume}")]
     public class CurrencyMarketInfo
     {
         public string SourceSymbol { get; set; }
