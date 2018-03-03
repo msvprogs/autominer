@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Http.Extensions;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Contracts;
 using Msv.AutoMiner.ControlCenterService.External.Data;
+using Msv.HttpTools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -42,40 +45,68 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
 
         public PoolInfo GetInfo(DateTime minPaymentDate)
         {
-            dynamic userInfoJson = JsonConvert.DeserializeObject(ExecuteApiMethod("getuserstatus"));
-            dynamic balanceInfoJson = JsonConvert.DeserializeObject(ExecuteApiMethod("getuserbalance"));
+            double hashrate;
+            double? poolHashrate = null;
+            JObject shares;
+            try
+            {
+                var userInfoJson = ExecuteApiMethod("getuserstatus");
+                hashrate = userInfoJson.getuserstatus.data.hashrate;
+                shares = userInfoJson.getuserstatus.data.shares;
+            }
+            catch (CorrectHttpException)
+            {
+                // For example, some SuprNova pools don't support getuserstatus method. Trying the other way...
+                var dashboardData = ExecuteApiMethod("getdashboarddata");
+                hashrate = dashboardData.getdashboarddata.data.raw.personal.hashrate;
+                shares = dashboardData.getdashboarddata.data.personal.shares;
+                poolHashrate = dashboardData.getdashboarddata.data.raw.pool.hashrate;
+            }
+
+            var balanceInfoJson = ExecuteApiMethod("getuserbalance");
             var accountInfo = new PoolAccountInfo
             {
                 ConfirmedBalance = ((double?) balanceInfoJson.getuserbalance.data.confirmed).GetValueOrDefault(),
                 UnconfirmedBalance = ((double?) balanceInfoJson.getuserbalance.data.unconfirmed).GetValueOrDefault(),
-                HashRate = NormalizeHashRate(userInfoJson.getuserstatus.data.hashrate)
+                HashRate = NormalizeHashRate(hashrate)
             };
-            JObject shares = userInfoJson.getuserstatus.data.shares;
             if (shares?.First != null)
             {
                 accountInfo.ValidShares = (int) (shares["valid"]?.Value<double?>()).GetValueOrDefault();
                 accountInfo.InvalidShares = (int) (shares["invalid"]?.Value<double?>()).GetValueOrDefault();
             }
 
-            dynamic stateJson = JsonConvert.DeserializeObject(ExecuteApiMethod("public"));
-            dynamic poolInfoJson = JsonConvert.DeserializeObject(ExecuteApiMethod("getpoolinfo"));
-            var hashRate = stateJson.hashrate ?? stateJson.pool_hashrate;
-            var workers = stateJson.workers ?? stateJson.pool_workers;
-            var state = new PoolState
+            var state = new PoolState();
+            try
             {
-                TotalHashRate = NormalizeHashRate(hashRate),
-                TotalWorkers = (int) workers,
-            };
-            if (poolInfoJson.getpoolinfo?.data?.fees != null)
-                state.PoolFee = (double) poolInfoJson.getpoolinfo.data.fees;
-            if (stateJson.last_block != null)
-                state.LastBlock = (long) stateJson.last_block;
+                var stateJson = ExecuteApiMethod("public");
+                state.TotalHashRate = NormalizeHashRate((double) (stateJson.hashrate ?? stateJson.pool_hashrate));
+                state.TotalWorkers = (int) (stateJson.workers ?? stateJson.pool_workers);
+                if (stateJson.last_block != null)
+                    state.LastBlock = (long) stateJson.last_block;
+                
+                var poolInfoJson = ExecuteApiMethod("getpoolinfo");
+                if (poolInfoJson.getpoolinfo?.data?.fees != null)
+                    state.PoolFee = (double) poolInfoJson.getpoolinfo.data.fees;
+            }
+            catch (CorrectHttpException)
+            {
+                // Some SuprNova pools don't support public methods either...
+                state.TotalHashRate = NormalizeHashRate(poolHashrate);
+                state.TotalWorkers = 0;
+            }
 
-            var userTransactionsString = ExecuteApiMethod("getusertransactions");
-            var payments = string.IsNullOrWhiteSpace(userTransactionsString)
-                ? new PoolPaymentData[0]
-                : ((JArray) JsonConvert.DeserializeObject<dynamic>(userTransactionsString)
-                    .getusertransactions.data.transactions)
+            JArray paymentsArray;
+            try
+            {
+                paymentsArray = (JArray) ExecuteApiMethod("getusertransactions")?.getusertransactions.data.transactions;
+            }
+            catch (CorrectHttpException)
+            {
+                paymentsArray = new JArray();
+            }
+
+            var payments = paymentsArray.EmptyIfNull()
                 .Cast<dynamic>()
                 .Where(x => x.amount != null)
                 .Select(x => new
@@ -109,17 +140,21 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             };
         }
 
-        private string ExecuteApiMethod(string method)
-            => m_WebClient.DownloadString(GetActionUri(method), M_Headers);
-
-        private long NormalizeHashRate(dynamic hashRateItem)
+        private dynamic ExecuteApiMethod(string method)
         {
-            if (hashRateItem == null)
+            var resultJson = m_WebClient.DownloadString(GetActionUri(method), M_Headers);
+            return !string.IsNullOrWhiteSpace(resultJson)
+                ? JsonConvert.DeserializeObject(resultJson)
+                : null;
+        }
+
+        private long NormalizeHashRate(double? sourceHashRate)
+        {
+            if (sourceHashRate == null)
                 return 0;
-            var hashRate = (double) hashRateItem;
             var normalizedHashRate = m_CoinAlgorithm == KnownCoinAlgorithm.Equihash
-                ? hashRate / 1000
-                : hashRate * 1000;
+                ? sourceHashRate / 1000
+                : sourceHashRate * 1000;
             switch (new Uri(m_BaseUrl).Host.ToLowerInvariant())
             {
                 case "btcz.suprnova.cc":
@@ -142,8 +177,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             };
             if (m_UserId != null)
                 parameters.Add("id", m_UserId.ToString());
-            var queryString = string.Join("&", parameters.Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"));
-            return new UriBuilder(m_BaseUrl) { Query = queryString }.Uri.ToString();
+            return m_BaseUrl + new QueryBuilder(parameters);
         }
 
         private static PoolPaymentType GetPaymentType(string type)
