@@ -101,9 +101,10 @@ namespace Msv.HttpTools
 
         private static async Task<string> ReadContentAsString(HttpResponseMessage response)
         {
-            // HttpClient doesn't recognize 'utf8' string as valid
-            if ("utf8".Equals(response.Content.Headers.ContentType?.CharSet,
-                StringComparison.InvariantCultureIgnoreCase))
+            var charset = response.Content.Headers.ContentType?.CharSet;
+            // HttpClient doesn't recognize 'utf8' and 'UTF-8' strings as valid
+            if ("utf8".Equals(charset, StringComparison.InvariantCultureIgnoreCase)
+                || "UTF-8".Equals(charset))
                 return Encoding.UTF8.GetString(await response.Content.ReadAsByteArrayAsync());
 
             return await response.Content.ReadAsStringAsync();
