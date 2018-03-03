@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -32,12 +33,21 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 })
                 .ToArray();
 
-        public override WalletOperationData[] GetOperations(DateTime startDate)
-        {
-            //TODO: No response examples, so implement this after first operation is done.
-            //var t = (JArray) DoGetRequest("deposits.json");
-            return new WalletOperationData[0];
-        }
+        //TODO: withdrawals
+        public override WalletOperationData[] GetOperations(DateTime startDate) 
+            => ((JArray) DoGetRequest("deposits.json"))
+                .Cast<dynamic>()
+                .Where(x => x.state == "accepted")
+                .Select(x => new WalletOperationData
+                {
+                    DateTime = DateTimeOffset.Parse((string) x.created_at, CultureInfo.InvariantCulture).UtcDateTime,
+                    ExternalId = (string) x.id,
+                    CurrencySymbol = ((string) x.currency).ToUpperInvariant(),
+                    Amount = (double) x.amount,
+                    Transaction = (string) x.txid
+                })
+                .Where(x => x.DateTime > startDate)
+                .ToArray();
 
         private dynamic DoGetRequest(string command, IDictionary<string, string> parameters = null)
         {
