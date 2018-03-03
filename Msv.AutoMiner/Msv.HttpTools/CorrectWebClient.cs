@@ -15,7 +15,7 @@ namespace Msv.HttpTools
         private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0";
         private const string AcceptEncodings = "gzip, deflate";
 
-        private static readonly TimeSpan M_OrdinaryRequestTimeout = TimeSpan.FromSeconds(40);
+        private static readonly TimeSpan M_OrdinaryRequestTimeout = TimeSpan.FromSeconds(70);
       
         public CookieContainer CookieContainer { get; set; } = new CookieContainer();
 
