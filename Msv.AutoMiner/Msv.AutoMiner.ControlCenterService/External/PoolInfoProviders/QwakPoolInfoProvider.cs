@@ -80,8 +80,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             try
             {
                 var stateJson = ExecuteApiMethod("public");
-                state.TotalHashRate = NormalizeHashRate((double) (stateJson.hashrate ?? stateJson.pool_hashrate));
-                state.TotalWorkers = (int) (stateJson.workers ?? stateJson.pool_workers);
+                state.TotalHashRate = NormalizeHashRate((double?) (stateJson.hashrate ?? stateJson.pool_hashrate));
+                state.TotalWorkers = ((int?) (stateJson.workers ?? stateJson.pool_workers)).GetValueOrDefault();
                 if (stateJson.last_block != null)
                     state.LastBlock = (long) stateJson.last_block;
                 
