@@ -50,24 +50,24 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             JObject shares;
             try
             {
-                var userInfoJson = ExecuteApiMethod("getuserstatus");
-                hashrate = userInfoJson.getuserstatus.data.hashrate;
-                shares = userInfoJson.getuserstatus.data.shares;
+                var userInfoJson = ExecuteApiMethod("getuserstatus").getuserstatus.data;
+                hashrate = userInfoJson.hashrate;
+                shares = userInfoJson.shares;
             }
             catch (CorrectHttpException)
             {
                 // For example, some SuprNova pools don't support getuserstatus method. Trying the other way...
-                var dashboardData = ExecuteApiMethod("getdashboarddata");
-                hashrate = dashboardData.getdashboarddata.data.raw.personal.hashrate;
-                shares = dashboardData.getdashboarddata.data.personal.shares;
-                poolHashrate = dashboardData.getdashboarddata.data.raw.pool.hashrate;
+                var dashboardData = ExecuteApiMethod("getdashboarddata").getdashboarddata.data;
+                hashrate = dashboardData.raw.personal.hashrate;
+                shares = dashboardData.personal.shares;
+                poolHashrate = dashboardData.raw.pool.hashrate;
             }
 
-            var balanceInfoJson = ExecuteApiMethod("getuserbalance");
+            var balanceInfoJson = ExecuteApiMethod("getuserbalance").getuserbalance.data;
             var accountInfo = new PoolAccountInfo
             {
-                ConfirmedBalance = ((double?) balanceInfoJson.getuserbalance.data.confirmed).GetValueOrDefault(),
-                UnconfirmedBalance = ((double?) balanceInfoJson.getuserbalance.data.unconfirmed).GetValueOrDefault(),
+                ConfirmedBalance = ((double?) balanceInfoJson.confirmed).GetValueOrDefault(),
+                UnconfirmedBalance = ((double?) balanceInfoJson.unconfirmed).GetValueOrDefault(),
                 HashRate = NormalizeHashRate(hashrate)
             };
             if (shares?.First != null)
@@ -92,7 +92,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             catch (CorrectHttpException)
             {
                 // Some SuprNova pools don't support public methods either...
-                state.TotalHashRate = NormalizeHashRate(poolHashrate);
+                state.TotalHashRate = ((long?)poolHashrate).GetValueOrDefault();
                 state.TotalWorkers = 0;
             }
 
