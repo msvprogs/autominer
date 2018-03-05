@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.Common;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
 
@@ -51,7 +52,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Analyzers
 
                 var maxUnusualHashrateDiff = miningStates
                     .Where(x => x.HashRate.Current > 0)
-                    .Select(x => ((double) x.HashRate.Reference - x.HashRate.Current) / x.HashRate.Current * 100)
+                    .Select(x => ConversionHelper.GetDiffRatio(x.HashRate.Reference, x.HashRate.Current))
                     .Select(Math.Abs)
                     .DefaultIfEmpty(0)
                     .Max();
