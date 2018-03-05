@@ -35,7 +35,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 BlockTimeSeconds = (double) stats.block_generate_time * 60,
                 BlockReward = (double) stats.block_reward_miner,
                 Height = (long) stats.blocks,
-                LastBlockTime = DateTimeHelper.FromFormat(lastBlockTime, "dd.MM.yyyy HH:mm:ss")
+                LastBlockTime = DateTimeHelper.FromKnownStringFormat(lastBlockTime, "dd.MM.yyyy HH:mm:ss")
             };
         }
 
