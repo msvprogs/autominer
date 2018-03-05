@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
@@ -20,6 +22,12 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         {
             dynamic stats = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString("http://sibinform.su/json/index_stat.json"));
+            var lastBlockHtml = new HtmlDocument();
+            lastBlockHtml.LoadHtml(m_WebClient.DownloadString(CreateBlockUrl((string)stats.last_hash)));
+            var lastBlockTime = lastBlockHtml.DocumentNode.SelectSingleNode("//li[contains(.,'Time')]")
+                .InnerText
+                .Split(":".ToCharArray(), 2)
+                .Last();
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) stats.last_difficulty,
@@ -27,7 +35,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 BlockTimeSeconds = (double) stats.block_generate_time * 60,
                 BlockReward = (double) stats.block_reward_miner,
                 Height = (long) stats.blocks,
-                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)stats.timestamp)
+                LastBlockTime = DateTimeHelper.FromFormat(lastBlockTime, "dd.MM.yyyy HH:mm:ss")
             };
         }
 

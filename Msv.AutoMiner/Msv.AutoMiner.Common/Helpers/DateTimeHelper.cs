@@ -45,6 +45,9 @@ namespace Msv.AutoMiner.Common.Helpers
         public static long TimestampFromIso8601(string dateTimeStr, TimeZoneInfo timeZone = null)
             => ToTimestamp(FromIso8601(dateTimeStr), timeZone);
 
+        public static DateTime FromFormat(string dateTimeStr, string format)
+            => FromKnownStringFormat(dateTimeStr, format);
+
         /// <summary>
         /// Converts datetime in the ISO 8601 format (yyyy-MM-dd HH:mm:ss) to DateTime value.
         /// </summary>
