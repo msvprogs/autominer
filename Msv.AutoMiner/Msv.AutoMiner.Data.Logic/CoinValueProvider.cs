@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Data.Logic.Contracts;
 using Msv.AutoMiner.Data.Logic.Data;
@@ -37,7 +38,7 @@ namespace Msv.AutoMiner.Data.Logic
                     ? query.Where(x => x.SourceCoin.Activity == ActivityState.Active)
                     : query.Where(x => x.SourceCoin.Activity != ActivityState.Deleted);
 
-                return ToCoinValues(query, btc);
+                return ToCoinValues(query, btc, GetIgnoredCurrencies(context));
             }
         }
 
@@ -46,6 +47,9 @@ namespace Msv.AutoMiner.Data.Logic
             using (var context = m_Factory.CreateReadOnly())
             {
                 var btc = context.Coins.First(x => x.Symbol == "BTC");
+                var ignoredCurrencies = context.Exchanges
+                    .Where(x => x.Activity == ActivityState.Active)
+                    .ToDictionary(x => x.Type, x => x.IgnoredCurrencies.EmptyIfNull().Split(','));
 
                 var query = context.ExchangeMarketPrices
                     .FromSql(@"SELECT source.SourceCoinId, source.TargetCoinId, source.Exchange, source.DateTime, 
@@ -72,11 +76,28 @@ namespace Msv.AutoMiner.Data.Logic
                     ? query.Where(x => x.SourceCoin.Activity == ActivityState.Active)
                     : query.Where(x => x.SourceCoin.Activity != ActivityState.Deleted);
 
-                return ToCoinValues(query, btc);
+                return ToCoinValues(query, btc, GetIgnoredCurrencies(context));
             }
         }
 
-        private static CoinValue[] ToCoinValues(IEnumerable<ExchangeMarketPrice> prices, Coin btc) 
+        private static Dictionary<ExchangeType, Guid[]> GetIgnoredCurrencies(AutoMinerDbContext context)
+        {
+            var ignoredCurrencies = context.Exchanges
+                .Where(x => x.Activity == ActivityState.Active)
+                .ToDictionary(x => x.Type, x => x.IgnoredCurrencies.EmptyIfNull().Split(','));
+            var allIgnoredSymbols = ignoredCurrencies.SelectMany(x => x.Value).Distinct().ToArray();
+            var allIgnoredCoins = context.Coins
+                .Where(x => x.Activity != ActivityState.Deleted)
+                .Where(x => allIgnoredSymbols.Contains(x.Symbol))
+                .Select(x => new {x.Symbol, x.Id})
+                .ToArray();
+            return ignoredCurrencies.ToDictionary(x => x.Key, x => x.Value
+                .Join(allIgnoredCoins, y => y, y => y.Symbol, (y, z) => z.Id)
+                .ToArray());
+        }
+
+        private static CoinValue[] ToCoinValues(
+            IEnumerable<ExchangeMarketPrice> prices, Coin btc, Dictionary<ExchangeType, Guid[]> ignoredCurrencies) 
             => prices.GroupBy(x => x.SourceCoinId)
                 .Select(x => new CoinValue
                 {
@@ -84,6 +105,7 @@ namespace Msv.AutoMiner.Data.Logic
                     AverageBtcValue = x.Average(y => y.LastPrice),
                     ExchangePrices = x.GroupBy(y => y.ExchangeType)
                         .Select(y => (exchange: y.Key, values: y.OrderByDescending(z => z.DateTime).First()))
+                        .Where(y => !(ignoredCurrencies.TryGetValue(y.exchange)?.Contains(y.values.SourceCoinId)).GetValueOrDefault())
                         .Select(y => new CoinExchangePrice
                         {
                             Exchange = y.exchange,

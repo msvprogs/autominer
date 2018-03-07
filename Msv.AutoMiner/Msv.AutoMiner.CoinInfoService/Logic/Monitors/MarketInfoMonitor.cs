@@ -119,7 +119,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 Thread.Sleep(provider.RequestInterval.Value);
             }
             var marketPrices = provider.GetCurrencyMarkets(currencies
-                .Where(x => !provider.HasMarketsCountLimit || coinSymbols.Contains(x.Symbol))
+                .Where(x => !provider.HasMarketsCountLimit
+                            || coinSymbols.Except(ignoredCurrencies).Contains(x.Symbol))
                 .ToArray())
                 .Where(x => !ignoredCurrencies.Contains(x.SourceSymbol)
                             && !ignoredCurrencies.Contains(x.TargetSymbol))
