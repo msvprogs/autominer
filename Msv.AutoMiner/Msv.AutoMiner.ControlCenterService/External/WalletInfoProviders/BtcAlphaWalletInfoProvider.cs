@@ -16,7 +16,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         { }
 
         public override WalletBalanceData[] GetBalances() 
-            => ((JArray) DoGetRequest("wallets"))
+            => ((JArray) DoGetRequest("v1/wallets"))
                 .Cast<dynamic>()
                 .Select(x => new WalletBalanceData
                 {
@@ -28,7 +28,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 
         public override WalletOperationData[] GetOperations(DateTime startDate)
         {
-            return ((JArray) DoGetRequest("deposits"))
+            return ((JArray) DoGetRequest("v1/deposits"))
                 .Cast<dynamic>()
                 .Select(x => new WalletOperationData
                 {
@@ -37,7 +37,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     Amount = (double) x.amount,
                     DateTime = DateTimeHelper.ToDateTimeUtc((long) (double) x.timestamp)
                 })
-                .Concat(((JArray) DoGetRequest("withdraws"))
+                .Concat(((JArray) DoGetRequest("v1/withdraws"))
                     .Cast<dynamic>()
                     .Where(x => (int) x.status == 30 /* Approved */)
                     .Select(x => new WalletOperationData

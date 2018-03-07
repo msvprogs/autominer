@@ -47,9 +47,6 @@ namespace Msv.AutoMiner.Data.Logic
             using (var context = m_Factory.CreateReadOnly())
             {
                 var btc = context.Coins.First(x => x.Symbol == "BTC");
-                var ignoredCurrencies = context.Exchanges
-                    .Where(x => x.Activity == ActivityState.Active)
-                    .ToDictionary(x => x.Type, x => x.IgnoredCurrencies.EmptyIfNull().Split(','));
 
                 var query = context.ExchangeMarketPrices
                     .FromSql(@"SELECT source.SourceCoinId, source.TargetCoinId, source.Exchange, source.DateTime, 
