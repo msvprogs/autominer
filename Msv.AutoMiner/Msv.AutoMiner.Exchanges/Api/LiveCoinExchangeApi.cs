@@ -47,7 +47,7 @@ namespace Msv.AutoMiner.Exchanges.Api
                     {
                         ["Api-Key"] = apiKey,
                         ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(
-                            Encoding.UTF8.GetBytes(query.Length > 0 ? query.Substring(1) : string.Empty))).ToUpperInvariant()
+                            Encoding.UTF8.GetBytes(query.TrimStart('?')))).ToUpperInvariant()
                     });
                 return JsonConvert.DeserializeObject<dynamic>(response);
             }

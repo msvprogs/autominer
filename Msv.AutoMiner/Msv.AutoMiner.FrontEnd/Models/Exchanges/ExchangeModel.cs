@@ -15,6 +15,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Exchanges
 
         public int WalletCount { get; set; }
 
+        public string IgnoredCurrencies { get; set; }
+
         public DateTime? LastPriceDate { get; set; }
 
         public DateTime? LastBalanceDate { get; set; }

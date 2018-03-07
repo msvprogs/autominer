@@ -7,7 +7,7 @@
         : "text-muted";
 }
 
-<tr class="@rowClass" data-exchange-name="@Model.Type" data-row-id="@Model.Type">
+<tr class="@rowClass" data-exchange-name="@Model.Type" data-row-id="@Model.Type" data-ignored-currencies="@Model.IgnoredCurrencies">
     <td>
         @if (Model.Url != null)
         {
@@ -34,6 +34,13 @@
                         data-action="register-keys"
                         title="Register API keys">
                     <i class="fa fa-key" aria-hidden="true"></i>
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-xs btn-info" 
+                        data-action="edit-ignored-currencies"
+                        title="Edit ignored currencies">
+                    <i class="fa fa-ban" aria-hidden="true"></i>
                 </button>
             </li>
             <li>

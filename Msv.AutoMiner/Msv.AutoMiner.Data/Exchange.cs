@@ -16,6 +16,9 @@ namespace Msv.AutoMiner.Data
         [MaxLength(256)]
         public string PrivateKey { get; set; }
 
+        [MaxLength(512)]
+        public string IgnoredCurrencies { get; set; }
+
         ExchangeType IEntity<ExchangeType>.Id
         {
             get => Type;

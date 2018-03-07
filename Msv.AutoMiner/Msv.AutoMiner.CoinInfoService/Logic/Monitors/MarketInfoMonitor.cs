@@ -33,19 +33,27 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             var now = DateTime.UtcNow;
             var downloadedExchangeData = m_Storage.GetExchanges()
                 .Where(x => x.Activity == ActivityState.Active)
-                .Select(x => (type:x.Type, provider: m_ProviderFactory.Create(x.Type)))
+                .Select(x => new
+                {
+                    x.Type,
+                    IgnoredCurrencies = x.IgnoredCurrencies.EmptyIfNull()
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(y => y.Trim().ToUpperInvariant())
+                        .ToArray(),
+                    Provider = m_ProviderFactory.Create(x.Type)
+                })
                 .AsParallel()
                 .WithDegreeOfParallelism(MarketParallelismDegree)
                 .Select(x =>
                 {
                     try
                     {
-                        return ProcessExchange(x.type, x.provider, coinSymbols);
+                        return ProcessExchange(x.Type, x.IgnoredCurrencies, x.Provider, coinSymbols);
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, $"Error while trying to get market values from {x.type}");
-                        return (x.type, currencies: new ExchangeCurrencyInfo[0], marketInfos: new CurrencyMarketInfo[0]);
+                        Log.Error(ex, $"Error while trying to get market values from {x.Type}");
+                        return (type: x.Type, currencies: new ExchangeCurrencyInfo[0], marketInfos: new CurrencyMarketInfo[0]);
                     }
                 })
                 .Where(x => x.marketInfos.Any())
@@ -96,10 +104,12 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
         }
 
         private (ExchangeType type, ExchangeCurrencyInfo[] currencies, CurrencyMarketInfo[] marketInfos) ProcessExchange(
-            ExchangeType type, IMarketInfoProvider provider, string[] coinSymbols)
+            ExchangeType type, string[] ignoredCurrencies, IMarketInfoProvider provider, string[] coinSymbols)
         {
             Log.Info($"Starting market prices request from {type}...");
-            var currencies = provider.GetCurrencies();
+            var currencies = provider.GetCurrencies()
+                .Where(x => !ignoredCurrencies.Contains(x.Symbol))
+                .ToArray();
             Log.Info($"{type} supports {currencies.Length} currencies");
             if (provider.HasMarketsCountLimit)
                 Log.Info($"{type} has market price request limit; requesting only registered coins");
@@ -110,7 +120,10 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             }
             var marketPrices = provider.GetCurrencyMarkets(currencies
                 .Where(x => !provider.HasMarketsCountLimit || coinSymbols.Contains(x.Symbol))
-                .ToArray());
+                .ToArray())
+                .Where(x => !ignoredCurrencies.Contains(x.SourceSymbol)
+                            && !ignoredCurrencies.Contains(x.TargetSymbol))
+                .ToArray();
             Log.Info($"Got {marketPrices.Length} market prices from {type}");
             return (type, currencies, marketPrices);
         }

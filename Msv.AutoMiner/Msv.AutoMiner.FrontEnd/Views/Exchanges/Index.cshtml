@@ -2,10 +2,11 @@
 @using Msv.AutoMiner.Common.Helpers
 @using Msv.AutoMiner.FrontEnd.Controllers
 @model Msv.AutoMiner.FrontEnd.Models.Exchanges.ExchangeModel[]
-    
-@{ ViewBag.Title = "Exchanges";}    
+
+@{ ViewBag.Title = "Exchanges";}
 
 @Html.Partial("_EditKeysPartial")
+@Html.Partial("_EditIgnoredCurrenciesPartial")
 
 @if (TempData[ExchangesController.ExchangesMessageKey] != null)
 {
@@ -49,27 +50,27 @@
 
 <table class="table table-bordered table-striped data-table">
     <thead>
-    <tr>
-        <th>Exchange</th>
-        <th>Has keys</th>
-        <th>Wallets count</th>
-        <th>Last price received</th>
-        <th>Last balance received</th>
-        <th data-orderable="false">Actions</th>
-    </tr>
+        <tr>
+            <th>Exchange</th>
+            <th>Has keys</th>
+            <th>Wallets count</th>
+            <th>Last price received</th>
+            <th>Last balance received</th>
+            <th data-orderable="false">Actions</th>
+        </tr>
     </thead>
     <tbody id="exchanges-table">
-    @foreach (var exchange in Model.OrderBy(x => x.Type.ToString()))
-    {
-        @Html.Partial("_ExchangeRowPartial", exchange)
-    }
+        @foreach (var exchange in Model.OrderBy(x => x.Type.ToString()))
+        {
+            @Html.Partial("_ExchangeRowPartial", exchange)
+        }
     </tbody>
 </table>
 
 @section Scripts {
     <script>
-        $(function() {
-            $("select#add-new-exchange-id").change(function() {
+        $(function () {
+            $("select#add-new-exchange-id").change(function () {
                 $("#add-new-exchange-button").prop("disabled", $("select#add-new-exchange-id").prop("selectedIndex") <= 0);
             });
         })

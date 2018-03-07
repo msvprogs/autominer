@@ -574,6 +574,29 @@ $(function () {
             $("#editKeysDialog").modal("show");
         });
 
+    //bind 'Edit ignored currencies' button
+    bindRowFormPostAction($("tbody#exchanges-table"),
+        "edit-ignored-currencies",
+        "editIgnoredCurrenciesForm",
+        "currenciesExchangeInput",
+        function(row, data) {
+            $("#editIgnoredCurrenciesDialog").modal("hide");
+            new Notification(format("Ignored currencies for exchange {0} have been updated successfully", row.data("exchange-name")))
+                .success();
+            row.replaceWith(data);
+        },
+        function(row, error) {
+            $("#editIgnoredCurrenciesDialog").modal("hide");
+            new Notification(format("Error while updating ignored currencies: {0}", error)).danger();
+        },
+        function(row) {
+            var exchange = row.data("exchange-name");
+            $("#editIgnoredCurrenciesExchange").text(exchange);
+            $("#currenciesExchangeInput").val(exchange);
+            $("#ignoredCurrenciesInput").val(row.data("ignored-currencies"));
+            $("#editIgnoredCurrenciesDialog").modal("show");
+        });
+
     // ** Rig index
     bindDisableButton($("tbody#rigs-table"), "rig-name", "rig");
     bindDeleteButton($("tbody#rigs-table"), "rig-name", "rig");

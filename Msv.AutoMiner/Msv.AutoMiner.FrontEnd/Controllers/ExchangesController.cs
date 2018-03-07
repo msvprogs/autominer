@@ -69,6 +69,25 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> SetIgnoredCurrencies(ExchangeType exchangeType, string ignoredCurrencies)
+        {
+            var exchange = await m_Context.Exchanges
+                .FirstOrDefaultAsync(x => x.Type == exchangeType);
+            if (exchange == null)
+                return NotFound();
+
+            exchange.IgnoredCurrencies = string.Join(",", ignoredCurrencies
+                .EmptyIfNull()
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim().ToUpperInvariant())
+                .Where(x => x != string.Empty)
+                .OrderBy(x => x));
+
+            await m_Context.SaveChangesAsync();
+            return PartialView("_ExchangeRowPartial", GetEntityModels(new[] {exchange.Type}).FirstOrDefault());
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Add(ExchangeType id)
         {
             if (id == ExchangeType.Unknown)
@@ -120,7 +139,13 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             if (!ids.IsNullOrEmpty())
                 exchangesQuery = exchangesQuery.Where(x => ids.Contains(x.Type));
             return exchangesQuery
-                .Select(x => new {x.Type, x.Activity, HasKeys = x.PrivateKey != null && x.PublicKey != null })
+                .Select(x => new
+                {
+                    x.Type, 
+                    x.Activity, 
+                    HasKeys = x.PrivateKey != null && x.PublicKey != null,
+                    x.IgnoredCurrencies
+                })
                 .AsEnumerable()
                 .LeftOuterJoin(wallets, x => x.Type, x => x.Key, (x, y) => (exchange:x, wallets:y.Value))
                 .Select(x => new ExchangeModel
@@ -130,6 +155,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     Activity = x.exchange.Activity,
                     HasKeys = x.exchange.HasKeys,
                     WalletCount = x.wallets,
+                    IgnoredCurrencies = x.exchange.IgnoredCurrencies,
                     LastBalanceDate = lastBalanceDates.TryGetValue(x.exchange.Type),
                     LastPriceDate = lastPriceDates.TryGetValue(x.exchange.Type)
                 })

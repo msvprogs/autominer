@@ -1,0 +1,33 @@
+﻿<div id="editIgnoredCurrenciesDialog" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form asp-action="SetIgnoredCurrencies" method="post" id="editIgnoredCurrenciesForm">
+                <div class="modal-header">
+                    <span class="modal-title modal-title-large">
+                        Edit ignored currencies for <span id="editIgnoredCurrenciesExchange"></span>
+                    </span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Set the symbols (delimited by comma) of currencies to ignore.
+                        This can be useful if some useful currencies have overlapping symbols on the other exchanges,
+                        and you would like to ignore unneeded currency with the same symbol on the current exchange.
+                    </p>
+                    <input type="hidden" name="exchangeType" id="currenciesExchangeInput"/>
+                    <div class="form-group">
+                        <label for="ignoredCurrenciesInput">Ignored currencies:</label>
+                        <input type="text" name="ignoredCurrencies" id="ignoredCurrenciesInput" maxlength="512" autocomplete="off"
+                               class="form-control"/>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
