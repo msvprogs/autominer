@@ -24,9 +24,9 @@ namespace Msv.AutoMiner.Exchanges.Api
         public override dynamic ExecutePrivate(string method, IDictionary<string, string> parameters, string apiKey, byte[] apiSecret)
         {
             using (var hmac = new HMACSHA256(apiSecret))
-            using (var md5 = MD5.Create())
+            using (var md5 = new MD5CryptoServiceProvider())
             {
-                const string requestJson = "{}";
+                var request = JsonConvert.SerializeObject(parameters);
                 var url = M_BaseUri + method;
                 var nonce = CreateNonce();
                 var signature = Convert.ToBase64String(
@@ -35,11 +35,10 @@ namespace Msv.AutoMiner.Exchanges.Api
                             "POST",
                             Uri.EscapeDataString(url).ToLowerInvariant(),
                             nonce,
-                            Convert.ToBase64String(md5.ComputeHash(
-                                Encoding.UTF8.GetBytes(requestJson)))))));
+                            Convert.ToBase64String(md5.ComputeHash(Encoding.UTF8.GetBytes(request)))))));
                 return ProcessResponse(WebClient.UploadString(
                     url,
-                    requestJson,
+                    request,
                     new Dictionary<string, string>
                     {
                         ["Authorization"] = $"amx {apiKey}:{signature}:{nonce}"

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http.Extensions;
-using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.CustomExtensions;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -41,14 +39,15 @@ namespace Msv.AutoMiner.Exchanges.Api
 
             using (var hmac = new HMACSHA256(apiSecret))
             {
-                var query = new QueryBuilder(parameters.EmptyIfNull().OrderBy(x => x.Key));
+                // QueryBuilder doesn't escape comma, but this site requires it to be escaped
+                var query = new QueryBuilder(parameters.OrderBy(x => x.Key)).ToString().Replace(",", "%2C");
                 var response = WebClient.DownloadString(
                     new Uri(M_BaseUri, method + query).ToString(),
                     new Dictionary<string, string>
                     {
                         ["Api-Key"] = apiKey,
                         ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(
-                            Encoding.UTF8.GetBytes(query.ToStringWithoutPrefix()))).ToUpperInvariant()
+                            Encoding.UTF8.GetBytes(query.Length > 0 ? query.Substring(1) : string.Empty))).ToUpperInvariant()
                     });
                 return JsonConvert.DeserializeObject<dynamic>(response);
             }
