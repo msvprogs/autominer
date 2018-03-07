@@ -27,7 +27,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
             var lastBlockTime = lastBlockHtml.DocumentNode.SelectSingleNode("//li[contains(.,'Time')]")
                 .InnerText
                 .Split(":".ToCharArray(), 2)
-                .Last();
+                .Last()
+                .Trim();
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) stats.last_difficulty,
