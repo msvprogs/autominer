@@ -1,29 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //Reddit discussion: https://www.reddit.com/r/CryptoBridge/comments/7sv3c8/developer_api_anywhere/
     public class CryptoBridgeMarketInfoProvider : IMarketInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://api.crypto-bridge.org/api/v1/");
-
         public bool HasMarketsCountLimit => false;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public CryptoBridgeMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public CryptoBridgeMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
-            => JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadString(new Uri(M_BaseUri, "coins")))
+            => ((JArray)m_ExchangeApi.ExecutePublic("coins", new Dictionary<string, string>()))
                 .Cast<dynamic>()
                 .Select(x => new ExchangeCurrencyInfo
                 {
@@ -35,8 +31,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 .ToArray();
 
         public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
-            => JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadString(new Uri(M_BaseUri, "ticker")))
+            => ((JArray)m_ExchangeApi.ExecutePublic("ticker", new Dictionary<string, string>()))
                 .Cast<dynamic>()
                 .Select(x => new
                 {

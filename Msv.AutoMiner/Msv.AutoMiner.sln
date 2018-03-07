@@ -46,6 +46,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Installation_ReadMe.txt = Installation_ReadMe.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msv.AutoMiner.Exchanges", "Msv.AutoMiner.Exchanges\Msv.AutoMiner.Exchanges.csproj", "{50E14E0E-7B5C-4E3C-8004-159501289114}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -206,6 +208,14 @@ Global
 		{A103B566-F1D1-4D06-9708-3BEBD2D0E185}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A103B566-F1D1-4D06-9708-3BEBD2D0E185}.Release|x64.ActiveCfg = Release|Any CPU
 		{A103B566-F1D1-4D06-9708-3BEBD2D0E185}.Release|x64.Build.0 = Release|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Debug|x64.Build.0 = Debug|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Release|x64.ActiveCfg = Release|Any CPU
+		{50E14E0E-7B5C-4E3C-8004-159501289114}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

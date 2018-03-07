@@ -7,6 +7,7 @@ using Msv.AutoMiner.ControlCenterService.External.Data;
 using Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
+using Msv.AutoMiner.Exchanges.Api;
 
 namespace Msv.AutoMiner.ControlCenterService.External
 {
@@ -44,27 +45,37 @@ namespace Msv.AutoMiner.ControlCenterService.External
             switch (exchangeType)
             {
                 case ExchangeType.Bittrex:
-                    return new BittrexWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new BittrexWalletInfoProvider(
+                        new BittrexExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.Cryptopia:
-                    return new CryptopiaWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new CryptopiaWalletInfoProvider(
+                        new CryptopiaExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.Poloniex:
-                    return new PoloniexWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new PoloniexWalletInfoProvider(
+                        new PoloniexExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.YoBit:
-                    return new YoBitWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new YoBitWalletInfoProvider(
+                        new YoBitExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.TradeSatoshi:
-                    return new TradeSatoshiWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new TradeSatoshiWalletInfoProvider(
+                        new TradeSatoshiExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.Novaexchange:
-                    return new NovaexchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new NovaexchangeWalletInfoProvider(
+                        new NovaexchangeExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.StocksExchange:
-                    return new StocksExchangeWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new StocksExchangeWalletInfoProvider(
+                        new StocksExchangeExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.LiveCoin:
-                    return new LiveCoinWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new LiveCoinWalletInfoProvider(
+                        new LiveCoinExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.BtcAlpha:
-                    return new BtcAlphaWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new BtcAlphaWalletInfoProvider(
+                        new BtcAlphaExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 case ExchangeType.CryptoBridge:
                     return new CryptoBridgeWalletInfoProvider(m_SessionedRpcClientFactory, exchange.PublicKey);
                 case ExchangeType.Graviex:
-                    return new GraviexWalletInfoProvider(m_WebClient, exchange.PublicKey, exchange.PrivateKey);
+                    return new GraviexWalletInfoProvider(
+                        new GraviexExchangeApi(m_WebClient), exchange.PublicKey, exchange.PrivateKey);
                 default:
                     return new DummyWalletInfoProvider();
             }

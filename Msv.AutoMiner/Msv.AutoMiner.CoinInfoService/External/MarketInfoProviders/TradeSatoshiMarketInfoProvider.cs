@@ -1,28 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.External;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: https://tradesatoshi.com/Home/Api
     public class TradeSatoshiMarketInfoProvider : IMarketInfoProvider
     {
         private const double ConversionFeePercent = 0.2;
-        private static readonly Uri M_BaseUri = new Uri("https://tradesatoshi.com");
 
         public bool HasMarketsCountLimit => false;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public TradeSatoshiMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public TradeSatoshiMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
             => DoRequest<JArray>("getcurrencies")
@@ -65,12 +62,6 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 
         private T DoRequest<T>(string command)
             where T : JToken
-        {
-            var json = JsonConvert.DeserializeObject<JObject>(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, $"/api/public/{command}")));
-            if (!json["success"].Value<bool>())
-                throw new ExternalDataUnavailableException(json["message"].Value<string>());
-            return (T)json["result"];
-        }
+            => (T) m_ExchangeApi.ExecutePublic(command, new Dictionary<string, string>());
     }
 }

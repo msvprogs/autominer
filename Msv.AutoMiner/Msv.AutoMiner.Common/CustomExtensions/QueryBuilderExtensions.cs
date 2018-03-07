@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http.Extensions;
 
-namespace Msv.AutoMiner.ControlCenterService
+namespace Msv.AutoMiner.Common.CustomExtensions
 {
-    public static class Extensions
+    public static class QueryBuilderExtensions
     {
         public static string ToStringWithoutPrefix(this QueryBuilder queryBuilder)
         {

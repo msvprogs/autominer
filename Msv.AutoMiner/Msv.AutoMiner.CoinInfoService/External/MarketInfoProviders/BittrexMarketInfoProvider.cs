@@ -1,28 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.External;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: https://bittrex.com/Home/Api
     public class BittrexMarketInfoProvider : IMarketInfoProvider
     {
         private const double ConversionFeePercent = 0.25;
-        private static readonly Uri M_BaseUri = new Uri("https://bittrex.com");
 
         public bool HasMarketsCountLimit => false;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public BittrexMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public BittrexMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
             => DoRequest<JArray>("getcurrencies")
@@ -64,13 +61,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 .ToArray();
 
         private T DoRequest<T>(string command)
-            where T : JToken
-        {
-            var json = JsonConvert.DeserializeObject<JObject>(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, $"/api/v1.1/public/{command}")));
-            if (!json["success"].Value<bool>())
-                throw new ExternalDataUnavailableException(json["message"].Value<string>());
-            return (T) json["result"];
-        }
+            where T : JToken 
+            => (T) m_ExchangeApi.ExecutePublic(command, new Dictionary<string, string>());
     }
 }

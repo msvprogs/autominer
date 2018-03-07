@@ -1,28 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Http.Extensions;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Data;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
     public class LiveCoinWalletInfoProvider : ExchangeWalletInfoProviderBase
     {
-        private static readonly Uri M_BaseUri = new Uri("https://api.livecoin.net/");
-
-        public LiveCoinWalletInfoProvider(IWebClient webClient, string apiKey, string apiSecret) 
-            : base(webClient, apiKey, Encoding.ASCII.GetBytes(apiSecret))
+        public LiveCoinWalletInfoProvider(IExchangeApi api, string apiKey, string apiSecret) 
+            : base(api, apiKey, Encoding.ASCII.GetBytes(apiSecret))
         { }
 
         public override WalletBalanceData[] GetBalances()
-            => ((JArray) DoGetRequest("/payment/balances"))
+            => ((JArray) DoGetRequest("payment/balances"))
                 .Cast<dynamic>()
                 .Select(x => new
                 {
@@ -46,7 +41,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 
         public override WalletOperationData[] GetOperations(DateTime startDate)
         {
-            JArray result = DoGetRequest("/payment/history/transactions",
+            JArray result = DoGetRequest("payment/history/transactions",
                 new Dictionary<string, string>
                 {
                     ["start"] = DateTimeHelper.ToTimestampMsec(startDate).ToString(),
@@ -68,21 +63,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 .ToArray();
         }
 
-        private dynamic DoGetRequest(string relativeUrl, Dictionary<string, string> parameters = null)
-        {
-            using (var hmac = new HMACSHA256(ApiSecret))
-            {
-                var query = new QueryBuilder(parameters.EmptyIfNull().OrderBy(x => x.Key));
-                var response = WebClient.DownloadString(
-                    new Uri(M_BaseUri, relativeUrl + query).ToString(),
-                    new Dictionary<string, string>
-                    {
-                        ["Api-Key"] = ApiKey,
-                        ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(
-                            Encoding.UTF8.GetBytes(query.ToStringWithoutPrefix()))).ToUpperInvariant()
-                    });
-                return JsonConvert.DeserializeObject<dynamic>(response);
-            }
-        }
+        private dynamic DoGetRequest(string relativeUrl, Dictionary<string, string> parameters = null) 
+            => Api.ExecutePrivate(relativeUrl, parameters ?? new Dictionary<string, string>(), ApiKey, ApiSecret);
     }
 }

@@ -4,6 +4,7 @@ using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Exchanges.Api;
 
 namespace Msv.AutoMiner.CoinInfoService.External
 {
@@ -19,33 +20,33 @@ namespace Msv.AutoMiner.CoinInfoService.External
             switch (exchange)
             {
                 case ExchangeType.Bittrex:
-                    return new BittrexMarketInfoProvider(m_WebClient);
+                    return new BittrexMarketInfoProvider(new BittrexExchangeApi(m_WebClient));
                 case ExchangeType.Cryptopia:
-                    return new CryptopiaMarketInfoProvider(m_WebClient);
+                    return new CryptopiaMarketInfoProvider(new CryptopiaExchangeApi(m_WebClient));
                 case ExchangeType.Poloniex:
-                    return new PoloniexMarketInfoProvider(m_WebClient);
+                    return new PoloniexMarketInfoProvider(new PoloniexExchangeApi(m_WebClient));
                 case ExchangeType.CoinExchange:
-                    return new CoinExchangeMarketInfoProvider(m_WebClient);
+                    return new CoinExchangeMarketInfoProvider(new CoinExchangeExchangeApi(m_WebClient));
                 case ExchangeType.YoBit:
-                    return new YoBitMarketInfoProvider(m_WebClient);
+                    return new YoBitMarketInfoProvider(new YoBitExchangeApi(m_WebClient));
                 case ExchangeType.TradeSatoshi:
-                    return new TradeSatoshiMarketInfoProvider(m_WebClient);
+                    return new TradeSatoshiMarketInfoProvider(new TradeSatoshiExchangeApi(m_WebClient));
                 case ExchangeType.CoinsMarkets:
                     return new CoinsMarketsMarketInfoProvider(m_WebClient);
                 case ExchangeType.Novaexchange:
-                    return new NovaexchangeMarketInfoProvider(m_WebClient);
+                    return new NovaexchangeMarketInfoProvider(new NovaexchangeExchangeApi(m_WebClient));
                 case ExchangeType.LiveCoin:
-                    return new LiveCoinMarketInfoProvider(m_WebClient);
+                    return new LiveCoinMarketInfoProvider(new LiveCoinExchangeApi(m_WebClient));
                 case ExchangeType.StocksExchange:
-                    return new StocksExchangeMarketInfoProvider(m_WebClient);
+                    return new StocksExchangeMarketInfoProvider(new StocksExchangeExchangeApi(m_WebClient));
                 case ExchangeType.BtcAlpha:
-                    return new BtcAlphaMarketInfoProvider(m_WebClient);
+                    return new BtcAlphaMarketInfoProvider(new BtcAlphaExchangeApi(m_WebClient));
                 case ExchangeType.CryptoBridge:
-                    return new CryptoBridgeMarketInfoProvider(m_WebClient);
+                    return new CryptoBridgeMarketInfoProvider(new CryptoBridgeExchangeApi(m_WebClient));
                 case ExchangeType.SouthXchange:
-                    return new SouthXchangeMarketInfoProvider(m_WebClient);
+                    return new SouthXchangeMarketInfoProvider(new SouthXchangeExchangeApi(m_WebClient));
                 case ExchangeType.Graviex:
-                    return new GraviexMarketInfoProvider(m_WebClient);
+                    return new GraviexMarketInfoProvider(new GraviexExchangeApi(m_WebClient));
                 default:
                     return new DummyMarketInfoProvider();
             }

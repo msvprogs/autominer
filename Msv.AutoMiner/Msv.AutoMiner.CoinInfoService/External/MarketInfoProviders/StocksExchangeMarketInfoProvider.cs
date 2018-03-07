@@ -1,31 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: https://docs.google.com/document/d/1mU8ecTlzfDtT1hmZJ-dXezMudLnfD4ZeNBr_oxFwdGI/edit#
     public class StocksExchangeMarketInfoProvider : IMarketInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://stocks.exchange/api2/");
-
         public bool HasMarketsCountLimit => false;
 
         public TimeSpan? RequestInterval => TimeSpan.FromMinutes(1);
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public StocksExchangeMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public StocksExchangeMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies() 
-            => JsonConvert.DeserializeObject<JArray>(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, "currencies")))
+            => ((JArray)m_ExchangeApi.ExecutePublic("currencies", new Dictionary<string, string>()))
             .Cast<dynamic>()
             .Select(x => new ExchangeCurrencyInfo
             {
@@ -39,8 +35,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 
         public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
         {
-            var marketData = JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadString(new Uri(M_BaseUri, "markets")))
+            var marketData = ((JArray)m_ExchangeApi.ExecutePublic("markets", new Dictionary<string, string>()))
                 .Cast<dynamic>()
                 .Select(x => new
                 {
@@ -51,8 +46,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 .GroupBy(x => new {x.Source, x.Target})
                 .ToDictionary(x => x.Key, x => x.First().Data);
 
-            return JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadString(new Uri(M_BaseUri, "ticker")))
+            return ((JArray)m_ExchangeApi.ExecutePublic("ticker", new Dictionary<string, string>()))
                 .Cast<dynamic>()
                 .Select(x => new
                 {

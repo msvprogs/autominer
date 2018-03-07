@@ -1,26 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
-using Msv.AutoMiner.Common.External.Contracts;
-using Msv.AutoMiner.Common.External;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: http://coinexchangeio.github.io/slate
     public class CoinExchangeMarketInfoProvider : IMarketInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://www.coinexchange.io");
-
         public bool HasMarketsCountLimit => false;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public CoinExchangeMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public CoinExchangeMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
             => DoRequest("getcurrencies")
@@ -70,13 +66,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 })
                 .ToArray();
 
-        private JArray DoRequest(string command)
-        {
-            dynamic response = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, $"/api/v1/{command}")));
-            if ((int) response.success != 1)
-                throw new ExternalDataUnavailableException((string) response.message);
-            return response.result;
-        }
+        private JArray DoRequest(string command) 
+            => (JArray) m_ExchangeApi.ExecutePublic(command, new Dictionary<string, string>());
     }
 }

@@ -1,28 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: https://graviex.net/documents/api_v2
     public class GraviexMarketInfoProvider : IMarketInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://graviex.net/api/v2/");
-
         public bool HasMarketsCountLimit => false;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public GraviexMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public GraviexMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
-            => JsonConvert.DeserializeObject<JArray>(m_WebClient.DownloadString(new Uri(M_BaseUri, "markets.json")))
+            => ((JArray)m_ExchangeApi.ExecutePublic("markets.json", new Dictionary<string, string>()))
                 .Cast<dynamic>()
                 .Select(x => new ExchangeCurrencyInfo
                 {
@@ -34,7 +31,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 .ToArray();
 
         public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
-            => JsonConvert.DeserializeObject<JObject>(m_WebClient.DownloadString(new Uri(M_BaseUri, "tickers.json")))
+            => ((JObject)m_ExchangeApi.ExecutePublic("tickers.json", new Dictionary<string, string>()))
                 .Properties()
                 .Join(currencyInfos, x => x.Name, x => x.ExternalId,
                     (x, y) => (name: y.Name.Split('/', 2), ((dynamic) x.Value).ticker))

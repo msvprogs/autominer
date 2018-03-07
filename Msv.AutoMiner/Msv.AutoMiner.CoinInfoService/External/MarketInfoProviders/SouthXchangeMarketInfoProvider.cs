@@ -1,28 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: https://www.southxchange.com/Home/Api
     public class SouthXchangeMarketInfoProvider : IMarketInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://www.southxchange.com/api/");
-
         public bool HasMarketsCountLimit => false;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public SouthXchangeMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public SouthXchangeMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
-            => JsonConvert.DeserializeObject<JArray>(m_WebClient.DownloadString(new Uri(M_BaseUri, "markets")))
+            => ((JArray)m_ExchangeApi.ExecutePublic("markets", new Dictionary<string, string>()))
                 .Cast<JArray>()
                 .Select(x => x[0].Value<string>())
                 .Distinct()
@@ -35,7 +32,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 .ToArray();
 
         public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
-            => JsonConvert.DeserializeObject<JArray>(m_WebClient.DownloadString(new Uri(M_BaseUri, "prices")))
+            => ((JArray)m_ExchangeApi.ExecutePublic("prices", new Dictionary<string, string>()))
                 .Cast<dynamic>()
                 .Select(x => new
                 {

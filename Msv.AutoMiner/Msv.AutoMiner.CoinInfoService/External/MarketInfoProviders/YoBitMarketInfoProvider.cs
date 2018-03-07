@@ -1,33 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.Common;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: https://yobit.net/en/api/
     public class YoBitMarketInfoProvider : IMarketInfoProvider
     {
         private const double ConversionFeePercent = 0.2;
         private const string BtcMarketPostfix = "_btc";
-        private static readonly Uri M_BaseUri = new Uri("https://yobit.net");
 
         public bool HasMarketsCountLimit => true;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public YoBitMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public YoBitMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies()
         {
-            JObject pairs = JsonConvert.DeserializeObject<dynamic>(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, "/api/3/info"))).pairs;
+            JObject pairs = m_ExchangeApi.ExecutePublic("info", new Dictionary<string, string>()).pairs;
             return pairs.Properties()
                 .Where(x => x.Name.EndsWith(BtcMarketPostfix, StringComparison.CurrentCultureIgnoreCase))
                 .Cast<dynamic>()
@@ -46,8 +43,10 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 return new CurrencyMarketInfo[0];
 
             var pairs = string.Join("-", currencyInfos.Select(x => x.Symbol + BtcMarketPostfix)).ToLowerInvariant();
-            return JsonConvert.DeserializeObject<JObject>(
-                    m_WebClient.DownloadString(new Uri(M_BaseUri, $"/api/3/ticker/{pairs}?ignore_invalid=1")))
+            return ((JObject) m_ExchangeApi.ExecutePublic($"ticker/{pairs}", new Dictionary<string, string>
+                {
+                    ["ignore_invalid"] = "1"
+                }))
                 .Properties()
                 .Select(x => new
                 {
@@ -55,19 +54,19 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     Data = (dynamic) x.Value
                 })
                 .Where(x => x.PairSymbols.Length > 1)
-                .LeftOuterJoin(currencyInfos, x => x.PairSymbols[0], x => x.Symbol, 
+                .LeftOuterJoin(currencyInfos, x => x.PairSymbols[0], x => x.Symbol,
                     (x, y) => (values: x, currency: y))
                 .Select(x => new CurrencyMarketInfo
                 {
                     SourceSymbol = x.values.PairSymbols[0],
                     TargetSymbol = x.values.PairSymbols[1],
-                    HighestBid = (double)x.values.Data.buy,
-                    LowestAsk = (double)x.values.Data.sell,
-                    LastDayHigh = (double)x.values.Data.high,
-                    LastDayLow = (double)x.values.Data.low,
+                    HighestBid = (double) x.values.Data.buy,
+                    LowestAsk = (double) x.values.Data.sell,
+                    LastDayHigh = (double) x.values.Data.high,
+                    LastDayLow = (double) x.values.Data.low,
                     //'vol' field is in BTC
-                    LastDayVolume = (double)x.values.Data.vol_cur,
-                    LastPrice = (double)x.values.Data.last,
+                    LastDayVolume = (double) x.values.Data.vol_cur,
+                    LastPrice = (double) x.values.Data.last,
                     IsActive = x.currency == null || x.currency.IsActive,
                     SellFeePercent = ConversionFeePercent,
                     BuyFeePercent = ConversionFeePercent

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using Msv.AutoMiner.Common.External;
-using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Data;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
@@ -17,12 +13,12 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
         // TradeSatoshi returns operations very selectively with low limit. It can return every 10-th, 5-th operation and so on.
         private const int MaxOperationCount = 1000;
 
-        public TradeSatoshiWalletInfoProvider(IWebClient webClient, string apiKey, string apiSecret)
-            : base(webClient, apiKey, Convert.FromBase64String(apiSecret))
+        public TradeSatoshiWalletInfoProvider(IExchangeApi api, string apiKey, string apiSecret)
+            : base(api, apiKey, Convert.FromBase64String(apiSecret))
         { }
 
         public override WalletBalanceData[] GetBalances()
-            => DoPostRequest<JArray>("GetBalances", new JObject())
+            => DoPostRequest<JArray>("GetBalances")
                 .Cast<dynamic>()
                 .Select(x => new WalletBalanceData
                 {
@@ -35,7 +31,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 .ToArray();
 
         public override WalletOperationData[] GetOperations(DateTime startDate)
-            => DoPostRequest<JArray>("GetDeposits", new {Count = MaxOperationCount})
+            => DoPostRequest<JArray>("GetDeposits", new Dictionary<string, string>
+                {
+                    ["Count"] = MaxOperationCount.ToString()
+                })
                 .Cast<dynamic>()
                 .Where(x => (string) x.status == "Confirmed")
                 .Select(x => new WalletOperationData
@@ -46,7 +45,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     DateTime = DateTimeHelper.Normalize((DateTime) x.timeStamp),
                     Transaction = (string) x.txid
                 })
-                .Concat(DoPostRequest<JArray>("GetWithdrawals", new {Count = MaxOperationCount})
+                .Concat(DoPostRequest<JArray>("GetWithdrawals", new Dictionary<string, string>
+                    {
+                        ["Count"] = MaxOperationCount.ToString()
+                    })
                     .Cast<dynamic>()
                     .Where(x => (string) x.status == "Complete")
                     .Select(x => new WalletOperationData
@@ -60,34 +62,8 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                     }))
                 .ToArray();
 
-        private T DoPostRequest<T>(string command, object request)
+        private T DoPostRequest<T>(string command, Dictionary<string, string> parameters = null)
             where T : JToken
-        {
-            using (var hmac = new HMACSHA512(ApiSecret))
-            {
-                var requestJson = JsonConvert.SerializeObject(request);
-                var url = $"https://tradesatoshi.com/api/private/{command}";
-                var nonce = DateTime.Now.Ticks.ToString();
-                var signature = Convert.ToBase64String(
-                    hmac.ComputeHash(Encoding.UTF8.GetBytes(
-                        string.Concat(ApiKey,
-                            "POST",
-                            Uri.EscapeDataString(url).ToLowerInvariant(),
-                            nonce,
-                            Convert.ToBase64String(Encoding.UTF8.GetBytes(requestJson))))));
-                var response = WebClient.UploadString(
-                    url,
-                    requestJson,
-                    new Dictionary<string, string>
-                    {
-                        ["Authorization"] = $"amx {ApiKey}:{signature}:{nonce}"
-                    },
-                    contentType: "application/json");
-                var json = JsonConvert.DeserializeObject<JObject>(response);
-                if (!json["success"].Value<bool>())
-                    throw new ExternalDataUnavailableException(json["message"].Value<string>());
-                return (T) json["result"];
-            }
-        }
+            => (T) Api.ExecutePrivate(command, parameters ?? new Dictionary<string, string>(), ApiKey, ApiSecret);
     }
 }

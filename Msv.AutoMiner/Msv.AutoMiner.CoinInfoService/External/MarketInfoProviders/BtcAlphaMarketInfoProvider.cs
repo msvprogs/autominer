@@ -1,26 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
-using Msv.AutoMiner.Common.External.Contracts;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
 {
-    //API: https://btc-alpha.github.io/api-docs
     public class BtcAlphaMarketInfoProvider : IMarketInfoProvider
-    {       
-        private static readonly Uri M_BaseUri = new Uri("https://btc-alpha.com/api/");
-
+    {
         public bool HasMarketsCountLimit => true;
         public TimeSpan? RequestInterval => null;
 
-        private readonly IWebClient m_WebClient;
+        private readonly IExchangeApi m_ExchangeApi;
 
-        public BtcAlphaMarketInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public BtcAlphaMarketInfoProvider(IExchangeApi exchangeApi)
+            => m_ExchangeApi = exchangeApi ?? throw new ArgumentNullException(nameof(exchangeApi));
 
         public ExchangeCurrencyInfo[] GetCurrencies() 
             => DoRequest("v1/currencies")
@@ -48,7 +44,12 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 {
                     x.SourceSymbol,
                     x.TargetSymbol,
-                    Data = (dynamic) DoRequest($"charts/{x.PairName}/D/chart", "limit=1")[0]
+                    Data = (dynamic) DoRequest(
+                        $"charts/{x.PairName}/D/chart", 
+                        new Dictionary<string, string>
+                        {
+                            ["limit"] = "1"
+                        })[0]
                 })
                 .Select(x => new CurrencyMarketInfo
                 {
@@ -64,14 +65,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 })
                 .ToArray();
 
-        private JArray DoRequest(string command, string parameters = null)
-        {
-            Thread.Sleep(TimeSpan.FromSeconds(1)); // will it prevent 429?
-            var commandString = $"{command}/?format=json";
-            if (parameters != null)
-                commandString += $"&{parameters}";
-            return JsonConvert.DeserializeObject<dynamic>(
-                m_WebClient.DownloadString(new Uri(M_BaseUri, commandString)));
-        }
+        private JArray DoRequest(string command, Dictionary<string, string> parameters = null) 
+            => (JArray) m_ExchangeApi.ExecutePublic(command, parameters ?? new Dictionary<string, string>());
     }
 }

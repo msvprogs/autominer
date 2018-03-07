@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using Msv.AutoMiner.Common.External;
-using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Data;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
     public class CryptopiaWalletInfoProvider : ExchangeWalletInfoProviderBase
     {
-        public CryptopiaWalletInfoProvider(IWebClient webClient, string apiKey, string apiSecret)
-            : base(webClient, apiKey, Convert.FromBase64String(apiSecret))
+        public CryptopiaWalletInfoProvider(IExchangeApi api, string apiKey, string apiSecret)
+            : base(api, apiKey, Convert.FromBase64String(apiSecret))
         { }
 
         public override WalletBalanceData[] GetBalances() 
@@ -48,34 +44,6 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 
         private T DoPostRequest<T>(string command)
             where T : JToken
-        {
-            using (var hmac = new HMACSHA256(ApiSecret))
-            using (var md5 = MD5.Create())
-            {
-                const string requestJson = "{}";
-                var url = $"https://www.cryptopia.co.nz/api/{command}";
-                var nonce = DateTime.Now.Ticks.ToString();
-                var signature = Convert.ToBase64String(
-                    hmac.ComputeHash(Encoding.UTF8.GetBytes(
-                        string.Concat(ApiKey,
-                            "POST",
-                            Uri.EscapeDataString(url).ToLowerInvariant(),
-                            nonce,
-                            Convert.ToBase64String(md5.ComputeHash(
-                                Encoding.UTF8.GetBytes(requestJson)))))));
-                var response = WebClient.UploadString(
-                    url,
-                    requestJson,
-                    new Dictionary<string, string>
-                    {
-                        ["Authorization"] = $"amx {ApiKey}:{signature}:{nonce}"
-                    },
-                    contentType: "application/json");
-                var json = JsonConvert.DeserializeObject<JObject>(response);
-                if (!json["Success"].Value<bool>())
-                    throw new ExternalDataUnavailableException(json["Error"].Value<string>());
-                return (T) json["Data"];
-            }
-        }
+            => (T) Api.ExecutePrivate(command, new Dictionary<string, string>(), ApiKey, ApiSecret);
     }
 }

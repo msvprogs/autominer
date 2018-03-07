@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using Msv.AutoMiner.Common.External;
-using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Data;
-using Newtonsoft.Json;
+using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
     public class StocksExchangeWalletInfoProvider : ExchangeWalletInfoProviderBase
     {
-        public StocksExchangeWalletInfoProvider(IWebClient webClient, string apiKey, string apiSecret)
-            : base(webClient, apiKey, Encoding.UTF8.GetBytes(apiSecret))
+        public StocksExchangeWalletInfoProvider(IExchangeApi api, string apiKey, string apiSecret)
+            : base(api, apiKey, Encoding.UTF8.GetBytes(apiSecret))
         { }
 
         public override WalletBalanceData[] GetBalances()
@@ -39,9 +35,10 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 
         public override WalletOperationData[] GetOperations(DateTime startDate)
         {
-            dynamic parameters = new ExpandoObject();
-            parameters.currency = "ALL";
-            var operations = DoPostRequest("TransHistory", parameters);
+            var operations = DoPostRequest("TransHistory", new Dictionary<string, string>
+            {
+                ["currency"] = "ALL"
+            });
             return ((JObject)ToJObject(operations.DEPOSIT))
                 .Properties()
                 .Select(x => new {x.Name, Value = (dynamic) x.Value})
@@ -79,29 +76,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
             return (JObject) objectOrArray;
         }
 
-        private dynamic DoPostRequest(string method, dynamic parameters = null)
-        {
-            if (parameters == null)
-                parameters = new ExpandoObject();
-            parameters.method = method;
-            parameters.nonce = DateTime.Now.Ticks;
-            string serializedData = JsonConvert.SerializeObject(parameters);
-            using (var hmac = new HMACSHA512(ApiSecret))
-            {
-                var response = WebClient.UploadString(
-                    "https://stocks.exchange/api2",
-                    serializedData,
-                    new Dictionary<string, string>
-                    {
-                        ["Key"] = ApiKey,
-                        ["Sign"] = HexHelper.ToHex(hmac.ComputeHash(Encoding.UTF8.GetBytes(serializedData)))
-                    },
-                    contentType: "application/json");
-                var json = JsonConvert.DeserializeObject<JObject>(response);
-                if (json["success"].Value<int>() == 0)
-                    throw new ExternalDataUnavailableException(json["error"]?.Value<string>());
-                return json["data"];
-            }
-        }
+        private dynamic DoPostRequest(string method, Dictionary<string, string> parameters = null)
+            => Api.ExecutePrivate(method, parameters ?? new Dictionary<string, string>(), ApiKey, ApiSecret);
     }
 }

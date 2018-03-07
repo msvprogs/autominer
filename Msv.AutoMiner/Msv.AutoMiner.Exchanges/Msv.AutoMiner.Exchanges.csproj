@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Copyright>Copyright (c) MSV 2017-2018</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Msv.AutoMiner.Common\Msv.AutoMiner.Common.csproj" />
+    <ProjectReference Include="..\Msv.HttpTools\Msv.HttpTools.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Http.Extensions">
+      <HintPath>C:\Users\Yamamoto\.nuget\packages\microsoft.aspnetcore.http.extensions\2.0.1\lib\netstandard2.0\Microsoft.AspNetCore.Http.Extensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
