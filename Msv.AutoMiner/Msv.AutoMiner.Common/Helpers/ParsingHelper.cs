@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Msv.AutoMiner.Common.Helpers
@@ -11,8 +12,19 @@ namespace Msv.AutoMiner.Common.Helpers
         private static readonly CultureInfo M_AmericanCulture = new CultureInfo("en-US");
 
         private static readonly Regex M_HashRateRegex = new Regex(
-            @"(?<value>(\d+[\s,'])*\d+(\.\d+)?)\s*(?<unit>[kmgtp]?[hscd])?",
+            @"(?<value>(\d+[\s,'])*\d+(\.\d+)?)\s*(?<unit>[kmgtpe]?[hscd])?",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Dictionary<char, double> M_PowersOf10 =
+            new Dictionary<char, double>
+            {
+                ['k'] = 1e3,
+                ['m'] = 1e6,
+                ['g'] = 1e9,
+                ['t'] = 1e12,
+                ['p'] = 1e15,
+                ['e'] = 1e18
+            };
 
         public static double ParseValueWithUnits(string str)
             => ParseDouble(str.Trim().Split()[0]);
@@ -60,24 +72,7 @@ namespace Msv.AutoMiner.Common.Helpers
             var unit = match.Groups["unit"].Value.ToLowerInvariant();
             if (unit == string.Empty)
                 return ParseDouble(value, commaIsDecimalPoint);
-            double multiplier;
-            if (unit.StartsWith("h") || unit.StartsWith("s"))
-                multiplier = 1;
-            else if (unit.StartsWith("k"))
-                multiplier = 1e3;
-            else if (unit.StartsWith("m"))
-                multiplier = 1e6;
-            else if (unit.StartsWith("g"))
-                multiplier = 1e9;
-            else if (unit.StartsWith("t"))
-                multiplier = 1e12;
-            else if (unit.StartsWith("p"))
-                multiplier = 1e15;
-            else if (unit.StartsWith("e"))
-                multiplier = 1e18;
-            else
-                multiplier = 1;
-            return ParseDouble(value) * multiplier;
+            return ParseDouble(value) * M_PowersOf10.TryGetValue(unit[0], 1);
         }
 
         private static string NormalizeNumber(string str)
