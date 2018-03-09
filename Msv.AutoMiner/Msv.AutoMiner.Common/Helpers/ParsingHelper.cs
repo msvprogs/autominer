@@ -73,6 +73,8 @@ namespace Msv.AutoMiner.Common.Helpers
                 multiplier = 1e12;
             else if (unit.StartsWith("p"))
                 multiplier = 1e15;
+            else if (unit.StartsWith("e"))
+                multiplier = 1e18;
             else
                 multiplier = 1;
             return ParseDouble(value) * multiplier;

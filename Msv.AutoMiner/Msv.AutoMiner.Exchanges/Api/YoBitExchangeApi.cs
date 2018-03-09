@@ -30,7 +30,7 @@ namespace Msv.AutoMiner.Exchanges.Api
 
         public override dynamic ExecutePrivate(string method, IDictionary<string, string> parameters, string apiKey, byte[] apiSecret)
         {
-            if (parameters == null) 
+            if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
             parameters.Add("method", method);
