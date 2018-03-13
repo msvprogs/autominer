@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http.Extensions;
 
-namespace Msv.AutoMiner.Common.CustomExtensions
+namespace Msv.AutoMiner.CoinInfoService
 {
     public static class QueryBuilderExtensions
     {
