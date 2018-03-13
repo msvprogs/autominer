@@ -34,7 +34,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                     html.DocumentNode.SelectSingleNode(
                         "//div[contains(.,'Network hash')]/following-sibling::div").InnerText),
                 LastBlockTime = DateTime.ParseExact(html.DocumentNode.SelectSingleNode(
-                            "//table[contains(@class, 'blocksTable')]//tr[@data-height][1]/td[2]/span")
+                            "//table[contains(@class, 'blocksTable')]//tr[@data-height and not(contains(.,'(PoS)'))][1]/td[2]/span")
                         .GetAttributeValue("title", null),
                     "yyyy-MM-dd HH:mm",
                     CultureInfo.InvariantCulture)
