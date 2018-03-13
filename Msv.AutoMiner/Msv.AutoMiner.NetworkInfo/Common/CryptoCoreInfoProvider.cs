@@ -23,18 +23,25 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var html = new HtmlDocument();
             html.LoadHtml(m_WebClient.DownloadString(m_BaseUrl));
 
+            var lastPoWBlockUrl = html.DocumentNode.SelectSingleNode(
+                "//table[contains(@class, 'blocksTable')]//tr[@data-height and not(contains(.,'(PoS)'))][1]/td[1]/a")
+                .GetAttributeValue("href", null);
+            var lastPoWBlockHtml = new HtmlDocument();
+            lastPoWBlockHtml.LoadHtml(m_WebClient.DownloadString(new Uri(m_BaseUrl, lastPoWBlockUrl)));
+
             return new CoinNetworkStatistics
             {
                 Height = long.Parse(html.DocumentNode.SelectSingleNode(
                     "//div[contains(.,'Current Block')]/following-sibling::div").InnerText),
                 Difficulty = ParsingHelper.ParseDouble(
-                    html.DocumentNode.SelectSingleNode(
-                        "//div[contains(.,'Difficulty')]/following-sibling::div").InnerText),
+                    lastPoWBlockHtml.DocumentNode.SelectSingleNode(
+                        "//table[contains(.,'Difficulty')]//tr[2]/td[2]").InnerText),
                 NetHashRate = ParsingHelper.ParseHashRate(
                     html.DocumentNode.SelectSingleNode(
                         "//div[contains(.,'Network hash')]/following-sibling::div").InnerText),
-                LastBlockTime = DateTime.ParseExact(html.DocumentNode.SelectSingleNode(
-                            "//table[contains(@class, 'blocksTable')]//tr[@data-height and not(contains(.,'(PoS)'))][1]/td[2]/span")
+                LastBlockTime = DateTime.ParseExact(
+                    html.DocumentNode.SelectSingleNode(
+                        "//table[contains(@class, 'blocksTable')]//tr[@data-height][1]/td[2]/span")
                         .GetAttributeValue("title", null),
                     "yyyy-MM-dd HH:mm",
                     CultureInfo.InvariantCulture)
