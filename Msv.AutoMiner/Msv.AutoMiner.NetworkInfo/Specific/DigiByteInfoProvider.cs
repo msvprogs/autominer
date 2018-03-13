@@ -6,6 +6,7 @@ using Msv.AutoMiner.NetworkInfo.Common;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //Block chain explorer: https://digiexplorer.info
+    [SpecificCoinInfoProvider("DGB")]
     public class DigiByteInfoProvider : InsightInfoProvider
     {
         private readonly KnownCoinAlgorithm m_Algorithm;

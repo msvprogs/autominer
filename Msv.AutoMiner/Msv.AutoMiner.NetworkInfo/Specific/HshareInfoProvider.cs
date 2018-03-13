@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //API: http://explorer.h.cash/api
+    [SpecificCoinInfoProvider("HSR")]
     public class HshareInfoProvider : INetworkInfoProvider
     {
         private const long StakeMinConfirmations = 50;

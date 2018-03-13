@@ -121,6 +121,14 @@ namespace Msv.AutoMiner.Common
                     .Select(x => resultSelector.Invoke(default, x.rightItem)));
         }
 
+        public static IEnumerable<TItem> DistinctBy<TItem, TKey>(
+            this IEnumerable<TItem> source,
+            Func<TItem, TKey> keySelector,
+            IEqualityComparer<TKey> equalityComparer = null,
+            bool selectLast = false)
+            => source.GroupBy(keySelector, equalityComparer ?? EqualityComparer<TKey>.Default)
+                .Select(x => selectLast ? x.Last() : x.First());
+
         public static string Truncate(this string source, int maxLength)
         {
             if (source == null)

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("XPM")]
     public class PrimeCoinInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_ExplorerBaseUri = new Uri("https://bchain.info/XPM/");

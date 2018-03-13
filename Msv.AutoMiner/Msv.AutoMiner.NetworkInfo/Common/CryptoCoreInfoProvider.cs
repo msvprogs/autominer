@@ -3,24 +3,25 @@ using System.Globalization;
 using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
-using Msv.AutoMiner.NetworkInfo.Common;
 using Msv.AutoMiner.NetworkInfo.Data;
 
-namespace Msv.AutoMiner.NetworkInfo.Specific
+namespace Msv.AutoMiner.NetworkInfo.Common
 {
-    public class ElleriumInfoProvider : NetworkInfoProviderBase
+    public class CryptoCoreInfoProvider : NetworkInfoProviderBase
     {
-        private static readonly Uri M_BaseUri = new Uri("https://elp.overemo.com/");
-
         private readonly IWebClient m_WebClient;
+        private readonly Uri m_BaseUrl;
 
-        public ElleriumInfoProvider(IWebClient webClient)
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public CryptoCoreInfoProvider(IWebClient webClient, string baseUrl)
+        {
+            m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+            m_BaseUrl = new Uri(baseUrl);
+        }
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
             var html = new HtmlDocument();
-            html.LoadHtml(m_WebClient.DownloadString(M_BaseUri));
+            html.LoadHtml(m_WebClient.DownloadString(m_BaseUrl));
 
             return new CoinNetworkStatistics
             {
@@ -41,12 +42,12 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
         }
 
         public override Uri CreateTransactionUrl(string hash)
-            => new Uri(M_BaseUri, $"transaction/{hash}");
+            => new Uri(m_BaseUrl, $"transaction/{hash}");
 
         public override Uri CreateAddressUrl(string address)
-            => new Uri(M_BaseUri, $"address/{address}");
+            => new Uri(m_BaseUrl, $"address/{address}");
 
         public override Uri CreateBlockUrl(string blockHash)
-            => new Uri(M_BaseUri, $"block/{blockHash}");
+            => new Uri(m_BaseUrl, $"block/{blockHash}");
     }
 }

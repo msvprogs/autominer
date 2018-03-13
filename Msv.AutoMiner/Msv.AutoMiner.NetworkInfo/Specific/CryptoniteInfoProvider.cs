@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("XCN")]
     public class CryptoniteInfoProvider : NetworkInfoProviderBase
     {
         private static readonly Uri M_BaseUri = new Uri("https://explorer.digicent.org/");

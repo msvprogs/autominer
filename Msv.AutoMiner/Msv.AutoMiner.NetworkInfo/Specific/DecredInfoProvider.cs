@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("DCR")]
     public class DecredInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_ExplorerBaseUri = new Uri("https://mainnet.decred.org/");

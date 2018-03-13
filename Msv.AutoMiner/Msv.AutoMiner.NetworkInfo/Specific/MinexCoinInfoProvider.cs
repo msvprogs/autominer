@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("MNX")]
     public class MinexCoinInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_BaseUri = new Uri("https://minexexplorer.com");

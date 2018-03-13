@@ -6,6 +6,7 @@ using Msv.AutoMiner.NetworkInfo.Common;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("XVG")]
     public class VergeMultiNetworkInfoProvider : IquidusMultiAlgoNetworkInfoProvider
     {
         private static readonly Uri M_BaseUri = new Uri("https://verge-blockchain.info");

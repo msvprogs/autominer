@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //API: https://siamining.com/api/
+    [SpecificCoinInfoProvider("SC")]
     public class SiaCoinInfoProvider : INetworkInfoProvider
     {
         private readonly IWebClient m_WebClient;

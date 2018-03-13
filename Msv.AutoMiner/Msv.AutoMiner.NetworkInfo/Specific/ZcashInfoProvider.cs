@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //API: https://explorer.zcha.in/api
+    [SpecificCoinInfoProvider("ZEC")]
     public class ZcashInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_BaseUri = new Uri("https://api.zcha.in");

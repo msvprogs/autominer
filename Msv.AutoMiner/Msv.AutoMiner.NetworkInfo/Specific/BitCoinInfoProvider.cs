@@ -10,6 +10,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
     //API: https://blockexplorer.com/api-ref
     //API2: https://blockchain.info/api/blockchain_api
     //API3: https://blockchain.info/api/charts_api
+    [SpecificCoinInfoProvider("BTC")]
     public class BitCoinInfoProvider : NetworkInfoProviderBase
     {
         private static readonly Uri M_BlockChainBaseUrl = new Uri("https://blockchain.info/en/");

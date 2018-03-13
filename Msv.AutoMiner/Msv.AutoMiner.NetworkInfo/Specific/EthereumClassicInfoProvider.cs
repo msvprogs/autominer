@@ -8,6 +8,7 @@ using Msv.AutoMiner.NetworkInfo.Data;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //Block explorer: https://gastracker.io/
+    [SpecificCoinInfoProvider("ETC")]
     public class EthereumClassicInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_BaseUri = new Uri("https://gastracker.io/");

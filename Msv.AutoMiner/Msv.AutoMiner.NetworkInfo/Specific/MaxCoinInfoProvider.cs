@@ -4,6 +4,7 @@ using Msv.AutoMiner.NetworkInfo.Common;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("MAX")]
     public class MaxCoinInfoProvider : SwaggerInfoProviderBase
     {
         private const int BlocksPerDay = 60 * 24;

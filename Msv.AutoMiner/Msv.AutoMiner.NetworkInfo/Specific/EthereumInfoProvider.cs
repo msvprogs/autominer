@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //API: https://www.etherchain.org/documentation/api
+    [SpecificCoinInfoProvider("ETH")]
     public class EthereumInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_EtherchainBaseUri = new Uri("https://www.etherchain.org");

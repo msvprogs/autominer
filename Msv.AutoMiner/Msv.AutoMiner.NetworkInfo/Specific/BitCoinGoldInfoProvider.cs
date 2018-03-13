@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("BTG")]
     public class BitCoinGoldInfoProvider : NetworkInfoProviderBase
     {
         private static readonly Uri M_BaseUri = new Uri("https://btgexp.com");

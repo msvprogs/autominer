@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Data;
@@ -12,34 +14,38 @@ namespace Msv.AutoMiner.NetworkInfo
 {
     public class NetworkInfoProviderFactory : INetworkInfoProviderFactory
     {
-        //Single-algo coins
-        private const string Xcn = "XCN";
-        private const string Ftc = "FTC";
-        private const string Zec = "ZEC";
-        private const string Etc = "ETC";
         private const string Dgb = "DGB";
-        private const string Lbc = "LBC";
-        private const string Eth = "ETH";
-        private const string Sc = "SC";
-        private const string Sib = "SIB";
-        private const string Dcr = "DCR";
-        private const string Btc = "BTC";
-        private const string Xpm = "XPM";
-        private const string Pasc = "PASC";
-        private const string Max = "MAX";
-        private const string Mnx = "MNX";
-        private const string Hsr = "HSR";
         private const string Xmy = "XMY";
-        private const string Btg = "BTG";
-        private const string Stak = "STAK";
-        private const string Elp = "ELP";
 
-        //Multi-algo coins
-        private const string Xvg = "XVG";
-        private const string Xsh = "XSH";
+        private static readonly IDictionary<string, Type> M_SpecificProviderTypes;
+        private static readonly IDictionary<string, Type> M_SpecificMultiAlgoProviderTypes;
 
         private readonly IWebClient m_OrdinaryClient;
         private readonly IProxiedWebClient m_ProxiedClient;
+
+        static NetworkInfoProviderFactory()
+        {
+            var specificNetworkProviders = typeof(NetworkInfoProviderFactory).Assembly
+                .GetTypes()
+                .Where(x => typeof(INetworkInfoProvider).IsAssignableFrom(x)
+                            || typeof(IMultiNetworkInfoProvider).IsAssignableFrom(x))
+                .Select(x => new
+                {
+                    Type = x,
+                    Attribute = x.GetCustomAttribute<SpecificCoinInfoProviderAttribute>(),
+                    IsMultiAlgo = typeof(IMultiNetworkInfoProvider).IsAssignableFrom(x)
+                })
+                .Where(x => x.Attribute != null)
+                .DistinctBy(x => x.Attribute.Symbol)
+                .ToArray();
+
+            M_SpecificProviderTypes = specificNetworkProviders
+                .Where(x => !x.IsMultiAlgo)
+                .ToDictionary(x => x.Attribute.Symbol, x => x.Type);
+            M_SpecificMultiAlgoProviderTypes = specificNetworkProviders
+                .Where(x => x.IsMultiAlgo)
+                .ToDictionary(x => x.Attribute.Symbol, x => x.Type);
+        }
 
         public NetworkInfoProviderFactory(IWebClient ordinaryClient, IProxiedWebClient proxiedClient)
         {
@@ -52,22 +58,21 @@ namespace Msv.AutoMiner.NetworkInfo
             if (coins == null)
                 throw new ArgumentNullException(nameof(coins));
 
-            var providers = new List<IMultiNetworkInfoProvider>();
-            if (coins.Any(x => Xvg.Equals(x.Symbol, StringComparison.InvariantCultureIgnoreCase)))
-                providers.Add(new VergeMultiNetworkInfoProvider(m_OrdinaryClient));
-            if (coins.Any(x => Xsh.Equals(x.Symbol, StringComparison.InvariantCultureIgnoreCase)))
-                providers.Add(new ShieldMultiNetworkInfoProvider(m_OrdinaryClient));
-
-            return new ComboMultiNetworkInfoProvider(providers.ToArray());
+            var providers = M_SpecificMultiAlgoProviderTypes
+                .Join(coins, x => x.Key, x => x.Symbol, (x, y) => x.Value, StringComparer.InvariantCultureIgnoreCase)
+                .Select(x => Activator.CreateInstance(x, m_OrdinaryClient))
+                .Cast<IMultiNetworkInfoProvider>()
+                .ToArray();
+            return new ComboMultiNetworkInfoProvider(providers);
         }
 
         public string[] GetHardcodedCoins()
-            => new[] {Xcn, Ftc, Zec, Etc, Dgb, Lbc, Eth, Sc, Sib, Dcr, Btc, Xpm, Pasc, Max, Mnx, Hsr, Xmy, Btg, Stak, Elp}
+            => M_SpecificProviderTypes.Keys
                 .OrderBy(x => x)
                 .ToArray();
 
         public string[] GetHardcodedMultiAlgoCoins()
-            => new[] {Xvg, Xsh}
+            => M_SpecificMultiAlgoProviderTypes.Keys
                 .OrderBy(x => x)
                 .ToArray();
 
@@ -123,6 +128,8 @@ namespace Msv.AutoMiner.NetworkInfo
                     return new EtcExplorerInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 case CoinNetworkInfoApiType.UExplorer:
                     return new UExplorerInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
+                case CoinNetworkInfoApiType.CryptoCore:
+                    return new CryptoCoreInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 default:
                     return new DummyInfoProvider();
             }
@@ -130,50 +137,17 @@ namespace Msv.AutoMiner.NetworkInfo
 
         private INetworkInfoProvider CreateExternalSpecial(Coin coin)
         {
-            switch (coin.Symbol.ToUpperInvariant())
+            var coinSymbol = coin.Symbol.ToUpperInvariant();
+            switch (coinSymbol)
             {
-                case Xcn:
-                    return new CryptoniteInfoProvider(m_OrdinaryClient);
-                case Ftc:
-                    return new FeatherCoinInfoProvider(m_OrdinaryClient);
-                case Zec:
-                    return new ZcashInfoProvider(m_OrdinaryClient);
-                case Etc:
-                    return new EthereumClassicInfoProvider(m_OrdinaryClient);
                 case Dgb:
                     return new DigiByteInfoProvider(m_OrdinaryClient, coin.Algorithm.KnownValue.GetValueOrDefault());
-                case Lbc:
-                    return new LbryInfoProvider(m_OrdinaryClient);
-                case Eth:
-                    return new EthereumInfoProvider(m_OrdinaryClient);
-                case Sc:
-                    return new SiaCoinInfoProvider(m_OrdinaryClient);
-                case Sib:
-                    return new SibCoinInfoProvider(m_OrdinaryClient);
-                case Dcr:
-                    return new DecredInfoProvider(m_OrdinaryClient);
-                case Btc:
-                    return new BitCoinInfoProvider(m_OrdinaryClient);
-                case Xpm:
-                    return new PrimeCoinInfoProvider(m_OrdinaryClient);
-                case Pasc:
-                    return new PascalCoinInfoProvider(m_OrdinaryClient);
-                case Max:
-                    return new MaxCoinInfoProvider(m_OrdinaryClient);
-                case Mnx:
-                    return new MinexCoinInfoProvider(m_OrdinaryClient);
-                case Hsr:
-                    return new HshareInfoProvider(m_OrdinaryClient);
                 case Xmy:
                     return new MyriadCoinInfoProvider(m_OrdinaryClient, coin.Algorithm.KnownValue.GetValueOrDefault());
-                case Btg:
-                    return new BitCoinGoldInfoProvider(m_OrdinaryClient);
-                case Stak:
-                    return new StraksInfoProvider(m_OrdinaryClient);
-                case Elp:
-                    return new ElleriumInfoProvider(m_OrdinaryClient);
                 default:
-                    return new DummyInfoProvider();
+                    return M_SpecificProviderTypes.TryGetValue(coinSymbol, out var providerType)
+                        ? (INetworkInfoProvider) Activator.CreateInstance(providerType, m_OrdinaryClient)
+                        : new DummyInfoProvider();
             }
         }
 

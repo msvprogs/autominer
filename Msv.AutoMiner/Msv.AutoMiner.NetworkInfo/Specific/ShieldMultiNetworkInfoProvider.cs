@@ -6,6 +6,7 @@ using Msv.AutoMiner.NetworkInfo.Common;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("XSH")]
     public class ShieldMultiNetworkInfoProvider : IquidusMultiAlgoNetworkInfoProvider
     {
         private static readonly Uri M_BaseUri = new Uri("http://188.226.178.216:3001/");

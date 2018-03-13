@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("SIB")]
     public class SibCoinInfoProvider : NetworkInfoProviderBase
     {
         private static readonly Uri M_ExplorerBaseUrl = new Uri("https://chain.sibcoin.net/en/");

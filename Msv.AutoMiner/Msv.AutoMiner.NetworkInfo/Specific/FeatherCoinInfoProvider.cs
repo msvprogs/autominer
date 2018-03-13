@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //API: https://www.feathercoin.com/feathercoin-api/
+    [SpecificCoinInfoProvider("FTC")]
     public class FeatherCoinInfoProvider : INetworkInfoProvider
     {
         private static readonly Uri M_ExplorerBaseUri = new Uri("http://explorer.feathercoin.com");

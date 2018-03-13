@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("STAK")]
     public class StraksInfoProvider : NetworkInfoProviderBase
     {
         private static readonly Uri M_BaseUri = new Uri("https://straks.info/");

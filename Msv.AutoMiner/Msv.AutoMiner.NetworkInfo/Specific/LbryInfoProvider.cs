@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("LBC")]
     public class LbryInfoProvider : NetworkInfoProviderBase
     {
         private const long StartingSubsidy = 500;

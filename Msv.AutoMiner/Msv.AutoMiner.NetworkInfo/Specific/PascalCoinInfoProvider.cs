@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
     //API: http://explorer.pascalcoin.org/api.php
+    [SpecificCoinInfoProvider("PASC")]
     public class PascalCoinInfoProvider : NetworkInfoProviderBase
     {
         private static readonly Uri M_BaseUri = new Uri("http://explorer.pascalcoin.org");

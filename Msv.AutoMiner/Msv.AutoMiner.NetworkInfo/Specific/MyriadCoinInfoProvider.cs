@@ -5,6 +5,7 @@ using Msv.AutoMiner.NetworkInfo.Common;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
+    [SpecificCoinInfoProvider("XMY")]
     public class MyriadCoinInfoProvider : InsightInfoProvider
     {
         private readonly KnownCoinAlgorithm m_Algorithm;
