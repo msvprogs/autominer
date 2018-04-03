@@ -14,7 +14,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
     {
         private static readonly Uri M_BaseUri = new Uri("https://minexexplorer.com");
         private static readonly TimeZoneInfo M_ServerTimeZone =
-            TimeZoneInfo.CreateCustomTimeZone("GMT+2", TimeSpan.FromHours(2), "GMT+2", "GMT+2");
+            TimeZoneInfo.CreateCustomTimeZone("GMT+3", TimeSpan.FromHours(3), "GMT+3", "GMT+3");
 
         private readonly IWebClient m_WebClient;
 
