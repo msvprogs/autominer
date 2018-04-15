@@ -390,6 +390,7 @@ $(function () {
             case "EtcExplorer":
             case "UExplorer":
             case "CryptoCore":
+            case "Bulwark":
                 apiUrlEnabled = true;
                 urlDescriptionText = "URL of the explorer's main page";
                 break;

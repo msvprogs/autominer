@@ -56,6 +56,9 @@ namespace Msv.AutoMiner.Data
         UExplorer = 17,
 
         [EnumCaption("CryptoCore Explorer")]
-        CryptoCore = 18
+        CryptoCore = 18,
+
+        [EnumCaption("Bulwark Explorer")]
+        Bulwark = 19
     }
 }

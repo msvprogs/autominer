@@ -130,6 +130,8 @@ namespace Msv.AutoMiner.NetworkInfo
                     return new UExplorerInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 case CoinNetworkInfoApiType.CryptoCore:
                     return new CryptoCoreInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
+                case CoinNetworkInfoApiType.Bulwark:
+                    return new BulwarkInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 default:
                     return new DummyInfoProvider();
             }
