@@ -23,7 +23,6 @@ using Msv.HttpTools;
 using NLog;
 using NLog.Targets;
 using NLog.Web;
-using Telegram.Bot;
 using ILogger = NLog.ILogger;
 // ReSharper disable AccessToDisposedClosure
 
@@ -72,7 +71,7 @@ namespace Msv.AutoMiner.ControlCenterService
                     scope.ServiceProvider.GetRequiredService<IPoolAvailabilityMonitorStorage>()))
                 using (config.Notifications.Telegram.Enabled
                     ? new TelegramCommandInterface(
-                        new TelegramBotClient(config.Notifications.Telegram.Token),
+                        TelegramBotClientFactory.Create(config.Notifications.Telegram),
                         new TelegramCommandInterfaceStorage(scope.ServiceProvider
                             .GetRequiredService<IAutoMinerDbContextFactory>()),
                         new PoolInfoProvider(scope.ServiceProvider.GetRequiredService<IAutoMinerDbContextFactory>()),

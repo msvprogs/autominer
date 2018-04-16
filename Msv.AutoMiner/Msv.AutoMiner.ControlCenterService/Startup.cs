@@ -10,6 +10,7 @@ using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.ControlCenterService.Configuration;
+using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
 using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage;
@@ -59,8 +60,7 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
 
             if (config.Notifications.Telegram.Enabled)
-                services.AddSingleton<ITelegramBotClient>(
-                    x => new TelegramBotClient(config.Notifications.Telegram.Token));
+                services.AddSingleton(TelegramBotClientFactory.Create(config.Notifications.Telegram));
 
             services.AddSingleton(x => new HeartbeatAnalyzerParams
             {
