@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -26,7 +27,7 @@ namespace Msv.BrowserCheckBypassing
         {
             using (var jsStream = typeof(CloudflareBrowserCheckBypasser).Assembly
                 .GetManifestResourceStream(typeof(CloudflareBrowserCheckBypasser), "cloudflare.js"))
-            using (var reader = new StreamReader(jsStream))
+            using (var reader = new StreamReader(jsStream ?? new MemoryStream()))
                 M_InitJs = reader.ReadToEnd();
         }
 
@@ -69,7 +70,7 @@ namespace Msv.BrowserCheckBypassing
                         {
                             x.Key,
                             Value = x.Key == "jschl_answer"
-                                ? answer.ToString()
+                                ? answer.ToString(CultureInfo.InvariantCulture)
                                 : x.Value
                         })
                         .Select(x => $"{x.Key}={Uri.EscapeDataString(x.Value)}"))
@@ -99,7 +100,7 @@ namespace Msv.BrowserCheckBypassing
             }
         }
 
-        private static long CalculateAnswer(Uri sourceUri, HtmlDocument html)
+        private static double CalculateAnswer(Uri sourceUri, HtmlDocument html)
         {
             var scriptNode = html.DocumentNode.SelectSingleNode("//script[not(@src)]");
             if (scriptNode == null)
@@ -113,7 +114,7 @@ namespace Msv.BrowserCheckBypassing
                 .Execute($"setSourceUri(\"{new Uri(sourceUri.GetLeftPart(UriPartial.Authority))}\");")
                 .Execute(scriptNode.InnerText);
 
-            var answer = (long) result.Execute("getAnswer();")
+            var answer = result.Execute("getAnswer();")
                 .GetCompletionValue()
                 .AsNumber();
             // Limit timeout to 0.1..10 secs in case of some script error
