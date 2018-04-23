@@ -132,7 +132,7 @@ namespace Msv.AutoMiner.Common
         public static string Truncate(this string source, int maxLength)
         {
             if (source == null)
-                throw new ArgumentNullException(nameof(source));
+                return null;
 
             return source.Length > maxLength + 3
                 ? source.Substring(0, maxLength) + "..."
