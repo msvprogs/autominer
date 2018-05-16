@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using System.Net.Http;
 using Msv.AutoMiner.ControlCenterService.Configuration;
+using NLog;
 using Telegram.Bot;
 
 namespace Msv.AutoMiner.ControlCenterService.External
@@ -13,16 +13,20 @@ namespace Msv.AutoMiner.ControlCenterService.External
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
 
-            if (!config.UseProxy)
-                return new TelegramBotClient(config.Token);
-            return new TelegramBotClient(config.Token, new HttpClient(new HttpClientHandler
-            {
-                Proxy = new WebProxy(
+            var client = config.UseProxy
+                ? new TelegramBotClient(config.Token, new WebProxy(
                     new UriBuilder(
                         config.IsProxyHttps ? Uri.UriSchemeHttps : Uri.UriSchemeHttp,
                         config.ProxyHost,
-                        config.ProxyPort).Uri, false)
-            }));
+                        config.ProxyPort).Uri, false))
+                : new TelegramBotClient(config.Token);
+
+            var errorLogger = LogManager.GetLogger(nameof(TelegramBotClient));
+            client.OnReceiveError +=
+                (s, e) => errorLogger.Error(e.ApiRequestException, $"API error, code {e.ApiRequestException.ErrorCode}");
+            client.OnReceiveGeneralError += (s, e) => errorLogger.Error(e.Exception, "Telegram bot exception");
+
+            return client;
         }
     }
 }
