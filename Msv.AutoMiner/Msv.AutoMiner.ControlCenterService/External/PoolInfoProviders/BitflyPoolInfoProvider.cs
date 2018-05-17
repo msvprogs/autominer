@@ -36,11 +36,11 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
             var accountData = accountResult.data.currentStatistics;
             var accountInfo = new PoolAccountInfo
                 {
-                    HashRate = (long)(double)accountData.currentHashrate,
-                    ValidShares = (int)accountData.validShares,
-                    InvalidShares = (int)accountData.invalidShares + (int)accountData.staleShares,
-                    ConfirmedBalance = (double) accountData.unpaid / 1e8,
-                    UnconfirmedBalance = (double) accountData.unconfirmed / 1e8
+                    HashRate = (long?)(double?)accountData.currentHashrate ?? 0,
+                    ValidShares = (int?)accountData.validShares ?? 0,
+                    InvalidShares = (int?)accountData.invalidShares + (int?)accountData.staleShares ?? 0,
+                    ConfirmedBalance = (double?) accountData.unpaid / 1e8 ?? 0,
+                    UnconfirmedBalance = (double?) accountData.unconfirmed / 1e8 ?? 0
                 };
 
             dynamic stateJson = JsonConvert.DeserializeObject(m_WebClient.DownloadString(
@@ -63,6 +63,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     DateTime = DateTimeHelper.ToDateTimeUtc((long) x.paidOn),
                     Type = PoolPaymentType.Reward
                 })
+                .Where(x => x.DateTime > minPaymentDate)
                 .ToArray();
 
             return new PoolInfo
