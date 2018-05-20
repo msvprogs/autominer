@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.ControlCenterService.External.Data;
 using Msv.AutoMiner.Exchanges.Api;
 using Newtonsoft.Json.Linq;
@@ -33,7 +33,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 .Where(x => x.state == "accepted")
                 .Select(x => new WalletOperationData
                 {
-                    DateTime = DateTimeOffset.Parse((string) x.created_at, CultureInfo.InvariantCulture).UtcDateTime,
+                    DateTime = DateTimeHelper.Normalize((DateTime)x.created_at),
                     ExternalId = (string) x.id,
                     CurrencySymbol = ((string) x.currency).ToUpperInvariant(),
                     Amount = (double) x.amount,
