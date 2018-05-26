@@ -1,19 +1,16 @@
 ﻿using System;
-using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.NetworkInfo.Data;
 
 namespace Msv.AutoMiner.NetworkInfo.Utilities
 {
     public class BlockChainSearcher : IBlockChainSearcher
     {        
-        private const int SearchDepth = 100;
+        private const int SearchDepth = 70;
 
         private readonly Func<string, BlockHeader> m_PreviousBlockGetter;
 
         public BlockChainSearcher(Func<string, BlockHeader> previousBlockGetter)
-        {
-            m_PreviousBlockGetter = previousBlockGetter ?? throw new ArgumentNullException(nameof(previousBlockGetter));
-        }
+            => m_PreviousBlockGetter = previousBlockGetter ?? throw new ArgumentNullException(nameof(previousBlockGetter));
 
         public BlockHeader SearchBlockWhere(Predicate<BlockHeader> predicate, BlockHeader last)
         {
@@ -28,8 +25,7 @@ namespace Msv.AutoMiner.NetworkInfo.Utilities
                    && last.Height > 0)
                 last = m_PreviousBlockGetter.Invoke(last.PreviousBlockHash);
             if (currentDepth > SearchDepth || last.Height == 0)
-                throw new ExternalDataUnavailableException(
-                    "Couldn't find PoW blocks, searched among last " + currentDepth);
+                throw new NoPoWBlocksException("Couldn't find PoW blocks, searched among last " + currentDepth);
             return last;
         }
 

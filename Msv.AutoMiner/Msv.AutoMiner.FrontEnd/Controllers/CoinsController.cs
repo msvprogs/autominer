@@ -405,6 +405,8 @@ rpcallowip={allowIpMask}
                         x.network.Difficulty,
                         x.coin.MaxTarget, 
                         overallHashrates.TryGetValue(x.coin.AlgorithmId)),
+                    LastNetworkInfoResult = x.coin.LastNetworkInfoResult,
+                    LastNetworkInfoMessage = x.coin.LastNetworkInfoMessage,
                     LastUpdated = x.network.Created != default
                         ? x.network.Created
                         : (DateTime?) null

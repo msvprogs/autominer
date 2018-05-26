@@ -37,6 +37,10 @@ namespace Msv.AutoMiner.Common.Helpers
             where T : struct 
             => (IReadOnlyDictionary<T, string>) M_EnumsCache.GetOrAdd(typeof(T), x => GetCaptions<T>());
 
+        public static string GetCaption<T>(T value)
+            where T : struct 
+            => GetCaptionsCached<T>()[value];
+
         public static T Parse<T>(string value, bool ignoreCase = false)
             where T : struct
         {

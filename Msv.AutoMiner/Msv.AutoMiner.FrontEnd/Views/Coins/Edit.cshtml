@@ -134,7 +134,9 @@
     <div class="form-group">
         <label asp-for="NetworkInfoApiType">Remote API type:</label>
         <select asp-for="NetworkInfoApiType" class="form-control">
-            @foreach (var apiType in EnumHelper.GetCaptionsCached<CoinNetworkInfoApiType>().OrderBy(x => x.Value))
+            @foreach (var apiType in EnumHelper.GetCaptionsCached<CoinNetworkInfoApiType>()
+                .OrderByDescending(x => x.Key == CoinNetworkInfoApiType.NoApi)
+                .ThenBy(x => x.Value))
             {
                 <option value="@apiType.Key">@apiType.Value</option>
             }

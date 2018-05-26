@@ -1,5 +1,6 @@
 ﻿@using Msv.AutoMiner.Common.Data.Enums
 @using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.Data
 @using Msv.AutoMiner.FrontEnd.Models.Coins
 @using Msv.AutoMiner.FrontEnd.Models.Shared
 @model CoinDisplayModel
@@ -38,6 +39,13 @@
         @if (Model.SoloMiningTtf != null)
         {
             <div class="secondary-info">Solo-mine TTF: <b>@TimeSpanHelper.ToShortString(Model.SoloMiningTtf)</b></div>
+        }
+        @if (Model.LastNetworkInfoResult != null && Model.LastNetworkInfoResult != CoinLastNetworkInfoResult.Success)
+        {
+            <span class="label label-danger"
+                  title="@Model.LastNetworkInfoMessage">
+                @EnumHelper.GetCaption(Model.LastNetworkInfoResult.Value)
+            </span>
         }
     </td>
     <td>@Model.Symbol</td>

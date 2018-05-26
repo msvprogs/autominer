@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Msv.AutoMiner.CoinInfoService.Infrastructure;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Data.Enums;
-using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic.Contracts;
@@ -59,21 +59,11 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 .ToDictionary(x => x.CoinId);
             var now = DateTime.UtcNow;
             var random = new Random();
-            coins.OrderBy(x => random.NextDouble())
+            coins.Where(x => x.NetworkInfoApiType != CoinNetworkInfoApiType.NoApi)
+                .OrderBy(x => random.NextDouble())
                 .AsParallel()
                 .WithDegreeOfParallelism(ProviderParallelismDegree)
-                .Select(x =>
-                {
-                    try
-                    {
-                        return ProcessSingleCoin(x, multiProviderResults, previousInfos);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, $"Couldn't get new network info for {x.Name}");
-                        return (coin: x, result: null);
-                    }
-                })
+                .Select(x => TryProcessSingleCoin(x, multiProviderResults, previousInfos))
                 .Where(x => x.result != null)
                 .Select(x => new CoinNetworkInfo
                 {
@@ -89,6 +79,36 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                     TotalSupply = x.result.TotalSupply.NullIfNaN()
                 })
                 .ForAll(x => m_Storage.StoreNetworkInfo(x));
+        }
+
+        private (Coin coin, CoinNetworkStatistics result) TryProcessSingleCoin(Coin coin,
+            Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>> multiProviderResults,
+            Dictionary<Guid, CoinNetworkInfo> previousInfos)
+        {
+            try
+            {
+                var result = ProcessSingleCoin(coin, multiProviderResults, previousInfos);
+                m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
+                return result;
+            }
+            catch (NoPoWBlocksException noPoWEx)
+            {
+                Log.Error($"{coin.Name}: {noPoWEx.Message}");
+                m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.NoPoWBlocks, noPoWEx.Message);
+                return (coin, result: null);
+            }
+            catch (BlockchainOutOfSyncException outOfSyncEx)
+            {
+                Log.Error($"{coin.Name}: {outOfSyncEx.Message}");
+                m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.OutOfSync, outOfSyncEx.Message);
+                return (coin, result: null);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Couldn't get new network info for {coin.Name}");
+                m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Exception, ex.Message);
+                return (coin, result: null);
+            }
         }
 
         private (Coin coin, CoinNetworkStatistics result) ProcessSingleCoin(
@@ -122,17 +142,16 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             if (result.LastBlockTime.HasValue
                 && (DateTime.UtcNow - result.LastBlockTime.Value > M_MaxLastBlockPastDifference
                     || result.LastBlockTime.Value - DateTime.UtcNow > M_MaxLastBlockFutureDifference))
-                throw new ExternalDataUnavailableException(
-                    $"Provider blockchain is possibly out of sync: last block time is {result.LastBlockTime:R}, current time is {DateTime.UtcNow:R}");
+                throw new BlockchainOutOfSyncException(result.LastBlockTime.Value);
             return (coin, result);
         }
 
         private void LogResults(Coin coin, CoinNetworkStatistics current, CoinNetworkInfo previous)
         {
             var networkInfoBuilder = new StringBuilder($"New network info for {coin.Name}: ")
-                .Append($"Difficulty {current.Difficulty:N4} ({GetPercentRatio(previous.Difficulty, current.Difficulty)}), ")
+                .Append($"Difficulty {current.Difficulty:N4} ({ConversionHelper.GetDiffRatioString(previous.Difficulty, current.Difficulty)}), ")
                 .Append($"Hash Rate {ConversionHelper.ToHashRateWithUnits(current.NetHashRate, coin.Algorithm.KnownValue)}")
-                .Append($" ({GetPercentRatio(current.NetHashRate, previous.NetHashRate)})");
+                .Append($" ({ConversionHelper.GetDiffRatioString(current.NetHashRate, previous.NetHashRate)})");
             if (current.BlockTimeSeconds != null)
                 networkInfoBuilder.Append($", Current Block Time: {current.BlockTimeSeconds:F2} sec");
             if (current.BlockReward != null)
@@ -146,8 +165,5 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 networkInfoBuilder.Append($", Total Supply: {current.TotalSupply:N0}");
             Log.Info(networkInfoBuilder.ToString());
         }
-
-        private static string GetPercentRatio(double oldValue, double newValue)
-            => ConversionHelper.GetDiffRatioString(oldValue, newValue);
     }
 }

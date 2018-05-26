@@ -59,6 +59,9 @@ namespace Msv.AutoMiner.Data
         CryptoCore = 18,
 
         [EnumCaption("Bulwark Explorer")]
-        Bulwark = 19
+        Bulwark = 19,
+
+        [EnumCaption("<No API>")]
+        NoApi = 20
     }
 }

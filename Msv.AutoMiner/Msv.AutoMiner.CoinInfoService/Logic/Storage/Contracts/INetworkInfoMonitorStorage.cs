@@ -1,4 +1,5 @@
-﻿using Msv.AutoMiner.Data;
+﻿using System;
+using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts
 {
@@ -6,5 +7,6 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts
     {
         Coin[] GetCoins();
         void StoreNetworkInfo(CoinNetworkInfo info);
+        void StoreCoinNetworkResult(Guid coinId, CoinLastNetworkInfoResult result, string message);
     }
 }

@@ -60,5 +60,10 @@ namespace Msv.AutoMiner.Data
         public string AddressPrefixes { get; set; }
 
         public bool IgnoreInactiveMarket { get; set; }
+
+        public CoinLastNetworkInfoResult? LastNetworkInfoResult { get; set; }
+
+        [MaxLength(8192)]
+        public string LastNetworkInfoMessage { get; set; }
     }
 }

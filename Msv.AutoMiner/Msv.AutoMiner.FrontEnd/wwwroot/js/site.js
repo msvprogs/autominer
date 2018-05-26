@@ -346,6 +346,8 @@ $(function () {
             case "JsonRpc":
                 urlDescriptionText = "Local node URL will be used";
                 break;
+            case "NoApi":
+                urlDescriptionText = "There is no network info source for this coin";
             case "BchainInfo":
             case "ChainRadar":
             case "ChainzCryptoid":

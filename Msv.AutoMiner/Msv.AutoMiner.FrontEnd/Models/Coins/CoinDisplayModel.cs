@@ -1,6 +1,6 @@
 ﻿using System;
 using Msv.AutoMiner.Common.Data.Enums;
-using Msv.AutoMiner.Data.Logic;
+using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Data.Logic.Data;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Coins
@@ -34,5 +34,9 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public double? TotalSupply { get; set; }
 
         public TimeSpan? SoloMiningTtf { get; set; }
+
+        public CoinLastNetworkInfoResult? LastNetworkInfoResult { get; set; }
+
+        public string LastNetworkInfoMessage { get; set; }
     }
 }
