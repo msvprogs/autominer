@@ -39,7 +39,7 @@
         <span id="logoContainer">       
             @if (Model.Logo != null && Model.Logo.Any())
             {
-                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(null, Model.Logo))
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(null, null, Model.Logo))
                 <label>
                     <input asp-for="DeleteLogo" type="checkbox" /> Delete it
                 </label>

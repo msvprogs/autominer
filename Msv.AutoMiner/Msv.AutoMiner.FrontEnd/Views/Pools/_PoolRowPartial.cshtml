@@ -43,11 +43,11 @@
 }
 
 <tr class="@rowClass" title="@title" data-pool-id="@Model.Id" data-pool-name="@Model.Name">
-    <td class="space-no-wrap" data-order="@Model.Coin.Name" data-search="@Model.Coin.Name">
+    <td class="space-no-wrap" data-order="@Model.Coin.Name" data-search="@Model.Coin.Name + @Model.Coin.Symbol">
         <small>
             <a asp-controller="PoolPayments" asp-action="Index" asp-route-currencyId="@Model.Coin.Id"
                title="Show pool payments for this coin">
-                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Coin.Name, Model.Coin.Logo))
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Coin.Name, Model.Coin.Symbol, Model.Coin.Logo))
             </a>
         </small>
     </td>

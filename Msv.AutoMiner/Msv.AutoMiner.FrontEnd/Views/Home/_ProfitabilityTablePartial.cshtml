@@ -15,7 +15,7 @@
     {
         <tr>
             <td class="space-no-wrap">
-                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.CoinName, item.CoinLogo))
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.CoinName, item.CoinSymbol, item.CoinLogo))
             </td>
             <td>@item.PoolName</td>
             <td class="text-right">@ConversionHelper.ToCryptoCurrencyValue(item.CoinsPerDay)</td>

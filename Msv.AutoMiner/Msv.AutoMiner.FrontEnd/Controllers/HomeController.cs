@@ -86,6 +86,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 BtcPerDay = x.pool.BtcPerDay,
                 CoinLogo = x.logo,
                 CoinName = x.coin.CoinName,
+                CoinSymbol = x.coin.CoinSymbol,
                 CoinsPerDay = x.pool.CoinsPerDay,
                 PoolName = x.pool.Name
             })

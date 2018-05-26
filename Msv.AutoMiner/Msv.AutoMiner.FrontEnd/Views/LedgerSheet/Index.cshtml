@@ -25,7 +25,7 @@
         {
             <tr>
                 <td class="space-no-wrap">
-                    @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.Coin.Name, item.Coin.Logo))
+                    @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.Coin.Name, item.Coin.Symbol, item.Coin.Logo))
                 </td>          
                 <td msv-balance="@item.Debit" msv-btc-price="@item.CoinBtcPrice"></td>
                 <td msv-balance="@item.Credit" msv-btc-price="@item.CoinBtcPrice"></td>

@@ -167,7 +167,7 @@
                 var trClass = isNowMining ? "now-mining success" : "";
                 <tr class="@trClass">
                     <td class="space-no-wrap">
-                        @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.CoinName, item.Logo))
+                        @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(item.CoinName, item.CoinSymbol, item.Logo))
                         @if (isNowMining)
                         {
                             <img src="~/images/mining-animation.gif" alt="Mining" height="32" />

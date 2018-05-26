@@ -3,6 +3,7 @@
     public class ProfitabilityModel
     {
         public string CoinName { get; set; }
+        public string CoinSymbol { get; set; }
         public byte[] CoinLogo { get; set; }
         public string PoolName { get; set; }
         public double CoinsPerDay { get; set; }

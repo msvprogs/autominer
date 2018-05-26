@@ -136,6 +136,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     CoinsPerDay = x.CoinsPerDay,
                     CoinId = x.CoinId,
                     CoinName = x.Coin.Name,
+                    CoinSymbol = x.Coin.Symbol,
                     Logo = x.Coin.LogoImageBytes,
                     PoolName = x.Pool.Name,
                     PoolId = x.PoolId

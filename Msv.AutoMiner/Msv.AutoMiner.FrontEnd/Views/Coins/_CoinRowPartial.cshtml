@@ -26,7 +26,7 @@
 
 <tr class="@rowClass" title="@title" data-coin-id="@Model.Id" data-coin-name="@Model.Name">
     <td class="space-no-wrap small" data-order="@Model.Name" data-search="@Model.Name">
-        @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Name, Model.Logo))
+        @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Name, null, Model.Logo))
         @if (Model.MasternodeCount != null)
         {
             <div class="secondary-info">Masternodes: <b>@Model.MasternodeCount</b></div>

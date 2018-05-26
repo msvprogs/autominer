@@ -2,12 +2,19 @@
 
 @if (Model.Logo != null && Model.Logo.Length > 0)
 {
-    <img class="coin-logo" alt=" "
+    <img class="coin-logo" alt="@Model.Symbol"
          src="data:image/png;base64,@Convert.ToBase64String(Model.Logo)" />
 }
 else
 {
-    <img class="coin-logo" alt=" " src="~/images/question16.png" />
+    <img class="coin-logo" alt="@Model.Symbol" src="~/images/question16.png" />
 }
 
-<span>@Model.Name</span>
+@if (Model.Symbol != null)
+{
+    <span>@Model.Name (@Model.Symbol)</span>
+}
+else
+{
+    <span>@Model.Name</span>
+}

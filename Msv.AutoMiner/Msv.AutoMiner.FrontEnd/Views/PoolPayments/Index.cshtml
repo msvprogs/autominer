@@ -14,7 +14,7 @@
 
 @await Component.InvokeAsync("Pagination", Model)
 
-<table class="table table-bordered table-striped sticky-header">
+<table class="table table-bordered table-striped">
     <thead>
     <tr>
         <th>ID</th>
@@ -32,7 +32,7 @@
         <tr>
             <td>@payment.Id</td>
             <td class="space-no-wrap">
-                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(payment.CurrencyName, payment.CurrencyLogo))
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(payment.CurrencyName, payment.CurrencySymbol, payment.CurrencyLogo))
             </td>
             <td>@payment.PoolName</td>
             <td>@paymentTypes[payment.Type]</td>

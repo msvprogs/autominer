@@ -28,10 +28,10 @@
     }
 
     <tr class="@rowClass" title="@title" data-wallet-name="@wallet.Address" data-coin-name="@wallet.Coin.Name" data-coin-id="@wallet.Coin.Id">
-        <td data-order="@wallet.Coin.Name" data-search="@wallet.Coin.Name">
+        <td data-order="@wallet.Coin.Name" data-search="@wallet.Coin.Name + @wallet.Coin.Symbol">
             <a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
                title="Show all operations for @wallet.Coin.Name wallets">
-                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Logo))
+                @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Symbol, wallet.Coin.Logo))
             </a>
             <div>
                 @if (wallet.IsInactive)
