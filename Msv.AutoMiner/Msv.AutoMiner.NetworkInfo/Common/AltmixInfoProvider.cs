@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using HtmlAgilityPack;
+using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -26,6 +28,11 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         {
             var mainPage = new HtmlDocument();
             mainPage.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, $"/coins/{m_CurrencyName}")));
+
+            var alerts = mainPage.DocumentNode.SelectNodes("//div[@class='alert alert-danger']");
+            if (alerts != null && alerts.Any(x => x.InnerText?.Trim() == "Coin not working"))
+                throw new ExternalDataUnavailableException("Explorer for this coin is inactive");
+
             var infoNodes = mainPage.DocumentNode
                 .SelectNodes("//tr[contains(.,'Blocks last 24h')]/following-sibling::tr/td");
             var lastBlockInfo = mainPage.DocumentNode

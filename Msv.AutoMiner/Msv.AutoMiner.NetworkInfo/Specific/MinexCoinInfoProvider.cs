@@ -12,7 +12,8 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
     [SpecificCoinInfoProvider("MNX")]
     public class MinexCoinInfoProvider : INetworkInfoProvider
     {
-        private static readonly Uri M_BaseUri = new Uri("https://minexexplorer.com");
+        // https://minexexplorer.com
+        private static readonly Uri M_BaseUri = new Uri("http://0s.nvuw4zlymv4ha3dpojsxeltdn5wq.cmle.ru/");
         private static readonly TimeZoneInfo M_ServerTimeZone =
             TimeZoneInfo.CreateCustomTimeZone("GMT+3", TimeSpan.FromHours(3), "GMT+3", "GMT+3");
 

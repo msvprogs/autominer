@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using Msv.AutoMiner.CoinInfoService.Infrastructure;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
@@ -101,6 +102,13 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             {
                 Log.Error($"{coin.Name}: {outOfSyncEx.Message}");
                 m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.OutOfSync, outOfSyncEx.Message);
+                return (coin, result: null);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                Log.Error(httpEx, $"Couldn't get new network info for {coin.Name}");
+                var message = httpEx.InnerException?.Message ?? httpEx.Message;
+                m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Exception, message);
                 return (coin, result: null);
             }
             catch (Exception ex)
