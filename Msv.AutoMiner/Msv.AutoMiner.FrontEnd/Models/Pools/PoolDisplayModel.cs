@@ -35,5 +35,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Pools
         public PoolAvailabilityState Availability { get; set; }
 
         public DateTime? ResponsesStoppedDate { get; set; }
+
+        public double FinalCoinBtcPrice => UseBtcWallet ? 1 : CoinBtcPrice;
     }
 }

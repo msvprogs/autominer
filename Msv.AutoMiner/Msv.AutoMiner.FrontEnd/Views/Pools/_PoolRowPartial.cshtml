@@ -93,8 +93,8 @@
         }
     </td>
     <td data-order="@Model.Fee.ToDataOrder()">@Model.Fee.ToString("F2")%</td>
-    <td data-order="@Model.ConfirmedBalance.ToDataOrder()" msv-balance="@Model.ConfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
-    <td data-order="@Model.UnconfirmedBalance.ToDataOrder()" msv-balance="@Model.UnconfirmedBalance" msv-btc-price="@(Model.UseBtcWallet ? 1 : Model.CoinBtcPrice)"></td>
+    <td data-order="@Model.ConfirmedBalance.ToDataOrderBtc(Model.FinalCoinBtcPrice)" msv-balance="@Model.ConfirmedBalance" msv-btc-price="@Model.FinalCoinBtcPrice"></td>
+    <td data-order="@Model.UnconfirmedBalance.ToDataOrderBtc(Model.FinalCoinBtcPrice)" msv-balance="@Model.UnconfirmedBalance" msv-btc-price="@Model.FinalCoinBtcPrice"></td>
     <td data-order="@Model.PoolHashRate" class="space-no-wrap">
         @(Model.PoolHashRate > 0 ? ConversionHelper.ToHashRateWithUnits(Model.PoolHashRate, Model.Coin.Algorithm.KnownValue) : "N/A")
     </td>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,13 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
     {
         public const string WalletsMessageKey = "WalletsMessage";
         public const string ShowZeroValuesKey = "WalletsShowZeroValues";
+
+        private static readonly Dictionary<ExchangeType?, double> M_DustLimits =
+            new Dictionary<ExchangeType?, double>
+            {
+                [ExchangeType.TradeSatoshi] = 1e-8,
+                [ExchangeType.Graviex] = 0.00009999
+            };
 
         private readonly IStoredFiatValueProvider m_FiatValueProvider;
         private readonly ICoinValueProvider m_CoinValueProvider;
@@ -180,13 +188,16 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .LeftOuterJoin(lastBalances, x => x.Id, x => x.WalletId,
                     (x, y) => (wallet: x, balances: y ?? new WalletBalance()))
                 .LeftOuterJoin(coinValues, x => x.wallet.CoinId, x => x.CurrencyId,
-                    (x, y) => (x.wallet, x.balances, price: y ?? new CoinValue(), miningMarket: y?.ExchangePrices
-                        .EmptyIfNull()
-                        .FirstOrDefault(z => z.Exchange == x.wallet.ExchangeType)))
+                    (x, y) => (x.wallet, x.balances,
+                        dustLimit: M_DustLimits.TryGetValue(x.wallet.ExchangeType),
+                        price: y ?? new CoinValue(),
+                        miningMarket: y?.ExchangePrices
+                            .EmptyIfNull()
+                            .FirstOrDefault(z => z.Exchange == x.wallet.ExchangeType)))
                 .Where(x => HttpContext.Session.GetBool(ShowZeroValuesKey).GetValueOrDefault(true)
-                    || x.balances.Balance > 0
-                    || x.balances.BlockedBalance > 0 
-                    || x.balances.UnconfirmedBalance > 0)
+                    || x.balances.Balance > x.dustLimit
+                    || x.balances.BlockedBalance > x.dustLimit 
+                    || x.balances.UnconfirmedBalance > x.dustLimit)
                 .Select(x => new WalletDisplayModel
                 {
                     Id = x.wallet.Id,

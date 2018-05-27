@@ -8,6 +8,9 @@ namespace Msv.AutoMiner.FrontEnd
     {
         public static string ToDataOrder(this double source)
             => source.ToString(CultureInfo.InvariantCulture);
+
+        public static string ToDataOrderBtc(this double source, double btcRate)
+            => (source * btcRate).ToString(CultureInfo.InvariantCulture);
         
         public static string ToDataOrder(this double? source)
             => source?.ToString(CultureInfo.InvariantCulture);
