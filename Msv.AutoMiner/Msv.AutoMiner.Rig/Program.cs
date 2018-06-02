@@ -18,6 +18,7 @@ using Msv.AutoMiner.Rig.Storage;
 using Msv.AutoMiner.Rig.Storage.Model;
 using Msv.AutoMiner.Rig.System;
 using Msv.AutoMiner.Rig.System.Video.NVidia;
+using NetMQ;
 using NLog;
 
 // ReSharper disable AccessToDisposedClosure
@@ -27,6 +28,12 @@ namespace Msv.AutoMiner.Rig
     internal class Program
     {
         private static readonly ILogger M_Logger = LogManager.GetCurrentClassLogger();
+
+        // ReSharper disable once ObjectCreationAsStatement
+        // To ensure that fact that NetMQ library dependendency is not unused!
+        // Or else VS won't copy its dlls to the target folder when compiling the project.
+        static Program() 
+            => new BeaconMessage();
 
         private static void Main(string[] args)
         {

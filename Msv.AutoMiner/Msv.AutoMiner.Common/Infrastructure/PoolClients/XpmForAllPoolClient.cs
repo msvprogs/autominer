@@ -12,7 +12,9 @@ namespace Msv.AutoMiner.Common.Infrastructure.PoolClients
 {
     public class XpmForAllPoolClient : IPoolClient
     {
-        private static readonly TimeSpan M_SocketTimeout = TimeSpan.FromSeconds(25);
+        private const int ConnectionAttempts = 5;
+
+        private static readonly TimeSpan M_SocketTimeout = TimeSpan.FromSeconds(7);
         private static readonly Encoding M_Encoding = Encoding.ASCII;
         private static readonly byte[] M_MagicBytes = HexHelper.FromHex(
             "08011001500b580062207f77000071120000280800008b1000003b4300004f6e00009d6f0000385678a0");
@@ -29,26 +31,31 @@ namespace Msv.AutoMiner.Common.Infrastructure.PoolClients
         public PoolAvailabilityState CheckAvailability()
         {
             var poolString = $"Pool {m_Pool.Name} ({m_Pool.Url})";
-            m_Logger.Info($"{poolString}: connecting with ZeroMQ Dealer socket...");
-            using (var socket = new DealerSocket
+            for (var i = 0; i < ConnectionAttempts; i++)
             {
-                Options = {Linger = TimeSpan.Zero}
-            })
-            {
-                socket.Connect(m_Pool.Url.ToString().TrimEnd('/'));
-                m_Logger.Info($"{poolString}: ZeroMQ socket connected");
-                m_Logger.Info($"{poolString}: sending magic bytes {BitConverter.ToString(M_MagicBytes)}...");
-                socket.SendFrame(M_MagicBytes);
-                if (!socket.TryReceiveFrameBytes(M_SocketTimeout, out var response))
+                using (var socket = new DealerSocket
                 {
-                    m_Logger.Warn($"{poolString}: no response from the server socket");
-                    return PoolAvailabilityState.NoResponse;
+                    Options = {Linger = TimeSpan.Zero}
+                })
+                {
+                    m_Logger.Info($"{poolString}: connecting with ZeroMQ Dealer socket, attempt {i}...");
+                    socket.Connect(m_Pool.Url.ToString().TrimEnd('/'));
+                    m_Logger.Info($"{poolString}: ZeroMQ socket connected");
+                    m_Logger.Info($"{poolString}: sending magic bytes {BitConverter.ToString(M_MagicBytes)}...");
+                    socket.SendFrame(M_MagicBytes);
+                    if (!socket.TryReceiveFrameBytes(M_SocketTimeout, out var response))
+                    {
+                        m_Logger.Warn($"{poolString}: no response from the server socket");
+                        continue;
+                    }
+                    m_Logger.Info($"{poolString}: received response {BitConverter.ToString(response)}...");
+                    return M_Encoding.GetString(response).Contains(m_Pool.Url.Host.ToLowerInvariant())
+                        ? PoolAvailabilityState.Available
+                        : PoolAvailabilityState.AuthenticationFailed;
                 }
-                m_Logger.Info($"{poolString}: received response {BitConverter.ToString(response)}...");
-                return M_Encoding.GetString(response).Contains(m_Pool.Url.Host.ToLowerInvariant())
-                    ? PoolAvailabilityState.Available
-                    : PoolAvailabilityState.AuthenticationFailed;
             }
+
+            return PoolAvailabilityState.NoResponse;
         }
     }
 }

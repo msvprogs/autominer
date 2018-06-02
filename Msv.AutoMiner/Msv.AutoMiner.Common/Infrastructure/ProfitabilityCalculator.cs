@@ -8,8 +8,10 @@ namespace Msv.AutoMiner.Common.Infrastructure
     {
         private const int SecondsInDay = 60 * 60 * 24;
 
-        // Assuming that probability of finding the longer chain for PrimeChain is 0.0285 (from statistical data)
-        private const double LongerChainProbability = 0.0285;
+        // Assuming that probability of finding the longer chain for PrimeChain is 0.0291 (from statistical data)
+        // How to calculate: (s1+s2)/(smin+s1+s2), where smin - shares of min length, s1 - shares of min length + 1 and so on.
+        // Numbers of shares of each length are available at http://xpmforall.org/ (24h Share count)
+        private const double LongerChainProbability = 0.0291;
 
         private static readonly double M_32ByteHashesCount = Math.Pow(256, 32);
         private static readonly double M_BtcMaxTarget = (double) CompactHelper.FromCompact(0x1d00ffff);

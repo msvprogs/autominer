@@ -131,6 +131,7 @@ namespace Msv.AutoMiner.Rig.Infrastructure
                             x => m_CurrentProcessDisposable.Disposable = null));
                 if (!miningData.BenchmarkMode 
                     && !string.IsNullOrEmpty(miner.ValidShareRegex)
+                    && miningData.KnownCoinAlgorithm != KnownCoinAlgorithm.PrimeChain //TODO: XPM miner buffers output and doesn't return it quickly
                     && miningData.PoolData?.Protocol == PoolProtocol.Stratum) //TODO: disable share checking for solomining & benchmark mode
                     newDisposable.Add(Observable.Interval(TimeSpan.FromSeconds(10))
                         .Select(x => m_MinerStatusProvider.AcceptedShares)
