@@ -113,6 +113,10 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                     .Where(x => x != coinbase)
                     .Select(x => x.Fee ?? x.InValues.Sum() - x.OutValues.Sum())
                     .Sum();
+                // if fee is negative - something went wrong, resetting it
+                if (fees < 0) 
+                    fees = 0;
+
                 var totalCoinbaseOutput = coinbase.OutValues.Sum();
                 // Assume that mining fees are distributed equally among all outputs
                 // Potential errors of this assumption should be passed by tweaking BlockRewardAccuracyPercent

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using HtmlAgilityPack;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -69,21 +71,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             // Just in case the previous request didn't return some of our transactions (this happens in bugged Iquidus explorers)
             var missedTransactions = lastBlockInfo.Transactions
                 .Except(lastTransactionsData.Select(x => x.Hash), StringComparer.InvariantCultureIgnoreCase)
-                .Select(x => JsonConvert.DeserializeObject<dynamic>(m_WebClient.DownloadString(
-                    new Uri(m_BaseUrl, $"/api/getrawtransaction?txid={x}&decrypt=1"))))
-                .Select(x => new TransactionInfo
-                {
-                    InValues = ((JArray) x.vin)
-                        .Cast<dynamic>()
-                        .Where(y => y.value != null)
-                        .Select(y => (double) y.value)
-                        .ToArray(),
-                    OutValues = ((JArray) x.vout)
-                        .Cast<dynamic>()
-                        .Where(y => y.value != null)
-                        .Select(y => (double) y.value)
-                        .ToArray(),
-                })
+                .Select(ParseTransactionFromHtml)
                 .ToArray();
 
             return new CoinNetworkStatistics
@@ -113,6 +101,32 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         protected virtual double GetDifficulty(dynamic difficultyValue)
             => (double)difficultyValue;
+
+        private TransactionInfo ParseTransactionFromHtml(string hash)
+        {
+            var html = new HtmlDocument();
+            html.LoadHtml(m_WebClient.DownloadString(CreateTransactionUrl(hash)));
+
+            var ins = (html.DocumentNode
+                .SelectSingleNode("//div[@class='panel-heading' and contains(., 'Input Addresses')]")
+                ?.SelectNodes(".//following-sibling::table/tbody[not(contains(., 'New Coins'))]/tr[not(@class)]/td[2]"))
+                .EmptyIfNull()
+                .Select(x => ParsingHelper.ParseDouble(x.InnerText))
+                .ToArray();
+
+            var outs = html.DocumentNode
+                .SelectSingleNode("//div[@class='panel-heading' and contains(., 'Recipients')]")
+                .SelectNodes(".//following-sibling::table/tbody/tr[not(@class)]/td[2]")
+                .EmptyIfNull()
+                .Select(x => ParsingHelper.ParseDouble(x.InnerText))
+                .ToArray();
+
+            return new TransactionInfo
+            {
+                InValues = ins,
+                OutValues = outs
+            };
+        }
 
         private double GetRealHashRate(double hashRate)
         {
