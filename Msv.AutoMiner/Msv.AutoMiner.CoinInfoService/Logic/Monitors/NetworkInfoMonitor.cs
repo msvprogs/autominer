@@ -99,7 +99,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                     return result;
                 }
                 var coinbase = result.result.LastBlockTransactions
-                    .FirstOrDefault(x => x.InValues.IsNullOrEmpty());
+                    .FirstOrDefault(x => x.InValues.IsNullOrEmpty() && x.OutValues.Any());
                 if (coinbase == null)
                 {
                     m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);

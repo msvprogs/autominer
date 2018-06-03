@@ -49,7 +49,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 new Uri(m_BaseUrl, "/ext/getlasttxs/0.0000001")));
             var lastTransactionsData = ((JArray) lastTransactionsJson.data)
                 .Cast<dynamic>()
-                .Where(x => (string) x.blockhash == lastBlockHash)
+                .Where(x => (string) x.blockhash == lastPoWBlock.Hash)
                 .Select(x => new
                 {
                     TransactionInfo = new TransactionInfo
@@ -114,9 +114,9 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .Select(x => ParsingHelper.ParseDouble(x.InnerText))
                 .ToArray();
 
-            var outs = html.DocumentNode
+            var outs = (html.DocumentNode
                 .SelectSingleNode("//div[@class='panel-heading' and contains(., 'Recipients')]")
-                .SelectNodes(".//following-sibling::table/tbody/tr[not(@class)]/td[2]")
+                ?.SelectNodes(".//following-sibling::table/tbody/tr[not(@class)]/td[2]"))
                 .EmptyIfNull()
                 .Select(x => ParsingHelper.ParseDouble(x.InnerText))
                 .ToArray();
