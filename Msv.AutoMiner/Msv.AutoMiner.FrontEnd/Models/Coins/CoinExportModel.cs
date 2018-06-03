@@ -37,5 +37,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public string AddressPrefixes { get; set; }
 
         public bool GetDifficultyFromLastPoWBlock { get; set; }
+        
+        public bool DisableBlockRewardChecking { get; set; }
     }
 }

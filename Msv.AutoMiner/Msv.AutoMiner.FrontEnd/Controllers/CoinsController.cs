@@ -136,7 +136,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock,
                 HardcodedMultiAlgoCoins = m_NetworkInfoProviderFactory.GetHardcodedMultiAlgoCoins(),
                 HardcodedCoins = m_NetworkInfoProviderFactory.GetHardcodedCoins(),
-                IgnoreInactiveMarket = coin.IgnoreInactiveMarket
+                IgnoreInactiveMarket = coin.IgnoreInactiveMarket,
+                DisableBlockRewardChecking = coin.DisableBlockRewardChecking
             };
             return View(coinModel);
         }
@@ -158,7 +159,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     NetworkInfoApiType = coin.NetworkInfoApiType,
                     RewardCalculationJavaScript = coin.RewardCalculationJavaScript,
                     Symbol = coin.Symbol,
-                    GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock
+                    GetDifficultyFromLastPoWBlock = coin.GetDifficultyFromLastPoWBlock,
+                    DisableBlockRewardChecking = coin.DisableBlockRewardChecking
                 });
             return ReturnAsJsonFile($"{coin.Name}_settings.json", exportedContent);
         }
@@ -225,6 +227,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             coin.AddressPrefixes = coinModel.AddressPrefixes;
             coin.GetDifficultyFromLastPoWBlock = coinModel.GetDifficultyFromLastPoWBlock;
             coin.IgnoreInactiveMarket = coinModel.IgnoreInactiveMarket;
+            coin.DisableBlockRewardChecking = coinModel.DisableBlockRewardChecking;
             if (newLogoBytes != null)
                 coin.LogoImageBytes = m_ImageProcessor.Resize(newLogoBytes, 16, 16, ImageFormats.Png);
             else if (coinModel.DeleteLogo)
