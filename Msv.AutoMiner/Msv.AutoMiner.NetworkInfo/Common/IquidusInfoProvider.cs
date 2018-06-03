@@ -69,7 +69,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .ToArray();
 
             // Just in case the previous request didn't return some of our transactions (this happens in bugged Iquidus explorers)
-            var missedTransactions = lastBlockInfo.Transactions
+            var missedTransactions = lastPoWBlock.Transactions
                 .Except(lastTransactionsData.Select(x => x.Hash), StringComparer.InvariantCultureIgnoreCase)
                 .Select(ParseTransactionFromHtml)
                 .ToArray();
