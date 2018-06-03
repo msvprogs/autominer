@@ -29,25 +29,25 @@
 <tr class="@rowClass" title="@title" data-coin-id="@Model.Id" data-coin-name="@Model.Name">
     <td class="text-center" data-order="@Model.NetworkStatus.ToDataOrderByValue()">
         @{
-            string circleClass;
+            string textClass;
             switch (Model.NetworkStatus)
             {
                 case CoinNetworkStatus.Ok:
-                    circleClass = "text-success";
+                    textClass = "text-success";
                     break;
                 case CoinNetworkStatus.Warning:
-                    circleClass = "text-warning";
+                    textClass = "text-warning";
                     break;
                 case CoinNetworkStatus.Error:
-                    circleClass = "text-danger";
+                    textClass = "text-danger";
                     break;
                 default:
-                    circleClass = "text-muted";
+                    textClass = "text-muted";
                     break;
             }
         }
-        <i class="fa fa-circle @circleClass" title="@Model.NetworkStatus"></i>
-        <div class="small" msv-absolute-date="@Model.LastUpdated"></div>
+        <i class="fa fa-circle @textClass" title="@Model.NetworkStatus"></i>
+        <div class="small @textClass" msv-absolute-date="@Model.LastUpdated"></div>
     </td>
     <td class="space-no-wrap small" data-order="@Model.Name" data-search="@Model.Name">
         @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Name, null, Model.Logo))
