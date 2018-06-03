@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using HtmlAgilityPack;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -44,7 +46,22 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                         "//table[contains(@class, 'blocksTable')]//tr[@data-height][1]/td[2]/span")
                         .GetAttributeValue("title", null),
                     "yyyy-MM-dd HH:mm",
-                    CultureInfo.InvariantCulture)
+                    CultureInfo.InvariantCulture),
+                LastBlockTransactions = lastPoWBlockHtml.DocumentNode
+                    .SelectNodes("//div[contains(@class, 'blockTx')]")
+                    .EmptyIfNull()
+                    .Select(x => new TransactionInfo
+                    {
+                        InValues = x.SelectNodes(".//div[@class='col-md-5']//td[@class='address' and not(contains(., 'Reward'))]/following-sibling::td")
+                            .EmptyIfNull()
+                            .Select(y => ParsingHelper.ParseDouble(y.InnerText))
+                            .ToArray(),
+                        OutValues = x.SelectNodes(".//div[@class='col-md-6']//td[@class='address']/following-sibling::td")
+                            .EmptyIfNull()
+                            .Select(y => ParsingHelper.ParseDouble(y.InnerText))
+                            .ToArray()
+                    })
+                    .ToArray()
             };
         }
 

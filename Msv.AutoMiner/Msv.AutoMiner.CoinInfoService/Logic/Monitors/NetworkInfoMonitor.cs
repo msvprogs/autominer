@@ -95,7 +95,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                     || result.result.BlockReward == null 
                     || result.result.LastBlockTransactions.IsNullOrEmpty())
                 {
-                    m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
+                    m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, "Block reward isn't verified");
                     return result;
                 }
                 var coinbase = result.result.LastBlockTransactions
@@ -111,7 +111,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 // but is should detect the most part of the sudden block reward calculation algorithm changes.
                 var fees = result.result.LastBlockTransactions
                     .Where(x => x != coinbase)
-                    .Select(x => x.InValues.Sum() - x.OutValues.Sum())
+                    .Select(x => x.Fee ?? x.InValues.Sum() - x.OutValues.Sum())
                     .Sum();
                 var totalCoinbaseOutput = coinbase.OutValues.Sum();
                 // Assume that mining fees are distributed equally among all outputs

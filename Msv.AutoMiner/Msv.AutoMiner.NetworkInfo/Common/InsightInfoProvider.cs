@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {
@@ -27,11 +30,39 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             dynamic blockJson = JsonConvert.DeserializeObject(
                 m_WebClient.DownloadString(m_BaseUrl + "/blocks?limit=1"));
 
+            string bestBlockHash = blockJson.blocks[0].hash;
+            var transactions = new List<TransactionInfo>();
+            var currentPage = 0;
+            int totalPages;
+            do
+            {
+                dynamic bestBlockTransactions = JsonConvert.DeserializeObject(
+                    m_WebClient.DownloadString(m_BaseUrl + $"/txs?block={bestBlockHash}&pageNum={currentPage++}"));
+                totalPages = (int) bestBlockTransactions.pagesTotal;
+                transactions.AddRange(((JArray)bestBlockTransactions.txs)
+                    .Cast<dynamic>()
+                    .Select(x => new TransactionInfo
+                    {
+                        InValues = ((JArray)x.vin)
+                            .Cast<dynamic>()
+                            .Where(y => y.value != null)
+                            .Select(y => (double)y.value)
+                            .ToArray(),
+                        OutValues = ((JArray)x.vout)
+                            .Cast<dynamic>()
+                            .Where(y => y.value != null)
+                            .Select(y => (double)y.value)
+                            .ToArray(),
+                        Fee = (double?)x.fees
+                    }));
+            } while (totalPages > currentPage);
+
             return new CoinNetworkStatistics
             {
                 Difficulty = GetDifficulty(infoJson.info),
                 Height = (long)infoJson.info.blocks,
-                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)blockJson.blocks[0].time)
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long)blockJson.blocks[0].time),
+                LastBlockTransactions = transactions.ToArray()
             };
         }
 

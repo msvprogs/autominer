@@ -72,12 +72,12 @@
             <span class="label @labelClass">
                 @EnumHelper.GetCaption(Model.LastNetworkInfoResult.Value)
             </span>
-            if (Model.LastNetworkInfoMessage != null)
-            {
-                <div class="coin-info-message" title="@Model.LastNetworkInfoMessage">
-                    @Model.LastNetworkInfoMessage.Truncate(200)
-                </div>
-            }
+        }
+        @if (Model.LastNetworkInfoMessage != null)
+        {
+            <div class="coin-info-message" title="@Model.LastNetworkInfoMessage">
+                @Model.LastNetworkInfoMessage.Truncate(200)
+            </div>
         }
     </td>
     <td>@Model.Symbol</td>

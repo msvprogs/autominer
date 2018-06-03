@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
 using Msv.AutoMiner.NetworkInfo.Utilities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {
@@ -35,19 +37,68 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var lastBlockInfo = JsonConvert.DeserializeObject<BlockHeader>(m_WebClient.DownloadString(
                 new Uri(m_BaseUrl, "/api/getblock?hash=" + lastBlockHash)));
 
+            var lastPoWBlock = m_Options.GetDifficultyFromLastPoWBlock
+                ? new BlockChainSearcher(x => JsonConvert.DeserializeObject<BlockHeader>(
+                        m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x))))
+                    .SearchPoWBlock(lastBlockInfo)
+                : lastBlockInfo;
+
+            dynamic lastTransactionsJson = JsonConvert.DeserializeObject(m_WebClient.DownloadString(
+                new Uri(m_BaseUrl, "/ext/getlasttxs/0.0000001")));
+            var lastTransactionsData = ((JArray) lastTransactionsJson.data)
+                .Cast<dynamic>()
+                .Where(x => (string) x.blockhash == lastBlockHash)
+                .Select(x => new
+                {
+                    TransactionInfo = new TransactionInfo
+                    {
+                        InValues = ((JArray) x.vin)
+                            .Cast<dynamic>()
+                            .Where(y => (string) y.addresses != "coinbase")
+                            .Select(y => (double) y.amount / 1e8)
+                            .ToArray(),
+                        OutValues = ((JArray) x.vout)
+                            .Cast<dynamic>()
+                            .Select(y => (double) y.amount / 1e8)
+                            .ToArray(),
+                    },
+                    Hash = (string) x.txid
+                })
+                .ToArray();
+
+            // Just in case the previous request didn't return some of our transactions (this happens in bugged Iquidus explorers)
+            var missedTransactions = lastBlockInfo.Transactions
+                .Except(lastTransactionsData.Select(x => x.Hash), StringComparer.InvariantCultureIgnoreCase)
+                .Select(x => JsonConvert.DeserializeObject<dynamic>(m_WebClient.DownloadString(
+                    new Uri(m_BaseUrl, $"/api/getrawtransaction?txid={x}&decrypt=1"))))
+                .Select(x => new TransactionInfo
+                {
+                    InValues = ((JArray) x.vin)
+                        .Cast<dynamic>()
+                        .Where(y => y.value != null)
+                        .Select(y => (double) y.value)
+                        .ToArray(),
+                    OutValues = ((JArray) x.vout)
+                        .Cast<dynamic>()
+                        .Where(y => y.value != null)
+                        .Select(y => (double) y.value)
+                        .ToArray(),
+                })
+                .ToArray();
+
             return new CoinNetworkStatistics
             {
-                Difficulty = m_Options.GetDifficultyFromLastPoWBlock
-                    ? new BlockChainSearcher(x => JsonConvert.DeserializeObject<BlockHeader>(
-                            m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x))))
-                        .SearchPoWBlock(lastBlockInfo).Difficulty
-                    : GetDifficulty(stats.data[0].difficulty),
+                Difficulty = lastPoWBlock.Difficulty,
                 NetHashRate = double.TryParse(
                     (string) stats.data[0].hashrate, NumberStyles.Any, CultureInfo.InvariantCulture, out var hashRate)
                     ? GetRealHashRate(hashRate)
                     : 0,
                 Height = height,
-                LastBlockTime = DateTimeHelper.ToDateTimeUtc(lastBlockInfo.Time)
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc(lastBlockInfo.Time),
+                LastBlockTransactions = lastTransactionsData
+                    .Select(x => x.TransactionInfo)
+                    .Concat(missedTransactions)
+                    .ToArray()
             };
         }
 

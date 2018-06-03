@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using HtmlAgilityPack;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -29,8 +30,9 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var mainPage = new HtmlDocument();
             mainPage.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, $"/coins/{m_CurrencyName}")));
 
-            var alerts = mainPage.DocumentNode.SelectNodes("//div[@class='alert alert-danger']");
-            if (alerts != null && alerts.Any(x => x.InnerText?.Trim() == "Coin not working"))
+            var alerts = mainPage.DocumentNode.SelectNodes("//div[contains(@class, 'alert ')]");
+            if (alerts != null && alerts.Select(x => x.InnerText?.Trim())
+                    .Any(x => x == "Coin not working" || x == "Sorry, the coin under maintenance. Try again later."))
                 throw new ExternalDataUnavailableException("Explorer for this coin is inactive");
 
             var infoNodes = mainPage.DocumentNode
@@ -38,6 +40,9 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var lastBlockInfo = mainPage.DocumentNode
                 .SelectSingleNode("//table[@class='table blocksTable']/tr[contains(.,'PoW')]");
             var lastBlockLink = lastBlockInfo.SelectSingleNode(".//td[1]/a");
+
+            var lastBlock = new HtmlDocument();
+            lastBlock.LoadHtml(m_WebClient.DownloadString(lastBlockLink.GetAttributeValue("href", null)));
 
             var infoHas5Cols = infoNodes.Count == 5;
             return new CoinNetworkStatistics
@@ -54,7 +59,22 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                     ? ParsingHelper.ParseDouble(infoNodes[0].InnerText) 
                     : (double?)null,
                 LastBlockTime = DateTimeHelper.FromIso8601(
-                    lastBlockInfo.SelectSingleNode(".//td[2]/span")?.GetAttributeValue("title", null))
+                    lastBlockInfo.SelectSingleNode(".//td[2]/span")?.GetAttributeValue("title", null)),
+                LastBlockTransactions = lastBlock.DocumentNode
+                    .SelectNodes("//div[contains(@class, 'blockTx')]")
+                    .EmptyIfNull()
+                    .Select(x => new TransactionInfo
+                    {
+                        InValues = x.SelectNodes(".//div[@class='col-md-5']//td[@class='address' and not(contains(., 'Generation'))]/following-sibling::td")
+                            .EmptyIfNull()
+                            .Select(y => ParsingHelper.ParseDouble(y.InnerText))
+                            .ToArray(),
+                        OutValues = x.SelectNodes(".//div[@class='col-md-6']//td[@class='address']/following-sibling::td")
+                            .EmptyIfNull()
+                            .Select(y => ParsingHelper.ParseDouble(y.InnerText))
+                            .ToArray()
+                    })
+                    .ToArray()
             };
         }
 

@@ -17,6 +17,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             @"var diff = (?<value>(\d+\.)?\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex M_BlockJsonRegex = new Regex(
             @"var blocks = (?<json>{.*?})", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        private static readonly Regex M_TransactionsJsonRegex = new Regex(
+            @"var ctx = (?<json>\[.*?\]);\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         private readonly IWebClient m_WebClient;
         private readonly string m_CurrencySymbol;
@@ -47,6 +49,10 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .ToArray();
             var height = blocks.Max(x => x.Height);
 
+            var lastBlockInfoMatch = M_TransactionsJsonRegex.Match(
+                m_WebClient.DownloadString(CreateBlockUrl(height.ToString())));
+            var lastBlockInfo = JsonConvert.DeserializeObject<JArray>(lastBlockInfoMatch.Groups["json"].Value);
+
             return new CoinNetworkStatistics
             {
                 Difficulty = difficulty,
@@ -55,7 +61,22 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 LastBlockTime = blocks.OrderByDescending(x => x.Height)
                     .Select(x => (DateTime?)DateTimeHelper.ToDateTimeUtc(x.Timestamp))
                     .DefaultIfEmpty(null)
-                    .First()
+                    .First(),
+                LastBlockTransactions = lastBlockInfo
+                    .Cast<dynamic>()
+                    .Select(x => new TransactionInfo
+                    {
+                        InValues = ((JArray)x.@in)
+                            .Cast<dynamic>()
+                            .Where(y => y.value != null)
+                            .Select(y => (double)y.value/1e8)
+                            .ToArray(),
+                        OutValues = ((JArray)x.@out)
+                            .Cast<dynamic>()
+                            .Select(y => (double)y.value/1e8)
+                            .ToArray()
+                    })
+                    .ToArray()
             };
         }
 

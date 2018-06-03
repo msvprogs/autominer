@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -22,6 +23,14 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             + "columns%5B4%5D%5Bsearchable%5D=true&columns%5B4%5D%5Borderable%5D=false&columns%5B4%5D%5Bsearch%5D%5Bvalue%5D=&columns"
             + "%5B4%5D%5Bsearch%5D%5Bregex%5D=false&start=0&length=15&search%5Bvalue%5D=&search%5Bregex%5D=false";
 
+        private const string LastTransactionsRequest =
+            "datatables/transactions?draw=1&columns[0][data]=Transaction&columns[0][name]=Transaction&columns[0][searchable]=true" +
+            "&columns[0][orderable]=false&columns[0][search][value]=&columns[0][search][regex]=false&columns[1][data]=Time" +
+            "&columns[1][name]=Time&columns[1][searchable]=true&columns[1][orderable]=false&columns[1][search][value]=" +
+            "&columns[1][search][regex]=false&columns[2][data]=Total&columns[2][name]=Total&columns[2][searchable]=true" +
+            "&columns[2][orderable]=false&columns[2][search][value]=&columns[2][search][regex]=false&start=0&length=30" +
+            "&search[value]=&search[regex]=false";
+
         private readonly IWebClient m_WebClient;
         private readonly Uri m_BaseUrl;
 
@@ -43,6 +52,25 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .Cast<dynamic>()
                 .First(x => (string)x.Type == "POW");
 
+            var lastBlockHash = HtmlNode.CreateNode((string) lastBlock.Hash).InnerText;
+            var lastBlockTransactions = ((JArray) JsonConvert.DeserializeObject<dynamic>(
+                    m_WebClient.DownloadString(new Uri(m_BaseUrl, LastTransactionsRequest))).data)
+                .Cast<dynamic>()
+                .Where(x => (string) x.Block == lastBlockHash)
+                .Select(x => new TransactionInfo
+                {
+                    InValues = ((JArray) x.In)
+                        .Cast<dynamic>()
+                        .Where(y => (string) y.Transaction != "coinbase")
+                        .Select(y => (double) y.Amount)
+                        .ToArray(),
+                    OutValues = ((JArray) x.Out)
+                        .Cast<dynamic>()
+                        .Select(y => (double) y.Amount)
+                        .ToArray()
+                })
+                .ToArray();
+
             return new CoinNetworkStatistics
             {
                 Difficulty = (double) stats.Difficulty,
@@ -50,7 +78,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 LastBlockTime = DateTimeHelper.FromIso8601((string) lastBlock.TimeNormal),
                 MasternodeCount = (int) stats.Masternode,
                 TotalSupply = (double) stats.Supply,
-                NetHashRate = (double) stats.Network * 1e6
+                NetHashRate = (double) stats.Network * 1e6,
+                LastBlockTransactions = lastBlockTransactions
             };
         }
 

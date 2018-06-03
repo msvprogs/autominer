@@ -52,12 +52,33 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .ToArray();
             var height = blocks.Max(x => x.Height);
 
+            var bestBlockHash = m_WebClient.DownloadString(new Uri(M_BaseUri,
+                $"/{m_CurrencySymbol}/api.dws?q=getblockhash&height={height}")).Replace("\"", "");
+            var bestBlockTransactions = JsonConvert.DeserializeObject<JArray>(m_WebClient.DownloadString(
+                new Uri(M_BaseUri, $"/explorer/block.txs.dws?coin={m_CurrencySymbol}&h={bestBlockHash}.js")));
+
             var bestBlock = blocks.First(x => x.Height == height);
             return new CoinNetworkStatistics
             {
                 Difficulty = bestBlock.Difficulty,
                 Height = height,
-                LastBlockTime = DateTimeHelper.ToDateTimeUtc(bestBlock.Timestamp)
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc(bestBlock.Timestamp),
+                LastBlockTransactions = bestBlockTransactions
+                    .Cast<dynamic>()
+                    .Select(x => new TransactionInfo
+                    {
+                        InValues = ((JArray)x.inputs)
+                            .Cast<dynamic>()
+                            .Where(y => y is JObject && y.v != null)
+                            .Select(y => (double)y.v)
+                            .ToArray(),
+                        OutValues = ((JArray)x.outputs)
+                            .Cast<dynamic>()
+                            .Where(y => y.v != null)
+                            .Select(y => (double)y.v)
+                            .ToArray()
+                    })
+                    .ToArray()
             };
         }
 

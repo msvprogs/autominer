@@ -1,4 +1,6 @@
-﻿namespace Msv.AutoMiner.NetworkInfo.Data
+﻿using Newtonsoft.Json;
+
+namespace Msv.AutoMiner.NetworkInfo.Data
 {
     public class BlockHeader
     {
@@ -7,5 +9,8 @@
         public string PreviousBlockHash { get; set; }
         public double Difficulty { get; set; }
         public long Time { get; set; }
+
+        [JsonProperty("tx")]
+        public string[] Transactions { get; set; }
     }
 }
