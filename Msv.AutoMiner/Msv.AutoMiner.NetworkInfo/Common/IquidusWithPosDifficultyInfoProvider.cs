@@ -7,9 +7,12 @@ namespace Msv.AutoMiner.NetworkInfo.Common
     public class IquidusWithPosDifficultyInfoProvider : IquidusInfoProvider
     {
         public IquidusWithPosDifficultyInfoProvider(
-            IWebClient webClient, string baseUrl, NetworkInfoProviderOptions options) 
+            IWebClient webClient, string baseUrl, NetworkInfoProviderOptions options)
             : base(webClient, baseUrl, options)
-        { }
+        {
+            //To get correct block reward
+            options.GetDifficultyFromLastPoWBlock = true;
+        }
 
         protected override double GetDifficulty(dynamic difficultyValue)
             => ParsingHelper.ParseDouble(((string)difficultyValue).Split(':')[1]);

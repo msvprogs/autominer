@@ -90,26 +90,34 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
         {
             try
             {
-                var result = ProcessSingleCoin(coin, multiProviderResults, previousInfos);
-                if (result.coin.DisableBlockRewardChecking 
-                    || result.result.BlockReward == null 
-                    || result.result.LastBlockTransactions.IsNullOrEmpty())
+                var (result, calculatedReward) = ProcessSingleCoin(coin, multiProviderResults, previousInfos);
+                if (calculatedReward == null && result.BlockReward != null)
+                {
+                    m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
+                    return (coin, result);
+                }
+                result.BlockReward = calculatedReward;
+
+                if (coin.DisableBlockRewardChecking 
+                    || calculatedReward == null 
+                    || result.LastBlockTransactions.IsNullOrEmpty())
                 {
                     m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, "Block reward isn't verified");
-                    return result;
+                    return (coin, result);
                 }
-                var coinbase = result.result.LastBlockTransactions
+                var coinbase = result.LastBlockTransactions
                     .FirstOrDefault(x => x.InValues.IsNullOrEmpty() && x.OutValues.Any());
                 if (coinbase == null)
                 {
-                    m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
-                    return result;
+                    m_Storage.StoreCoinNetworkResult(
+                        coin.Id, CoinLastNetworkInfoResult.Success, "Block reward isn't verified (coinbase transaction not found)");
+                    return (coin, result);
                 }
 
                 // Check that any output of the coinbase tx equals the calculated block reward.
                 // It doesn't give the guarantee that calculated value is correct,
                 // but is should detect the most part of the sudden block reward calculation algorithm changes.
-                var fees = result.result.LastBlockTransactions
+                var fees = result.LastBlockTransactions
                     .Where(x => x != coinbase)
                     .Select(x => x.Fee ?? x.InValues.Sum() - x.OutValues.Sum())
                     .Sum();
@@ -122,17 +130,17 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                 // Potential errors of this assumption should be passed by tweaking BlockRewardAccuracyPercent
                 if (!coinbase.OutValues
                     .Select(x => x - x/totalCoinbaseOutput*fees)
-                    .Any(x => Math.Abs(ConversionHelper.GetDiffRatio(x, result.result.BlockReward.Value)) <= BlockRewardAccuracyPercent))
+                    .Any(x => Math.Abs(ConversionHelper.GetDiffRatio(x, calculatedReward.Value)) <= BlockRewardAccuracyPercent))
                 {
                     m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.BlockRewardMismatch, 
-                        $"Expected reward: {result.result.BlockReward:N4}, " 
+                        $"Expected reward: {calculatedReward:N4}, " 
                         + $"actual coinbase out values: {string.Join(", ", coinbase.OutValues.Select(x => x.ToString("N4")))}, "
                         + $"mining fees {fees:N8}");
-                    return result;
+                    return (coin, result);
                 }
 
                 m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
-                return result;
+                return (coin, result);
             }
             catch (NoPoWBlocksException noPoWEx)
             {
@@ -161,7 +169,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             }
         }
 
-        private (Coin coin, CoinNetworkStatistics result) ProcessSingleCoin(
+        private (CoinNetworkStatistics result, double? calculatedReward) ProcessSingleCoin(
             Coin coin, 
             Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>> multiProviderResults,
             Dictionary<Guid, CoinNetworkInfo> previousInfos)
@@ -172,7 +180,7 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                          ?? multiProviderResult?.TryGetValue(KnownCoinAlgorithm.Unknown)
                          ?? provider.GetNetworkStats();
             if (result.NetHashRate <= 0 && result.Difficulty <= 0)
-                return (coin, result: null);
+                return (null, null);
 
             var masternodeInfo = m_MasternodeInfoStorage.Load(coin.Symbol);
             if (result.MasternodeCount == null)
@@ -180,20 +188,17 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             if (result.TotalSupply == null)
                 result.TotalSupply = masternodeInfo?.TotalSupply;
 
+            double? calculatedReward = null;
             if (!string.IsNullOrWhiteSpace(coin.RewardCalculationJavaScript))
-            {
-                var reward = m_RewardCalculator.Calculate(
+                calculatedReward = m_RewardCalculator.Calculate(
                     coin.RewardCalculationJavaScript, result.Height, result.Difficulty, result.TotalSupply, result.MasternodeCount);
-                if (reward != null)
-                    result.BlockReward = reward;
-            }
 
             LogResults(coin, result, previousInfos.TryGetValue(coin.Id, new CoinNetworkInfo()));
             if (result.LastBlockTime.HasValue
                 && (DateTime.UtcNow - result.LastBlockTime.Value > M_MaxLastBlockPastDifference
                     || result.LastBlockTime.Value - DateTime.UtcNow > M_MaxLastBlockFutureDifference))
                 throw new BlockchainOutOfSyncException(result.LastBlockTime.Value);
-            return (coin, result);
+            return (result, calculatedReward);
         }
 
         private void LogResults(Coin coin, CoinNetworkStatistics current, CoinNetworkInfo previous)

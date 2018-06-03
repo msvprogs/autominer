@@ -25,11 +25,13 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var html = new HtmlDocument();
             html.LoadHtml(m_WebClient.DownloadString(m_BaseUrl));
 
-            var lastPoWBlockUrl = html.DocumentNode.SelectSingleNode(
-                "//table[contains(@class, 'blocksTable')]//tr[@data-height and not(contains(.,'(PoS)'))][1]/td[1]/a")
-                .GetAttributeValue("href", null);
+            var lastPoWBlockLink = html.DocumentNode.SelectSingleNode(
+                "//table[contains(@class, 'blocksTable')]//tr[@data-height and not(contains(.,'(PoS)'))][1]/td[1]/a");
+            if (lastPoWBlockLink == null)
+                throw new NoPoWBlocksException("No PoW blocks found among last 20 ones");
             var lastPoWBlockHtml = new HtmlDocument();
-            lastPoWBlockHtml.LoadHtml(m_WebClient.DownloadString(new Uri(m_BaseUrl, lastPoWBlockUrl)));
+            lastPoWBlockHtml.LoadHtml(m_WebClient.DownloadString(
+                new Uri(m_BaseUrl, lastPoWBlockLink.GetAttributeValue("href", null))));
 
             return new CoinNetworkStatistics
             {
