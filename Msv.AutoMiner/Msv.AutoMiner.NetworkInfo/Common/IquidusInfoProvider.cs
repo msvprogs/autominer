@@ -50,7 +50,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var lastTransactionsData = ((JArray) lastTransactionsJson.data)
                 .Cast<dynamic>()
                 .Where(x => (string) x.blockhash == lastPoWBlock.Hash)
-                .Where(x => x.vin != null && x.vout != null) //yeah, some versions of Iquidus don't return ins and outs of tx
+                .Where(x => x.vin != null &&
+                            x.vout != null) //yeah, some versions of Iquidus don't return ins and outs of tx
                 .Select(x => new
                 {
                     TransactionInfo = new TransactionInfo
@@ -75,6 +76,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .Select(ParseTransactionFromHtml)
                 .ToArray();
 
+            var masternodeCount = stats.data[0].masternodeCountOnline;
             return new CoinNetworkStatistics
             {
                 Difficulty = lastPoWBlock.Difficulty,
@@ -88,7 +90,11 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                     .Select(x => x.TransactionInfo)
                     .Concat(missedTransactions)
                     .ToArray(),
-                MasternodeCount = (int?)stats.data[0].masternodeCountOnline
+                MasternodeCount = masternodeCount != null
+                    ? masternodeCount is JObject
+                        ? (int) masternodeCount.total
+                        : (int) masternodeCount
+                    : (int?) null
             };
         }
 
