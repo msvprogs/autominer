@@ -27,6 +27,28 @@
 }
 
 <tr class="@rowClass" title="@title" data-coin-id="@Model.Id" data-coin-name="@Model.Name">
+    <td class="text-center" data-order="@Model.NetworkStatus.ToDataOrderByValue()">
+        @{
+            string circleClass;
+            switch (Model.NetworkStatus)
+            {
+                case CoinNetworkStatus.Ok:
+                    circleClass = "text-success";
+                    break;
+                case CoinNetworkStatus.Warning:
+                    circleClass = "text-warning";
+                    break;
+                case CoinNetworkStatus.Error:
+                    circleClass = "text-danger";
+                    break;
+                default:
+                    circleClass = "text-muted";
+                    break;
+            }
+        }
+        <i class="fa fa-circle @circleClass" title="@Model.NetworkStatus"></i>
+        <div class="small" msv-absolute-date="@Model.LastUpdated"></div>
+    </td>
     <td class="space-no-wrap small" data-order="@Model.Name" data-search="@Model.Name">
         @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(Model.Name, null, Model.Logo))
         @if (Model.MasternodeCount != null)
@@ -43,7 +65,11 @@
         }
         @if (Model.LastNetworkInfoResult != null && Model.LastNetworkInfoResult != CoinLastNetworkInfoResult.Success)
         {
-            <span class="label label-danger">
+            var labelClass = Model.NetworkStatus == CoinNetworkStatus.Warning
+                ? "label-warning"
+                : "label-danger";
+
+            <span class="label @labelClass">
                 @EnumHelper.GetCaption(Model.LastNetworkInfoResult.Value)
             </span>
             if (Model.LastNetworkInfoMessage != null)
@@ -141,7 +167,6 @@
             }
         </table>
     </td>
-    <td class="small" data-order="@Model.LastUpdated.ToDataOrder()" msv-absolute-date="@Model.LastUpdated"></td>
     <td>
         @if (Model.Symbol != "BTC")
         {

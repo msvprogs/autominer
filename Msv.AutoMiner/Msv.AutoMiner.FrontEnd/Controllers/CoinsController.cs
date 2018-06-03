@@ -407,12 +407,28 @@ rpcallowip={allowIpMask}
                         overallHashrates.TryGetValue(x.coin.AlgorithmId)),
                     LastNetworkInfoResult = x.coin.LastNetworkInfoResult,
                     LastNetworkInfoMessage = x.coin.LastNetworkInfoMessage,
+                    NetworkStatus = GetCoinNetworkStatus(x.coin.LastNetworkInfoResult),
                     LastUpdated = x.network.Created != default
                         ? x.network.Created
                         : (DateTime?) null
                 })
                 .ToArray();
             
+        }
+
+        private static CoinNetworkStatus GetCoinNetworkStatus(CoinLastNetworkInfoResult? result)
+        {
+            switch (result)
+            {
+                case null:
+                    return CoinNetworkStatus.Unknown;
+                case CoinLastNetworkInfoResult.Success:
+                    return CoinNetworkStatus.Ok;
+                case CoinLastNetworkInfoResult.BlockRewardMismatch:
+                    return CoinNetworkStatus.Warning;
+                default:
+                    return CoinNetworkStatus.Error;
+            }
         }
 
         private Task<AlgorithmEditModel[]> GetAvailableAlgorithms()

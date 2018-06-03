@@ -26,6 +26,9 @@ namespace Msv.AutoMiner.Data
         Yiimp = 8,
 
         [EnumCaption("JSON-RPC (local node)")]
-        JsonRpcWallet = 9
+        JsonRpcWallet = 9,
+
+        [EnumCaption("CoinsForAll.io")]
+        CoinsForAll = 10
     }
 }

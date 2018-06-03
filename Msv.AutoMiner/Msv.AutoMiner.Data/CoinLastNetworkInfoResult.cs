@@ -13,6 +13,9 @@ namespace Msv.AutoMiner.Data
         NoPoWBlocks = 2,
 
         [EnumCaption("Out of sync")]
-        OutOfSync = 3
+        OutOfSync = 3,
+
+        [EnumCaption("Block reward mismatch")]
+        BlockRewardMismatch = 4
     }
 }

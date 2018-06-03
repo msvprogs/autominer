@@ -59,6 +59,8 @@ namespace Msv.AutoMiner.ControlCenterService.External
                 case PoolApiProtocol.NodeOpenMiningPortal:
                     return new NodeOpenMiningPortalPoolInfoProvider(
                         m_WebClient, pool.ApiUrl, GetMiningWalletAddress(), pool.ApiPoolName);
+                case PoolApiProtocol.CoinsForAll:
+                    return new CoinsForAllPoolInfoProvider(m_WebClient, pool.Coin.Symbol, GetMiningWalletAddress());
                 case PoolApiProtocol.JsonRpcWallet:
                     if (!string.IsNullOrEmpty(pool.Coin.NodeHost)
                         && !string.IsNullOrEmpty(pool.Coin.NodeLogin)

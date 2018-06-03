@@ -12,5 +12,6 @@ namespace Msv.AutoMiner.NetworkInfo.Data
         public double? TotalSupply { get; set; }
         public int? MasternodeCount { get; set; }
         public DateTime? LastBlockTime { get; set; }
+        public TransactionInfo[] LastBlockTransactions { get; set; }
     }
 }

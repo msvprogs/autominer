@@ -52,6 +52,8 @@ namespace Msv.AutoMiner.Data.Migrations
 
                     b.Property<Guid>("AlgorithmId");
 
+                    b.Property<bool>("DisableBlockRewardChecking");
+
                     b.Property<bool>("GetDifficultyFromLastPoWBlock");
 
                     b.Property<bool>("IgnoreInactiveMarket");

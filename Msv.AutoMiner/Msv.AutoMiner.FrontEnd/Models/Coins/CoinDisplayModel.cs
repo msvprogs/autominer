@@ -38,5 +38,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Coins
         public CoinLastNetworkInfoResult? LastNetworkInfoResult { get; set; }
 
         public string LastNetworkInfoMessage { get; set; }
+
+        public CoinNetworkStatus NetworkStatus { get; set; }
     }
 }

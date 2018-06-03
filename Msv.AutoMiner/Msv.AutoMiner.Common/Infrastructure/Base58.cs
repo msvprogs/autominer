@@ -35,8 +35,13 @@ namespace Msv.AutoMiner.Common.Infrastructure
                 var existingZeroBytes = resultBytes.Reverse().TakeWhile(x => x == 0).Count();
                 if (zeroBytes > existingZeroBytes)
                     Array.Resize(ref resultBytes, resultBytes.Length + zeroBytes - existingZeroBytes);
+                Array.Reverse(resultBytes);
             }
-            Array.Reverse(resultBytes);
+            else if (resultBytes.Last() == 0)
+                resultBytes = resultBytes.Reverse().SkipWhile(x => x == 0).ToArray();
+            else
+                Array.Reverse(resultBytes);
+
             return resultBytes;
         }
 

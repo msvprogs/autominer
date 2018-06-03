@@ -26,5 +26,8 @@ namespace Msv.AutoMiner.FrontEnd
 
         public static string ToDataOrder(this TimeSpan? source)
             => ToDataOrder(source?.TotalSeconds);
+
+        public static long ToDataOrderByValue(this Enum enumValue)
+            => Convert.ToInt64(enumValue);
     }
 }

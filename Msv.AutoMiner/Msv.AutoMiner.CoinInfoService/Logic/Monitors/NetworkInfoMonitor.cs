@@ -19,6 +19,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
     public class NetworkInfoMonitor : MonitorBase
     {       
         private const int ProviderParallelismDegree = 6;
+        // If none of actual coinbase tx outputs differs less than 5% from the calculated reward value, warn the user.
+        private const double BlockRewardAccuracyPercent = 5;
 
         private static readonly TimeSpan M_MaxLastBlockPastDifference = TimeSpan.FromHours(3);
         private static readonly TimeSpan M_MaxLastBlockFutureDifference = TimeSpan.FromMinutes(15);
@@ -89,6 +91,42 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
             try
             {
                 var result = ProcessSingleCoin(coin, multiProviderResults, previousInfos);
+                if (result.coin.DisableBlockRewardChecking 
+                    || result.result.BlockReward == null 
+                    || result.result.LastBlockTransactions.IsNullOrEmpty())
+                {
+                    m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
+                    return result;
+                }
+                var coinbase = result.result.LastBlockTransactions
+                    .FirstOrDefault(x => x.InValues.IsNullOrEmpty());
+                if (coinbase == null)
+                {
+                    m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
+                    return result;
+                }
+
+                // Check that any output of the coinbase tx equals the calculated block reward.
+                // It doesn't give the guarantee that calculated value is correct,
+                // but is should detect the most part of the sudden block reward calculation algorithm changes.
+                var fees = result.result.LastBlockTransactions
+                    .Where(x => x != coinbase)
+                    .Select(x => x.InValues.Sum() - x.OutValues.Sum())
+                    .Sum();
+                var totalCoinbaseOutput = coinbase.OutValues.Sum();
+                // Assume that mining fees are distributed equally among all outputs
+                // Potential errors of this assumption should be passed by tweaking BlockRewardAccuracyPercent
+                if (!coinbase.OutValues
+                    .Select(x => x - x/totalCoinbaseOutput*fees)
+                    .Any(x => Math.Abs(ConversionHelper.GetDiffRatio(x, result.result.BlockReward.Value)) <= BlockRewardAccuracyPercent))
+                {
+                    m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.BlockRewardMismatch, 
+                        $"Expected reward: {result.result.BlockReward:N4}, " 
+                        + $"actual coinbase out values: {string.Join(", ", coinbase.OutValues.Select(x => x.ToString("N4")))}, "
+                        + $"mining fees {fees:N8}");
+                    return result;
+                }
+
                 m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, null);
                 return result;
             }

@@ -474,6 +474,7 @@ $(function () {
 
         switch (this.options[this.selectedIndex].value) {
             case "None":
+            case "CoinsForAll":
                 break;
             case "Qwak":
                 apiUrlEnabled = apiKeyEnabled = apiUserIdEnabled = true;

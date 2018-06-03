@@ -65,5 +65,7 @@ namespace Msv.AutoMiner.Data
 
         [MaxLength(8192)]
         public string LastNetworkInfoMessage { get; set; }
+
+        public bool DisableBlockRewardChecking { get; set; }
     }
 }

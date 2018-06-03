@@ -11,7 +11,6 @@ using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
-using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
 using NLog;
 using Telegram.Bot;
@@ -81,8 +80,6 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
 
         private async Task ProcessMessage(Message message)
         {
-            if (message.Text == null)
-                return;
             if (string.IsNullOrEmpty(message.From.Username) || !m_UserWhiteList.Contains(message.From.Username))
             {
                 await m_Client.SendTextMessageAsync(message.From.Id, "You're not permitted to use this bot");
@@ -90,7 +87,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
             }
             m_Storage.StoreTelegramUser(new TelegramUser {Id = message.From.Id, UserName = message.From.Username});
             var interpreterState = m_InterpreterStates.GetOrAdd(message.From.Id, TelegramInterpreterState.Text);
-            switch (message.Text.ToLowerInvariant())
+            switch (message.Text?.ToLowerInvariant())
             {
                 case "/getstate":
                     if (interpreterState == TelegramInterpreterState.Text
@@ -107,12 +104,12 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
                     await ProcessRigStateRequest(message.From, null);
                     break;
                 default:
-                    if (interpreterState == TelegramInterpreterState.AwaitingRigNames)
+                    if (message.Text != null && interpreterState == TelegramInterpreterState.AwaitingRigNames)
                         await ProcessRigStateRequest(message.From, message.Text.Split(',')
                             .Select(x => x.Trim().ToLowerInvariant())
                             .ToArray());
                     else
-                        await m_Client.SendTextMessageAsync(message.From.Id, $"Hello, {message.From.FirstName} {message.From.LastName}!");
+                        await m_Client.SendTextMessageAsync(message.From.Id, "Your command wasn't recognized");
                     break;
             }
             m_InterpreterStates[message.From.Id] = TelegramInterpreterState.Text;
@@ -126,7 +123,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.CommandInterfaces
                 .ToDictionary(x => x.Id);
             //language=html
             const string rigInfoFormat = @"<i>{0}:</i>
-Now mining <b>{1} ({14})</b>
+Now mining <b>{1} ({14}) [{15}]</b>
 Shares: <b>{2}</b> valid, <b>{3}</b> invalid, <b>{4}</b>
 Video card temperatures: <b>{5}</b>
 Video card usages: <b>{6}</b>
@@ -170,7 +167,8 @@ Pool balance: confirmed <b>{12} {14}</b>, unconfirmed <b>{13} {14}</b>";
                     HtmlEntity.Entitize(ConversionHelper.ToHashRateWithUnits(x.PoolState.HashRate, coins[x.NowMining.CoinId].Algorithm.KnownValue)),
                     ConversionHelper.ToCryptoCurrencyValue(x.PoolState.ConfirmedBalance),
                     ConversionHelper.ToCryptoCurrencyValue(x.PoolState.UnconfirmedBalance),
-                    HtmlEntity.Entitize(coins[x.NowMining.CoinId].Symbol)))
+                    HtmlEntity.Entitize(coins[x.NowMining.CoinId].Symbol),
+                    HtmlEntity.Entitize(coins[x.NowMining.CoinId].Algorithm.Name)))
                 .ToArray();
             if (heartbeatStrings.Any())
                 await m_Client.SendTextMessageAsync(user.Id, string.Join("\n\n", heartbeatStrings), ParseMode.Html);
