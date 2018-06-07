@@ -78,7 +78,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         Algorithm = y.Algorithm,
                         Name = y.Name,
                         Hashrate = y.Hashrate,
-                        MultiCoinPoolId = x.MultiCoinPoolId.Value,
+                        MultiCoinPoolId = x.MultiCoinPoolId.GetValueOrDefault(),
                         Port = y.Port,
                         Symbol = y.Symbol,
                         Workers = y.Workers

@@ -5,7 +5,8 @@ using System.Linq;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.Common.Models.ControlCenterService;
-using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
+using Msv.AutoMiner.Common.Notifiers;
+using Msv.AutoMiner.Data;
 
 namespace Msv.AutoMiner.ControlCenterService.Logic.Analyzers
 {
@@ -21,9 +22,9 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Analyzers
             m_Options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
-        public void Analyze(int rigId, Heartbeat heartbeat)
+        public void Analyze(Rig rig, Heartbeat heartbeat)
         {
-            var state = m_RigStates.GetOrAdd(rigId, new RigState());
+            var state = m_RigStates.GetOrAdd(rig.Id, new RigState());
             var videoStates = heartbeat.VideoAdapterStates.EmptyIfNull();
             if (videoStates.Any())
             {
@@ -61,31 +62,45 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Analyzers
                 else
                     state.UnusualHashrateDifferences.Clear();
             }
-            CheckStateAndNotify(rigId, state);
+            CheckStateAndNotify(rig, state);
         }
 
-        private void CheckStateAndNotify(int rigId, RigState state)
+        private void CheckStateAndNotify(Rig rig, RigState state)
         {
             if (state.LowVideoUsages.Count >= m_Options.SamplesCount)
             {
-                m_Notifier.NotifyLowVideoUsage(rigId, state.LowVideoUsages.ToArray());
+                m_Notifier.SendMessage(
+                    CreateMessage(rig, "Some video adapters have very low usage", state.LowVideoUsages.ToArray(), "%"));
                 state.LowVideoUsages.Clear();
             }
             if (state.HighVideoTemperatures.Count >= m_Options.SamplesCount)
             {
-                m_Notifier.NotifyHighVideoTemperature(rigId, state.HighVideoTemperatures.ToArray());
+                m_Notifier.SendMessage(
+                    CreateMessage(rig, "Some video adapters are overheated", state.HighVideoTemperatures.ToArray(), "°C"));
                 state.HighVideoTemperatures.Clear();
             }
             if (state.InvalidShareRates.Count >= m_Options.SamplesCount)
             {
-                m_Notifier.NotifyHighInvalidShareRate(rigId, state.InvalidShareRates.ToArray());
+                m_Notifier.SendMessage(
+                    CreateMessage(rig, "There are too many invalid shares", state.InvalidShareRates.ToArray(), "%"));
                 state.InvalidShareRates.Clear();
             }
             if (state.UnusualHashrateDifferences.Count >= m_Options.SamplesCount)
             {
-                m_Notifier.NotifyUnusualHashRate(rigId, state.UnusualHashrateDifferences.ToArray());
+                m_Notifier.SendMessage(CreateMessage(rig, "Current hashrate differs too much from reference one",
+                    state.UnusualHashrateDifferences.ToArray(), "%"));
                 state.UnusualHashrateDifferences.Clear();
             }
+        }
+
+        private static string CreateMessage(Rig rig, string problem, IReadOnlyCollection<int> values, string valuePostfix)
+        {
+            //language=html
+            const string messageFormat = @"<b>Warning!</b>
+Your rig '{0}' is experiencing the following problem:
+<i>{1}</i>
+Last {2} measured values: {3}";
+            return string.Format(messageFormat, rig.Name, problem, values.Count, string.Join(", ", values.Select(x => x + valuePostfix)));
         }
 
         private class RigState

@@ -8,11 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Infrastructure;
+using Msv.AutoMiner.Common.Notifiers;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.ControlCenterService.Configuration;
 using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
-using Msv.AutoMiner.ControlCenterService.Logic.Notifiers;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
 using Msv.AutoMiner.ControlCenterService.Security;
@@ -54,7 +54,7 @@ namespace Msv.AutoMiner.ControlCenterService
             services.AddSingleton<IWalletInfoProviderFactoryStorage, WalletInfoProviderFactoryStorage>();
             services.AddSingleton<IPoolInfoMonitorStorage, PoolInfoMonitorStorage>();
             services.AddSingleton<IWalletInfoMonitorStorage, WalletInfoMonitorStorage>();
-            services.AddSingleton<INotifierStorage, NotifierStorage>();
+            services.AddSingleton<ITelegramNotifierStorage, TelegramNotifierStorage>();
             services.AddSingleton<IPoolAvailabilityMonitorStorage, PoolAvailabilityMonitorStorage>();
             services.AddSingleton<IMiningWorkBuilderStorage, MiningWorkBuilderStorage>();
             services.AddSingleton<IMiningWorkBuilder, MiningWorkBuilder>();
@@ -75,7 +75,7 @@ namespace Msv.AutoMiner.ControlCenterService
                 services.AddSingleton<INotifier>(
                     x => new TelegramNotifier(
                         x.GetRequiredService<ITelegramBotClient>(),
-                        x.GetRequiredService<INotifierStorage>(),
+                        x.GetRequiredService<ITelegramNotifierStorage>(),
                         config.Notifications.Telegram.Subscribers.EmptyIfNull()));
             else
                 services.AddSingleton<INotifier>(new DummyNotifier());

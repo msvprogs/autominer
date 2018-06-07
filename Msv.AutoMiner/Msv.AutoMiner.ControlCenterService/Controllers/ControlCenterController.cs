@@ -143,7 +143,7 @@ namespace Msv.AutoMiner.ControlCenterService.Controllers
                     HashRate = (long)x.HashRate.Current
                 })
                 .ToArray());
-            m_HeartbeatAnalyzer.Analyze(rigId, heartbeat);
+            m_HeartbeatAnalyzer.Analyze(m_Storage.GetRigById(rigId), heartbeat);
             var command = m_Storage.GetNextCommand(rigId);
             if (command == null)
                 return new SendHeartbeatResponseModel();
