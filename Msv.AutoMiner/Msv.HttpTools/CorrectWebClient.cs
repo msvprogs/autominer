@@ -40,11 +40,18 @@ namespace Msv.HttpTools
             using (var client = CreateHttpClient())
             {
                 SetHeaders(client, headers);
-                using (var response = await client.GetAsync(uri))
+                try
                 {
-                    if (!response.IsSuccessStatusCode)
-                        throw await CreateHttpException(response);
-                    return await ReadContentAsString(response);
+                    using (var response = await client.GetAsync(uri))
+                    {
+                        if (!response.IsSuccessStatusCode)
+                            throw await CreateHttpException(response);
+                        return await ReadContentAsString(response);
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    throw new TimeoutException();
                 }
             }
         }
@@ -58,12 +65,19 @@ namespace Msv.HttpTools
             using (var client = CreateHttpClient(credentials))
             {
                 SetHeaders(client, headers);
-                using (var requestContent = new StringContent(data, Encoding, contentType))
-                using (var response = await client.PostAsync(uri, requestContent))
+                try
                 {
-                    if (!response.IsSuccessStatusCode)
-                        throw await CreateHttpException(response);
-                    return await ReadContentAsString(response);
+                    using (var requestContent = new StringContent(data, Encoding, contentType))
+                    using (var response = await client.PostAsync(uri, requestContent))
+                    {
+                        if (!response.IsSuccessStatusCode)
+                            throw await CreateHttpException(response);
+                        return await ReadContentAsString(response);
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    throw new TimeoutException();
                 }
             }
         }

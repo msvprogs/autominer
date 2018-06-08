@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Common;
 using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
@@ -11,6 +13,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
     public class StraksInfoProvider : NetworkInfoProviderBase
     {
         private static readonly Uri M_BaseUri = new Uri("https://straks.info/");
+        private static readonly Uri M_ApiBaseUri = new Uri("https://api.straks.info/v2/");
 
         private readonly IWebClient m_WebClient;
 
@@ -19,15 +22,37 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic json = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString("https://api.straks.info/v2/statistics/latest"));
+            dynamic statsJson = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_ApiBaseUri, "statistics/latest")));
+            dynamic bestBlockHashJson = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_ApiBaseUri, $"block-index/{statsJson.block_height}")));
+            dynamic bestBlockTransactions = JsonConvert.DeserializeObject(
+                m_WebClient.DownloadString(new Uri(M_ApiBaseUri, 
+                    $"txs?block={bestBlockHashJson.blockhash}&pageNum=1&limit=50")));
+
             return new CoinNetworkStatistics
             {
-                NetHashRate = (double) json.hashrate,
-                Difficulty = (double) json.difficulty,
-                Height = (long) json.block_height,
-                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long) json.last_block),
-                TotalSupply = (double) json.total_coins
+                NetHashRate = (double) statsJson.hashrate,
+                Difficulty = (double) statsJson.difficulty,
+                Height = (long) statsJson.block_height,
+                LastBlockTime = DateTimeHelper.ToDateTimeUtc((long) statsJson.last_block),
+                TotalSupply = (double) statsJson.total_coins,
+                LastBlockTransactions = ((JArray)bestBlockTransactions.txs)
+                    .Cast<dynamic>()
+                    .Select(x => new TransactionInfo
+                    {
+                        InValues = ((JArray)x.vin)
+                            .Cast<dynamic>()
+                            .Where(y => y.value != null)
+                            .Select(y => (double)y.value)
+                            .ToArray(),
+                        OutValues = ((JArray)x.vout)
+                            .Cast<dynamic>()
+                            .Where(y => y.value != null)
+                            .Select(y => (double)y.value)
+                            .ToArray()
+                    })
+                    .ToArray()
             };
         }
 

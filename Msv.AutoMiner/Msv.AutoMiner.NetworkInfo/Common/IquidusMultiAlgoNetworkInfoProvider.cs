@@ -33,35 +33,40 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 m_WebClient.DownloadString(new Uri(m_BaseUrl, "/ext/getlasttxs/1/100")));
             var height = (long)txs.data[0].blockindex;
 
-            var difficulties = ((JArray)txs.data)
+            var statisticsByAlgo = ((JArray)txs.data)
                 .Cast<dynamic>()
-                .Where(x => (string)x.vin[0].addresses == "coinbase")
+                .Where(x => (string)x.vin[0]?.addresses == "coinbase")
                 .Where(x => (double)x.vin[0].amount > 0)
-                .Select(x => (string)x.blockhash)
-                .Distinct()
-                .Select(x => m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x)))
-                .Select(JsonConvert.DeserializeObject)
-                .Cast<dynamic>()
-                .Where(x => ((string)x.flags).Contains("proof-of-work"))
+                .Select(x => (blockhash: (string)x.blockhash, reward: (double)x.vin[0].amount / 1e8))
+                .DistinctBy(x => x.blockhash)
+                .Select(x => new
+                {
+                    Reward = x.reward,
+                    BlockData = JsonConvert.DeserializeObject<dynamic>(
+                        m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x.blockhash)))
+                })
+                .Where(x => ((string)x.BlockData.flags).Contains("proof-of-work"))
                 .Select(x => (
-                    algo: m_AlgoMappings.TryGetValue((int)x.algo_id),
-                    difficulty: (double)x.difficulty,
-                    time: (long)x.time))
+                    reward: x.Reward,
+                    algo: m_AlgoMappings.TryGetValue((int)x.BlockData.algo_id),
+                    difficulty: (double)x.BlockData.difficulty,
+                    time: (long)x.BlockData.time))
                 .Where(x => x.algo != null)
                 .Distinct(new AlgoTupleEqualityComparer())
                 .Take(m_AlgoMappings.Count)
                 .ToDictionary(x => x.algo.Value, x => new CoinNetworkStatistics
                 {
+                    BlockReward = x.reward,
                     Height = height,
                     Difficulty = x.difficulty,
                     LastBlockTime = DateTimeHelper.ToDateTimeUtc(x.time)
                 });
 
-            var maxBlockTime = difficulties.Max(x => x.Value.LastBlockTime);
-            difficulties.ForEach(x => x.Value.LastBlockTime = maxBlockTime);
+            var maxBlockTime = statisticsByAlgo.Max(x => x.Value.LastBlockTime);
+            statisticsByAlgo.ForEach(x => x.Value.LastBlockTime = maxBlockTime);
             return new Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>>
             {
-                [m_CurrencySymbol] = difficulties
+                [m_CurrencySymbol] = statisticsByAlgo
             };
         }
 
@@ -74,14 +79,14 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         public Uri CreateBlockUrl(string blockHash)
             => new Uri(m_BaseUrl, $"block/{blockHash}");
 
-        private class AlgoTupleEqualityComparer : EqualityComparer<(KnownCoinAlgorithm? algo, double difficulty, long time)>
+        private class AlgoTupleEqualityComparer : EqualityComparer<(double reward, KnownCoinAlgorithm? algo, double difficulty, long time)>
         {
             public override bool Equals(
-                (KnownCoinAlgorithm? algo, double difficulty, long time) x,
-                (KnownCoinAlgorithm? algo, double difficulty, long time) y)
+                (double reward, KnownCoinAlgorithm? algo, double difficulty, long time) x,
+                (double reward, KnownCoinAlgorithm? algo, double difficulty, long time) y)
                 => x.algo == y.algo;
 
-            public override int GetHashCode((KnownCoinAlgorithm? algo, double difficulty, long time) obj)
+            public override int GetHashCode((double reward, KnownCoinAlgorithm? algo, double difficulty, long time) obj)
                 => obj.algo.GetHashCode();
         }
     }

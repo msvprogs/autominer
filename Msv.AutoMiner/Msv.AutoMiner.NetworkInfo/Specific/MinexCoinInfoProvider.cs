@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.Linq;
-using HtmlAgilityPack;
 using Msv.AutoMiner.Common.External.Contracts;
+using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,9 +13,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
     public class MinexCoinInfoProvider : INetworkInfoProvider
     {
         // https://minexexplorer.com
-        private static readonly Uri M_BaseUri = new Uri("http://0s.nvuw4zlymv4ha3dpojsxeltdn5wq.cmle.ru/");
-        private static readonly TimeZoneInfo M_ServerTimeZone =
-            TimeZoneInfo.CreateCustomTimeZone("GMT+3", TimeSpan.FromHours(3), "GMT+3", "GMT+3");
+        private static readonly Uri M_BaseUri = new Uri("http://0s.nvuw4zlymv4ha3dpojsxeltdn5wq.cmle.ru/api/");
 
         private readonly IWebClient m_WebClient;
 
@@ -24,28 +22,39 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 
         public CoinNetworkStatistics GetNetworkStats()
         {
-            var mainPage = new HtmlDocument();
-            mainPage.LoadHtml(m_WebClient.DownloadString(M_BaseUri));
+            dynamic lastBlock = JsonConvert.DeserializeObject<JArray>(
+                m_WebClient.DownloadString(new Uri(M_BaseUri, "block?minConfirmations=0")))[0];
 
-            var lastBlockRow = mainPage.DocumentNode.SelectSingleNode("//table[@class='table main-table']//tr[2]");
-            var hashrate = JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadString(new Uri(M_BaseUri, "hashrate.json")))
-                .Last();
-            var difficulty = JsonConvert.DeserializeObject<JArray>(
-                    m_WebClient.DownloadString(new Uri(M_BaseUri, "difficulty.json")))
-                .Last();
+            // Paginate transactions until current block coinbase is found
+            var lastBlockTransactions = new List<TransactionInfo>();
+            var page = 1;
+            while (lastBlockTransactions.All(x => x.InValues.Any()) && page < 5)
+                lastBlockTransactions.AddRange(JsonConvert.DeserializeObject<JArray>(
+                        m_WebClient.DownloadString(new Uri(M_BaseUri, $"transaction?page={page++}")))
+                    .Cast<dynamic>()
+                    .Select(x => x.transaction)
+                    .Where(x => (string) x.block == (string) lastBlock.hash)
+                    .Select(x => new TransactionInfo
+                    {
+                        Fee = (double) x.fee,
+                        InValues = ((JArray) x.inputs)
+                            .Cast<dynamic>()
+                            .Where(y => (string) y.address != "coinbase")
+                            .Select(y => (double) y.amount)
+                            .ToArray(),
+                        OutValues = ((JArray) x.outputs)
+                            .Cast<dynamic>()
+                            .Select(y => (double) y.amount)
+                            .ToArray()
+                    }));
 
             return new CoinNetworkStatistics
             {
-                Height = long.Parse(lastBlockRow.SelectSingleNode("./td[1]/a").InnerText),
-                Difficulty = ((JArray) difficulty).Last.Value<double>(),
-                NetHashRate = ((JArray) hashrate).Last.Value<double>(),
-                LastBlockTime = TimeZoneInfo.ConvertTimeToUtc(
-                    DateTime.ParseExact(
-                        lastBlockRow.SelectSingleNode("./td[2]").InnerText,
-                        "dd.MM.yy HH:mm:ss",
-                        CultureInfo.InvariantCulture),
-                    M_ServerTimeZone)
+                Height = (long)lastBlock.height,
+                Difficulty = (double)lastBlock.difficulty,
+                NetHashRate = (double)lastBlock.hashRate,
+                LastBlockTime = DateTimeHelper.FromIso8601((string)lastBlock.createdAt),
+                LastBlockTransactions = lastBlockTransactions.ToArray()
             };
         }
 
