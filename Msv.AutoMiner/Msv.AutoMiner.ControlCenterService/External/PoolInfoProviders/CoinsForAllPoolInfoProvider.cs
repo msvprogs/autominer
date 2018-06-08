@@ -61,7 +61,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.PoolInfoProviders
                     DateTime = DateTimeHelper.ToDateTimeUtc((long) x.time),
                     Transaction = (string) x.txid,
                     Amount = (double) x.value / 1e8,
-                    Type = PoolPaymentType.Reward
+                    Type = PoolPaymentType.TransferToWallet
                 })
                 .Where(x => x.DateTime > minPaymentDate)
                 .ToArray();
