@@ -8,5 +8,6 @@ namespace Msv.AutoMiner.NetworkInfo.Data
         public double[] InValues { get; set; }
         public double[] OutValues { get; set; }
         public double? Fee { get; set; }
+        public bool IsCoinbase { get; set; }
     }
 }

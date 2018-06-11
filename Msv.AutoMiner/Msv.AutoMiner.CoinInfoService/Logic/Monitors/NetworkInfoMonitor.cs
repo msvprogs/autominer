@@ -105,8 +105,8 @@ namespace Msv.AutoMiner.CoinInfoService.Logic.Monitors
                     m_Storage.StoreCoinNetworkResult(coin.Id, CoinLastNetworkInfoResult.Success, "Block reward isn't verified");
                     return (coin, result);
                 }
-                var coinbase = result.LastBlockTransactions
-                    .FirstOrDefault(x => x.InValues.IsNullOrEmpty() && x.OutValues.Any());
+                var coinbase = result.LastBlockTransactions.FirstOrDefault(x => x.IsCoinbase) 
+                               ?? result.LastBlockTransactions.FirstOrDefault(x => x.InValues.IsNullOrEmpty() && x.OutValues.Any());
                 if (coinbase == null)
                 {
                     m_Storage.StoreCoinNetworkResult(

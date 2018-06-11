@@ -50,12 +50,14 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             var lastTransactionsData = ((JArray) lastTransactionsJson.data)
                 .Cast<dynamic>()
                 .Where(x => (string) x.blockhash == lastPoWBlock.Hash)
-                .Where(x => x.vin != null &&
-                            x.vout != null) //yeah, some versions of Iquidus don't return ins and outs of tx
+                .Where(x => x.vin != null && x.vout != null) //yeah, some versions of Iquidus don't return ins and outs of tx
                 .Select(x => new
                 {
                     TransactionInfo = new TransactionInfo
                     {
+                        IsCoinbase = ((JArray) x.vin)
+                            .Cast<dynamic>()
+                            .Any(y => (string) y.addresses == "coinbase"),
                         InValues = ((JArray) x.vin)
                             .Cast<dynamic>()
                             .Where(y => (string) y.addresses != "coinbase")
