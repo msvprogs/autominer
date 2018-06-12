@@ -5,7 +5,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.Contracts
 {
     public interface IWalletInfoProviderFactory
     {
-        IWalletInfoProvider CreateLocal(Coin coin);
-        IWalletInfoProvider CreateExchange(ExchangeType exchangeType);
+        ILocalWalletInfoProvider CreateLocal(Coin coin, WalletBalanceSource balanceSource);
+        IExchangeWalletInfoProvider CreateExchange(ExchangeType exchangeType);
     }
 }

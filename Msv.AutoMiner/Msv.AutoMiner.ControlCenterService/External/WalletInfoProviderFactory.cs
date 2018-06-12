@@ -8,6 +8,7 @@ using Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data;
 using Msv.AutoMiner.Exchanges.Api;
+using Msv.AutoMiner.NetworkInfo;
 
 namespace Msv.AutoMiner.ControlCenterService.External
 {
@@ -15,29 +16,40 @@ namespace Msv.AutoMiner.ControlCenterService.External
     {
         private readonly IWebClient m_WebClient;
         private readonly ISessionedRpcClientFactory m_SessionedRpcClientFactory;
+        private readonly INetworkInfoProviderFactory m_NetworkInfoProviderFactory;
         private readonly Func<IWalletInfoProviderFactoryStorage> m_StorageGetter;
 
         public WalletInfoProviderFactory(
             IWebClient webClient,
             ISessionedRpcClientFactory sessionedRpcClientFactory,
+            INetworkInfoProviderFactory networkInfoProviderFactory,
             Func<IWalletInfoProviderFactoryStorage> storageGetter)
         {
             m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
             m_SessionedRpcClientFactory = sessionedRpcClientFactory ?? throw new ArgumentNullException(nameof(sessionedRpcClientFactory));
+            m_NetworkInfoProviderFactory = networkInfoProviderFactory ?? throw new ArgumentNullException(nameof(networkInfoProviderFactory));
             m_StorageGetter = storageGetter ?? throw new ArgumentNullException(nameof(storageGetter));
         }
 
-        public IWalletInfoProvider CreateLocal(Coin coin)
+        public ILocalWalletInfoProvider CreateLocal(Coin coin, WalletBalanceSource balanceSource)
         {
             if (coin == null)
                 throw new ArgumentNullException(nameof(coin));
 
-            return new JsonRpcLocalWalletInfoProvider(
-                new HttpJsonRpcClient(m_WebClient, coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword),
-                coin);
+            switch (balanceSource)
+            {
+                case WalletBalanceSource.LocalNode when coin.NodeHost != null && coin.NodeLogin != null && coin.NodePassword != null:
+                    return new JsonRpcLocalWalletInfoProvider(
+                        new HttpJsonRpcClient(m_WebClient, coin.NodeHost, coin.NodePort, coin.NodeLogin, coin.NodePassword),
+                        coin);
+                case WalletBalanceSource.BlockExplorer:
+                    return new BlockExplorerLocalWalletInfoProvider(coin.Symbol, m_NetworkInfoProviderFactory.Create(coin));
+                default:
+                    throw new ArgumentException($"Invalid wallet balance source: {balanceSource}");
+            }
         }
 
-        public IWalletInfoProvider CreateExchange(ExchangeType exchangeType)
+        public IExchangeWalletInfoProvider CreateExchange(ExchangeType exchangeType)
         {
             var exchange = m_StorageGetter.Invoke().GetExchange(exchangeType);
             if (exchange?.PrivateKey == null || exchange.PublicKey == null)
@@ -81,7 +93,7 @@ namespace Msv.AutoMiner.ControlCenterService.External
             }
         }
 
-        private class DummyWalletInfoProvider : IWalletInfoProvider
+        private class DummyWalletInfoProvider : IExchangeWalletInfoProvider
         {
             public WalletBalanceData[] GetBalances()
                 => new WalletBalanceData[0];

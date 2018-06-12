@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
-    public class JsonRpcLocalWalletInfoProvider : IWalletInfoProvider
+    public class JsonRpcLocalWalletInfoProvider : ILocalWalletInfoProvider
     {
         private const int LastTransactionCount = 200;
 
@@ -22,22 +22,21 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
             m_Coin = coin ?? throw new ArgumentNullException(nameof(coin));
         }
 
-        public WalletBalanceData[] GetBalances()
+        public WalletBalanceData GetBalance(string address)
         {
+            //TODO: get by address
             var info = m_RpcClient.Execute<dynamic>("getinfo");
-            return new[]
+            return new WalletBalanceData
             {
-                new WalletBalanceData
-                {
-                    Available = (double) info.balance,
-                    Unconfirmed = (double?) info.newmint ?? CountImmatureMinedBalance() ?? 0,
-                    Blocked = ((double?)info.stake).GetValueOrDefault(),
-                    CurrencySymbol = m_Coin.Symbol
-                }
+                Available = (double) info.balance,
+                Unconfirmed = (double?) info.newmint ?? CountImmatureMinedBalance() ?? 0,
+                Blocked = ((double?) info.stake).GetValueOrDefault(),
+                CurrencySymbol = m_Coin.Symbol
             };
         }
 
-        public WalletOperationData[] GetOperations(DateTime startDate)
+        //TODO: get by address
+        public WalletOperationData[] GetOperations(string address, DateTime startDate)
             => m_RpcClient.Execute<JArray>("listtransactions", string.Empty, LastTransactionCount)
                 .Cast<dynamic>()
                 .Where(x => (int) x.confirmations > 0)

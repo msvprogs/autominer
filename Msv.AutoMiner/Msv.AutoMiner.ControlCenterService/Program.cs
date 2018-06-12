@@ -19,6 +19,7 @@ using Msv.AutoMiner.ControlCenterService.Storage;
 using Msv.AutoMiner.ControlCenterService.Storage.Contracts;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
+using Msv.AutoMiner.NetworkInfo;
 using Msv.HttpTools;
 using NLog;
 using NLog.Targets;
@@ -53,17 +54,21 @@ namespace Msv.AutoMiner.ControlCenterService
                     .ApplyIfAny();
 
                 var config = scope.ServiceProvider.GetRequiredService<ControlCenterConfiguration>();
+                var proxiedWebClient = new ProxiedLoggedWebClient(
+                    new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")));
 
                 using (new PoolInfoMonitor(
                     new PoolInfoProviderFactory(
                         new LoggedWebClient(),
-                        new ProxiedLoggedWebClient(
-                            new RoundRobinList<ProxyInfo>(ProxyList.LoadFromFile("proxies.txt")))),
+                        proxiedWebClient),
                     scope.ServiceProvider.GetRequiredService<IPoolInfoMonitorStorage>()))
                 using (new WalletInfoMonitor(
                     new WalletInfoProviderFactory(
                         new LoggedWebClient(),
-                        new SessionedRpcClientFactory(), 
+                        new SessionedRpcClientFactory(),
+                        new NetworkInfoProviderFactory(
+                            new LoggedWebClient(), 
+                            proxiedWebClient), 
                         () => scope.ServiceProvider.GetRequiredService<IWalletInfoProviderFactoryStorage>()),
                     scope.ServiceProvider.GetRequiredService<IWalletInfoMonitorStorage>()))
                 using (new PoolAvailabilityMonitor(

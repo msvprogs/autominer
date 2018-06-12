@@ -26,5 +26,10 @@ namespace Msv.AutoMiner.Data
         public string Address { get; set; }
 
         public bool IsMiningTarget { get; set; }
+
+        public WalletBalanceSource BalanceSource { get; set; }
+
+        [MaxLength(128)]
+        public string Name { get; set; }
     }
 }

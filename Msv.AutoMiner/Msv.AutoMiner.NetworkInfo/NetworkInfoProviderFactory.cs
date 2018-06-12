@@ -9,6 +9,7 @@ using Msv.AutoMiner.Data;
 using Msv.AutoMiner.NetworkInfo.Common;
 using Msv.AutoMiner.NetworkInfo.Data;
 using Msv.AutoMiner.NetworkInfo.Specific;
+using WalletBalance = Msv.AutoMiner.NetworkInfo.Data.WalletBalance;
 
 namespace Msv.AutoMiner.NetworkInfo
 {
@@ -161,6 +162,12 @@ namespace Msv.AutoMiner.NetworkInfo
                     Difficulty = 0,
                     NetHashRate = 0
                 };
+
+            public WalletBalance GetWalletBalance(string address)
+                => new WalletBalance();
+
+            public BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
+                => new BlockExplorerWalletOperation[0];
 
             public Uri CreateTransactionUrl(string hash)
                 => null;

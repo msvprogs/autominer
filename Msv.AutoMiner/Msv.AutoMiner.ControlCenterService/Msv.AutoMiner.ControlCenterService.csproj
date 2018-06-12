@@ -45,6 +45,7 @@
     <ProjectReference Include="..\Msv.AutoMiner.Data.Logic\Msv.AutoMiner.Data.Logic.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.Data\Msv.AutoMiner.Data.csproj" />
     <ProjectReference Include="..\Msv.AutoMiner.Exchanges\Msv.AutoMiner.Exchanges.csproj" />
+    <ProjectReference Include="..\Msv.AutoMiner.NetworkInfo\Msv.AutoMiner.NetworkInfo.csproj" />
   </ItemGroup>
 
   <ItemGroup>

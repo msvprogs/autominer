@@ -38,6 +38,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         }
 
         public abstract CoinNetworkStatistics GetNetworkStats();
+        public abstract WalletBalance GetWalletBalance(string address);
+        public abstract BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate);
         public abstract Uri CreateTransactionUrl(string hash);
         public abstract Uri CreateAddressUrl(string address);
         public abstract Uri CreateBlockUrl(string blockHash);

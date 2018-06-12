@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
-    public class CryptoBridgeWalletInfoProvider : IWalletInfoProvider
+    public class CryptoBridgeWalletInfoProvider : IExchangeWalletInfoProvider
     {
         private const int IssueAssetOpcode = 14;
         private const int TransferAssetOpcode = 0;

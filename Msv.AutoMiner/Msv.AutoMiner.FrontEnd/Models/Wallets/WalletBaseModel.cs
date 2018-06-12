@@ -14,5 +14,8 @@ namespace Msv.AutoMiner.FrontEnd.Models.Wallets
         public string Address { get; set; }
 
         public ExchangeType? ExchangeType { get; set; }
+
+        [MaxLength(128, ErrorMessage = "Wallet name is too long")]
+        public string Name { get; set; }
     }
 }

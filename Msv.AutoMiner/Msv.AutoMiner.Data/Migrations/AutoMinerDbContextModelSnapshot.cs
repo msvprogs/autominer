@@ -786,6 +786,8 @@ namespace Msv.AutoMiner.Data.Migrations
                     b.Property<string>("Address")
                         .HasMaxLength(256);
 
+                    b.Property<byte>("BalanceSource");
+
                     b.Property<Guid>("CoinId");
 
                     b.Property<DateTime>("Created");
@@ -793,6 +795,9 @@ namespace Msv.AutoMiner.Data.Migrations
                     b.Property<int?>("ExchangeType");
 
                     b.Property<bool>("IsMiningTarget");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(128);
 
                     b.HasKey("Id");
 

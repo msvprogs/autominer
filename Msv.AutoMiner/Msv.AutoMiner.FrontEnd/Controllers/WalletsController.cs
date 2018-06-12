@@ -138,6 +138,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             wallet.CoinId = walletModel.CoinId.GetValueOrDefault();
             wallet.Address = walletModel.Address;
             wallet.ExchangeType = walletModel.ExchangeType;
+            wallet.Name = walletModel.Name;
+            wallet.BalanceSource = walletModel.BalanceSource;
 
             if (!m_Context.Wallets
                     .Where(x => x.Activity == ActivityState.Active)
@@ -201,6 +203,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 .Select(x => new WalletDisplayModel
                 {
                     Id = x.wallet.Id,
+                    Name = x.wallet.Name,
                     Activity = x.wallet.Activity,
                     Address = x.wallet.Address,
                     Coin = new CoinBaseModel

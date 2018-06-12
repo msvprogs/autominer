@@ -78,6 +78,16 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             };
         }
 
+        public override WalletBalance GetWalletBalance(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public override Uri CreateTransactionUrl(string hash)
             => new Uri(CreateCurrencyBaseUrl(), "explorer/transaction/" + hash);
 

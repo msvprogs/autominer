@@ -31,6 +31,16 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
             };
         }
 
+        public WalletBalance GetWalletBalance(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        public BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public Uri CreateTransactionUrl(string hash)
             => new Uri(M_ExplorerBaseUri, $"tx/{hash}");
 

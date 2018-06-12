@@ -41,6 +41,16 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                     contentType: "application/json"));
         }
 
+        public override WalletBalance GetWalletBalance(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public override Uri CreateTransactionUrl(string hash)
             => new Uri(m_BaseUrl, $"/tx/{hash}");
 

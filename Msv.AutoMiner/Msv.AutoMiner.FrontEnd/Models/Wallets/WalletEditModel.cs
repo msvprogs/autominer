@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Msv.AutoMiner.Common.Data.Enums;
+using Msv.AutoMiner.Data;
 using Msv.AutoMiner.FrontEnd.Models.Coins;
 
 namespace Msv.AutoMiner.FrontEnd.Models.Wallets
@@ -15,5 +16,7 @@ namespace Msv.AutoMiner.FrontEnd.Models.Wallets
         public ExchangeType[] AvailableExchanges { get; set; }
 
         public bool SetAsMiningTarget { get; set; }
+
+        public WalletBalanceSource BalanceSource { get;set; }
     }
 }

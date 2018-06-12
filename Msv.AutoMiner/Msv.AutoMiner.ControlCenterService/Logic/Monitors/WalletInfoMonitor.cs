@@ -64,21 +64,21 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
             var localResults = wallets
                 .Where(x => x.ExchangeType == null)
                 .Where(x => x.Coin.NodeHost != null && x.Coin.NodeLogin != null && x.Coin.NodePassword != null)
-                .Select(x => (wallet:x, provider:m_ProviderFactory.CreateLocal(x.Coin)))
+                .Select(x => (wallet:x, provider:m_ProviderFactory.CreateLocal(x.Coin, x.BalanceSource)))
                 .Select(x =>
                 {
                     try
                     {
-                        return (x.wallet, balances: x.provider.GetBalances(), operations: x.provider
-                            .GetOperations(startDate));
+                        return (x.wallet, balance: x.provider.GetBalance(x.wallet.Address), operations: x.provider
+                            .GetOperations(x.wallet.Address, startDate));
                     }
                     catch (Exception ex)
                     {
                         Log.Error(ex, $"Couldn't get data from local wallet of coin {x.wallet.Coin.Name}");
-                        return (x.wallet, balances: null, operations: null);
+                        return (x.wallet, balance: null, operations: null);
                     }
                 })
-                .Where(x => x.balances != null)
+                .Where(x => x.balance != null)
                 .ToArray();
 
             var balances = exchangeResults
@@ -93,7 +93,7 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
                         .ToArray()
                 })
                 .SelectMany(x => x.MappingByAddress.Any() ? x.MappingByAddress : x.MappingByCurrency)
-                .Concat(localResults.Select(x => (x.wallet, result: x.balances.First())))
+                .Concat(localResults.Select(x => (x.wallet, result: x.balance)))
                 .Select(x => new WalletBalance
                 {
                     WalletId = x.wallet.Id,

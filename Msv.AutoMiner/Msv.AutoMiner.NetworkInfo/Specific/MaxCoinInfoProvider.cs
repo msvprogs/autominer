@@ -1,6 +1,7 @@
 ﻿using System;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.NetworkInfo.Common;
+using Msv.AutoMiner.NetworkInfo.Data;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
@@ -30,6 +31,16 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 
             reward /= Math.Pow(2, (int)(height / BlocksPerHalvingPeriod));
             return reward;
+        }
+
+        public override WalletBalance GetWalletBalance(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

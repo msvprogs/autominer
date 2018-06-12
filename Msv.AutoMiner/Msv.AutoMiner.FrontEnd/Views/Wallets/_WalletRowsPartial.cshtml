@@ -28,7 +28,8 @@
     }
 
     <tr class="@rowClass" title="@title" data-wallet-name="@wallet.Address" data-coin-name="@wallet.Coin.Name" data-coin-id="@wallet.Coin.Id">
-        <td data-order="@wallet.Coin.Name" data-search="@wallet.Coin.Name + @wallet.Coin.Symbol">
+        <td data-order="@wallet.Coin.Name" data-search="@wallet.Name + @wallet.Coin.Name + @wallet.Coin.Symbol">
+            <div class="small"><em>@wallet.Name</em></div>
             <a asp-controller="WalletOperations" asp-action="Index" asp-route-currencyId="@wallet.Coin.Id"
                title="Show all operations for @wallet.Coin.Name wallets">
                 @await Component.InvokeAsync("LogoCoinName", new LogoCoinNameModel(wallet.Coin.Name, wallet.Coin.Symbol, wallet.Coin.Logo))
@@ -52,7 +53,7 @@
             @if (wallet.IsMiningTarget)
             {
                 <img src="~/images/mining-icon.png" alt="Mining target" width="16" height="16"
-                     title="This wallet is mining target for its coin" />
+                     title="This wallet is mining target for its coin"/>
             }
             @await Component.InvokeAsync("LongId", new LongIdModel
             {

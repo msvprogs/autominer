@@ -7,6 +7,7 @@ using Msv.AutoMiner.NetworkInfo.Data;
 using Msv.AutoMiner.NetworkInfo.Utilities;
 using Newtonsoft.Json.Linq;
 using NLog;
+using WalletBalance = Msv.AutoMiner.NetworkInfo.Data.WalletBalance;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {
@@ -36,6 +37,16 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 M_Logger.Error(ex, $"Local wallet for {m_Coin.Symbol} is unavailable, trying fallback provider");
                 return m_FallbackProvider.GetNetworkStats();
             }
+        }
+
+        public WalletBalance GetWalletBalance(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        public BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
+        {
+            throw new NotImplementedException();
         }
 
         public Uri CreateTransactionUrl(string hash)

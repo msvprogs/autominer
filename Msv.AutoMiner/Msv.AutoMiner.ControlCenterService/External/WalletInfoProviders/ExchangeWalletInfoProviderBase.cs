@@ -5,7 +5,7 @@ using Msv.AutoMiner.Exchanges.Api;
 
 namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
 {
-    public abstract class ExchangeWalletInfoProviderBase : IWalletInfoProvider
+    public abstract class ExchangeWalletInfoProviderBase : IExchangeWalletInfoProvider
     {
         protected IExchangeApi Api { get; }
         protected string ApiKey { get; }

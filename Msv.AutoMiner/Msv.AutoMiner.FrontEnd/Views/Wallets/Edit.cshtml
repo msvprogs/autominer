@@ -1,8 +1,9 @@
 ﻿@using Msv.AutoMiner.Common.Data.Enums
 @using Msv.AutoMiner.Common.Helpers
+@using Msv.AutoMiner.Data
 @model Msv.AutoMiner.FrontEnd.Models.Wallets.WalletEditModel
 
-@{ ViewBag.Title = "Edit wallet details"; }    
+@{ ViewBag.Title = "Edit wallet details"; }
 
 <h2 class="text-center">Edit wallet details</h2>
 
@@ -11,6 +12,10 @@
 <form asp-action="Save" method="post">
     <input asp-for="Id" />
 
+    <div class="form-group">
+        <label asp-for="Name">Name:</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
     <div class="form-group">
         <label asp-for="CoinId">Coin:</label>
         <select asp-for="CoinId" class="form-control">
@@ -24,19 +29,29 @@
     <div class="form-group">
         <label asp-for="Address">Address:</label>
         <p class="small">
-            This address will be validated in accordance to the format, prefix and checksum validation rules for the selected coin. 
+            This address will be validated in accordance to the format, prefix and checksum validation rules for the selected coin.
         </p>
         <input asp-for="Address" class="form-control text-monospace" autocomplete="off" />
     </div>
     <div class="form-group">
         <label asp-for="ExchangeType">Exchange:</label>
         <select asp-for="ExchangeType" class="form-control">
-            <option value="">&lt;Local node&gt;</option>
+            <option value="">&lt;Local wallet&gt;</option>
             @foreach (var exchangeType in EnumHelper.GetCaptionsCached<ExchangeType>()
-                .Where(x => Model.AvailableExchanges.Contains(x.Key))
-                .OrderBy(x => x.Value))
+               .Where(x => Model.AvailableExchanges.Contains(x.Key))
+               .OrderBy(x => x.Value))
             {
                 <option value="@exchangeType.Key">@exchangeType.Value</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="BalanceSource">Balance source (for local wallet):</label>
+        <select asp-for="BalanceSource" class="form-control">
+            @foreach (var balanceSource in EnumHelper.GetCaptionsCached<WalletBalanceSource>()
+               .OrderBy(x => x.Value))
+            {
+                <option value="@balanceSource.Key">@balanceSource.Value</option>
             }
         </select>
     </div>
@@ -53,3 +68,15 @@
         <i class="glyphicon glyphicon-chevron-left"></i> Return to wallets list
     </a>
 </form>
+
+@section Scripts{
+    <script>
+        $(function () {
+            var exchangeTypeSelect = $("select#ExchangeType");
+            exchangeTypeSelect.change(function() {
+                $("select#BalanceSource").prop("disabled", exchangeTypeSelect.prop("selectedIndex") !== 0);
+            });
+            exchangeTypeSelect.change();
+        })
+    </script>
+}
