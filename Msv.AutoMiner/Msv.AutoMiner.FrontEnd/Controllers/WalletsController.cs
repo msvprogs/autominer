@@ -22,8 +22,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
         public const string WalletsMessageKey = "WalletsMessage";
         public const string ShowZeroValuesKey = "WalletsShowZeroValues";
 
-        private static readonly Dictionary<ExchangeType?, double> M_DustLimits =
-            new Dictionary<ExchangeType?, double>
+        private static readonly Dictionary<ExchangeType, double> M_DustLimits =
+            new Dictionary<ExchangeType, double>
             {
                 [ExchangeType.TradeSatoshi] = 1e-8,
                 [ExchangeType.Graviex] = 0.00009999
@@ -191,7 +191,9 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                     (x, y) => (wallet: x, balances: y ?? new WalletBalance()))
                 .LeftOuterJoin(coinValues, x => x.wallet.CoinId, x => x.CurrencyId,
                     (x, y) => (x.wallet, x.balances,
-                        dustLimit: M_DustLimits.TryGetValue(x.wallet.ExchangeType),
+                        dustLimit: x.wallet.ExchangeType != null 
+                            ? M_DustLimits.TryGetValue(x.wallet.ExchangeType.Value) 
+                            : 0,
                         price: y ?? new CoinValue(),
                         miningMarket: y?.ExchangePrices
                             .EmptyIfNull()
