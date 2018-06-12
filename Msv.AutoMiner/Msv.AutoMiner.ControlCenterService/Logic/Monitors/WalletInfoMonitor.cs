@@ -63,14 +63,15 @@ namespace Msv.AutoMiner.ControlCenterService.Logic.Monitors
 
             var localResults = wallets
                 .Where(x => x.ExchangeType == null)
-                .Where(x => x.Coin.NodeHost != null && x.Coin.NodeLogin != null && x.Coin.NodePassword != null)
                 .Select(x => (wallet:x, provider:m_ProviderFactory.CreateLocal(x.Coin, x.BalanceSource)))
                 .Select(x =>
                 {
                     try
                     {
-                        return (x.wallet, balance: x.provider.GetBalance(x.wallet.Address), operations: x.provider
+                        var result = (x.wallet, balance: x.provider.GetBalance(x.wallet.Address), operations: x.provider
                             .GetOperations(x.wallet.Address, startDate));
+                        Log.Info($"Got balance for local wallet {x.wallet.Address} ({x.wallet.Coin.Symbol})");
+                        return result;
                     }
                     catch (Exception ex)
                     {
