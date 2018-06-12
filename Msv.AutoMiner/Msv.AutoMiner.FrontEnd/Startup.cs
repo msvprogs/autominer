@@ -70,7 +70,8 @@ namespace Msv.AutoMiner.FrontEnd
                 .AddMvc(x =>
                 {
                     x.Filters.Add(new AuthorizeFilter(requireAuthPolicy));
-					x.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+                    // TODO: pass antiforgery token on every POST
+					// x.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
                     x.ModelBinderProviders.Insert(0, new TrimmingModelBinderProvider());
                 })
                 .ConfigureApplicationPartManager(x =>
