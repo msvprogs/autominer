@@ -1,8 +1,8 @@
 ﻿using System;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {
@@ -26,8 +26,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic json = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(M_ApiBaseUri, $"/1.0/{m_CurrencySymbol}/status")));
+            var json = m_WebClient.DownloadJsonAsDynamic(
+                new Uri(M_ApiBaseUri, $"/1.0/{m_CurrencySymbol}/status"));
             return new CoinNetworkStatistics
             {
                 BlockReward = (double) json.reward,

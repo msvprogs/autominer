@@ -1,8 +1,8 @@
 ﻿using System;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -70,7 +70,6 @@ namespace Msv.AutoMiner.NetworkInfo.Common
         }
 
         private dynamic GetApiResponse(string requestType)
-            => JsonConvert.DeserializeObject(m_WebClient.DownloadString(
-                new Uri(m_BaseUri, $"/api_fetch.php?method={requestType}")));
+            => m_WebClient.DownloadJsonAsDynamic(new Uri(m_BaseUri, $"/api_fetch.php?method={requestType}"));
     }
 }

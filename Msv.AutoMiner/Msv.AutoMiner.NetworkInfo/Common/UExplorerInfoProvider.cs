@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using HtmlAgilityPack;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -45,16 +45,15 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic stats = JsonConvert.DeserializeObject<JArray>(m_WebClient.DownloadString(
-                new Uri(m_BaseUrl, "/api/chart/stat")))[0];
-            var lastBlock = ((JArray)JsonConvert.DeserializeObject<dynamic>(m_WebClient.DownloadString(
-                    new Uri(m_BaseUrl, LastBlockRequestUrl))).data)
+            dynamic stats = m_WebClient.DownloadJArray(new Uri(m_BaseUrl, "/api/chart/stat"))[0];
+            var lastBlock = ((JArray)m_WebClient.DownloadJsonAsDynamic(
+                    new Uri(m_BaseUrl, LastBlockRequestUrl)).data)
                 .Cast<dynamic>()
                 .First(x => (string)x.Type == "POW");
 
             var lastBlockHash = HtmlNode.CreateNode((string) lastBlock.Hash).InnerText;
-            var lastBlockTransactions = ((JArray) JsonConvert.DeserializeObject<dynamic>(
-                    m_WebClient.DownloadString(new Uri(m_BaseUrl, LastTransactionsRequest))).data)
+            var lastBlockTransactions = ((JArray) m_WebClient.DownloadJsonAsDynamic(
+                    new Uri(m_BaseUrl, LastTransactionsRequest)).data)
                 .Cast<dynamic>()
                 .Where(x => (string) x.Block == lastBlockHash)
                 .Select(x => new TransactionInfo

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using HtmlAgilityPack;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
@@ -27,8 +26,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            var mainPage = new HtmlDocument();
-            mainPage.LoadHtml(m_WebClient.DownloadString(new Uri(M_BaseUri, $"/coins/{m_CurrencyName}")));
+            var mainPage = m_WebClient.DownloadHtml(new Uri(M_BaseUri, $"/coins/{m_CurrencyName}"));
 
             var alerts = mainPage.DocumentNode.SelectNodes("//div[contains(@class, 'alert ')]");
             if (alerts != null && alerts.Select(x => x.InnerText?.Trim())
@@ -41,8 +39,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .SelectSingleNode("//table[@class='table blocksTable']/tr[contains(.,'PoW')]");
             var lastBlockLink = lastBlockInfo.SelectSingleNode(".//td[1]/a");
 
-            var lastBlock = new HtmlDocument();
-            lastBlock.LoadHtml(m_WebClient.DownloadString(lastBlockLink.GetAttributeValue("href", null)));
+            var lastBlock = m_WebClient.DownloadHtml(lastBlockLink.GetAttributeValue("href", null));
 
             var infoHas5Cols = infoNodes.Count == 5;
             return new CoinNetworkStatistics

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -25,10 +25,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic infoJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(m_BaseUrl + "/status?q=getInfo"));
-            dynamic blockJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(m_BaseUrl + "/blocks?limit=1"));
+            var infoJson = m_WebClient.DownloadJsonAsDynamic(m_BaseUrl + "/status?q=getInfo");
+            var blockJson = m_WebClient.DownloadJsonAsDynamic(m_BaseUrl + "/blocks?limit=1");
 
             string bestBlockHash = blockJson.blocks[0].hash;
             var transactions = new List<TransactionInfo>();
@@ -36,8 +34,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             int totalPages;
             do
             {
-                dynamic bestBlockTransactions = JsonConvert.DeserializeObject(
-                    m_WebClient.DownloadString(m_BaseUrl + $"/txs?block={bestBlockHash}&pageNum={currentPage++}"));
+                var bestBlockTransactions = m_WebClient.DownloadJsonAsDynamic(
+                    m_BaseUrl + $"/txs?block={bestBlockHash}&pageNum={currentPage++}");
                 totalPages = (int) bestBlockTransactions.pagesTotal;
                 transactions.AddRange(((JArray)bestBlockTransactions.txs)
                     .Cast<dynamic>()

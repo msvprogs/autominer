@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
@@ -54,8 +55,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
             var bestBlockHash = m_WebClient.DownloadString(new Uri(M_BaseUri,
                 $"/{m_CurrencySymbol}/api.dws?q=getblockhash&height={height}")).Replace("\"", "");
-            var bestBlockTransactions = JsonConvert.DeserializeObject<JArray>(m_WebClient.DownloadString(
-                new Uri(M_BaseUri, $"/explorer/block.txs.dws?coin={m_CurrencySymbol}&h={bestBlockHash}.js")));
+            var bestBlockTransactions = m_WebClient.DownloadJArray(
+                new Uri(M_BaseUri, $"/explorer/block.txs.dws?coin={m_CurrencySymbol}&h={bestBlockHash}.js"));
 
             var bestBlock = blocks.First(x => x.Height == height);
             return new CoinNetworkStatistics

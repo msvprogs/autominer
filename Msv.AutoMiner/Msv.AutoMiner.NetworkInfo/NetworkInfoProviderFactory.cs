@@ -133,6 +133,8 @@ namespace Msv.AutoMiner.NetworkInfo
                     return new CryptoCoreInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
                 case CoinNetworkInfoApiType.Bulwark:
                     return new BulwarkInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl);
+                case CoinNetworkInfoApiType.Yiimp:
+                    return new YiimpInfoProvider(m_OrdinaryClient, coin.NetworkInfoApiUrl, coin.Symbol.ToUpperInvariant());
                 default:
                     return new DummyInfoProvider();
             }

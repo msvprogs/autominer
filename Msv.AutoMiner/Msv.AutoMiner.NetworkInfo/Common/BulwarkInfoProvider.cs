@@ -1,7 +1,7 @@
 ﻿using System;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {
@@ -21,10 +21,9 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic overallInfo = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/coin")));
-            dynamic lastBlockInfo = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(m_BaseUrl, $"/api/block/{(string) overallInfo.blocks}")));
+            var overallInfo = m_WebClient.DownloadJsonAsDynamic(new Uri(m_BaseUrl, "/api/coin"));
+            var lastBlockInfo = m_WebClient.DownloadJsonAsDynamic(
+                new Uri(m_BaseUrl, $"/api/block/{(string) overallInfo.blocks}"));
 
             return new CoinNetworkStatistics
             {

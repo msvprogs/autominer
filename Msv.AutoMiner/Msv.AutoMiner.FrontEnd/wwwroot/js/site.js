@@ -396,6 +396,10 @@ $(function () {
                 apiUrlEnabled = true;
                 urlDescriptionText = "URL of the explorer's main page";
                 break;
+            case "Yiimp":
+                apiUrlEnabled = true;
+                urlDescriptionText = "URL of the Yiimp based pool's main page";
+                break;
             default:
                 break;
         }

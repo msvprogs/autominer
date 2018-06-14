@@ -102,6 +102,8 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
                 CoinId = wallet.CoinId,
                 ExchangeType = wallet.ExchangeType,
                 Address = wallet.Address,
+                Name = wallet.Name,
+                BalanceSource = wallet.BalanceSource,
                 AvailableCoins = await GetAvailableCoins(),
                 AvailableExchanges = await GetAvailableExchanges()
             };

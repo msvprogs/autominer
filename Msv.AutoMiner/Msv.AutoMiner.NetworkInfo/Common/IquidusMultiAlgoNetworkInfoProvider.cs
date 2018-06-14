@@ -6,7 +6,6 @@ using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -29,8 +28,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public Dictionary<string, Dictionary<KnownCoinAlgorithm, CoinNetworkStatistics>> GetMultiNetworkStats()
         {
-            dynamic txs = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(m_BaseUrl, "/ext/getlasttxs/1/100")));
+            var txs = m_WebClient.DownloadJsonAsDynamic(new Uri(m_BaseUrl, "/ext/getlasttxs/1/100"));
             var height = (long)txs.data[0].blockindex;
 
             var statisticsByAlgo = ((JArray)txs.data)
@@ -42,8 +40,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .Select(x => new
                 {
                     Reward = x.reward,
-                    BlockData = JsonConvert.DeserializeObject<dynamic>(
-                        m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x.blockhash)))
+                    BlockData = m_WebClient.DownloadJsonAsDynamic(
+                        new Uri(m_BaseUrl, "/api/getblock?hash=" + x.blockhash))
                 })
                 .Where(x => ((string)x.BlockData.flags).Contains("proof-of-work"))
                 .Select(x => (

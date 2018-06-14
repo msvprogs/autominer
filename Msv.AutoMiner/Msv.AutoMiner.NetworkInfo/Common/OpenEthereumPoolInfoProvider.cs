@@ -1,7 +1,7 @@
 ﻿using System;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
 {
@@ -21,7 +21,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic json = JsonConvert.DeserializeObject(m_WebClient.DownloadString(m_StatsUrl));
+            var json = m_WebClient.DownloadJsonAsDynamic(m_StatsUrl);
             return new CoinNetworkStatistics
             {
                 Difficulty = (double)json.nodes[0].difficulty,

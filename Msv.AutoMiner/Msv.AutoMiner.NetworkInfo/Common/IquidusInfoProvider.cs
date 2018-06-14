@@ -7,7 +7,6 @@ using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
 using Msv.AutoMiner.NetworkInfo.Data;
 using Msv.AutoMiner.NetworkInfo.Utilities;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Common
@@ -30,23 +29,22 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic stats = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(m_BaseUrl, "/ext/summary")));
+            var stats = m_WebClient.DownloadJsonAsDynamic(new Uri(m_BaseUrl, "/ext/summary"));
 
             var height = (long) stats.data[0].blockcount;
             var lastBlockHash = m_WebClient.DownloadString(
                 new Uri(m_BaseUrl, "/api/getblockhash?index=" + height));
-            var lastBlockInfo = JsonConvert.DeserializeObject<BlockHeader>(m_WebClient.DownloadString(
-                new Uri(m_BaseUrl, "/api/getblock?hash=" + lastBlockHash)));
+            var lastBlockInfo = m_WebClient.DownloadJsonAs<BlockHeader>(
+                new Uri(m_BaseUrl, "/api/getblock?hash=" + lastBlockHash));
 
             var lastPoWBlock = m_Options.GetDifficultyFromLastPoWBlock
-                ? new BlockChainSearcher(x => JsonConvert.DeserializeObject<BlockHeader>(
-                        m_WebClient.DownloadString(new Uri(m_BaseUrl, "/api/getblock?hash=" + x))))
+                ? new BlockChainSearcher(x => m_WebClient.DownloadJsonAs<BlockHeader>(
+                        new Uri(m_BaseUrl, "/api/getblock?hash=" + x)))
                     .SearchPoWBlock(lastBlockInfo)
                 : lastBlockInfo;
 
-            dynamic lastTransactionsJson = JsonConvert.DeserializeObject(m_WebClient.DownloadString(
-                new Uri(m_BaseUrl, "/ext/getlasttxs/0.0000001")));
+            var lastTransactionsJson = m_WebClient.DownloadJsonAsDynamic(
+                new Uri(m_BaseUrl, "/ext/getlasttxs/0.0000001"));
             var lastTransactionsData = ((JArray) lastTransactionsJson.data)
                 .Cast<dynamic>()
                 .Where(x => (string) x.blockhash == lastPoWBlock.Hash)

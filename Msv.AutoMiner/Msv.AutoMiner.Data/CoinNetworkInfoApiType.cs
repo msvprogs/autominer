@@ -62,6 +62,9 @@ namespace Msv.AutoMiner.Data
         Bulwark = 19,
 
         [EnumCaption("<No API>")]
-        NoApi = 20
+        NoApi = 20,
+
+        [EnumCaption("Yiimp pool explorer")]
+        Yiimp = 21
     }
 }

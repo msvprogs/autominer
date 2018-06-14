@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using HtmlAgilityPack;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -22,16 +21,14 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override CoinNetworkStatistics GetNetworkStats()
         {
-            var html = new HtmlDocument();
-            html.LoadHtml(m_WebClient.DownloadString(m_BaseUrl));
+            var html = m_WebClient.DownloadHtml(m_BaseUrl);
 
             var lastPoWBlockLink = html.DocumentNode.SelectSingleNode(
                 "//table[contains(@class, 'blocksTable')]//tr[@data-height and not(contains(.,'(PoS)'))][1]/td[1]/a");
             if (lastPoWBlockLink == null)
                 throw new NoPoWBlocksException("No PoW blocks found among last 20 ones");
-            var lastPoWBlockHtml = new HtmlDocument();
-            lastPoWBlockHtml.LoadHtml(m_WebClient.DownloadString(
-                new Uri(m_BaseUrl, lastPoWBlockLink.GetAttributeValue("href", null))));
+            var lastPoWBlockHtml = m_WebClient.DownloadHtml(
+                new Uri(m_BaseUrl, lastPoWBlockLink.GetAttributeValue("href", null)));
 
             return new CoinNetworkStatistics
             {
