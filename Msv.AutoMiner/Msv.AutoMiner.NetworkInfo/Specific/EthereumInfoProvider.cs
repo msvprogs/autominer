@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Linq;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.NetworkInfo.Data;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Msv.AutoMiner.NetworkInfo.Specific
 {
-    //API: https://www.etherchain.org/documentation/api
+    //API: https://www.blockcypher.com/dev/ethereum
     [SpecificCoinInfoProvider("ETH")]
     public class EthereumInfoProvider : INetworkInfoProvider
     {
+        private const double WeisInEth = 1e18;
+
         private static readonly Uri M_EtherchainBaseUri = new Uri("https://www.etherchain.org");
 
         private readonly IWebClient m_WebClient;
@@ -18,28 +22,51 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
 
         public CoinNetworkStatistics GetNetworkStats()
         {
-            dynamic statsJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(M_EtherchainBaseUri, "/api/miningEstimator")));
-            dynamic heightJson = JsonConvert.DeserializeObject(
-                m_WebClient.DownloadString(new Uri(M_EtherchainBaseUri, "/api/blocks/count")));
+            var chainStats = m_WebClient.DownloadJsonAsDynamic("https://api.blockcypher.com/v1/eth/main");
+            var rewardStats = m_WebClient.DownloadJsonAsDynamic(
+                $"https://api.etherscan.io/api?module=block&action=getblockreward&blockno={chainStats.height}");
+            var difficultyStats = m_WebClient.DownloadJsonAsDynamic("https://api.nanopool.org/v1/eth/block_stats/0/1");
+
             return new CoinNetworkStatistics
             {
-                Difficulty = (double) statsJson.difficulty,
-                NetHashRate = (double) statsJson.hashrate,
-                BlockTimeSeconds = (double) statsJson.blocktime,
-                Height = (long) heightJson.count
-                //TODO: add last block time (now API documentation is unavailable)
+                Height = (long)chainStats.height,
+                LastBlockTime = (DateTime)chainStats.time,
+                BlockReward = ((double)rewardStats.result.blockReward - (double)rewardStats.result.uncleInclusionReward) / WeisInEth,
+                Difficulty = (double)difficultyStats.data[0].difficulty
             };
         }
 
         public WalletBalance GetWalletBalance(string address)
         {
-            throw new NotImplementedException();
+            var balanceInfo = m_WebClient.DownloadJsonAsDynamic(
+                $"https://api.blockcypher.com/v1/eth/main/addrs/{address}/balance");
+
+            return new WalletBalance
+            {
+                Available = (double) balanceInfo.balance / WeisInEth,
+                Unconfirmed = (double) balanceInfo.unconfirmed_balance / WeisInEth
+            };
         }
 
         public BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
         {
-            throw new NotImplementedException();
+            var transactionsInfo = m_WebClient.DownloadJsonAsDynamic(
+                $"https://api.blockcypher.com/v1/eth/main/addrs/{address}");
+
+            return ((JArray) transactionsInfo.txrefs)
+                .Cast<dynamic>()
+                .Where(x => x.confirmed != null)
+                .Select(x => new BlockExplorerWalletOperation
+                {
+                    Transaction = (string) x.tx_hash,
+                    DateTime = (DateTime) x.confirmed,
+                    Amount = (int) x.tx_output_n != 0
+                        ? -(double) x.value / WeisInEth
+                        : (double) x.value / WeisInEth,
+                    Address = address
+                })
+                .Where(x => x.DateTime > startDate)
+                .ToArray();
         }
 
         public Uri CreateTransactionUrl(string hash)
