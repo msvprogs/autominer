@@ -30,7 +30,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
             return new CoinNetworkStatistics
             {
                 Height = (long)chainStats.height,
-                LastBlockTime = (DateTime)chainStats.time,
+                LastBlockTime = ((DateTimeOffset)chainStats.time).UtcDateTime,
                 BlockReward = ((double)rewardStats.result.blockReward - (double)rewardStats.result.uncleInclusionReward) / WeisInEth,
                 Difficulty = (double)difficultyStats.data[0].difficulty
             };
@@ -59,7 +59,7 @@ namespace Msv.AutoMiner.NetworkInfo.Specific
                 .Select(x => new BlockExplorerWalletOperation
                 {
                     Transaction = (string) x.tx_hash,
-                    DateTime = (DateTime) x.confirmed,
+                    DateTime = ((DateTimeOffset) x.confirmed).UtcDateTime,
                     Amount = (int) x.tx_output_n != 0
                         ? -(double) x.value / WeisInEth
                         : (double) x.value / WeisInEth,
