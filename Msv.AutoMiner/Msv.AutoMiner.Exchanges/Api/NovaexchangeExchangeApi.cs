@@ -30,7 +30,7 @@ namespace Msv.AutoMiner.Exchanges.Api
             using (var hmac = new HMACSHA512(apiSecret))
             {
                 var query = new QueryBuilder(parameters);
-                var url = $"{M_BaseUri}private/{method}{query}";
+                var url = $"{M_BaseUri}private/{method}/{query}";
                 var postQuery = new QueryBuilder
                 {
                     {"apikey", apiKey},

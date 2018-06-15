@@ -44,7 +44,7 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                     Name = (string) x.currencyname,
                     IsActive = (int) x.wallet_deposit == 1 && (int) x.wallet_status == 0,
                     ExternalId = (string) x.id,
-                    WithdrawalFee = (double) x.wd_fee
+                    WithdrawalFee = (double)x.tx_fee + (double) x.wd_fee
                 })
                 .ToArray();
         }
