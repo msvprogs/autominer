@@ -49,24 +49,30 @@ namespace Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders
                 .ToArray();
         }
 
-        public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos) 
-            => ((JArray)m_ExchangeApi.ExecutePublic("markets", new Dictionary<string, string>()).markets)
-                .Cast<dynamic>()
-                .Join(currencyInfos, x => (string)x.currency, x => x.Symbol, (x, y) => (info:x, isActive:y.IsActive))
+        public CurrencyMarketInfo[] GetCurrencyMarkets(ExchangeCurrencyInfo[] currencyInfos)
+        {
+            var markets = ((JArray) m_ExchangeApi.ExecutePublic("markets", new Dictionary<string, string>()).markets)
+                .Cast<dynamic>();
+            var marketsWithActivities = currencyInfos.Any() 
+                ? markets.Join(currencyInfos, x => (string) x.currency, x => x.Symbol, (x, y) => (info: x, isActive: y.IsActive))
+                : markets.Select(x => (info:x, isActive: true));
+
+            return marketsWithActivities
                 .Select(x => new CurrencyMarketInfo
                 {
-                    SourceSymbol = (string)x.info.currency,
-                    TargetSymbol = (string)x.info.basecurrency,
-                    HighestBid = (double)x.info.bid,
-                    LowestAsk = (double)x.info.ask,
-                    LastPrice = (double)x.info.last_price,
-                    LastDayLow = (double)x.info.low24h,
-                    LastDayHigh = (double)x.info.high24h,
-                    LastDayVolume = (double)x.info.volume24h,
+                    SourceSymbol = (string) x.info.currency,
+                    TargetSymbol = (string) x.info.basecurrency,
+                    HighestBid = (double) x.info.bid,
+                    LowestAsk = (double) x.info.ask,
+                    LastPrice = (double) x.info.last_price,
+                    LastDayLow = (double) x.info.low24h,
+                    LastDayHigh = (double) x.info.high24h,
+                    LastDayVolume = (double) x.info.volume24h,
                     IsActive = x.isActive, // don't know the meaning of this field: (int)x.disabled == 0,
                     BuyFeePercent = ConversionFeePercent,
                     SellFeePercent = ConversionFeePercent
                 })
                 .ToArray();
+        }
     }
 }
