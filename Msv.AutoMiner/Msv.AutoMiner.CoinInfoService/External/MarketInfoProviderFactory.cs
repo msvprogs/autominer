@@ -2,6 +2,7 @@
 using Msv.AutoMiner.CoinInfoService.External.Contracts;
 using Msv.AutoMiner.CoinInfoService.External.Data;
 using Msv.AutoMiner.CoinInfoService.External.MarketInfoProviders;
+using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common.Data.Enums;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Exchanges.Api;
@@ -11,9 +12,13 @@ namespace Msv.AutoMiner.CoinInfoService.External
     public class MarketInfoProviderFactory : IMarketInfoProviderFactory
     {
         private readonly IWebClient m_WebClient;
+        private readonly IMarketInfoProviderFactoryStorage m_Storage;
 
-        public MarketInfoProviderFactory(IWebClient webClient) 
-            => m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+        public MarketInfoProviderFactory(IWebClient webClient, IMarketInfoProviderFactoryStorage storage)
+        {
+            m_WebClient = webClient ?? throw new ArgumentNullException(nameof(webClient));
+            m_Storage = storage ?? throw new ArgumentNullException(nameof(storage));
+        }
 
         public IMarketInfoProvider Create(ExchangeType exchange)
         {
@@ -34,7 +39,9 @@ namespace Msv.AutoMiner.CoinInfoService.External
                 case ExchangeType.CoinsMarkets:
                     return new CoinsMarketsMarketInfoProvider(m_WebClient);
                 case ExchangeType.Novaexchange:
-                    return new NovaexchangeMarketInfoProvider(new NovaexchangeExchangeApi(m_WebClient));
+                    var novaExchange = m_Storage.GetExchange(ExchangeType.Novaexchange);
+                    return new NovaexchangeMarketInfoProvider(
+                        new NovaexchangeExchangeApi(m_WebClient), novaExchange?.PublicKey, novaExchange?.PrivateKey);
                 case ExchangeType.LiveCoin:
                     return new LiveCoinMarketInfoProvider(new LiveCoinExchangeApi(m_WebClient));
                 case ExchangeType.StocksExchange:

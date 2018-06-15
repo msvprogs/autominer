@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -38,6 +39,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
             if (lastPoWBlock == null)
                 throw new NoPoWBlocksException("Not found PoW blocks among last 20");
 
+            // Yiimp pools have request per second limit
+            Thread.Sleep(600);
             var lastBlockHtml = m_WebClient.DownloadHtml(
                 CreateBlockUrl(lastPoWBlock.SelectSingleNode(".//td[7]").InnerText.Trim()));
 

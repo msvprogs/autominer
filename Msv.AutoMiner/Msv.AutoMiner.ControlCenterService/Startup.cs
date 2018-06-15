@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +9,6 @@ using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Common.Notifiers;
 using Msv.AutoMiner.Common.ServiceContracts;
 using Msv.AutoMiner.ControlCenterService.Configuration;
-using Msv.AutoMiner.ControlCenterService.External;
 using Msv.AutoMiner.ControlCenterService.Logic.Analyzers;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage;
 using Msv.AutoMiner.ControlCenterService.Logic.Storage.Contracts;
@@ -40,12 +37,7 @@ namespace Msv.AutoMiner.ControlCenterService
                 x => new AutoMinerDbContextFactory(Configuration.GetConnectionString("AutoMinerDb")));
 
             services.AddMvc();
-
-            //Disable dependency tracking telemetry HTTP headers
-            var module = services.FirstOrDefault(
-                t => t.ImplementationFactory?.GetType() == typeof(Func<IServiceProvider, DependencyTrackingTelemetryModule>));
-            if (module != null)
-                services.Remove(module);
+            services.RemoveDependencyTracking();
 
             var config = Configuration.Get<ControlCenterConfiguration>();
             services.AddSingleton(config);

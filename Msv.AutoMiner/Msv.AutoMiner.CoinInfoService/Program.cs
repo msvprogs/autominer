@@ -7,6 +7,7 @@ using Msv.AutoMiner.CoinInfoService.External;
 using Msv.AutoMiner.CoinInfoService.Logic.Monitors;
 using Msv.AutoMiner.CoinInfoService.Logic.Profitability;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
+using Msv.AutoMiner.CoinInfoService.Storage;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.Log;
@@ -58,7 +59,9 @@ namespace Msv.AutoMiner.CoinInfoService
                     new FiatValueProviderFactory(new LoggedWebClient()),
                     scope.ServiceProvider.GetRequiredService<IFiatValueMonitorStorage>()))
                 using (new MarketInfoMonitor(
-                    new MarketInfoProviderFactory(new LoggedWebClient()),
+                    new MarketInfoProviderFactory(
+                        new LoggedWebClient(), 
+                        scope.ServiceProvider.GetRequiredService<IMarketInfoProviderFactoryStorage>()),
                     scope.ServiceProvider.GetRequiredService<IMarketInfoMonitorStorage>()))
                 using (new MasternodeInfoMonitor(
                     new MasternodeInfoProviderFactory(new LoggedWebClient()),

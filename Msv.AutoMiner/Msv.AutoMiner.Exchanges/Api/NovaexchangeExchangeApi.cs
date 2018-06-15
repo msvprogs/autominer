@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http.Extensions;
-using Msv.AutoMiner.Common.CustomExtensions;
 using Msv.AutoMiner.Common.External;
 using Msv.AutoMiner.Common.External.Contracts;
 using Newtonsoft.Json;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.ApplicationInsights.DependencyCollector;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +6,7 @@ using Msv.AutoMiner.CoinInfoService.Configuration;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage;
 using Msv.AutoMiner.CoinInfoService.Logic.Storage.Contracts;
 using Msv.AutoMiner.CoinInfoService.Storage;
+using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.Infrastructure;
 using Msv.AutoMiner.Data.Logic;
 using Msv.AutoMiner.Data.Logic.Contracts;
@@ -30,12 +28,7 @@ namespace Msv.AutoMiner.CoinInfoService
                 x => new AutoMinerDbContextFactory(Configuration.GetConnectionString("AutoMinerDb")));
 
             services.AddMvc();
-
-            //Disable dependency tracking telemetry HTTP headers
-            var module = services.FirstOrDefault(
-                t => t.ImplementationFactory?.GetType() == typeof(Func<IServiceProvider, DependencyTrackingTelemetryModule>));
-            if (module != null)
-                services.Remove(module);
+            services.RemoveDependencyTracking();
 
             services.AddSingleton(Configuration.Get<CoinInfoConfiguration>());
 
@@ -52,6 +45,7 @@ namespace Msv.AutoMiner.CoinInfoService
             services.AddSingleton<INetworkInfoMonitorStorage, NetworkInfoMonitorStorage>();
             services.AddSingleton<IStoredFiatValueProvider, StoredFiatValueProvider>();
             services.AddSingleton<IMasternodeInfoStorage, MasternodeInfoMemoryStorage>();
+            services.AddSingleton<IMarketInfoProviderFactoryStorage, MarketInfoProviderFactoryStorage>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

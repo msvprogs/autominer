@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
@@ -81,6 +80,7 @@ namespace Msv.AutoMiner.FrontEnd
                         .ForEach(y => x.FeatureProviders.Remove(y));
                     x.FeatureProviders.Add(new CorrectViewsFeatureProvider());
                 });
+            services.RemoveDependencyTracking();
 
             services.AddDistributedMemoryCache();
             services.AddSession(x => x.IdleTimeout = TimeSpan.MaxValue);
