@@ -31,6 +31,7 @@ namespace Msv.AutoMiner.FrontEnd.Controllers
             var currencyExchanges = m_Context.ExchangeCurrencies
                 .AsNoTracking()
                 .Where(x => x.IsActive)
+                .AsEnumerable()
                 .GroupBy(x => x.Symbol)
                 .ToDictionary(x => x.Key, x => x
                     .Select(y => y.Exchange.ToString())
