@@ -66,12 +66,38 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override WalletBalance GetWalletBalance(string address)
         {
-            throw new NotImplementedException();
+            var balanceJson = m_WebClient.DownloadJsonAsDynamic(m_BaseUrl + $"/addr/{address}/?noTxList=1");
+            return new WalletBalance
+            {
+                Available = (double) balanceJson.balance,
+                Unconfirmed = (double) balanceJson.unconfirmedBalance
+            };
         }
 
         public override BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
         {
-            throw new NotImplementedException();
+            JArray transactions = m_WebClient.DownloadJsonAsDynamic(m_BaseUrl + $"/txs?address={address}&pageNum=0").txs;
+            return transactions
+                .Cast<dynamic>()
+                .Select(x => new BlockExplorerWalletOperation
+                {
+                    Address = address,
+                    Amount = ((JArray) x.vin)
+                             .Cast<dynamic>()
+                             .Where(y => (string) y.addr == address)
+                             .Select(y => -(double?) y.value)
+                             .FirstOrDefault()
+                                 ?? ((JArray) x.vout)
+                                 .Cast<dynamic>()
+                                 .Where(y => y.scriptPubKey?.addresses != null
+                                             && ((JArray) y.scriptPubKey.addresses).Any(z => z.Value<string>() == address))
+                                 .Select(y => (double) y.value)
+                                 .FirstOrDefault(),
+                    DateTime = DateTimeHelper.ToDateTimeUtc((long) x.time),
+                    Transaction = (string) x.txid
+                })
+                .Where(x => x.DateTime > startDate)
+                .ToArray();
         }
 
         public override Uri CreateTransactionUrl(string hash)
