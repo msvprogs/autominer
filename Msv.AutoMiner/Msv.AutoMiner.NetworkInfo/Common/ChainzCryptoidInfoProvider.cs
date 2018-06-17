@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using Jint;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
 using Msv.AutoMiner.Common.Helpers;
@@ -85,12 +86,38 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         public override WalletBalance GetWalletBalance(string address)
         {
-            throw new NotImplementedException();
+            var (addrId, refId) = GetWalletIds(address);
+            var stats = m_WebClient.DownloadJsonAsDynamic(new Uri(M_BaseUri,
+                $"/explorer/address.summary.dws?coin={m_CurrencySymbol}&id={addrId}&r={refId}&fmt.js"));
+            return new WalletBalance
+            {
+                Available = (double) stats.balance / 1e8
+            };
         }
 
         public override BlockExplorerWalletOperation[] GetWalletOperations(string address, DateTime startDate)
         {
-            throw new NotImplementedException();
+            var (addrId, refId) = GetWalletIds(address);
+            var tranasctions = m_WebClient.DownloadJArray(new Uri(M_BaseUri,
+                $"/explorer/address.tx.dws?coin={m_CurrencySymbol}&id={addrId}&r={refId}&fmt.js"));
+            if (!tranasctions.Any())
+                return new BlockExplorerWalletOperation[0];
+
+            long baseTimestamp = ((dynamic) tranasctions[0])[3];
+            return tranasctions
+                .Cast<dynamic>()
+                .Select(x => new BlockExplorerWalletOperation
+                {
+                    Address = address,
+                    Amount = (double) x[4],
+                    Transaction = (string) x[1],
+                    DateTime = (long)x[3] != baseTimestamp 
+                        ? DateTimeHelper.ToDateTimeUtc(baseTimestamp - (long)x[3])
+                        : DateTimeHelper.ToDateTimeUtc(baseTimestamp)
+                })
+                .Do(x => baseTimestamp = DateTimeHelper.ToTimestamp(x.DateTime))
+                .Where(x => x.DateTime > startDate)
+                .ToArray();
         }
 
         public override Uri CreateTransactionUrl(string hash)
@@ -104,5 +131,15 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 
         private Uri CreateCurrencyBaseUrl()
             => new Uri(M_BaseUri, $"/{m_CurrencySymbol}/");
+
+        private (int addrId, int refId) GetWalletIds(string address)
+        {
+            var walletPage = m_WebClient.DownloadHtml(CreateAddressUrl(address));
+            var scriptElement = walletPage.DocumentNode
+                .SelectSingleNode("//script[contains(.,'addrID')]").InnerText;
+            var jintResult = new Engine(x => x.TimeoutInterval(TimeSpan.FromSeconds(1)))
+                .Execute(scriptElement);
+            return ((int) jintResult.GetValue("addrID").AsNumber(), (int) jintResult.GetValue("refId").AsNumber());
+        }
     }
 }

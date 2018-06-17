@@ -26,7 +26,7 @@ namespace Msv.AutoMiner.ControlCenterService.External.WalletInfoProviders
                 })
                 .ToArray();
 
-        //TODO: withdrawals
+        //TODO: Graviex API doesn't have method to retreive withdrawals
         public override WalletOperationData[] GetOperations(DateTime startDate) 
             => ((JArray) DoGetRequest("deposits.json"))
                 .Cast<dynamic>()

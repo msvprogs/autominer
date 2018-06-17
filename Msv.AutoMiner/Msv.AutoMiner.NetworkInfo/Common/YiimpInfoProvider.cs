@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Msv.AutoMiner.Common;
 using Msv.AutoMiner.Common.External.Contracts;
@@ -12,6 +13,8 @@ namespace Msv.AutoMiner.NetworkInfo.Common
 {
     public class YiimpInfoProvider : NetworkInfoProviderBase
     {
+        private static readonly Regex M_LastTimeRegex = new Regex(@"(?<value>\d+)\s*(?<unit>[ms])", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         private readonly IWebClient m_WebClient;
         private readonly Uri m_ExplorerUri;
 
@@ -40,7 +43,7 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 throw new NoPoWBlocksException("Not found PoW blocks among last 20");
 
             // Yiimp pools have request per second limit
-            Thread.Sleep(600);
+            Thread.Sleep(1100);
             var lastBlockHtml = m_WebClient.DownloadHtml(
                 CreateBlockUrl(lastPoWBlock.SelectSingleNode(".//td[7]").InnerText.Trim()));
 
@@ -50,10 +53,26 @@ namespace Msv.AutoMiner.NetworkInfo.Common
                 .Select(x => JsonConvert.DeserializeObject<dynamic>(x.InnerText))
                 .ToArray();
 
+            // Pool's time can be non-UTC, so calculate the difference between UTC and pool's timezone.
+            var lastBlockTimeNode = lastPoWBlock.SelectSingleNode(".//td[1]/span");
+            var lastBlockTimeMatch = M_LastTimeRegex.Match(lastBlockTimeNode.InnerText);
+            var lastBlockDateFromTitle = DateTimeHelper.FromIso8601(lastBlockTimeNode.GetAttributeValue("title", ""));
+            TimeSpan utcDiff;
+            if (lastBlockTimeMatch.Success)
+            {
+                var diffValue = int.Parse(lastBlockTimeMatch.Groups["value"].Value);
+                var diffFromCurrent = lastBlockTimeMatch.Groups["unit"].Value == "m"
+                    ? TimeSpan.FromMinutes(diffValue)
+                    : TimeSpan.FromSeconds(diffValue);
+                utcDiff = TimeSpan.FromHours(
+                    Math.Round((lastBlockDateFromTitle + diffFromCurrent - DateTime.UtcNow).TotalHours));
+            }
+            else
+                utcDiff = TimeSpan.Zero;
+
             return new CoinNetworkStatistics
             {
-                LastBlockTime = DateTimeHelper.FromIso8601(
-                    lastPoWBlock.SelectSingleNode(".//td[1]/span").GetAttributeValue("title", "")),
+                LastBlockTime = new DateTimeOffset(lastBlockDateFromTitle, utcDiff).UtcDateTime,
                 Height = ParsingHelper.ParseLong(lastPoWBlock.SelectSingleNode(".//td[2]").InnerText),
                 Difficulty = ParsingHelper.ParseDouble(lastPoWBlock.SelectSingleNode(".//td[3]").InnerText),
                 LastBlockTransactions = transactionJsons
