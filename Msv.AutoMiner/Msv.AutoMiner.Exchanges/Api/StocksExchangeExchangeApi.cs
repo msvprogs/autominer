@@ -9,10 +9,10 @@ using Newtonsoft.Json;
 
 namespace Msv.AutoMiner.Exchanges.Api
 {
-    //API: https://docs.google.com/document/d/1mU8ecTlzfDtT1hmZJ-dXezMudLnfD4ZeNBr_oxFwdGI/edit
+    //API: http://help.stocks.exchange/api-integration
     public class StocksExchangeExchangeApi : WebExchangeApiBase
     {
-        private static readonly Uri M_BaseUri = new Uri("https://stocks.exchange/api2/");
+        private static readonly Uri M_BaseUri = new Uri("https://app.stocks.exchange/api2/");
 
         public StocksExchangeExchangeApi(IWebClient webClient) 
             : base(webClient)
