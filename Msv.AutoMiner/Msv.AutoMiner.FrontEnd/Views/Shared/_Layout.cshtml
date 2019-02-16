@@ -40,8 +40,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MSV Autominer</title>
-    <link rel="shortcut icon" href="~/favicon.ico" />
+    <title>@ViewData["Title"] - Universal Miner</title>
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -64,6 +63,7 @@
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
 
+    @Html.Partial("_Favicons")
 </head>
 <body>
     <div id="throbber" style="display: none">
@@ -82,7 +82,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a asp-controller="Home" asp-action="Index" class="navbar-brand">
-                    <i class="glyphicon glyphicon-briefcase"></i> MSV Autominer
+                    <img src="images/header-logo.png" alt="Logo" width="32" height="32" /> Universal Miner
                 </a>
             </div>
             <div class="navbar-collapse collapse">
