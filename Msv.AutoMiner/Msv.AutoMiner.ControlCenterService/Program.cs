@@ -38,13 +38,7 @@ namespace Msv.AutoMiner.ControlCenterService
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
             NLogBuilder.ConfigureNLog("NLog.config");
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
-#if !DEBUG
-            if (Msv.AutoMiner.Common.Licensing.LicenseData.Current.IsEmpty)
-            {
-                M_Logger.Error("License not found, exiting");
-                return;
-            }
-#endif
+
             var host = BuildWebHost(args);
             using (var scope = host.Services.CreateScope())
             {

@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Msv.DependenciesJoiner": {
-      "commandName": "Project",
-      "commandLineArgs": "\"D:\\Autominer2\\autominer\\Msv.AutoMiner\\Msv.AutoMiner.FrontEnd\\bin\\Release\\PublishOutput\" Msv.Licensing.Starter.DotNetCore"
-    }
-  }
-}

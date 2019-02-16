@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.6.16" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.8.14" />
     <PackageReference Include="Jint" Version="2.11.58" />
   </ItemGroup>
 

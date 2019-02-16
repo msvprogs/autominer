@@ -32,14 +32,6 @@ namespace Msv.AutoMiner.CoinInfoService
             Target.Register<MemoryBufferTarget>("MemoryBuffer");
             NLogBuilder.ConfigureNLog("NLog.config");
 
-#if !DEBUG
-            if (Msv.AutoMiner.Common.Licensing.LicenseData.Current.IsEmpty)
-            {
-                M_Logger.Error("License not found, exiting");
-                return;
-            }
-#endif
-
             UnhandledExceptionHandler.RegisterLogger(M_Logger);
 
             //to bypass certificates' CA validation (particularly for Linux)
