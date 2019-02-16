@@ -1,0 +1,75 @@
+stages:
+  - build
+  - docker-image
+  - deploy
+
+variables:
+  DEPLOY_HOST: 95.179.186.83
+  PROJECT_NAME: registry.gitlab.com/MSV1/universal-miner
+  
+build:
+  image: microsoft/dotnet:latest
+  stage: build
+  script:
+    - dotnet publish Msv.AutoMiner/Msv.AutoMiner.CoinInfoService/Msv.AutoMiner.CoinInfoService.csproj -o ../binaries/coin-info -c Release
+    - dotnet publish Msv.AutoMiner/Msv.AutoMiner.ControlCenterService/Msv.AutoMiner.ControlCenterService.csproj -o ../binaries/control-center -c Release
+    - dotnet publish Msv.AutoMiner/Msv.AutoMiner.FrontEnd/Msv.AutoMiner.FrontEnd.csproj -o ../binaries/control-center -o ../binaries/frontend -c Release
+  artifacts:
+    paths:
+      - binaries/coin-info/
+      - binaries/control-center/
+      - binaries/frontend/
+  only:
+    - master
+    
+docker-image:
+  image: docker:stable
+  services:
+    - docker:dind
+  stage: docker-image
+  before_script:
+    - docker login -u gitlab-ci-token -p $REGISTRY_TOKEN registry.gitlab.com
+  script:
+    - docker build -t $PROJECT_NAME/coin-info -f Msv.AutoMiner/Msv.AutoMiner.CoinInfoService/Dockerfile .
+    - docker push $PROJECT_NAME/coin-info
+    - docker build -t $PROJECT_NAME/control-center -f Msv.AutoMiner/Msv.AutoMiner.ControlCenterService/Dockerfile .
+    - docker push $PROJECT_NAME/control-center
+    - docker build -t $PROJECT_NAME/frontend -f Msv.AutoMiner/Msv.AutoMiner.FrontEnd/Dockerfile .
+    - docker push $PROJECT_NAME/frontend
+  after_script:
+    - docker logout registry.gitlab.com
+  only:
+    - master
+  dependencies:
+    - build
+    
+deploy:
+  image: kroniak/ssh-client
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh $DEPLOY_HOST "docker login -u gitlab-ci-token -p ${REGISTRY_TOKEN} registry.gitlab.com"
+  script:
+    - ssh $DEPLOY_HOST 'docker container rm -f um-coin-info || true'
+    - ssh $DEPLOY_HOST 'docker container rm -f um-control-center || true'
+    - ssh $DEPLOY_HOST 'docker container rm -f um-frontend || true'
+    - ssh $DEPLOY_HOST 'docker system prune -af'
+    - ssh $DEPLOY_HOST "docker pull ${PROJECT_NAME}/coin-info:latest"
+    - ssh $DEPLOY_HOST "docker pull ${PROJECT_NAME}/control-center:latest"
+    - ssh $DEPLOY_HOST "docker pull ${PROJECT_NAME}/frontend:latest"
+    - ssh $DEPLOY_HOST "docker run -d --name um-coin-info --network host --restart always -e ASPNETCORE_ENVIRONMENT='Staging' -v /var/log/um-coin-info:/app/Logs ${PROJECT_NAME}/coin-info:latest"
+    - ssh $DEPLOY_HOST "docker run -d --name um-control-center --network host --restart always -e ASPNETCORE_ENVIRONMENT='Staging' -v /var/log/um-control-center:/app/Logs ${PROJECT_NAME}/control-center:latest"
+    - ssh $DEPLOY_HOST "docker run -d --name um-frontend --network host --restart always -e ASPNETCORE_ENVIRONMENT='Staging' -v /var/log/um-frontend:/app/Logs ${PROJECT_NAME}/frontend:latest"
+  after_script:
+    - ssh $DEPLOY_HOST 'docker logout registry.gitlab.com'
+  environment:
+    name: staging
+  only:
+    - master 
+  dependencies: []
