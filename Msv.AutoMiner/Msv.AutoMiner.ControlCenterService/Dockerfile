@@ -3,5 +3,5 @@ EXPOSE 6285
 EXPOSE 6284
 EXPOSE 6283
 WORKDIR /app
-COPY Msv.AutoMiner/binaries/api /app
+COPY Msv.AutoMiner/binaries/control-center /app
 ENTRYPOINT ["dotnet", "Msv.AutoMiner.ControlCenterService.dll"]
