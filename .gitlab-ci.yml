@@ -13,7 +13,7 @@ build:
   script:
     - dotnet publish Msv.AutoMiner/Msv.AutoMiner.CoinInfoService/Msv.AutoMiner.CoinInfoService.csproj -o ../binaries/coin-info -c Release
     - dotnet publish Msv.AutoMiner/Msv.AutoMiner.ControlCenterService/Msv.AutoMiner.ControlCenterService.csproj -o ../binaries/control-center -c Release
-    - dotnet publish Msv.AutoMiner/Msv.AutoMiner.FrontEnd/Msv.AutoMiner.FrontEnd.csproj -o ../binaries/control-center -o ../binaries/frontend -c Release
+    - dotnet publish Msv.AutoMiner/Msv.AutoMiner.FrontEnd/Msv.AutoMiner.FrontEnd.csproj -o ../binaries/frontend -c Release
   artifacts:
     paths:
       - binaries/coin-info/
