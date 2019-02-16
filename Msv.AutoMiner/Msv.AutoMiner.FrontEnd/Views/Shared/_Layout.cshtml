@@ -2,7 +2,6 @@
 @using System.Security.Claims
 @using JetBrains.Annotations
 @using Microsoft.AspNetCore.Html
-@using Msv.AutoMiner.Common.Licensing
 
 @functions {
 
@@ -182,10 +181,6 @@
             <div class="row small text-muted">
                 <div class="col-xs-6">
                     <p>&copy; 2017-@DateTime.Today.Year - MSV</p>
-                    <p>
-                        Licensed to <b>@LicenseData.Current.Owner</b>
-                        <br/>License valid until: <b>@(LicenseData.Current.Expires != null ? LicenseData.Current.Expires.Value.ToLongDateString() : "<unlimited>")</b>
-                    </p>
                 </div>
                 <div class="col-xs-6 text-right">
                     @versionString
