@@ -2,5 +2,5 @@
 EXPOSE 2052
 EXPOSE 2053
 WORKDIR /app
-COPY binaries/api /app
+COPY Msv.AutoMiner/binaries/api /app
 ENTRYPOINT ["dotnet", "Msv.AutoMiner.FrontEnd.dll"]

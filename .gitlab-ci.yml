@@ -5,7 +5,7 @@ stages:
 
 variables:
   DEPLOY_HOST: 95.179.186.83
-  PROJECT_NAME: registry.gitlab.com/MSV1/universal-miner
+  PROJECT_NAME: registry.gitlab.com/msv1/universal-miner
   
 build:
   image: microsoft/dotnet:latest
