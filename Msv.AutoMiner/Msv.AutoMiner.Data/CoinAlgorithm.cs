@@ -22,6 +22,7 @@ namespace Msv.AutoMiner.Data
 
         public int? MinerId { get; set; }
 
+        [ForeignKey(nameof(MinerId))]
         public virtual Miner Miner { get; set; }
 
         public double? Intensity { get; set; }
