@@ -16,9 +16,9 @@ build:
     - dotnet publish Msv.AutoMiner/Msv.AutoMiner.FrontEnd/Msv.AutoMiner.FrontEnd.csproj -o ../binaries/frontend -c Release
   artifacts:
     paths:
-      - binaries/coin-info/
-      - binaries/control-center/
-      - binaries/frontend/
+      - Msv.AutoMiner/binaries/coin-info/
+      - Msv.AutoMiner/binaries/control-center/
+      - Msv.AutoMiner/binaries/frontend/
   only:
     - master
     
